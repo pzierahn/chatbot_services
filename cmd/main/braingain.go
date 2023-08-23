@@ -14,10 +14,11 @@ import (
 const baseDir = "/Users/patrick/patrick.zierahn@gmail.com - Google Drive/My Drive/KIT/2023-SS/DeSys/Lecture Slides"
 
 var (
+	pdfFile = baseDir + "/DeSys_01_Intro.pdf"
 	//pdfFile     = baseDir + "/DeSys_11_Payment_Channel_Networks.pdf"
 	//pdfFile     = baseDir + "/DeSys_12_Smart_Contract_Platforms_Ethereum.pdf"
 	//pdfFile     = baseDir + "/DeSys_13_Decentralized_File_Storage_IPFS.pdf"
-	pdfFile     = "/Users/patrick/patrick.zierahn@gmail.com - Google Drive/My Drive/KIT/2023-SS/DeSys/Further Readings/176429260X.pdf"
+	//pdfFile     = "/Users/patrick/patrick.zierahn@gmail.com - Google Drive/My Drive/KIT/2023-SS/DeSys/Further Readings/176429260X.pdf"
 	first       = 2
 	last        = 17
 	temperature = 0.25
@@ -31,16 +32,11 @@ func main() {
 
 	log.Printf("Filename: %s\n", pdfFile)
 
-	pageCount, err := pdf.GetPageCount(context.Background(), pdfFile)
+	pages, err := pdf.ReadPages(context.Background(), pdfFile)
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("Page count: %d\n", pageCount)
-
-	pages, err := pdf.ReadPages(context.Background(), pdfFile, pageCount)
-	if err != nil {
-		log.Fatal(err)
-	}
+	log.Printf("Page count: %d\n", len(pages))
 
 	var messages []openai.ChatCompletionMessage
 
