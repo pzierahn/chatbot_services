@@ -3,6 +3,7 @@ package main
 import (
 	"braingain/pdf"
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/sashabaranov/go-openai"
@@ -14,11 +15,14 @@ const baseDir = "/Users/patrick/patrick.zierahn@gmail.com - Google Drive/My Driv
 
 var (
 	//pdfFile     = baseDir + "/DeSys_11_Payment_Channel_Networks.pdf"
-	pdfFile     = baseDir + "/DeSys_12_Smart_Contract_Platforms_Ethereum.pdf"
-	first       = 8
-	last        = 33
+	//pdfFile     = baseDir + "/DeSys_12_Smart_Contract_Platforms_Ethereum.pdf"
+	//pdfFile     = baseDir + "/DeSys_13_Decentralized_File_Storage_IPFS.pdf"
+	pdfFile     = "/Users/patrick/patrick.zierahn@gmail.com - Google Drive/My Drive/KIT/2023-SS/DeSys/Further Readings/176429260X.pdf"
+	first       = 2
+	last        = 17
 	temperature = 0.25
-	prompt      = "What are smart contracts?"
+	model       = openai.GPT3Dot5Turbo16K
+	prompt      = "What is a tragedy of the commons in decentralized systems?"
 )
 
 func main() {
@@ -62,7 +66,7 @@ func main() {
 	resp, err := client.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{
-			Model:       openai.GPT3Dot5Turbo16K,
+			Model:       model,
 			Temperature: float32(temperature),
 			Messages:    messages,
 			N:           1,
@@ -73,6 +77,9 @@ func main() {
 		fmt.Printf("ChatCompletion error: %v\n", err)
 		return
 	}
+
+	usage, _ := json.MarshalIndent(resp.Usage, "", "  ")
+	log.Printf("Usage: %s\n", usage)
 
 	log.Println(resp.Choices[0].Message.Content)
 	_ = os.WriteFile("output.txt", []byte(resp.Choices[0].Message.Content), 0644)
