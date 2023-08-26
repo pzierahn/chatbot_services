@@ -50,10 +50,13 @@ func (client *Client) Count(ctx context.Context, collection string) (*pb.CountRe
 func (client *Client) SearchEmbedding(ctx context.Context, collection string, embedding []float32) (*pb.SearchResponse, error) {
 	points := pb.NewPointsClient(client.conn)
 
+	threshold := float32(0.8)
+
 	return points.Search(ctx, &pb.SearchPoints{
 		CollectionName: collection,
 		Vector:         embedding,
-		Limit:          3,
+		Limit:          30,
+		ScoreThreshold: &threshold,
 		WithPayload: &pb.WithPayloadSelector{
 			SelectorOptions: &pb.WithPayloadSelector_Enable{
 				Enable: true,

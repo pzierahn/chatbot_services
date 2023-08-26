@@ -10,6 +10,7 @@ import (
 func ReadPages(ctx context.Context, filename string) (result []string, err error) {
 	cmd := exec.CommandContext(ctx, "pdftotext",
 		//"-layout",
+		"-x", "0", "-y", "0", "-H", "500", "-W", "1000",
 		filename,
 		"-",
 	)
