@@ -14,16 +14,22 @@ import (
 const baseDir = "/Users/patrick/patrick.zierahn@gmail.com - Google Drive/My Drive/KIT/2023-SS/DeSys/Lecture Slides"
 
 var (
-	pdfFile = baseDir + "/DeSys_01_Intro.pdf"
-	//pdfFile     = baseDir + "/DeSys_11_Payment_Channel_Networks.pdf"
-	//pdfFile     = baseDir + "/DeSys_12_Smart_Contract_Platforms_Ethereum.pdf"
+	//pdfFile = baseDir + "/DeSys_01_Intro.pdf"
+	//pdfFile = baseDir + "/DeSys_09_Decentralized_Messaging_Matrix.pdf"
+	//pdfFile = baseDir + "/DeSys_07_Consensus_and_Variants_v2.pdf"
+	//pdfFile = baseDir + "/DeSys_11_Payment_Channel_Networks.pdf"
+	//pdfFile = baseDir + "/DeSys_12_Smart_Contract_Platforms_Ethereum.pdf"
 	//pdfFile     = baseDir + "/DeSys_13_Decentralized_File_Storage_IPFS.pdf"
 	//pdfFile     = "/Users/patrick/patrick.zierahn@gmail.com - Google Drive/My Drive/KIT/2023-SS/DeSys/Further Readings/176429260X.pdf"
-	first       = 2
-	last        = 17
-	temperature = 0.25
+	//pdfFile     = "/Users/patrick/patrick.zierahn@gmail.com - Google Drive/My Drive/KIT/2023-SS/DeSys/Further Readings/Harvest_yield_and_scalable_tolerant_systems.pdf"
+	pdfFile = "/Users/patrick/patrick.zierahn@gmail.com - Google Drive/My Drive/KIT/2023-SS/DeSys/Further Readings/1-s2.0-089054018790054X-main.pdf"
+	first   = 1
+	last    = 14
+	//first       = 4
+	//last        = 20
+	temperature = 0.0
 	model       = openai.GPT3Dot5Turbo16K
-	prompt      = "What is a tragedy of the commons in decentralized systems?"
+	prompt      = "Explain the phases of Bracha’s Consensus Protocol"
 )
 
 func main() {
