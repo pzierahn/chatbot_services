@@ -22,14 +22,18 @@ var (
 	//pdfFile     = baseDir + "/DeSys_13_Decentralized_File_Storage_IPFS.pdf"
 	//pdfFile     = "/Users/patrick/patrick.zierahn@gmail.com - Google Drive/My Drive/KIT/2023-SS/DeSys/Further Readings/176429260X.pdf"
 	//pdfFile     = "/Users/patrick/patrick.zierahn@gmail.com - Google Drive/My Drive/KIT/2023-SS/DeSys/Further Readings/Harvest_yield_and_scalable_tolerant_systems.pdf"
-	pdfFile = "/Users/patrick/patrick.zierahn@gmail.com - Google Drive/My Drive/KIT/2023-SS/DeSys/Further Readings/1-s2.0-089054018790054X-main.pdf"
+	//pdfFile = "/Users/patrick/patrick.zierahn@gmail.com - Google Drive/My Drive/KIT/2023-SS/DeSys/Further Readings/1-s2.0-089054018790054X-main.pdf"
+	pdfFile = "/Users/patrick/patrick.zierahn@gmail.com - Google Drive/My Drive/KIT/2023-SS/DeSys/Further Readings/2102.08325.pdf"
 	first   = 1
-	last    = 14
+	last    = 8
 	//first       = 4
 	//last        = 20
 	temperature = 0.0
-	model       = openai.GPT3Dot5Turbo16K
-	prompt      = "Explain the phases of Bracha’s Consensus Protocol"
+	//model       = openai.GPT3Dot5Turbo16K
+	model = openai.GPT3Dot5Turbo16K
+	//prompt = "Explain the DAG-Rider algorithm"
+	//prompt = "How does leader election work in DAG-Rider?"
+	prompt = "How is the global perfect coin in DAG-Rider determined?"
 )
 
 func main() {
