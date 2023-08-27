@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	pb "github.com/qdrant/go-client/qdrant"
+	"log"
 )
 
 type Payload struct {
@@ -63,4 +64,41 @@ func (client *Client) SearchEmbedding(ctx context.Context, collection string, em
 			},
 		},
 	})
+}
+
+func (client *Client) DeleteFile(ctx context.Context, collection, filename string) error {
+	points := pb.NewPointsClient(client.conn)
+
+	// Delete all points with filename
+	resp, err := points.Delete(ctx, &pb.DeletePoints{
+		CollectionName: collection,
+		Points: &pb.PointsSelector{
+			PointsSelectorOneOf: &pb.PointsSelector_Filter{
+				Filter: &pb.Filter{
+					Should: []*pb.Condition{
+						{
+							ConditionOneOf: &pb.Condition_Field{
+								Field: &pb.FieldCondition{
+									Key: "filename",
+									Match: &pb.Match{
+										MatchValue: &pb.Match_Text{
+											Text: filename,
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	})
+
+	if err != nil {
+		return err
+	}
+
+	log.Printf("Deleted %v points\n", resp)
+
+	return nil
 }
