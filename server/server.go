@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/pzierahn/braingain/braingain"
 	pb "github.com/pzierahn/braingain/proto"
+	"log"
 )
 
 type Server struct {
@@ -12,6 +13,8 @@ type Server struct {
 }
 
 func (server *Server) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatCompletion, error) {
+	log.Printf("Chat: %s", prompt.Prompt)
+
 	response, err := server.chat.RAG(ctx, prompt.Prompt)
 	if err != nil {
 		return nil, err
