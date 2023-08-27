@@ -1,11 +1,11 @@
 package main
 
 import (
-	"braingain/pdf"
 	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/pzierahn/braingain/pdf"
 	"github.com/sashabaranov/go-openai"
 	"log"
 	"os"

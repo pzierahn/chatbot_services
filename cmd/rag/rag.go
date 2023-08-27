@@ -1,10 +1,10 @@
 package main
 
 import (
-	"braingain/database"
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/pzierahn/braingain/database"
 	"github.com/sashabaranov/go-openai"
 	"log"
 	"os"

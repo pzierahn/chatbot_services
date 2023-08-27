@@ -1,4 +1,4 @@
-module braingain
+module github.com/pzierahn/braingain
 
 go 1.21
 

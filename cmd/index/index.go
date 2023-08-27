@@ -1,9 +1,9 @@
 package main
 
 import (
-	"braingain/database"
-	"braingain/index"
 	"context"
+	"github.com/pzierahn/braingain/database"
+	"github.com/pzierahn/braingain/index"
 	"log"
 )
 
