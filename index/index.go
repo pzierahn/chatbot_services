@@ -1,10 +1,10 @@
 package index
 
 import (
-	"braingain/database"
-	"braingain/pdf"
 	"context"
 	"github.com/google/uuid"
+	"github.com/pzierahn/braingain/database"
+	"github.com/pzierahn/braingain/pdf"
 	pb "github.com/qdrant/go-client/qdrant"
 	"github.com/sashabaranov/go-openai"
 	"log"
