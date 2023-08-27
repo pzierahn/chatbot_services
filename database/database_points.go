@@ -56,7 +56,7 @@ func (client *Client) SearchEmbedding(ctx context.Context, collection string, em
 	return points.Search(ctx, &pb.SearchPoints{
 		CollectionName: collection,
 		Vector:         embedding,
-		Limit:          30,
+		Limit:          15,
 		ScoreThreshold: &threshold,
 		WithPayload: &pb.WithPayloadSelector{
 			SelectorOptions: &pb.WithPayloadSelector_Enable{
