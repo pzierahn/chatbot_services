@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+option go_package = "./proto";
+
+package endpoint.braingain.v1;
+
+service Braingain {
+  rpc Chat(Prompt) returns (ChatCompletion);
+}
+
+message Prompt {
+  string prompt = 1;
+}
+
+message Source {
+  string id = 1;
+  string filename = 2;
+  int32 page = 3;
+  float score = 4;
+}
+
+message ChatCompletion {
+  string completion = 1;
+  repeated Source sources = 2;
+}

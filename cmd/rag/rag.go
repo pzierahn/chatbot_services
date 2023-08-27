@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	"github.com/pzierahn/braingain/braingain"
 	"github.com/pzierahn/braingain/database"
 	"github.com/sashabaranov/go-openai"
 	"log"
@@ -94,110 +94,32 @@ func main() {
 	token := os.Getenv("OPENAI_API_KEY")
 	ai := openai.NewClient(token)
 
-	resp, err := ai.CreateEmbeddings(
-		context.Background(),
-		openai.EmbeddingRequestStrings{
-			Model: openai.AdaEmbeddingV2,
-			Input: []string{search},
-		},
-	)
+	chat := braingain.NewChat(conn, ai)
 
+	response, err := chat.RAG(ctx, search)
 	if err != nil {
-		log.Fatalf("could not create embeddings: %v", err)
+		log.Fatalf("ChatCompletion error: %v\n", err)
 	}
 
-	// Search for a page
-	embedding := resp.Data[0].Embedding
-
-	searchResponse, err := conn.SearchEmbedding(ctx, collection, embedding)
-	if err != nil {
-		log.Fatalf("could not search points: %v", err)
+	sources := make(map[string][]int)
+	for _, source := range response.Sources {
+		sources[source.Filename] = append(sources[source.Filename], source.Page)
 	}
 
-	pages := make(map[string][]int)
-	queryResults := make([]queryResult, 0)
+	keys := make([]string, 0, len(sources))
+	for k := range sources {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
 
-	log.Printf("Search: %v\n", searchResponse.Time)
-	for _, hit := range searchResponse.Result {
-		filename := hit.Payload["filename"].GetStringValue()
-		page := int(hit.Payload["page"].GetIntegerValue()) + 1
-
-		if _, ok := pages[filename]; !ok {
-			pages[filename] = make([]int, 0)
-		}
-
-		pages[filename] = append(pages[filename], page)
-
-		queryResults = append(queryResults, queryResult{
-			Id:       hit.Id.GetUuid(),
-			Score:    hit.Score,
-			Filename: filename,
-			Page:     page,
-			Content:  hit.Payload["content"].GetStringValue(),
-		})
+	for _, filename := range keys {
+		pages := sources[filename]
+		log.Printf("%s --> %v\n", filename, pages)
 	}
 
-	sort.SliceStable(queryResults, func(i, j int) bool {
-		return queryResults[i].Page < queryResults[j].Page
-	})
-	sort.SliceStable(queryResults, func(i, j int) bool {
-		return queryResults[i].Filename < queryResults[j].Filename
-	})
+	log.Println(response.Completion)
+	_ = os.WriteFile("output.txt", []byte(response.Completion), 0644)
 
-	byt, _ := json.MarshalIndent(queryResults, "", "  ")
-	//log.Printf("Query results: %s\n", byt)
-
-	err = os.WriteFile("query_results.json", byt, 0644)
-	if err != nil {
-		log.Fatalf("could not write query results: %v", err)
-	}
-
-	// sort pages keys
-	var files []string
-	for filename := range pages {
-		files = append(files, filename)
-	}
-	sort.Strings(files)
-
-	for _, filename := range files {
-		filepages := pages[filename]
-		sort.Ints(filepages)
-		log.Printf("%v --> %v\n", filename, filepages)
-	}
-
-	var messages []openai.ChatCompletionMessage
-
-	for _, result := range queryResults {
-		messages = append(messages, openai.ChatCompletionMessage{
-			Role:    openai.ChatMessageRoleUser,
-			Content: result.Content,
-		})
-	}
-
-	messages = append(messages, openai.ChatCompletionMessage{
-		Role:    openai.ChatMessageRoleUser,
-		Content: search,
-	})
-
-	chat, err := ai.CreateChatCompletion(
-		context.Background(),
-		openai.ChatCompletionRequest{
-			//Model: openai.GPT3Dot5Turbo16K,
-			Model:       openai.GPT4,
-			Temperature: float32(0),
-			Messages:    messages,
-			N:           1,
-		},
-	)
-
-	if err != nil {
-		fmt.Printf("ChatCompletion error: %v\n", err)
-		return
-	}
-
-	usage, _ := json.MarshalIndent(chat.Usage, "", "  ")
-	log.Printf("Usage: %s\n", usage)
-
-	log.Println(chat.Choices[0].Message.Content)
-	_ = os.WriteFile("output.txt", []byte(chat.Choices[0].Message.Content), 0644)
+	byt, _ := json.MarshalIndent(response.Sources, "", "  ")
+	_ = os.WriteFile("sources.json", byt, 0644)
 }
