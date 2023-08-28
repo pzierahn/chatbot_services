@@ -9,6 +9,8 @@ import (
 
 const (
 	collection = "DeSys"
+	model      = openai.GPT3Dot5Turbo16K
+	//model      = openai.GPT4
 )
 
 type Source struct {
@@ -19,16 +21,19 @@ type Source struct {
 	Content  string
 }
 
-type Usage struct {
+type Costs struct {
 	PromptTokens     int
 	CompletionTokens int
 	TotalTokens      int
+	PromptCosts      float32
+	CompletionCosts  float32
+	TotalCosts       float32
 }
 
 type ChatCompletion struct {
 	Completion string
 	Sources    []Source
-	Usage      Usage
+	Costs      Costs
 }
 
 type Chat struct {
@@ -57,6 +62,34 @@ func (chat Chat) createEmbedding(ctx context.Context, prompt string) ([]float32,
 	}
 
 	return resp.Data[0].Embedding, nil
+}
+
+func calculateCosts(usage openai.Usage) Costs {
+	costs := Costs{
+		PromptTokens:     usage.PromptTokens,
+		CompletionTokens: usage.CompletionTokens,
+		TotalTokens:      usage.TotalTokens,
+	}
+
+	inputTokens := float32(usage.PromptTokens) / float32(1000)
+	outputTokens := float32(usage.CompletionTokens) / float32(1000)
+
+	switch model {
+	case openai.GPT3Dot5Turbo:
+		costs.PromptCosts = inputTokens * 0.0015
+		costs.CompletionCosts = outputTokens * 0.002
+		costs.TotalCosts = costs.PromptCosts + costs.CompletionCosts
+	case openai.GPT3Dot5Turbo16K:
+		costs.PromptCosts = inputTokens * 0.003
+		costs.CompletionCosts = outputTokens * 0.004
+		costs.TotalCosts = costs.PromptCosts + costs.CompletionCosts
+	case openai.GPT4:
+		costs.PromptCosts = inputTokens * 0.03
+		costs.CompletionCosts = outputTokens * 0.06
+		costs.TotalCosts = costs.PromptCosts + costs.CompletionCosts
+	}
+
+	return costs
 }
 
 func (chat Chat) RAG(ctx context.Context, prompt string) (*ChatCompletion, error) {
@@ -107,10 +140,9 @@ func (chat Chat) RAG(ctx context.Context, prompt string) (*ChatCompletion, error
 	})
 
 	resp, err := chat.gpt.CreateChatCompletion(
-		context.Background(),
+		ctx,
 		openai.ChatCompletionRequest{
-			Model: openai.GPT3Dot5Turbo16K,
-			//Model:       openai.GPT4,
+			Model:       model,
 			Temperature: float32(0),
 			Messages:    messages,
 			N:           1,
@@ -124,10 +156,6 @@ func (chat Chat) RAG(ctx context.Context, prompt string) (*ChatCompletion, error
 	return &ChatCompletion{
 		Completion: resp.Choices[0].Message.Content,
 		Sources:    sources,
-		Usage: Usage{
-			PromptTokens:     resp.Usage.PromptTokens,
-			CompletionTokens: resp.Usage.CompletionTokens,
-			TotalTokens:      resp.Usage.TotalTokens,
-		},
+		Costs:      calculateCosts(resp.Usage),
 	}, nil
 }

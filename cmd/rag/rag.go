@@ -82,7 +82,9 @@ func main() {
 	//search := "Explain the three phases of Bracha’s Reliable Broadcast"
 	//search := "What is strong clock consistency?"
 	//search := "Explain why a vector clock is a Conflict-Free Replicated Data Type in itself. Is it state-based or operation-based?"
-	search := "Discuss whether you can build a state-based Conflict-Free Replicated Data type on top of a vector clock. How can you utilize the vector information in the design?"
+	//search := "Discuss whether you can build a state-based Conflict-Free Replicated Data type on top of a vector clock. How can you utilize the vector information in the design?"
+	//search := "Explain termination, agreement and validity in consensus"
+	search := "What is the definition of consensus? What properties does it have?"
 
 	token := os.Getenv("OPENAI_API_KEY")
 	ai := openai.NewClient(token)
@@ -110,8 +112,8 @@ func main() {
 		log.Printf("%s --> %v\n", filename, pages)
 	}
 
-	byt, _ := json.MarshalIndent(response.Usage, "", "  ")
-	log.Printf("Usage: %s\n", string(byt))
+	byt, _ := json.MarshalIndent(response.Costs, "", "  ")
+	log.Printf("Costs: %s\n", string(byt))
 
 	log.Println(response.Completion)
 	_ = os.WriteFile("output.txt", []byte(response.Completion), 0644)
