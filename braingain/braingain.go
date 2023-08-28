@@ -19,9 +19,16 @@ type Source struct {
 	Content  string
 }
 
+type Usage struct {
+	PromptTokens     int
+	CompletionTokens int
+	TotalTokens      int
+}
+
 type ChatCompletion struct {
 	Completion string
 	Sources    []Source
+	Usage      Usage
 }
 
 type Chat struct {
@@ -102,8 +109,8 @@ func (chat Chat) RAG(ctx context.Context, prompt string) (*ChatCompletion, error
 	resp, err := chat.gpt.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{
-			//Model: openai.GPT3Dot5Turbo16K,
-			Model:       openai.GPT4,
+			Model: openai.GPT3Dot5Turbo16K,
+			//Model:       openai.GPT4,
 			Temperature: float32(0),
 			Messages:    messages,
 			N:           1,
@@ -117,5 +124,10 @@ func (chat Chat) RAG(ctx context.Context, prompt string) (*ChatCompletion, error
 	return &ChatCompletion{
 		Completion: resp.Choices[0].Message.Content,
 		Sources:    sources,
+		Usage: Usage{
+			PromptTokens:     resp.Usage.PromptTokens,
+			CompletionTokens: resp.Usage.CompletionTokens,
+			TotalTokens:      resp.Usage.TotalTokens,
+		},
 	}, nil
 }

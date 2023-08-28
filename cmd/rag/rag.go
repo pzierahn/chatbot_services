@@ -11,18 +11,6 @@ import (
 	"sort"
 )
 
-const (
-	collection = "DeSys"
-)
-
-type queryResult struct {
-	Id       string
-	Score    float32
-	Filename string
-	Page     int
-	Content  string
-}
-
 func main() {
 	log.SetFlags(log.Lshortfile | log.LstdFlags)
 
@@ -89,7 +77,12 @@ func main() {
 	//search := "How does Distributed Key Generation (DKG) for RSA work?"
 	//search := "How is safety and liveliness archived in DAG-Rider?"
 	//search := "How does leader election in DAG-Rider work?"
-	search := "Why are 4 rounds a wave in DAG-Rider?"
+	//search := "Why are 4 rounds a wave in DAG-Rider?"
+	//search := "How can safety and liveness be proofen in PBFT?"
+	//search := "Explain the three phases of Bracha’s Reliable Broadcast"
+	//search := "What is strong clock consistency?"
+	//search := "Explain why a vector clock is a Conflict-Free Replicated Data Type in itself. Is it state-based or operation-based?"
+	search := "Discuss whether you can build a state-based Conflict-Free Replicated Data type on top of a vector clock. How can you utilize the vector information in the design?"
 
 	token := os.Getenv("OPENAI_API_KEY")
 	ai := openai.NewClient(token)
@@ -117,9 +110,12 @@ func main() {
 		log.Printf("%s --> %v\n", filename, pages)
 	}
 
+	byt, _ := json.MarshalIndent(response.Usage, "", "  ")
+	log.Printf("Usage: %s\n", string(byt))
+
 	log.Println(response.Completion)
 	_ = os.WriteFile("output.txt", []byte(response.Completion), 0644)
 
-	byt, _ := json.MarshalIndent(response.Sources, "", "  ")
+	byt, _ = json.MarshalIndent(response.Sources, "", "  ")
 	_ = os.WriteFile("sources.json", byt, 0644)
 }
