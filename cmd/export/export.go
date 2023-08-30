@@ -2,9 +2,8 @@ package main
 
 import (
 	"context"
-	"github.com/google/uuid"
+	"encoding/json"
 	"github.com/pzierahn/braingain/database"
-	"github.com/pzierahn/braingain/database_pg"
 	"log"
 	"os"
 )
@@ -52,69 +51,13 @@ func main() {
 		}
 	}
 
-	//byt, err := json.MarshalIndent(exports, "", "  ")
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//
-	//err = os.WriteFile("qdrant_export.json", byt, 0644)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-
-	//db, err := database_pg.Connect(ctx, os.Getenv("NEON_DB"))
-	db, err := database_pg.Connect(ctx, os.Getenv("SUPABASE_DB"))
+	byt, err := json.MarshalIndent(exports, "", "  ")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	defer db.Close()
-
-	_, err = db.Upsert(ctx, database_pg.Point{
-		Source:    uuid.New(),
-		Page:      0,
-		Text:      "xxx",
-		Embedding: make([]float32, 1536),
-	})
+	err = os.WriteFile("qdrant_export.json", byt, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	//sources := make(map[string]uuid.UUID)
-	//for _, result := range results {
-	//	filename := result.Payload["filename"].GetStringValue()
-	//	if _, ok := sources[filename]; ok {
-	//		continue
-	//	}
-	//
-	//	source := database_pg.Document{
-	//		Filename: filename,
-	//	}
-	//
-	//	id, err := db.CreateSource(ctx, source)
-	//	if err != nil {
-	//		log.Fatal(err)
-	//	}
-	//
-	//	sources[filename] = id
-	//	log.Printf("%v --> %v", filename, id)
-	//}
-	//
-	//for _, result := range exports {
-	//	filename := result.Filename
-	//	sourceID := sources[filename]
-	//
-	//	point := database_pg.Point{
-	//		Source:    sourceID,
-	//		Page:      result.Page,
-	//		Text:      result.Text,
-	//		Embedding: result.Embedding,
-	//	}
-	//
-	//	log.Printf("Upsert: %v --> %v", filename, point.Page)
-	//	_, err := db.Upsert(ctx, point)
-	//	if err != nil {
-	//		log.Fatal(err)
-	//	}
-	//}
 }
