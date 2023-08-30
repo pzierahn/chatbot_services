@@ -66,6 +66,44 @@ func (client *Client) SearchEmbedding(ctx context.Context, collection string, em
 	})
 }
 
+func (client *Client) GetAll(ctx context.Context, collection string) ([]*pb.RetrievedPoint, error) {
+	points := pb.NewPointsClient(client.conn)
+
+	offset := &pb.PointId{PointIdOptions: &pb.PointId_Num{Num: 0}}
+	var results []*pb.RetrievedPoint
+
+	for {
+		resp, err := points.Scroll(ctx, &pb.ScrollPoints{
+			CollectionName: collection,
+			Offset:         offset,
+			WithPayload: &pb.WithPayloadSelector{
+				SelectorOptions: &pb.WithPayloadSelector_Enable{
+					Enable: true,
+				},
+			},
+			WithVectors: &pb.WithVectorsSelector{
+				SelectorOptions: &pb.WithVectorsSelector_Enable{
+					Enable: true,
+				},
+			},
+		})
+
+		if err != nil {
+			return nil, err
+		}
+
+		offset = resp.NextPageOffset
+
+		if resp.NextPageOffset == nil {
+			break
+		}
+
+		results = append(results, resp.Result...)
+	}
+
+	return results, nil
+}
+
 func (client *Client) DeleteFile(ctx context.Context, collection, filename string) error {
 	points := pb.NewPointsClient(client.conn)
 
