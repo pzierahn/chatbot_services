@@ -9,8 +9,6 @@ import (
 
 const (
 	collection = "DeSys"
-	model      = openai.GPT3Dot5Turbo16K
-	//model      = openai.GPT4
 )
 
 type Source struct {
@@ -37,14 +35,16 @@ type ChatCompletion struct {
 }
 
 type Chat struct {
-	db  *database.Client
-	gpt *openai.Client
+	db    *database.Client
+	gpt   *openai.Client
+	Model string
 }
 
 func NewChat(db *database.Client, gpt *openai.Client) *Chat {
 	return &Chat{
-		db:  db,
-		gpt: gpt,
+		db:    db,
+		gpt:   gpt,
+		Model: openai.GPT3Dot5Turbo16K,
 	}
 }
 
@@ -64,7 +64,7 @@ func (chat Chat) createEmbedding(ctx context.Context, prompt string) ([]float32,
 	return resp.Data[0].Embedding, nil
 }
 
-func calculateCosts(usage openai.Usage) Costs {
+func (chat Chat) calculateCosts(usage openai.Usage) Costs {
 	costs := Costs{
 		PromptTokens:     usage.PromptTokens,
 		CompletionTokens: usage.CompletionTokens,
@@ -74,7 +74,7 @@ func calculateCosts(usage openai.Usage) Costs {
 	inputTokens := float32(usage.PromptTokens) / float32(1000)
 	outputTokens := float32(usage.CompletionTokens) / float32(1000)
 
-	switch model {
+	switch chat.Model {
 	case openai.GPT3Dot5Turbo:
 		costs.PromptCosts = inputTokens * 0.0015
 		costs.CompletionCosts = outputTokens * 0.002
@@ -142,7 +142,7 @@ func (chat Chat) RAG(ctx context.Context, prompt string) (*ChatCompletion, error
 	resp, err := chat.gpt.CreateChatCompletion(
 		ctx,
 		openai.ChatCompletionRequest{
-			Model:       model,
+			Model:       chat.Model,
 			Temperature: float32(0),
 			Messages:    messages,
 			N:           1,
@@ -156,6 +156,6 @@ func (chat Chat) RAG(ctx context.Context, prompt string) (*ChatCompletion, error
 	return &ChatCompletion{
 		Completion: resp.Choices[0].Message.Content,
 		Sources:    sources,
-		Costs:      calculateCosts(resp.Usage),
+		Costs:      chat.calculateCosts(resp.Usage),
 	}, nil
 }

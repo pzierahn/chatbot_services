@@ -31,9 +31,12 @@ func main() {
 
 	ctx := context.Background()
 
+	//conn.DeleteFile(ctx, collection, "sigma.pdf")
+
 	source := index.NewIndex(conn, collection)
 	//source.Files(baseDir)
-	source.File(ctx, baseDir+"/Further Readings/shared_rsa.pdf")
+	//source.File(ctx, baseDir+"/Further Readings/shared_rsa.pdf")
+	source.File(ctx, baseDir+"/Further Readings/sigma.pdf")
 
 	//source.File(ctx, baseDir+"/Further Readings/2102.08325.pdf")
 	//source.File(ctx, baseDir+"/Further Readings/3558535.3559789.pdf")

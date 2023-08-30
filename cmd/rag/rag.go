@@ -84,12 +84,36 @@ func main() {
 	//search := "Explain why a vector clock is a Conflict-Free Replicated Data Type in itself. Is it state-based or operation-based?"
 	//search := "Discuss whether you can build a state-based Conflict-Free Replicated Data type on top of a vector clock. How can you utilize the vector information in the design?"
 	//search := "Explain termination, agreement and validity in consensus"
-	search := "What is the definition of consensus? What properties does it have?"
+	//search := "What is the definition of consensus? What properties does it have?"
+	//search := "Why do you need n > 3f processors to solve the Byzantine Generals Problem?"
+	//search := "What is Nakamoto Consensus?"
+	//search := "What legal aspects need to be considered in decentralized systems?"
+	//search := "What is the Oral Messages Algorithm and how does it work?"
+	//search := "What is the Byzantine generals' problem? What are the Communication Channels assumptions? Answer in bullet points"
+	//search := "What is the difference between a the Oral Messages Algorithms and Bracha’s Reliable Broadcast?"
+	//search := "How does Bracha’s Consensus Protocol work?"
+	//search := "How does Bracha’s Consensus Protocol need n > 3f nodes? Why not n > 2f+1 nodes?"
+	//search := "What is the difference between consistency and consensus?"
+	//search := "Explain the k-neighborhood algorithm in detail"
+	//search := "What is the problem with mutual exclusion in decentralized systems?"
+	//search := "How does the Lamport Mutual Exclusion algorithm work?"
+	//search := "Explain the required properties of the Lamport Mutual Exclusion algorithm"
+	//search := "Explain Lamport Mutual Exclusion in detail"
+	//search := "Explain assumptions of Lamport Mutual Exclusion"
+	//search := "How does Lamport Mutual Exclusion handle concurrent requests?"
+	//search := "How does Lamport Mutual Exclusion ensure total ordering?"
+	//search := "Explain Distributed Algorithm by Ricart and Agrawala"
+	//search := "Explain the Crash Fault-Tolerant Algorithm by Lin et al."
+	//search := "Explain the Crash Fault-Tolerant Algorithm by Lin et al."
+	search := "Explain the Practical Distributed Mutual Exclusion Protocol in Dynamic Peer-to-Peer Systems in detail"
+	//search := "How do Lamport Clocks guarantee a total order?"
+	// partial order
 
 	token := os.Getenv("OPENAI_API_KEY")
 	ai := openai.NewClient(token)
 
 	chat := braingain.NewChat(conn, ai)
+	//chat.Model = openai.GPT4
 
 	response, err := chat.RAG(ctx, search)
 	if err != nil {

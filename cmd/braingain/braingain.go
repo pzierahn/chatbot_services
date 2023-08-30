@@ -9,31 +9,39 @@ import (
 	"github.com/sashabaranov/go-openai"
 	"log"
 	"os"
+	"strings"
 )
 
-const baseDir = "/Users/patrick/patrick.zierahn@gmail.com - Google Drive/My Drive/KIT/2023-SS/DeSys/Lecture Slides"
+const (
+	desysDir = "/Users/patrick/patrick.zierahn@gmail.com - Google Drive/My Drive/KIT/2023-SS/DeSys"
+	baseDir  = desysDir + "/Lecture Slides"
+	readings = desysDir + "/Further Readings"
+)
 
 var (
-	//pdfFile = baseDir + "/DeSys_01_Intro.pdf"
-	//pdfFile = baseDir + "/DeSys_09_Decentralized_Messaging_Matrix.pdf"
-	//pdfFile = baseDir + "/DeSys_07_Consensus_and_Variants_v2.pdf"
-	//pdfFile = baseDir + "/DeSys_11_Payment_Channel_Networks.pdf"
-	//pdfFile = baseDir + "/DeSys_12_Smart_Contract_Platforms_Ethereum.pdf"
-	//pdfFile     = baseDir + "/DeSys_13_Decentralized_File_Storage_IPFS.pdf"
-	//pdfFile     = "/Users/patrick/patrick.zierahn@gmail.com - Google Drive/My Drive/KIT/2023-SS/DeSys/Further Readings/176429260X.pdf"
-	//pdfFile     = "/Users/patrick/patrick.zierahn@gmail.com - Google Drive/My Drive/KIT/2023-SS/DeSys/Further Readings/Harvest_yield_and_scalable_tolerant_systems.pdf"
-	//pdfFile = "/Users/patrick/patrick.zierahn@gmail.com - Google Drive/My Drive/KIT/2023-SS/DeSys/Further Readings/1-s2.0-089054018790054X-main.pdf"
-	pdfFile = "/Users/patrick/patrick.zierahn@gmail.com - Google Drive/My Drive/KIT/2023-SS/DeSys/Further Readings/2102.08325.pdf"
-	first   = 1
-	last    = 8
-	//first       = 4
-	//last        = 20
+	pdfFile     = baseDir + "/DeSys_05_Mutual_Exclusion.pdf"
+	first       = 15
+	last        = 19
 	temperature = 0.0
 	//model       = openai.GPT3Dot5Turbo16K
-	model = openai.GPT3Dot5Turbo16K
-	//prompt = "Explain the DAG-Rider algorithm"
-	//prompt = "How does leader election work in DAG-Rider?"
-	prompt = "How is the global perfect coin in DAG-Rider determined?"
+	model = openai.GPT4
+	//prompt = "Create a list of exam questions"
+	//prompt = "Explain the Crash Fault-Tolerant Algorithm in detail"
+	//prompt = "Explain the Algorithm in detail"
+	//prompt = "How do the additions compared to the strawman protocol from section 3 prevent the scenario from the previous question from happening? Why does the informed backoff not run into a similar problem as the starwman protocol?"
+	//prompt = "Explain the informed backoff mechanism in detail"
+	//prompt = "Explain failure recovery work in detail"
+	//prompt = "With informed backoff, who requests what from whom?"
+	prompt = "Explain the required size of a quorum. Explain k, m, and n in detail"
+	//prompt = "Discuss the assumptions and models used in leader election algorithms in rings"
+	//prompt = "What are Models Assumptions?"
+	//prompt = "Why is Leader election impossible in anonymous rings?"
+	//prompt = "Explain the Uniform Algorithm for Synchronous Rings"
+	//prompt = "Explain the Uniform Algorithm for Synchronous Rings in detail"
+	//prompt = "Explain fast and slow messages in the Uniform Algorithm for Synchronous Rings"
+	//prompt = "Explain the Synchronous One-Shot Algorithm"
+	//prompt = "Explain the probability of 𝑛 for choosing the pseudo-identifier 2 in the Synchronous One-Shot Algorithm"
+	//prompt = "Why are messages delayed in the Uniform Algorithm for Synchronous Rings"
 )
 
 func main() {
@@ -48,23 +56,20 @@ func main() {
 	}
 	log.Printf("Page count: %d\n", len(pages))
 
-	var messages []openai.ChatCompletionMessage
-
 	if first > last {
 		log.Fatal("First page must be less than or equal to last page")
 	}
 
-	for _, page := range pages[first-1 : last] {
-		messages = append(messages, openai.ChatCompletionMessage{
+	messages := []openai.ChatCompletionMessage{
+		{
 			Role:    openai.ChatMessageRoleUser,
-			Content: page,
-		})
+			Content: strings.Join(pages[first-1:last], "\n"),
+		},
+		{
+			Role:    openai.ChatMessageRoleUser,
+			Content: prompt,
+		},
 	}
-
-	messages = append(messages, openai.ChatCompletionMessage{
-		Role:    openai.ChatMessageRoleUser,
-		Content: prompt,
-	})
 
 	token := os.Getenv("OPENAI_API_KEY")
 	client := openai.NewClient(token)
