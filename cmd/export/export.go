@@ -2,8 +2,11 @@ package main
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"github.com/pzierahn/braingain/database"
+	"github.com/pzierahn/braingain/database_pg"
 	"log"
+	"os"
 )
 
 type QdrantExport struct {
@@ -38,7 +41,7 @@ func main() {
 		filename := result.Payload["filename"].GetStringValue()
 		page := result.Payload["page"].GetIntegerValue()
 
-		log.Printf("%v --> %d", filename, page)
+		// log.Printf("%v --> %d", filename, page)
 
 		exports[inx] = QdrantExport{
 			Id:        result.Id.GetUuid(),
@@ -60,42 +63,52 @@ func main() {
 	//}
 
 	//db, err := database_pg.Connect(ctx, os.Getenv("NEON_DB"))
-	//db, err := database_pg.Connect(ctx, os.Getenv("SUPABASE_DB"))
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
+	db, err := database_pg.Connect(ctx, os.Getenv("SUPABASE_DB"))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer db.Close()
+
+	_, err = db.Upsert(ctx, database_pg.Point{
+		Source:    uuid.New(),
+		Page:      0,
+		Text:      "xxx",
+		Embedding: make([]float32, 1536),
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	//sources := make(map[string]uuid.UUID)
 	//for _, result := range results {
 	//	filename := result.Payload["filename"].GetStringValue()
-	//
 	//	if _, ok := sources[filename]; ok {
 	//		continue
 	//	}
-	//	log.Printf("%v", filename)
 	//
-	//	//source := database_pg.Source{
-	//	//	Filename: filename,
-	//	//}
-	//	//
-	//	//id, err := db.CreateSource(ctx, source)
-	//	//if err != nil {
-	//	//	log.Fatal(err)
-	//	//}
+	//	source := database_pg.Document{
+	//		Filename: filename,
+	//	}
 	//
-	//	//sources[filename] = id
-	//	//log.Printf("%v --> %v", filename, id)
+	//	id, err := db.CreateSource(ctx, source)
+	//	if err != nil {
+	//		log.Fatal(err)
+	//	}
+	//
+	//	sources[filename] = id
+	//	log.Printf("%v --> %v", filename, id)
 	//}
-
-	//for _, result := range results.Result {
-	//	filename := result.Payload["filename"].GetStringValue()
+	//
+	//for _, result := range exports {
+	//	filename := result.Filename
 	//	sourceID := sources[filename]
 	//
 	//	point := database_pg.Point{
 	//		Source:    sourceID,
-	//		Page:      int(result.Payload["page"].GetIntegerValue()),
-	//		Text:      result.Payload["content"].GetStringValue(),
-	//		Embedding: result.Vectors.VectorsOptions.(*pb.Vectors_Vector).Vector.Data,
+	//		Page:      result.Page,
+	//		Text:      result.Text,
+	//		Embedding: result.Embedding,
 	//	}
 	//
 	//	log.Printf("Upsert: %v --> %v", filename, point.Page)

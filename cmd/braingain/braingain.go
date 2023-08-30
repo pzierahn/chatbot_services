@@ -19,20 +19,22 @@ const (
 )
 
 var (
-	pdfFile     = baseDir + "/DeSys_05_Mutual_Exclusion.pdf"
-	first       = 15
-	last        = 19
+	pdfFile = baseDir + "/DeSys_10_Distributed_Ledgers_Blockchains_Bitcoin.pdf"
+	//pdfFile     = readings + "/sigma.pdf"
+	first       = 1
+	last        = 76
 	temperature = 0.0
-	//model       = openai.GPT3Dot5Turbo16K
-	model = openai.GPT4
-	//prompt = "Create a list of exam questions"
+	model       = openai.GPT3Dot5Turbo16K
+	//model  = openai.GPT4
+	prompt = "Create a list of exam questions"
 	//prompt = "Explain the Crash Fault-Tolerant Algorithm in detail"
 	//prompt = "Explain the Algorithm in detail"
 	//prompt = "How do the additions compared to the strawman protocol from section 3 prevent the scenario from the previous question from happening? Why does the informed backoff not run into a similar problem as the starwman protocol?"
 	//prompt = "Explain the informed backoff mechanism in detail"
 	//prompt = "Explain failure recovery work in detail"
 	//prompt = "With informed backoff, who requests what from whom?"
-	prompt = "Explain the required size of a quorum. Explain k, m, and n in detail"
+	//prompt = "Explain the required size of a quorum. Explain k, m, and n in detail"
+	//prompt = "Explain the informed backoff mechanism in detail"
 	//prompt = "Discuss the assumptions and models used in leader election algorithms in rings"
 	//prompt = "What are Models Assumptions?"
 	//prompt = "Why is Leader election impossible in anonymous rings?"

@@ -34,9 +34,14 @@ func main() {
 	//conn.DeleteFile(ctx, collection, "sigma.pdf")
 
 	source := index.NewIndex(conn, collection)
+	err = source.Web(ctx, "https://vitalik.ca/general/2021/01/05/rollup.html")
+	if err != nil {
+		log.Fatalf("could not index: %v", err)
+	}
+
 	//source.Files(baseDir)
 	//source.File(ctx, baseDir+"/Further Readings/shared_rsa.pdf")
-	source.File(ctx, baseDir+"/Further Readings/sigma.pdf")
+	//source.File(ctx, baseDir+"/Further Readings/sigma.pdf")
 
 	//source.File(ctx, baseDir+"/Further Readings/2102.08325.pdf")
 	//source.File(ctx, baseDir+"/Further Readings/3558535.3559789.pdf")

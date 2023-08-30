@@ -105,9 +105,28 @@ func main() {
 	//search := "Explain Distributed Algorithm by Ricart and Agrawala"
 	//search := "Explain the Crash Fault-Tolerant Algorithm by Lin et al."
 	//search := "Explain the Crash Fault-Tolerant Algorithm by Lin et al."
-	search := "Explain the Practical Distributed Mutual Exclusion Protocol in Dynamic Peer-to-Peer Systems in detail"
+	//search := "Explain the Practical Distributed Mutual Exclusion Protocol in Dynamic Peer-to-Peer Systems in detail"
 	//search := "How do Lamport Clocks guarantee a total order?"
-	// partial order
+	//search := "How are safety and liveness defined?"
+	//search := "Discuss the safety and liveness guarantees of token-ring algorithms"
+	//search := "How does OrbitDB work?"
+	//search := "Does IPFS Pub-Sub mechanism has a way of dealing with byzantine nodes?"
+	//search := "Explain Casper FFG"
+	//search := "Explain LMD GHOST Fork Choice"
+	//search := "Can forks happen with a Proof of Stake (PoS) blockchain system?"
+	//search := "Explain the attestations process in Proof of Stake (PoS) blockchain systems"
+	//search := "How does the data retrieval process work in IPFS?"
+	//search := "How does IPFS handle byzantine nodes?"
+	//search := "Explain sharding in detail"
+	//search := "Explain a beacon chain in detail"
+	//search := "How can Ethereum be scaled to handel more transactions?"
+
+	// TODO:
+	//search := "Explain Rollups in Ethereum in detail"
+	search := "How exactly do sidechains work in blockchains?"
+	//search := "What is the differance between side chains and payment channel networks?"
+	//search := "What is the differance between gas and ether?"
+	//search := "Explain zk-Rollups in detail. Explain how zero-knowledge proofs work in this context"
 
 	token := os.Getenv("OPENAI_API_KEY")
 	ai := openai.NewClient(token)
