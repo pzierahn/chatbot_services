@@ -19,6 +19,7 @@ message Source {
 }
 
 message ChatCompletion {
-  string completion = 1;
-  repeated Source sources = 2;
+  string prompt = 1;
+  string completion = 2;
+  repeated Source sources = 3;
 }

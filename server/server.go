@@ -21,6 +21,7 @@ func (server *Server) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatComp
 	}
 
 	completion := &pb.ChatCompletion{
+		Prompt:     prompt.Prompt,
 		Completion: response.Completion,
 	}
 
