@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"github.com/pzierahn/braingain/braingain"
 	"github.com/pzierahn/braingain/database"
@@ -20,11 +21,12 @@ func init() {
 
 func main() {
 
-	db, err := database.Connect("localhost:6334")
+	ctx := context.Background()
+	db, err := database.Connect(ctx, "postgresql://postgres:postgres@localhost:5432")
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
-	defer func() { _ = db.Close() }()
+	defer db.Close()
 
 	token := os.Getenv("OPENAI_API_KEY")
 	gpt := openai.NewClient(token)
