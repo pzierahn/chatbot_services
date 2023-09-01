@@ -2,7 +2,7 @@ package braingain
 
 import (
 	"context"
-	"github.com/pzierahn/braingain/database_pg"
+	"github.com/pzierahn/braingain/database"
 	"github.com/sashabaranov/go-openai"
 	"sort"
 )
@@ -22,17 +22,17 @@ type Costs struct {
 
 type ChatCompletion struct {
 	Completion string
-	Sources    []database_pg.ScorePoints
+	Sources    []database.ScorePoints
 	Costs      Costs
 }
 
 type Chat struct {
-	db    *database_pg.Client
+	db    *database.Client
 	gpt   *openai.Client
 	Model string
 }
 
-func NewChat(db *database_pg.Client, gpt *openai.Client) *Chat {
+func NewChat(db *database.Client, gpt *openai.Client) *Chat {
 	return &Chat{
 		db:    db,
 		gpt:   gpt,

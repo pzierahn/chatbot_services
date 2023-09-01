@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"github.com/pzierahn/braingain/database"
-	"github.com/pzierahn/braingain/database_pg"
 	"log"
 )
 
@@ -51,7 +50,7 @@ func main() {
 		}
 	}
 
-	pgv, err := database_pg.Connect(ctx, "postgresql://postgres:postgres@localhost:5432")
+	pgv, err := database.Connect(ctx, "postgresql://postgres:postgres@localhost:5432")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -78,7 +77,7 @@ func main() {
 			continue
 		}
 
-		id, err := pgv.CreateSource(ctx, database_pg.Document{
+		id, err := pgv.CreateSource(ctx, database.Document{
 			Filename: export.Filename,
 		})
 		if err != nil {
@@ -101,7 +100,7 @@ func main() {
 
 		docId := uuid.MustParse(export.Id)
 
-		_, err := pgv.Upsert(ctx, database_pg.Point{
+		_, err := pgv.Upsert(ctx, database.Point{
 			Id:        &docId,
 			Source:    id,
 			Embedding: export.Embedding,

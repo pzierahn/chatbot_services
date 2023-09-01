@@ -1,4 +1,4 @@
-package database_pg
+package database
 
 import (
 	"context"

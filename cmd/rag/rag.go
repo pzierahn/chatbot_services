@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"github.com/google/uuid"
 	"github.com/pzierahn/braingain/braingain"
-	"github.com/pzierahn/braingain/database_pg"
+	"github.com/pzierahn/braingain/database"
 	"github.com/sashabaranov/go-openai"
 	"log"
 	"os"
@@ -18,7 +18,7 @@ func main() {
 	ctx := context.Background()
 
 	//conn, err := database.Connect("localhost:6334")
-	conn, err := database_pg.Connect(ctx, "postgresql://postgres:postgres@localhost:5432")
+	conn, err := database.Connect(ctx, "postgresql://postgres:postgres@localhost:5432")
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
