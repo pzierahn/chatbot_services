@@ -3,6 +3,7 @@ package database_pg
 import (
 	"context"
 	"github.com/google/uuid"
+	"github.com/pgvector/pgvector-go"
 )
 
 type Point struct {
@@ -17,7 +18,7 @@ func (client *Client) Upsert(ctx context.Context, point Point) (uuid.UUID, error
 	result := client.conn.QueryRow(
 		ctx,
 		`insert into document_embeddings (source, page, text, embedding)
-			values ($1, $2, $3, $4) returning id`, point.Source, point.Page, point.Text, point.Embedding)
+			values ($1, $2, $3, $4) returning id`, point.Source, point.Page, point.Text, pgvector.NewVector(point.Embedding))
 
 	err := result.Scan(&point.Id)
 	if err != nil {
@@ -33,7 +34,7 @@ func (client *Client) SearchEmbedding(ctx context.Context, embedding []float32) 
 		`select id, source, page, text, embedding
 			from document_embeddings
 			where embedding <=> $1 < 0.8 LIMIT 15`,
-		embedding)
+		pgvector.NewVector(embedding))
 	if err != nil {
 		return nil, err
 	}
