@@ -19,31 +19,19 @@ const (
 )
 
 var (
-	pdfFile = baseDir + "/DeSys_10_Distributed_Ledgers_Blockchains_Bitcoin.pdf"
-	//pdfFile     = readings + "/sigma.pdf"
+	//pdfFile = baseDir + "/DeSys_10_Distributed_Ledgers_Blockchains_Bitcoin.pdf"
+	pdfFile     = readings + "/sigma.pdf"
 	first       = 1
-	last        = 76
-	temperature = 0.0
+	last        = 7
+	temperature = 1.0
 	model       = openai.GPT3Dot5Turbo16K
-	//model  = openai.GPT4
-	prompt = "Create a list of exam questions"
-	//prompt = "Explain the Crash Fault-Tolerant Algorithm in detail"
-	//prompt = "Explain the Algorithm in detail"
-	//prompt = "How do the additions compared to the strawman protocol from section 3 prevent the scenario from the previous question from happening? Why does the informed backoff not run into a similar problem as the starwman protocol?"
-	//prompt = "Explain the informed backoff mechanism in detail"
-	//prompt = "Explain failure recovery work in detail"
-	//prompt = "With informed backoff, who requests what from whom?"
-	//prompt = "Explain the required size of a quorum. Explain k, m, and n in detail"
-	//prompt = "Explain the informed backoff mechanism in detail"
-	//prompt = "Discuss the assumptions and models used in leader election algorithms in rings"
-	//prompt = "What are Models Assumptions?"
-	//prompt = "Why is Leader election impossible in anonymous rings?"
-	//prompt = "Explain the Uniform Algorithm for Synchronous Rings"
-	//prompt = "Explain the Uniform Algorithm for Synchronous Rings in detail"
-	//prompt = "Explain fast and slow messages in the Uniform Algorithm for Synchronous Rings"
-	//prompt = "Explain the Synchronous One-Shot Algorithm"
-	//prompt = "Explain the probability of 𝑛 for choosing the pseudo-identifier 2 in the Synchronous One-Shot Algorithm"
-	//prompt = "Why are messages delayed in the Uniform Algorithm for Synchronous Rings"
+	//model = openai.GPT4
+	//prompt = "Read section 4 of the paper. How do the additions compared to the strawman protocol from section 3 prevent the scenario from the previous question from happening? Why does the informed backoff not run into a similar problem as the starwman protocol?"
+	//prompt = "Why can the authors model a crash fault with loss of internal state?"
+	//prompt = "Explain the algorithm"
+	prompt = "Explain the terms 'informed backoff' and 'lease'"
+	//prompt = "Explain what happens if two processes requesting the same resource concurrently"
+	//prompt = "Explain how failure recovery works"
 )
 
 func main() {
