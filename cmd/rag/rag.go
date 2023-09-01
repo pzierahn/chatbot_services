@@ -3,8 +3,9 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"github.com/google/uuid"
 	"github.com/pzierahn/braingain/braingain"
-	"github.com/pzierahn/braingain/database"
+	"github.com/pzierahn/braingain/database_pg"
 	"github.com/sashabaranov/go-openai"
 	"log"
 	"os"
@@ -14,13 +15,14 @@ import (
 func main() {
 	log.SetFlags(log.Lshortfile | log.LstdFlags)
 
-	conn, err := database.Connect("localhost:6334")
+	ctx := context.Background()
+
+	//conn, err := database.Connect("localhost:6334")
+	conn, err := database_pg.Connect(ctx, "postgresql://postgres:postgres@localhost:5432")
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
-	defer func() { _ = conn.Close() }()
-
-	ctx := context.Background()
+	defer conn.Close()
 
 	search := "Differance between sharding and sidechains"
 
@@ -35,20 +37,28 @@ func main() {
 		log.Fatalf("ChatCompletion error: %v", err)
 	}
 
-	sources := make(map[string][]int)
+	sources := make(map[uuid.UUID][]int)
 	for _, source := range response.Sources {
-		sources[source.Filename] = append(sources[source.Filename], source.Page)
+		sources[source.Source] = append(sources[source.Source], source.Page)
 	}
 
-	keys := make([]string, 0, len(sources))
+	keys := make([]uuid.UUID, 0, len(sources))
 	for k := range sources {
 		keys = append(keys, k)
 	}
-	sort.Strings(keys)
+	sort.Slice(keys, func(i, j int) bool {
+		return keys[i].Time() > keys[j].Time()
+	})
 
-	for _, filename := range keys {
-		pages := sources[filename]
-		log.Printf("%s --> %v\n", filename, pages)
+	for _, id := range keys {
+		pages := sources[id]
+
+		doc, err := conn.GetDocument(ctx, id)
+		if err != nil {
+			log.Fatalf("GetDocument error: %v", err)
+		}
+
+		log.Printf("%s --> %v\n", doc.Filename, pages)
 	}
 
 	byt, _ := json.MarshalIndent(response.Costs, "", "  ")

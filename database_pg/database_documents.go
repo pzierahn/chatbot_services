@@ -66,3 +66,18 @@ func (client *Client) DeleteSource(ctx context.Context, id uuid.UUID) error {
 	_, err := client.conn.Exec(ctx, `delete from documents where id = $1`, id)
 	return err
 }
+
+func (client *Client) GetDocument(ctx context.Context, id uuid.UUID) (*Document, error) {
+	source := &Document{}
+
+	err := client.conn.QueryRow(
+		ctx,
+		`select id, filename, tags from documents where id = $1`,
+		id).Scan(&source.Id, &source.Filename, &source.Tags)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return source, nil
+}

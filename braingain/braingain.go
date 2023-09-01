@@ -2,7 +2,7 @@ package braingain
 
 import (
 	"context"
-	"github.com/pzierahn/braingain/database"
+	"github.com/pzierahn/braingain/database_pg"
 	"github.com/sashabaranov/go-openai"
 	"sort"
 )
@@ -10,14 +10,6 @@ import (
 const (
 	collection = "DeSys"
 )
-
-type Source struct {
-	Id       string
-	Score    float32
-	Filename string
-	Page     int
-	Content  string
-}
 
 type Costs struct {
 	PromptTokens     int
@@ -30,17 +22,17 @@ type Costs struct {
 
 type ChatCompletion struct {
 	Completion string
-	Sources    []Source
+	Sources    []database_pg.ScorePoints
 	Costs      Costs
 }
 
 type Chat struct {
-	db    *database.Client
+	db    *database_pg.Client
 	gpt   *openai.Client
 	Model string
 }
 
-func NewChat(db *database.Client, gpt *openai.Client) *Chat {
+func NewChat(db *database_pg.Client, gpt *openai.Client) *Chat {
 	return &Chat{
 		db:    db,
 		gpt:   gpt,
@@ -99,38 +91,23 @@ func (chat Chat) RAG(ctx context.Context, prompt string) (*ChatCompletion, error
 		return nil, err
 	}
 
-	searchResponse, err := chat.db.SearchEmbedding(ctx, collection, embedding)
+	sources, err := chat.db.SearchEmbedding(ctx, embedding)
 	if err != nil {
 		return nil, err
-	}
-
-	sources := make([]Source, 0)
-
-	for _, hit := range searchResponse.Result {
-		filename := hit.Payload["filename"].GetStringValue()
-		page := int(hit.Payload["page"].GetIntegerValue()) + 1
-
-		sources = append(sources, Source{
-			Id:       hit.Id.GetUuid(),
-			Score:    hit.Score,
-			Filename: filename,
-			Page:     page,
-			Content:  hit.Payload["content"].GetStringValue(),
-		})
 	}
 
 	sort.SliceStable(sources, func(i, j int) bool {
 		return sources[i].Page < sources[j].Page
 	})
 	sort.SliceStable(sources, func(i, j int) bool {
-		return sources[i].Filename < sources[j].Filename
+		return sources[i].Source.String() < sources[j].Source.String()
 	})
 
 	var messages []openai.ChatCompletionMessage
 	for _, result := range sources {
 		messages = append(messages, openai.ChatCompletionMessage{
 			Role:    openai.ChatMessageRoleUser,
-			Content: result.Content,
+			Content: result.Text,
 		})
 	}
 

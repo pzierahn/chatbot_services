@@ -14,6 +14,14 @@ type Point struct {
 	Embedding []float32
 }
 
+type ScorePoints struct {
+	Id     uuid.UUID
+	Source uuid.UUID
+	Page   int
+	Text   string
+	Score  float32
+}
+
 func (client *Client) Upsert(ctx context.Context, point Point) (uuid.UUID, error) {
 	result := client.conn.QueryRow(
 		ctx,
@@ -28,23 +36,23 @@ func (client *Client) Upsert(ctx context.Context, point Point) (uuid.UUID, error
 	return *point.Id, nil
 }
 
-func (client *Client) SearchEmbedding(ctx context.Context, embedding []float32) ([]Point, error) {
+func (client *Client) SearchEmbedding(ctx context.Context, embedding []float32) ([]ScorePoints, error) {
 	rows, err := client.conn.Query(
 		ctx,
-		`select id, source, page, text, embedding
+		`select id, source, page, text, 1 - (embedding <=> $1)
 			from document_embeddings
-			where embedding <=> $1 < 0.8 LIMIT 15`,
+			where embedding <=> $1 <= 0.8 LIMIT 15`,
 		pgvector.NewVector(embedding))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	points := make([]Point, 0)
+	points := make([]ScorePoints, 0)
 	for rows.Next() {
-		point := Point{}
+		point := ScorePoints{}
 
-		err := rows.Scan(&point.Id, &point.Source, &point.Page, &point.Text, &point.Embedding)
+		err = rows.Scan(&point.Id, &point.Source, &point.Page, &point.Text, &point.Score)
 		if err != nil {
 			return nil, err
 		}
