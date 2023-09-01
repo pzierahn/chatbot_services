@@ -24,12 +24,11 @@ func (server *Server) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatComp
 		Completion: response.Completion,
 	}
 
-	for _, source := range response.Sources {
+	for _, doc := range response.Documents {
 		completion.Sources = append(completion.Sources, &pb.Source{
-			Id:       source.Id,
-			Score:    source.Score,
-			Filename: source.Filename,
-			Page:     int32(source.Page),
+			Id:    doc.Source.String(),
+			Score: doc.Score,
+			Page:  int32(doc.Page),
 		})
 	}
 

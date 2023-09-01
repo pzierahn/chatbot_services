@@ -14,9 +14,8 @@ message Prompt {
 
 message Source {
   string id = 1;
-  string filename = 2;
-  int32 page = 3;
-  float score = 4;
+  int32 page = 2;
+  float score = 3;
 }
 
 message ChatCompletion {

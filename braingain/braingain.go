@@ -22,7 +22,7 @@ type Costs struct {
 
 type ChatCompletion struct {
 	Completion string
-	Sources    []database.ScorePoints
+	Documents  []database.ScorePoints
 	Costs      Costs
 }
 
@@ -132,7 +132,7 @@ func (chat Chat) RAG(ctx context.Context, prompt string) (*ChatCompletion, error
 
 	return &ChatCompletion{
 		Completion: resp.Choices[0].Message.Content,
-		Sources:    sources,
+		Documents:  sources,
 		Costs:      chat.calculateCosts(resp.Usage),
 	}, nil
 }

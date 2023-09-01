@@ -38,7 +38,7 @@ func main() {
 	}
 
 	sources := make(map[uuid.UUID][]int)
-	for _, source := range response.Sources {
+	for _, source := range response.Documents {
 		sources[source.Source] = append(sources[source.Source], source.Page)
 	}
 
@@ -67,6 +67,6 @@ func main() {
 	log.Println(response.Completion)
 	_ = os.WriteFile("output.txt", []byte(response.Completion), 0644)
 
-	byt, _ = json.MarshalIndent(response.Sources, "", "  ")
+	byt, _ = json.MarshalIndent(response.Documents, "", "  ")
 	_ = os.WriteFile("sources.json", byt, 0644)
 }
