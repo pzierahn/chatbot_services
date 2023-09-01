@@ -2,13 +2,16 @@ package server
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"github.com/pzierahn/braingain/braingain"
+	"github.com/pzierahn/braingain/database"
 	pb "github.com/pzierahn/braingain/proto"
 	"log"
 )
 
 type Server struct {
-	pb.BraingainServer
+	pb.UnimplementedBraingainServer
+	db   *database.Client
 	chat *braingain.Chat
 }
 
@@ -36,8 +39,28 @@ func (server *Server) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatComp
 	return completion, nil
 }
 
-func NewServer(chat *braingain.Chat) *Server {
+func (server *Server) GetDocument(ctx context.Context, req *pb.DocumentId) (*pb.Document, error) {
+	log.Printf("GetDocument: %s", req.Id)
+
+	id, err := uuid.Parse(req.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	doc, err := server.db.GetDocument(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.Document{
+		Id:       doc.Id.String(),
+		Filename: doc.Filename,
+	}, nil
+}
+
+func NewServer(db *database.Client, chat *braingain.Chat) *Server {
 	return &Server{
 		chat: chat,
+		db:   db,
 	}
 }

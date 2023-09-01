@@ -6,6 +6,16 @@ package endpoint.braingain.v1;
 
 service Braingain {
   rpc Chat(Prompt) returns (ChatCompletion);
+  rpc GetDocument(DocumentId) returns (Document);
+}
+
+message DocumentId {
+  string id = 1;
+}
+
+message Document {
+  string id = 1;
+  string filename = 2;
 }
 
 message Prompt {

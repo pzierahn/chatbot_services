@@ -24,7 +24,8 @@ func main() {
 	}
 	defer conn.Close()
 
-	search := "Differance between sharding and sidechains"
+	//search := "What is the differance between sharding and sidechains?"
+	search := "What is the differance between Bracha's Consensus and PBFT?"
 
 	token := os.Getenv("OPENAI_API_KEY")
 	ai := openai.NewClient(token)

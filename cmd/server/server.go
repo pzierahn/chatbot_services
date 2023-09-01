@@ -33,7 +33,7 @@ func main() {
 
 	chat := braingain.NewChat(db, gpt)
 
-	doormanServer := server.NewServer(chat)
+	doormanServer := server.NewServer(db, chat)
 	grpcServer := grpc.NewServer()
 	pb.RegisterBraingainServer(grpcServer, doormanServer)
 
