@@ -11,7 +11,7 @@ type Document struct {
 	Tags     []string
 }
 
-func (client *Client) CreateSource(ctx context.Context, source Document) (uuid.UUID, error) {
+func (client *Client) CreateDocument(ctx context.Context, source Document) (uuid.UUID, error) {
 	result := client.conn.QueryRow(
 		ctx,
 		`insert into documents (filename, tags)
@@ -25,7 +25,7 @@ func (client *Client) CreateSource(ctx context.Context, source Document) (uuid.U
 	return source.Id, nil
 }
 
-func (client *Client) ListSources(ctx context.Context) ([]Document, error) {
+func (client *Client) ListDocuments(ctx context.Context) ([]Document, error) {
 	rows, err := client.conn.Query(ctx, `select id, filename, tags from documents`)
 	if err != nil {
 		return nil, err
@@ -47,22 +47,7 @@ func (client *Client) ListSources(ctx context.Context) ([]Document, error) {
 	return sources, nil
 }
 
-func (client *Client) GetSource(ctx context.Context, id uuid.UUID) (*Document, error) {
-	source := &Document{}
-
-	err := client.conn.QueryRow(
-		ctx,
-		`select id, filename, tags from documents where id = $1`,
-		id).Scan(&source.Id, &source.Filename, &source.Tags)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return source, nil
-}
-
-func (client *Client) DeleteSource(ctx context.Context, id uuid.UUID) error {
+func (client *Client) DeleteDocument(ctx context.Context, id uuid.UUID) error {
 	_, err := client.conn.Exec(ctx, `delete from documents where id = $1`, id)
 	return err
 }
