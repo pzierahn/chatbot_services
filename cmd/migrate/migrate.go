@@ -2,140 +2,114 @@ package main
 
 import (
 	"context"
+	"github.com/google/uuid"
+	"github.com/pzierahn/braingain/database"
+	"github.com/pzierahn/braingain/database_pg"
 	"log"
-	"strings"
-
-	"github.com/elastic/go-elasticsearch/v8"
-	"github.com/elastic/go-elasticsearch/v8/esapi"
 )
+
+type QdrantExport struct {
+	Id        string
+	Embedding []float32
+	Filename  string
+	Page      int
+	Text      string
+}
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	cfg := elasticsearch.Config{
-		Addresses: []string{"http://localhost:9200"}, // Replace with your Elasticsearch server address
-	}
+	ctx := context.Background()
 
-	client, err := elasticsearch.NewClient(cfg)
+	old, err := database.Connect("localhost:6334")
 	if err != nil {
-		log.Fatalf("Error creating the client: %s", err)
+		log.Fatalf("did not connect: %v", err)
+	}
+	defer func() { _ = old.Close() }()
+
+	results, err := old.GetAll(ctx, "DeSys")
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	indexName := "braingain2"
+	exports := make([]QdrantExport, len(results))
 
-	// Query using cosine similarity
-	query := `
-	{
-		"query": {
-			"script_score": {
-				"query": {
-					"match_all": {}
-				},
-				"script": {
-					"source": "cosineSimilarity(params.queryVector, 'vector_field') + 1.0",
-					"params": {
-						"queryVector": [0.1, 0.2, 0.0]
-					}
-				}
-			}
+	log.Printf("results=%v", len(results))
+	for inx, result := range results {
+		text := result.Payload["content"].GetStringValue()
+		filename := result.Payload["filename"].GetStringValue()
+		page := result.Payload["page"].GetIntegerValue()
+
+		// log.Printf("%v --> %d", filename, page)
+
+		exports[inx] = QdrantExport{
+			Id:        result.Id.GetUuid(),
+			Embedding: result.Vectors.GetVector().Data,
+			Filename:  filename,
+			Page:      int(page),
+			Text:      text,
 		}
-	}`
-
-	req := esapi.SearchRequest{
-		Index: []string{indexName},
-		Body:  strings.NewReader(query),
 	}
 
-	res, err := req.Do(context.Background(), client)
+	pgv, err := database_pg.Connect(ctx, "postgresql://postgres:postgres@localhost:5432")
 	if err != nil {
-		log.Fatalf("Error querying index: %s", err)
-	}
-	defer res.Body.Close()
-
-	if res.IsError() {
-		log.Fatalf("Error querying index: %s", res.String())
+		log.Fatal(err)
 	}
 
-	log.Println("Query result:")
-	log.Println(res.String())
+	err = pgv.CreateExtension(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_ = pgv.DropTables(ctx)
+
+	err = pgv.CreateTables(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	sourceId := make(map[string]uuid.UUID)
+	for _, export := range exports {
+		if _, ok := sourceId[export.Filename]; ok {
+			continue
+		}
+
+		if export.Filename == "" {
+			continue
+		}
+
+		id, err := pgv.CreateSource(ctx, database_pg.Document{
+			Filename: export.Filename,
+		})
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		sourceId[export.Filename] = id
+		log.Printf("%v --> %v", export.Filename, id)
+	}
+
+	for _, export := range exports {
+		if export.Filename == "" {
+			continue
+		}
+
+		id, ok := sourceId[export.Filename]
+		if !ok {
+			log.Fatalf("source not found: %v", export.Filename)
+		}
+
+		docId := uuid.MustParse(export.Id)
+
+		_, err := pgv.Upsert(ctx, database_pg.Point{
+			Id:        &docId,
+			Source:    id,
+			Embedding: export.Embedding,
+			Page:      export.Page,
+			Text:      export.Text,
+		})
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 }
-
-//package main
-//
-//import (
-//	"context"
-//	"fmt"
-//	"github.com/elastic/go-elasticsearch/v8"
-//	"github.com/elastic/go-elasticsearch/v8/esapi"
-//	"log"
-//	"strings"
-//)
-//
-//func main() {
-//	log.SetFlags(log.LstdFlags | log.Lshortfile)
-//
-//	cfg := elasticsearch.Config{
-//		Addresses: []string{"http://localhost:9200"}, // Replace with your Elasticsearch server address
-//	}
-//
-//	client, err := elasticsearch.NewClient(cfg)
-//	if err != nil {
-//		log.Fatalf("Error creating the client: %s", err)
-//	}
-//
-//	indexName := "braingain2"
-//
-//	mapping := `
-//	{
-//		"mappings": {
-//			"properties": {
-//				"vector_field": {
-//					"type": "dense_vector",
-//					"dims": 3
-//				}
-//			}
-//		}
-//	}`
-//
-//	req := esapi.IndicesCreateRequest{
-//		Index: indexName,
-//		Body:  strings.NewReader(mapping),
-//	}
-//
-//	res, err := req.Do(context.Background(), client)
-//	if err != nil {
-//		log.Fatalf("Error creating index: %s", err)
-//	}
-//	defer res.Body.Close()
-//
-//	if res.IsError() {
-//		log.Fatalf("Error creating index: %s", res.String())
-//	}
-//
-//	fmt.Println("Index mapping created successfully.")
-//
-//	// Add data to the index
-//	document := `
-//	{
-//		"vector_field": [0.1, 0.2, 0.3]
-//	}`
-//
-//	req1 := esapi.IndexRequest{
-//		Index:      indexName,
-//		DocumentID: "1", // Replace with the desired document ID
-//		Body:       strings.NewReader(document),
-//		Refresh:    "true",
-//	}
-//
-//	res, err = req1.Do(context.Background(), client)
-//	if err != nil {
-//		log.Fatalf("Error indexing document: %s", err)
-//	}
-//	defer res.Body.Close()
-//
-//	if res.IsError() {
-//		log.Fatalf("Error indexing document: %s", res.String())
-//	}
-//
-//	log.Println("Document indexed successfully.")
-//}
