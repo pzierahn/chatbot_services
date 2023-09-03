@@ -20,6 +20,7 @@ func ReadPages(ctx context.Context, filename string) (result []string, err error
 	}
 
 	text := string(data)
+	text = strings.TrimSpace(text)
 
 	return strings.Split(text, "\f"), nil
 }
