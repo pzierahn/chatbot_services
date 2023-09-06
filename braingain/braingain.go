@@ -84,7 +84,7 @@ func (chat Chat) calculateCosts(usage openai.Usage) Costs {
 	return costs
 }
 
-func (chat Chat) RAG(ctx context.Context, prompt string) (*ChatCompletion, error) {
+func (chat Chat) Search(ctx context.Context, prompt string) ([]database.ScorePoints, error) {
 
 	embedding, err := chat.createEmbedding(ctx, prompt)
 	if err != nil {
@@ -102,6 +102,16 @@ func (chat Chat) RAG(ctx context.Context, prompt string) (*ChatCompletion, error
 	sort.SliceStable(sources, func(i, j int) bool {
 		return sources[i].Source.String() < sources[j].Source.String()
 	})
+
+	return sources, nil
+}
+
+func (chat Chat) RAG(ctx context.Context, prompt string) (*ChatCompletion, error) {
+
+	sources, err := chat.Search(ctx, prompt)
+	if err != nil {
+		return nil, err
+	}
 
 	var messages []openai.ChatCompletionMessage
 	for _, result := range sources {
