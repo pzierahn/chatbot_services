@@ -7,10 +7,6 @@ import (
 	"sort"
 )
 
-const (
-	collection = "DeSys"
-)
-
 type Costs struct {
 	PromptTokens     int
 	CompletionTokens int
