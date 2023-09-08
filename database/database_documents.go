@@ -50,6 +50,31 @@ func (client *Client) ListDocuments(ctx context.Context) ([]Document, error) {
 	return sources, nil
 }
 
+func (client *Client) FindDocuments(ctx context.Context, like string) ([]Document, error) {
+	rows, err := client.conn.Query(ctx, `select source, filename, max(page)
+		from documents AS doc, document_embeddings AS em
+		WHERE doc.id = em.source AND doc.filename LIKE $1
+		GROUP BY source, filename`, like)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	sources := make([]Document, 0)
+	for rows.Next() {
+		source := Document{}
+
+		err := rows.Scan(&source.Id, &source.Filename, &source.Pages)
+		if err != nil {
+			return nil, err
+		}
+
+		sources = append(sources, source)
+	}
+
+	return sources, nil
+}
+
 func (client *Client) DeleteDocument(ctx context.Context, id uuid.UUID) error {
 	_, err := client.conn.Exec(ctx, `delete from documents where id = $1`, id)
 	return err

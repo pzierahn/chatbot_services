@@ -22,6 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	Braingain_Chat_FullMethodName          = "/endpoint.braingain.v1.Braingain/Chat"
 	Braingain_ListDocuments_FullMethodName = "/endpoint.braingain.v1.Braingain/ListDocuments"
+	Braingain_FindDocuments_FullMethodName = "/endpoint.braingain.v1.Braingain/FindDocuments"
 )
 
 // BraingainClient is the client API for Braingain service.
@@ -30,6 +31,7 @@ const (
 type BraingainClient interface {
 	Chat(ctx context.Context, in *Prompt, opts ...grpc.CallOption) (*Completion, error)
 	ListDocuments(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Documents, error)
+	FindDocuments(ctx context.Context, in *DocumentQuery, opts ...grpc.CallOption) (*Documents, error)
 }
 
 type braingainClient struct {
@@ -58,12 +60,22 @@ func (c *braingainClient) ListDocuments(ctx context.Context, in *emptypb.Empty, 
 	return out, nil
 }
 
+func (c *braingainClient) FindDocuments(ctx context.Context, in *DocumentQuery, opts ...grpc.CallOption) (*Documents, error) {
+	out := new(Documents)
+	err := c.cc.Invoke(ctx, Braingain_FindDocuments_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BraingainServer is the server API for Braingain service.
 // All implementations must embed UnimplementedBraingainServer
 // for forward compatibility
 type BraingainServer interface {
 	Chat(context.Context, *Prompt) (*Completion, error)
 	ListDocuments(context.Context, *emptypb.Empty) (*Documents, error)
+	FindDocuments(context.Context, *DocumentQuery) (*Documents, error)
 	mustEmbedUnimplementedBraingainServer()
 }
 
@@ -76,6 +88,9 @@ func (UnimplementedBraingainServer) Chat(context.Context, *Prompt) (*Completion,
 }
 func (UnimplementedBraingainServer) ListDocuments(context.Context, *emptypb.Empty) (*Documents, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListDocuments not implemented")
+}
+func (UnimplementedBraingainServer) FindDocuments(context.Context, *DocumentQuery) (*Documents, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindDocuments not implemented")
 }
 func (UnimplementedBraingainServer) mustEmbedUnimplementedBraingainServer() {}
 
@@ -126,6 +141,24 @@ func _Braingain_ListDocuments_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Braingain_FindDocuments_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DocumentQuery)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BraingainServer).FindDocuments(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Braingain_FindDocuments_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BraingainServer).FindDocuments(ctx, req.(*DocumentQuery))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Braingain_ServiceDesc is the grpc.ServiceDesc for Braingain service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -140,6 +173,10 @@ var Braingain_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListDocuments",
 			Handler:    _Braingain_ListDocuments_Handler,
+		},
+		{
+			MethodName: "FindDocuments",
+			Handler:    _Braingain_FindDocuments_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
