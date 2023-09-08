@@ -19,19 +19,16 @@ const (
 )
 
 var (
-	//pdfFile = baseDir + "/DeSys_10_Distributed_Ledgers_Blockchains_Bitcoin.pdf"
-	pdfFile     = readings + "/sigma.pdf"
+	//pdfFile = baseDir + "/DeSys_09_Decentralized_Messaging_Matrix.pdf"
+	//pdfFile = baseDir + "/DeSys_08_Consistency.pdf"
+	pdfFile     = readings + "/IPTPS2002.pdf"
 	first       = 1
-	last        = 7
-	temperature = 1.0
+	last        = 6
+	temperature = 0.0
 	model       = openai.GPT3Dot5Turbo16K
 	//model = openai.GPT4
-	//prompt = "Read section 4 of the paper. How do the additions compared to the strawman protocol from section 3 prevent the scenario from the previous question from happening? Why does the informed backoff not run into a similar problem as the starwman protocol?"
-	//prompt = "Why can the authors model a crash fault with loss of internal state?"
-	//prompt = "Explain the algorithm"
-	prompt = "Explain the terms 'informed backoff' and 'lease'"
-	//prompt = "Explain what happens if two processes requesting the same resource concurrently"
-	//prompt = "Explain how failure recovery works"
+	prompt = "Construct a scenario where the collective resources available to F are greater than minimally required resources to q entities but |F| < q."
+	//prompt = "Explain the paper"
 )
 
 func main() {

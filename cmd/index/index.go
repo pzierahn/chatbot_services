@@ -12,34 +12,22 @@ const (
 	collection = "DeSys"
 )
 
-type queryResult struct {
-	Id       string
-	Score    float32
-	Filename string
-	Page     int
-	Content  string
-}
-
 func main() {
 	log.SetFlags(log.Lshortfile | log.LstdFlags)
 
-	conn, err := database.Connect("localhost:6334")
+	ctx := context.Background()
+	conn, err := database.Connect(ctx, "postgresql://postgres:postgres@localhost:5432")
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
-	defer func() { _ = conn.Close() }()
-
-	ctx := context.Background()
+	defer conn.Close()
 
 	//conn.DeleteFile(ctx, collection, "sigma.pdf")
 
 	source := index.NewIndex(conn, collection)
-	err = source.Web(ctx, "https://vitalik.ca/general/2021/01/05/rollup.html")
-	if err != nil {
-		log.Fatalf("could not index: %v", err)
-	}
 
 	//source.Files(baseDir)
+	source.File(ctx, baseDir+"/Further Readings/IPTPS2002.pdf")
 	//source.File(ctx, baseDir+"/Further Readings/358527.358537.pdf")
 	//source.File(ctx, baseDir+"/Further Readings/shared_rsa.pdf")
 	//source.File(ctx, baseDir+"/Further Readings/sigma.pdf")
@@ -62,10 +50,10 @@ func main() {
 
 	//conn.DeleteFile(ctx, collection, "2305.06123.pdf")
 
-	count, err := conn.Count(ctx, collection)
-	if err != nil {
-		log.Fatalf("could not count points: %v", err)
-	}
-
-	log.Printf("Documents in db: %v\n", count.Result.Count)
+	//count, err := conn.Count(ctx, collection)
+	//if err != nil {
+	//	log.Fatalf("could not count points: %v", err)
+	//}
+	//
+	//log.Printf("Documents in db: %v\n", count.Result.Count)
 }
