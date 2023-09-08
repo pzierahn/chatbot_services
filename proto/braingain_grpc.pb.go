@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -19,16 +20,16 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Braingain_Chat_FullMethodName        = "/endpoint.braingain.v1.Braingain/Chat"
-	Braingain_GetDocument_FullMethodName = "/endpoint.braingain.v1.Braingain/GetDocument"
+	Braingain_Chat_FullMethodName          = "/endpoint.braingain.v1.Braingain/Chat"
+	Braingain_ListDocuments_FullMethodName = "/endpoint.braingain.v1.Braingain/ListDocuments"
 )
 
 // BraingainClient is the client API for Braingain service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BraingainClient interface {
-	Chat(ctx context.Context, in *Prompt, opts ...grpc.CallOption) (*ChatCompletion, error)
-	GetDocument(ctx context.Context, in *DocumentId, opts ...grpc.CallOption) (*Document, error)
+	Chat(ctx context.Context, in *Prompt, opts ...grpc.CallOption) (*Completion, error)
+	ListDocuments(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Documents, error)
 }
 
 type braingainClient struct {
@@ -39,8 +40,8 @@ func NewBraingainClient(cc grpc.ClientConnInterface) BraingainClient {
 	return &braingainClient{cc}
 }
 
-func (c *braingainClient) Chat(ctx context.Context, in *Prompt, opts ...grpc.CallOption) (*ChatCompletion, error) {
-	out := new(ChatCompletion)
+func (c *braingainClient) Chat(ctx context.Context, in *Prompt, opts ...grpc.CallOption) (*Completion, error) {
+	out := new(Completion)
 	err := c.cc.Invoke(ctx, Braingain_Chat_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -48,9 +49,9 @@ func (c *braingainClient) Chat(ctx context.Context, in *Prompt, opts ...grpc.Cal
 	return out, nil
 }
 
-func (c *braingainClient) GetDocument(ctx context.Context, in *DocumentId, opts ...grpc.CallOption) (*Document, error) {
-	out := new(Document)
-	err := c.cc.Invoke(ctx, Braingain_GetDocument_FullMethodName, in, out, opts...)
+func (c *braingainClient) ListDocuments(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Documents, error) {
+	out := new(Documents)
+	err := c.cc.Invoke(ctx, Braingain_ListDocuments_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -61,8 +62,8 @@ func (c *braingainClient) GetDocument(ctx context.Context, in *DocumentId, opts 
 // All implementations must embed UnimplementedBraingainServer
 // for forward compatibility
 type BraingainServer interface {
-	Chat(context.Context, *Prompt) (*ChatCompletion, error)
-	GetDocument(context.Context, *DocumentId) (*Document, error)
+	Chat(context.Context, *Prompt) (*Completion, error)
+	ListDocuments(context.Context, *emptypb.Empty) (*Documents, error)
 	mustEmbedUnimplementedBraingainServer()
 }
 
@@ -70,11 +71,11 @@ type BraingainServer interface {
 type UnimplementedBraingainServer struct {
 }
 
-func (UnimplementedBraingainServer) Chat(context.Context, *Prompt) (*ChatCompletion, error) {
+func (UnimplementedBraingainServer) Chat(context.Context, *Prompt) (*Completion, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Chat not implemented")
 }
-func (UnimplementedBraingainServer) GetDocument(context.Context, *DocumentId) (*Document, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetDocument not implemented")
+func (UnimplementedBraingainServer) ListDocuments(context.Context, *emptypb.Empty) (*Documents, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListDocuments not implemented")
 }
 func (UnimplementedBraingainServer) mustEmbedUnimplementedBraingainServer() {}
 
@@ -107,20 +108,20 @@ func _Braingain_Chat_Handler(srv interface{}, ctx context.Context, dec func(inte
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Braingain_GetDocument_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DocumentId)
+func _Braingain_ListDocuments_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BraingainServer).GetDocument(ctx, in)
+		return srv.(BraingainServer).ListDocuments(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Braingain_GetDocument_FullMethodName,
+		FullMethod: Braingain_ListDocuments_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BraingainServer).GetDocument(ctx, req.(*DocumentId))
+		return srv.(BraingainServer).ListDocuments(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -137,8 +138,8 @@ var Braingain_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Braingain_Chat_Handler,
 		},
 		{
-			MethodName: "GetDocument",
-			Handler:    _Braingain_GetDocument_Handler,
+			MethodName: "ListDocuments",
+			Handler:    _Braingain_ListDocuments_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

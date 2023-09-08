@@ -4,32 +4,57 @@ option go_package = "./proto";
 
 package endpoint.braingain.v1;
 
+import "google/protobuf/empty.proto";
+
 service Braingain {
-  rpc Chat(Prompt) returns (ChatCompletion);
-  rpc GetDocument(DocumentId) returns (Document);
+  rpc Chat(Prompt) returns (Completion);
+  rpc ListDocuments(google.protobuf.Empty) returns (Documents);
 }
 
-message DocumentId {
-  string id = 1;
+message Documents {
+  message Document {
+    string id = 1;
+    string filename = 2;
+    uint32 pages = 3;
+  }
+
+  repeated Document items = 1;
 }
 
-message Document {
-  string id = 1;
-  string filename = 2;
+message PromptOptions {
+  // OpenAI options
+  string model = 1;
+  float temperature = 2;
+  uint32 max_tokens = 3;
+
+  // Search options
+  float threshold = 4;
+  uint32 limit = 5;
 }
 
 message Prompt {
   string prompt = 1;
+  PromptOptions options = 2;
+
+  message Document {
+    string id = 1;
+    string filename = 2;
+    repeated uint32 pages = 3;
+  }
+
+  repeated Document documents = 3;
 }
 
-message Source {
-  string id = 1;
-  int32 page = 2;
-  float score = 3;
-}
+message Completion {
+  Prompt prompt = 1;
+  string text = 2;
 
-message ChatCompletion {
-  string prompt = 1;
-  string completion = 2;
-  repeated Source sources = 3;
+  message Document {
+    string id = 1;
+    string filename = 2;
+    repeated uint32 pages = 3;
+    repeated float scores = 4;
+  }
+
+  repeated Document documents = 3;
 }
