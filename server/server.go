@@ -70,6 +70,10 @@ func (server *Server) ListDocuments(ctx context.Context, _ *emptypb.Empty) (*pb.
 		})
 	}
 
+	sort.Slice(documents.Items, func(i, j int) bool {
+		return documents.Items[i].Filename < documents.Items[j].Filename
+	})
+
 	return &documents, nil
 }
 
