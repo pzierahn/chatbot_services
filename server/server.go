@@ -6,6 +6,7 @@ import (
 	"github.com/pzierahn/braingain/braingain"
 	"github.com/pzierahn/braingain/database"
 	pb "github.com/pzierahn/braingain/proto"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"log"
 	"sort"
 )
@@ -51,6 +52,25 @@ func (server *Server) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.Completi
 	})
 
 	return completion, nil
+}
+
+func (server *Server) ListDocuments(ctx context.Context, _ *emptypb.Empty) (*pb.Documents, error) {
+
+	docs, err := server.db.ListDocuments(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var documents pb.Documents
+	for _, doc := range docs {
+		documents.Items = append(documents.Items, &pb.Documents_Document{
+			Id:       doc.Id.String(),
+			Filename: doc.Filename,
+			Pages:    uint32(doc.Pages),
+		})
+	}
+
+	return &documents, nil
 }
 
 func NewServer(db *database.Client, chat *braingain.Chat) *Server {

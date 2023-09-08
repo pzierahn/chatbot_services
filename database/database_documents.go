@@ -8,14 +8,14 @@ import (
 type Document struct {
 	Id       uuid.UUID
 	Filename string
-	Tags     []string
+	Pages    int
 }
 
 func (client *Client) CreateDocument(ctx context.Context, source Document) (uuid.UUID, error) {
 	result := client.conn.QueryRow(
 		ctx,
-		`insert into documents (filename, tags)
-			values ($1, $2) returning id`, source.Filename, source.Tags)
+		`insert into documents (filename)
+			values ($1) returning id`, source.Filename)
 
 	err := result.Scan(&source.Id)
 	if err != nil {
@@ -26,7 +26,10 @@ func (client *Client) CreateDocument(ctx context.Context, source Document) (uuid
 }
 
 func (client *Client) ListDocuments(ctx context.Context) ([]Document, error) {
-	rows, err := client.conn.Query(ctx, `select id, filename, tags from documents`)
+	rows, err := client.conn.Query(ctx, `select source, filename, max(page)
+		from documents AS doc, document_embeddings AS em
+		WHERE doc.id = em.source
+		GROUP BY source, filename`)
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +39,7 @@ func (client *Client) ListDocuments(ctx context.Context) ([]Document, error) {
 	for rows.Next() {
 		source := Document{}
 
-		err := rows.Scan(&source.Id, &source.Filename, &source.Tags)
+		err := rows.Scan(&source.Id, &source.Filename, &source.Pages)
 		if err != nil {
 			return nil, err
 		}
@@ -57,8 +60,8 @@ func (client *Client) GetDocument(ctx context.Context, id uuid.UUID) (*Document,
 
 	err := client.conn.QueryRow(
 		ctx,
-		`select id, filename, tags from documents where id = $1`,
-		id).Scan(&source.Id, &source.Filename, &source.Tags)
+		`select id, filename from documents where id = $1`,
+		id).Scan(&source.Id, &source.Filename)
 
 	if err != nil {
 		return nil, err
