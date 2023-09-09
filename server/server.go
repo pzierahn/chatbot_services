@@ -32,7 +32,7 @@ func (server *Server) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.Completi
 
 	docs := make(map[uuid.UUID]*pb.Completion_Document)
 	for _, doc := range response.Documents {
-		if _, ok := docs[doc.Id]; ok {
+		if _, ok := docs[doc.Id]; !ok {
 			docs[doc.Id] = &pb.Completion_Document{
 				Id:       doc.Id.String(),
 				Filename: doc.Id.String(),
