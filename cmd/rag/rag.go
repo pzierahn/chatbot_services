@@ -35,7 +35,7 @@ func main() {
 
 	response, err := chat.RAG(ctx, search)
 	if err != nil {
-		log.Fatalf("ChatCompletion error: %v", err)
+		log.Fatalf("Completion error: %v", err)
 	}
 
 	sources := make(map[uuid.UUID][]int)

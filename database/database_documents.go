@@ -11,6 +11,12 @@ type Document struct {
 	Pages    int
 }
 
+type DocumentPage struct {
+	Id   uuid.UUID
+	Page int
+	Text string
+}
+
 func (client *Client) CreateDocument(ctx context.Context, source Document) (uuid.UUID, error) {
 	result := client.conn.QueryRow(
 		ctx,
@@ -93,4 +99,30 @@ func (client *Client) GetDocument(ctx context.Context, id uuid.UUID) (*Document,
 	}
 
 	return source, nil
+}
+
+func (client *Client) GetDocumentPages(ctx context.Context, id uuid.UUID, pages []uint32) ([]*DocumentPage, error) {
+	rows, err := client.conn.Query(ctx,
+		`select id, page, text
+		from document_embeddings
+		where source = $1 AND page = ANY($2)
+		order by page`, id, pages)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	sources := make([]*DocumentPage, 0)
+	for rows.Next() {
+		source := &DocumentPage{}
+		err := rows.Scan(&source.Id, &source.Page, &source.Text)
+		if err != nil {
+			return nil, err
+		}
+
+		sources = append(sources, source)
+	}
+
+	return sources, nil
 }

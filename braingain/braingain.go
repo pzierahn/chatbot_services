@@ -16,10 +16,29 @@ type Costs struct {
 	TotalCosts       float32
 }
 
-type ChatCompletion struct {
+type Document struct {
+	Id       string
+	Filename string
+	Page     uint32
+	Text     string
+	Score    float32
+}
+
+type DocumentScore struct {
+	Id       string
+	Filename string
+	Pages    []uint32
+	Scores   []float32
+}
+
+type Completion struct {
 	Completion string
-	Documents  []database.ScorePoints
 	Costs      Costs
+}
+
+type CompletionAugmentation struct {
+	Completion
+	Documents []database.ScorePoints
 }
 
 type Chat struct {
@@ -102,18 +121,13 @@ func (chat Chat) Search(ctx context.Context, prompt string) ([]database.ScorePoi
 	return sources, nil
 }
 
-func (chat Chat) RAG(ctx context.Context, prompt string) (*ChatCompletion, error) {
-
-	sources, err := chat.Search(ctx, prompt)
-	if err != nil {
-		return nil, err
-	}
+func (chat Chat) Chat(ctx context.Context, prompt string, background []string) (*Completion, error) {
 
 	var messages []openai.ChatCompletionMessage
-	for _, result := range sources {
+	for _, text := range background {
 		messages = append(messages, openai.ChatCompletionMessage{
 			Role:    openai.ChatMessageRoleUser,
-			Content: result.Text,
+			Content: text,
 		})
 	}
 
@@ -131,14 +145,35 @@ func (chat Chat) RAG(ctx context.Context, prompt string) (*ChatCompletion, error
 			N:           1,
 		},
 	)
-
 	if err != nil {
 		return nil, err
 	}
 
-	return &ChatCompletion{
+	return &Completion{
 		Completion: resp.Choices[0].Message.Content,
-		Documents:  sources,
 		Costs:      chat.calculateCosts(resp.Usage),
+	}, nil
+}
+
+func (chat Chat) RAG(ctx context.Context, prompt string) (*CompletionAugmentation, error) {
+
+	sources, err := chat.Search(ctx, prompt)
+	if err != nil {
+		return nil, err
+	}
+
+	var background []string
+	for _, source := range sources {
+		background = append(background, source.Text)
+	}
+
+	completion, err := chat.Chat(ctx, prompt, background)
+	if err != nil {
+		return nil, err
+	}
+
+	return &CompletionAugmentation{
+		Completion: *completion,
+		Documents:  sources,
 	}, nil
 }
