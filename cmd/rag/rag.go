@@ -66,7 +66,7 @@ func main() {
 	log.Printf("Costs: %s\n", string(byt))
 
 	log.Println(response.Completion)
-	_ = os.WriteFile("output.txt", []byte(response.Completion), 0644)
+	_ = os.WriteFile("output.txt", []byte(response.Completion.Completion), 0644)
 
 	byt, _ = json.MarshalIndent(response.Documents, "", "  ")
 	_ = os.WriteFile("sources.json", byt, 0644)
