@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/pzierahn/braingain/braingain"
@@ -111,7 +112,9 @@ func (server *Server) getBackgroundFromDB(ctx context.Context, prompt *pb.Prompt
 }
 
 func (server *Server) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.Completion, error) {
-	log.Printf("Chat: %v", prompt)
+	byt, _ := json.MarshalIndent(prompt, "", "  ")
+
+	log.Printf("Chat: %s", byt)
 
 	if prompt.Options == nil {
 		return nil, fmt.Errorf("options missing")
