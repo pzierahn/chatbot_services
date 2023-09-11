@@ -45,10 +45,15 @@ func (client *Client) Upsert(ctx context.Context, point Point) (uuid.UUID, error
 func (client *Client) SearchEmbedding(ctx context.Context, query SearchQuery) ([]ScorePoints, error) {
 	rows, err := client.conn.Query(
 		ctx,
-		`select id, source, page, text, 1 - (embedding <=> $1)
+		`select id, source, page, text, (1 - (embedding <=> $1)) AS score
 			from document_embeddings
-			where embedding <=> $1 <= $2 LIMIT $3`,
-		pgvector.NewVector(query.Embedding), query.Threshold, query.Limit)
+			where (1 - (embedding <=> $1)) >= $2
+			ORDER BY score DESC
+		 	LIMIT $3`,
+		pgvector.NewVector(query.Embedding),
+		query.Threshold,
+		query.Limit)
+
 	if err != nil {
 		return nil, err
 	}
