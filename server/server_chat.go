@@ -2,7 +2,9 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"github.com/google/uuid"
+	"github.com/pzierahn/braingain/braingain"
 	pb "github.com/pzierahn/braingain/proto"
 	"log"
 	"sort"
@@ -105,6 +107,10 @@ func (server *Server) getBackgroundFromDB(ctx context.Context, prompt *pb.Prompt
 func (server *Server) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.Completion, error) {
 	log.Printf("Chat: %v", prompt)
 
+	if prompt.Options == nil {
+		return nil, fmt.Errorf("options missing")
+	}
+
 	var bg *background
 	var err error
 
@@ -118,7 +124,15 @@ func (server *Server) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.Completi
 		return nil, err
 	}
 
-	response, err := server.chat.Chat(ctx, prompt.Prompt, bg.text)
+	message := braingain.Prompt{
+		Prompt:      prompt.Prompt,
+		Model:       prompt.Options.Model,
+		Temperature: prompt.Options.Temperature,
+		MaxTokens:   int(prompt.Options.MaxTokens),
+		Background:  bg.text,
+	}
+
+	response, err := server.chat.Chat(ctx, message)
 	if err != nil {
 		return nil, err
 	}

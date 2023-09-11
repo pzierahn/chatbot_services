@@ -16,18 +16,20 @@ const (
 	desysDir = "/Users/patrick/patrick.zierahn@gmail.com - Google Drive/My Drive/KIT/2023-SS/DeSys"
 	baseDir  = desysDir + "/Lecture Slides"
 	readings = desysDir + "/Further Readings"
+	pis      = "/Users/patrick/patrick.zierahn@gmail.com - Google Drive/My Drive/KIT/2023-SS/Praktikum Ingenieursmäßige Software-Entwicklung/"
 )
 
 var (
 	//pdfFile = baseDir + "/DeSys_09_Decentralized_Messaging_Matrix.pdf"
 	//pdfFile = baseDir + "/DeSys_08_Consistency.pdf"
-	pdfFile     = readings + "/IPTPS2002.pdf"
+	//pdfFile     = readings + "/IPTPS2002.pdf"
+	pdfFile     = pis + "/Evaluation_Methods_and_Replicability_of_Software_Architecture_Research_Objects.pdf"
 	first       = 1
-	last        = 6
+	last        = 10
 	temperature = 0.0
 	model       = openai.GPT3Dot5Turbo16K
 	//model = openai.GPT4
-	prompt = "Construct a scenario where the collective resources available to F are greater than minimally required resources to q entities but |F| < q."
+	prompt = "Build bullet points for a single presentation slide."
 	//prompt = "Explain the paper"
 )
 

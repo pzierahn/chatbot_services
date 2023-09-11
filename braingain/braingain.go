@@ -1,179 +1,18 @@
 package braingain
 
 import (
-	"context"
 	"github.com/pzierahn/braingain/database"
 	"github.com/sashabaranov/go-openai"
-	"sort"
 )
 
-type Costs struct {
-	PromptTokens     int
-	CompletionTokens int
-	TotalTokens      int
-	PromptCosts      float32
-	CompletionCosts  float32
-	TotalCosts       float32
-}
-
-type Document struct {
-	Id       string
-	Filename string
-	Page     uint32
-	Text     string
-	Score    float32
-}
-
-type DocumentScore struct {
-	Id       string
-	Filename string
-	Pages    []uint32
-	Scores   []float32
-}
-
-type Completion struct {
-	Completion string
-	Costs      Costs
-}
-
-type CompletionAugmentation struct {
-	Completion
-	Documents []database.ScorePoints
-}
-
 type Chat struct {
-	db    *database.Client
-	gpt   *openai.Client
-	Model string
+	db  *database.Client
+	gpt *openai.Client
 }
 
 func NewChat(db *database.Client, gpt *openai.Client) *Chat {
 	return &Chat{
-		db:    db,
-		gpt:   gpt,
-		Model: openai.GPT3Dot5Turbo16K,
+		db:  db,
+		gpt: gpt,
 	}
-}
-
-func (chat Chat) createEmbedding(ctx context.Context, prompt string) ([]float32, error) {
-	resp, err := chat.gpt.CreateEmbeddings(
-		ctx,
-		openai.EmbeddingRequestStrings{
-			Model: openai.AdaEmbeddingV2,
-			Input: []string{prompt},
-		},
-	)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return resp.Data[0].Embedding, nil
-}
-
-func (chat Chat) calculateCosts(usage openai.Usage) Costs {
-	costs := Costs{
-		PromptTokens:     usage.PromptTokens,
-		CompletionTokens: usage.CompletionTokens,
-		TotalTokens:      usage.TotalTokens,
-	}
-
-	inputTokens := float32(usage.PromptTokens) / float32(1000)
-	outputTokens := float32(usage.CompletionTokens) / float32(1000)
-
-	switch chat.Model {
-	case openai.GPT3Dot5Turbo:
-		costs.PromptCosts = inputTokens * 0.0015
-		costs.CompletionCosts = outputTokens * 0.002
-		costs.TotalCosts = costs.PromptCosts + costs.CompletionCosts
-	case openai.GPT3Dot5Turbo16K:
-		costs.PromptCosts = inputTokens * 0.003
-		costs.CompletionCosts = outputTokens * 0.004
-		costs.TotalCosts = costs.PromptCosts + costs.CompletionCosts
-	case openai.GPT4:
-		costs.PromptCosts = inputTokens * 0.03
-		costs.CompletionCosts = outputTokens * 0.06
-		costs.TotalCosts = costs.PromptCosts + costs.CompletionCosts
-	}
-
-	return costs
-}
-
-func (chat Chat) Search(ctx context.Context, prompt string) ([]database.ScorePoints, error) {
-
-	embedding, err := chat.createEmbedding(ctx, prompt)
-	if err != nil {
-		return nil, err
-	}
-
-	sources, err := chat.db.SearchEmbedding(ctx, embedding)
-	if err != nil {
-		return nil, err
-	}
-
-	sort.SliceStable(sources, func(i, j int) bool {
-		return sources[i].Page < sources[j].Page
-	})
-	sort.SliceStable(sources, func(i, j int) bool {
-		return sources[i].Source.String() < sources[j].Source.String()
-	})
-
-	return sources, nil
-}
-
-func (chat Chat) Chat(ctx context.Context, prompt string, background []string) (*Completion, error) {
-
-	var messages []openai.ChatCompletionMessage
-	for _, text := range background {
-		messages = append(messages, openai.ChatCompletionMessage{
-			Role:    openai.ChatMessageRoleUser,
-			Content: text,
-		})
-	}
-
-	messages = append(messages, openai.ChatCompletionMessage{
-		Role:    openai.ChatMessageRoleUser,
-		Content: prompt,
-	})
-
-	resp, err := chat.gpt.CreateChatCompletion(
-		ctx,
-		openai.ChatCompletionRequest{
-			Model:       chat.Model,
-			Temperature: float32(0),
-			Messages:    messages,
-			N:           1,
-		},
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Completion{
-		Completion: resp.Choices[0].Message.Content,
-		Costs:      chat.calculateCosts(resp.Usage),
-	}, nil
-}
-
-func (chat Chat) RAG(ctx context.Context, prompt string) (*CompletionAugmentation, error) {
-
-	sources, err := chat.Search(ctx, prompt)
-	if err != nil {
-		return nil, err
-	}
-
-	var background []string
-	for _, source := range sources {
-		background = append(background, source.Text)
-	}
-
-	completion, err := chat.Chat(ctx, prompt, background)
-	if err != nil {
-		return nil, err
-	}
-
-	return &CompletionAugmentation{
-		Completion: *completion,
-		Documents:  sources,
-	}, nil
 }
