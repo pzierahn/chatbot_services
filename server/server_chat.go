@@ -62,7 +62,13 @@ func (server *Server) getBackgroundFromPrompt(ctx context.Context, prompt *pb.Pr
 
 func (server *Server) getBackgroundFromDB(ctx context.Context, prompt *pb.Prompt) (*background, error) {
 
-	results, err := server.chat.Search(ctx, prompt.Prompt)
+	query := braingain.SearchQuery{
+		Prompt:    prompt.Prompt,
+		Limit:     int(prompt.Options.Limit),
+		Threshold: prompt.Options.Threshold,
+	}
+
+	results, err := server.chat.Search(ctx, query)
 	if err != nil {
 		return nil, err
 	}

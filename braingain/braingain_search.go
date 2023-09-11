@@ -7,6 +7,12 @@ import (
 	"sort"
 )
 
+type SearchQuery struct {
+	Prompt    string
+	Limit     int
+	Threshold float32
+}
+
 func (chat Chat) createEmbedding(ctx context.Context, prompt string) ([]float32, error) {
 	resp, err := chat.gpt.CreateEmbeddings(
 		ctx,
@@ -23,14 +29,18 @@ func (chat Chat) createEmbedding(ctx context.Context, prompt string) ([]float32,
 	return resp.Data[0].Embedding, nil
 }
 
-func (chat Chat) Search(ctx context.Context, prompt string) ([]database.ScorePoints, error) {
+func (chat Chat) Search(ctx context.Context, query SearchQuery) ([]database.ScorePoints, error) {
 
-	embedding, err := chat.createEmbedding(ctx, prompt)
+	embedding, err := chat.createEmbedding(ctx, query.Prompt)
 	if err != nil {
 		return nil, err
 	}
 
-	sources, err := chat.db.SearchEmbedding(ctx, embedding)
+	sources, err := chat.db.SearchEmbedding(ctx, database.SearchQuery{
+		Embedding: embedding,
+		Limit:     query.Limit,
+		Threshold: query.Threshold,
+	})
 	if err != nil {
 		return nil, err
 	}

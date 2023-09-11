@@ -22,6 +22,12 @@ type ScorePoints struct {
 	Score  float32
 }
 
+type SearchQuery struct {
+	Embedding []float32
+	Limit     int
+	Threshold float32
+}
+
 func (client *Client) Upsert(ctx context.Context, point Point) (uuid.UUID, error) {
 	result := client.conn.QueryRow(
 		ctx,
@@ -36,13 +42,13 @@ func (client *Client) Upsert(ctx context.Context, point Point) (uuid.UUID, error
 	return *point.Id, nil
 }
 
-func (client *Client) SearchEmbedding(ctx context.Context, embedding []float32) ([]ScorePoints, error) {
+func (client *Client) SearchEmbedding(ctx context.Context, query SearchQuery) ([]ScorePoints, error) {
 	rows, err := client.conn.Query(
 		ctx,
 		`select id, source, page, text, 1 - (embedding <=> $1)
 			from document_embeddings
-			where embedding <=> $1 <= 0.8 LIMIT 15`,
-		pgvector.NewVector(embedding))
+			where embedding <=> $1 <= $2 LIMIT $3`,
+		pgvector.NewVector(query.Embedding), query.Threshold, query.Limit)
 	if err != nil {
 		return nil, err
 	}
