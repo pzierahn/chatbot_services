@@ -92,6 +92,10 @@ func (server *Server) getBackgroundFromDB(ctx context.Context, prompt *pb.Prompt
 		})
 	}
 
+	sort.Slice(text, func(i, j int) bool {
+		return sources[i].Filename < sources[j].Filename
+	})
+
 	return &background{
 		text: text,
 		docs: sources,
