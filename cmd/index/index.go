@@ -97,7 +97,7 @@ func main() {
 	}
 
 	doc := index.DocumentId{
-		UserId:     uuid.MustParse("3bc23192-230a-4366-b8ec-0bd7cce69510"),
+		UserId:     "3bc23192-230a-4366-b8ec-0bd7cce69510",
 		Collection: uuid.MustParse("b452f76d-c1e4-4cdb-979f-08a4521d3372"),
 		Filename:   filepath.Base(file),
 	}
