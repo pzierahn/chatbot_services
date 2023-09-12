@@ -6,52 +6,47 @@ import (
 	"github.com/pgvector/pgvector-go"
 )
 
-type Point struct {
-	Id        *uuid.UUID
-	Source    uuid.UUID
-	Page      int
-	Text      string
-	Embedding []float32
-}
-
 type ScorePoints struct {
-	Id     uuid.UUID
-	Source uuid.UUID
+	Id     *uuid.UUID
+	Source *uuid.UUID
 	Page   int
 	Text   string
 	Score  float32
 }
 
 type SearchQuery struct {
-	Embedding []float32
-	Limit     int
-	Threshold float32
+	UserId     string
+	Collection *uuid.UUID
+	Embedding  []float32
+	Limit      int
+	Threshold  float32
 }
 
-func (client *Client) Upsert(ctx context.Context, point Point) (uuid.UUID, error) {
-	result := client.conn.QueryRow(
-		ctx,
-		`insert into document_embeddings (source, page, text, embedding)
-			values ($1, $2, $3, $4) returning id`, point.Source, point.Page, point.Text, pgvector.NewVector(point.Embedding))
-
-	err := result.Scan(&point.Id)
-	if err != nil {
-		return uuid.Nil, err
-	}
-
-	return *point.Id, nil
+type Page struct {
+	Id    *uuid.UUID
+	Page  uint32
+	Text  string
+	Score float32
 }
 
-func (client *Client) SearchEmbedding(ctx context.Context, query SearchQuery) ([]ScorePoints, error) {
+type SearchResult struct {
+	DocId    uuid.UUID
+	Filename string
+	Pages    []*Page
+}
+
+func (client *Client) Search(ctx context.Context, query SearchQuery) ([]*SearchResult, error) {
 	rows, err := client.conn.Query(
 		ctx,
-		`select id, source, page, text, (1 - (embedding <=> $1)) AS score
-			from document_embeddings
-			where (1 - (embedding <=> $1)) >= $2
+		`select em.id, source, filename, page, text, (1 - (embedding <=> $1)) AS score
+			from document_embeddings as em join documents as doc on doc.id = em.source
+			where (1 - (embedding <=> $1)) >= $2 and doc.uid = $3 and doc.collection = $4
 			ORDER BY score DESC
-		 	LIMIT $3`,
+		 	LIMIT $5`,
 		pgvector.NewVector(query.Embedding),
 		query.Threshold,
+		query.UserId,
+		query.Collection,
 		query.Limit)
 
 	if err != nil {
@@ -59,17 +54,44 @@ func (client *Client) SearchEmbedding(ctx context.Context, query SearchQuery) ([
 	}
 	defer rows.Close()
 
-	points := make([]ScorePoints, 0)
+	collect := make(map[uuid.UUID]*SearchResult)
 	for rows.Next() {
-		point := ScorePoints{}
+		var (
+			id, docId uuid.UUID
+			filename  string
+			page      uint32
+			text      string
+			score     float32
+		)
 
-		err = rows.Scan(&point.Id, &point.Source, &point.Page, &point.Text, &point.Score)
-		if err != nil {
+		if err = rows.Scan(
+			&id, &docId,
+			&filename,
+			&page,
+			&text,
+			&score); err != nil {
 			return nil, err
 		}
 
-		points = append(points, point)
+		if _, ok := collect[docId]; !ok {
+			collect[docId] = &SearchResult{
+				DocId:    docId,
+				Filename: filename,
+			}
+		}
+
+		collect[docId].Pages = append(collect[docId].Pages, &Page{
+			Id:    &id,
+			Page:  page,
+			Text:  text,
+			Score: score,
+		})
 	}
 
-	return points, nil
+	var results []*SearchResult
+	for _, result := range collect {
+		results = append(results, result)
+	}
+
+	return results, nil
 }

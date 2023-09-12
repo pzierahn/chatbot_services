@@ -2,15 +2,17 @@ package braingain
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"github.com/pzierahn/braingain/database"
 	"github.com/sashabaranov/go-openai"
-	"sort"
 )
 
 type SearchQuery struct {
-	Prompt    string
-	Limit     int
-	Threshold float32
+	UserId     string
+	Collection *uuid.UUID
+	Prompt     string
+	Limit      int
+	Threshold  float32
 }
 
 func (chat Chat) createEmbedding(ctx context.Context, prompt string) ([]float32, error) {
@@ -29,28 +31,18 @@ func (chat Chat) createEmbedding(ctx context.Context, prompt string) ([]float32,
 	return resp.Data[0].Embedding, nil
 }
 
-func (chat Chat) Search(ctx context.Context, query SearchQuery) ([]database.ScorePoints, error) {
+func (chat Chat) Search(ctx context.Context, query SearchQuery) ([]*database.SearchResult, error) {
 
 	embedding, err := chat.createEmbedding(ctx, query.Prompt)
 	if err != nil {
 		return nil, err
 	}
 
-	sources, err := chat.db.SearchEmbedding(ctx, database.SearchQuery{
-		Embedding: embedding,
-		Limit:     query.Limit,
-		Threshold: query.Threshold,
+	return chat.db.Search(ctx, database.SearchQuery{
+		UserId:     query.UserId,
+		Collection: query.Collection,
+		Embedding:  embedding,
+		Limit:      query.Limit,
+		Threshold:  query.Threshold,
 	})
-	if err != nil {
-		return nil, err
-	}
-
-	sort.SliceStable(sources, func(i, j int) bool {
-		return sources[i].Page < sources[j].Page
-	})
-	sort.SliceStable(sources, func(i, j int) bool {
-		return sources[i].Source.String() < sources[j].Source.String()
-	})
-
-	return sources, nil
 }

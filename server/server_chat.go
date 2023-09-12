@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/pzierahn/braingain/braingain"
+	"github.com/pzierahn/braingain/database"
 	pb "github.com/pzierahn/braingain/proto"
 	"log"
 	"sort"
@@ -16,6 +17,8 @@ type background struct {
 	text []string
 	docs []*pb.Completion_Document
 }
+
+var patrick = uuid.MustParse("50372462-3137-4ed9-9950-ad033fa24bfc")
 
 func (server *Server) getBackgroundFromPrompt(ctx context.Context, prompt *pb.Prompt) (*background, error) {
 	sort.Slice(prompt.Documents, func(i, j int) bool {
@@ -37,7 +40,11 @@ func (server *Server) getBackgroundFromPrompt(ctx context.Context, prompt *pb.Pr
 			return nil, err
 		}
 
-		content, err := server.db.GetDocumentPages(ctx, id, doc.Pages)
+		content, err := server.db.GetPageContent(ctx, database.PageContentQuery{
+			Id:     id,
+			UserId: patrick.String(),
+			Pages:  doc.Pages,
+		})
 		if err != nil {
 			return nil, err
 		}
@@ -74,39 +81,31 @@ func (server *Server) getBackgroundFromDB(ctx context.Context, prompt *pb.Prompt
 		return nil, err
 	}
 
-	text := make([]string, len(results))
-	pages := make(map[uuid.UUID][]uint32)
-	scores := make(map[uuid.UUID][]float32)
-
-	for inx, result := range results {
-		text[inx] = result.Text
-
-		source := result.Source
-		pages[source] = append(pages[source], uint32(result.Page))
-		scores[source] = append(scores[source], result.Score)
-	}
-
 	var sources []*pb.Completion_Document
-	for source := range pages {
-		doc, err := server.db.GetDocument(ctx, source)
-		if err != nil {
-			return nil, err
+	var fragments []string
+
+	for _, doc := range results {
+		text := make([]string, len(doc.Pages))
+		pages := make([]uint32, len(doc.Pages))
+		scores := make([]float32, len(doc.Pages))
+
+		for iny, page := range doc.Pages {
+			text[iny] = page.Text
+			pages[iny] = page.Page
+			scores[iny] = page.Score
 		}
 
+		fragments = append(fragments, strings.Join(text, "\n"))
 		sources = append(sources, &pb.Completion_Document{
-			Id:       doc.Id.String(),
+			Id:       doc.DocId.String(),
 			Filename: doc.Filename,
-			Pages:    pages[source],
-			Scores:   scores[source],
+			Pages:    pages,
+			Scores:   scores,
 		})
 	}
 
-	sort.Slice(sources, func(i, j int) bool {
-		return sources[i].Filename < sources[j].Filename
-	})
-
 	return &background{
-		text: text,
+		text: fragments,
 		docs: sources,
 	}, nil
 }

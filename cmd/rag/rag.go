@@ -17,7 +17,6 @@ func main() {
 
 	ctx := context.Background()
 
-	//conn, err := database.Connect("localhost:6334")
 	conn, err := database.Connect(ctx, "postgresql://postgres:postgres@localhost:5432")
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)

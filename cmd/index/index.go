@@ -2,58 +2,62 @@ package main
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"github.com/pzierahn/braingain/database"
 	"github.com/pzierahn/braingain/index"
+	"github.com/sashabaranov/go-openai"
+	storagego "github.com/supabase-community/storage-go"
 	"log"
+	"os"
+	"path/filepath"
 )
 
 const (
-	baseDir    = "/Users/patrick/patrick.zierahn@gmail.com - Google Drive/My Drive/KIT/2023-SS/DeSys/"
-	collection = "DeSys"
+	baseDir = "/Users/patrick/patrick.zierahn@gmail.com - Google Drive/My Drive/KIT/2023-SS/DeSys/"
 )
 
 func main() {
 	log.SetFlags(log.Lshortfile | log.LstdFlags)
 
 	ctx := context.Background()
-	conn, err := database.Connect(ctx, "postgresql://postgres:postgres@localhost:5432")
+	//db, err := database.Connect(ctx, "postgresql://postgres:postgres@localhost:5432")
+	db, err := database.Connect(ctx, os.Getenv("SUPABASE_DB"))
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
-	defer conn.Close()
+	defer db.Close()
 
-	//conn.DeleteFile(ctx, collection, "sigma.pdf")
+	token := os.Getenv("OPENAI_API_KEY")
+	gpt := openai.NewClient(token)
 
-	source := index.NewIndex(conn, collection)
+	storage := storagego.NewClient(
+		"https://fikepkklraklkitnlfxi.supabase.co/storage/v1",
+		"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpa2Vwa2tscmFrbGtpdG5sZnhpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY5MzA0MjMxNSwiZXhwIjoyMDA4NjE4MzE1fQ.dfPSnBx4dKIeTcT4XCj5moufYGQXWajjfzeDct4tLSA",
+		nil)
 
-	//source.Files(baseDir)
-	source.File(ctx, baseDir+"/Further Readings/IPTPS2002.pdf")
-	//source.File(ctx, baseDir+"/Further Readings/358527.358537.pdf")
-	//source.File(ctx, baseDir+"/Further Readings/shared_rsa.pdf")
-	//source.File(ctx, baseDir+"/Further Readings/sigma.pdf")
+	source := index.Index{
+		DB:      db,
+		GPT:     gpt,
+		Storage: storage,
+	}
 
-	//source.File(ctx, baseDir+"/Further Readings/2102.08325.pdf")
-	//source.File(ctx, baseDir+"/Further Readings/3558535.3559789.pdf")
-	//source.File(ctx, baseDir+"/Further Readings/3149.214121.pdf")
-	//source.File(ctx, baseDir+"/Further Readings/1-s2.0-089054018790054X-main.pdf")
-	//source.File(ctx, baseDir+"/Further Readings/3465084.3467905.pdf")
-	//source.File(ctx, baseDir+"/Further Readings/176429260X.pdf")
-	//source.File(ctx, baseDir+"/Further Readings/Brewer_podc_keynote_2000.pdf")
-	//source.File(ctx, baseDir+"/Further Readings/cap.pdf")
-	//source.File(ctx, baseDir+"/Further Readings/Harvest_yield_and_scalable_tolerant_systems.pdf")
-	//source.File(ctx, baseDir+"/Further Readings/Kademlia.pdf")
-	//source.File(ctx, baseDir+"/Further Readings/Lamport - Time, Clocks, and the Ordering of Events in a Distributed System.pdf")
-	//source.File(ctx, baseDir+"/Further Readings/RR-7687.pdf")
-	//source.File(ctx, baseDir+"/Further Readings/The Byzantine Generals Problem.pdf")
-	//source.File(ctx, baseDir+"/Further Readings/The Sybil Attack.pdf")
-	//source.File(ctx, baseDir+"/Further Readings/Efficient_Byzantine_Fault-Tolerance.pdf")
+	//file := baseDir + "/Further Readings/IPTPS2002.pdf"
+	file := baseDir + "/Lecture Slides/DeSys_04_Leader_Election.pdf"
+	byt, err := os.ReadFile(file)
+	if err != nil {
+		log.Fatalf("could not read file: %v", err)
+	}
 
-	//conn.DeleteFile(ctx, collection, "2305.06123.pdf")
+	doc := index.DocumentId{
+		UserId:     uuid.MustParse("50372462-3137-4ed9-9950-ad033fa24bfc"),
+		Collection: uuid.MustParse("b452f76d-c1e4-4cdb-979f-08a4521d3372"),
+		Filename:   filepath.Base(file),
+	}
 
-	//count, err := conn.Count(ctx, collection)
-	//if err != nil {
-	//	log.Fatalf("could not count points: %v", err)
-	//}
-	//
-	//log.Printf("Documents in db: %v\n", count.Result.Count)
+	id, err := source.Process(ctx, doc, byt)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Printf("Success! %v", id)
 }

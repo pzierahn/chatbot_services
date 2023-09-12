@@ -4,12 +4,9 @@ option go_package = "./proto";
 
 package endpoint.braingain.v1;
 
-import "google/protobuf/empty.proto";
-
 service Braingain {
   rpc Chat(Prompt) returns (Completion);
 
-  rpc ListDocuments(google.protobuf.Empty) returns (Documents);
   rpc FindDocuments(DocumentQuery) returns (Documents);
 }
 
