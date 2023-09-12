@@ -4,10 +4,38 @@ option go_package = "./proto";
 
 package endpoint.braingain.v1;
 
+import "google/protobuf/empty.proto";
+
 service Braingain {
   rpc Chat(Prompt) returns (Completion);
 
   rpc FindDocuments(DocumentQuery) returns (Documents);
+
+  rpc ListCollections(google.protobuf.Empty) returns (Collections);
+
+  rpc IndexDocument(StorageRef) returns (stream IndexProgress);
+}
+
+message IndexProgress {
+  uint32 totalPages = 1;
+  uint32 processedPages = 2;
+}
+
+message StorageRef {
+  string id = 1;
+  string filename = 2;
+  string path = 3;
+  string collection = 4;
+}
+
+message Collections {
+  message Collection {
+    string id = 1;
+    string name = 2;
+    uint32 documents = 3;
+  }
+
+  repeated Collection items = 1;
 }
 
 message DocumentQuery {

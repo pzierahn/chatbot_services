@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -19,8 +20,10 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Braingain_Chat_FullMethodName          = "/endpoint.braingain.v1.Braingain/Chat"
-	Braingain_FindDocuments_FullMethodName = "/endpoint.braingain.v1.Braingain/FindDocuments"
+	Braingain_Chat_FullMethodName            = "/endpoint.braingain.v1.Braingain/Chat"
+	Braingain_FindDocuments_FullMethodName   = "/endpoint.braingain.v1.Braingain/FindDocuments"
+	Braingain_ListCollections_FullMethodName = "/endpoint.braingain.v1.Braingain/ListCollections"
+	Braingain_IndexDocument_FullMethodName   = "/endpoint.braingain.v1.Braingain/IndexDocument"
 )
 
 // BraingainClient is the client API for Braingain service.
@@ -29,6 +32,8 @@ const (
 type BraingainClient interface {
 	Chat(ctx context.Context, in *Prompt, opts ...grpc.CallOption) (*Completion, error)
 	FindDocuments(ctx context.Context, in *DocumentQuery, opts ...grpc.CallOption) (*Documents, error)
+	ListCollections(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Collections, error)
+	IndexDocument(ctx context.Context, in *StorageRef, opts ...grpc.CallOption) (Braingain_IndexDocumentClient, error)
 }
 
 type braingainClient struct {
@@ -57,12 +62,55 @@ func (c *braingainClient) FindDocuments(ctx context.Context, in *DocumentQuery, 
 	return out, nil
 }
 
+func (c *braingainClient) ListCollections(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Collections, error) {
+	out := new(Collections)
+	err := c.cc.Invoke(ctx, Braingain_ListCollections_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *braingainClient) IndexDocument(ctx context.Context, in *StorageRef, opts ...grpc.CallOption) (Braingain_IndexDocumentClient, error) {
+	stream, err := c.cc.NewStream(ctx, &Braingain_ServiceDesc.Streams[0], Braingain_IndexDocument_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &braingainIndexDocumentClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type Braingain_IndexDocumentClient interface {
+	Recv() (*IndexProgress, error)
+	grpc.ClientStream
+}
+
+type braingainIndexDocumentClient struct {
+	grpc.ClientStream
+}
+
+func (x *braingainIndexDocumentClient) Recv() (*IndexProgress, error) {
+	m := new(IndexProgress)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // BraingainServer is the server API for Braingain service.
 // All implementations must embed UnimplementedBraingainServer
 // for forward compatibility
 type BraingainServer interface {
 	Chat(context.Context, *Prompt) (*Completion, error)
 	FindDocuments(context.Context, *DocumentQuery) (*Documents, error)
+	ListCollections(context.Context, *emptypb.Empty) (*Collections, error)
+	IndexDocument(*StorageRef, Braingain_IndexDocumentServer) error
 	mustEmbedUnimplementedBraingainServer()
 }
 
@@ -75,6 +123,12 @@ func (UnimplementedBraingainServer) Chat(context.Context, *Prompt) (*Completion,
 }
 func (UnimplementedBraingainServer) FindDocuments(context.Context, *DocumentQuery) (*Documents, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindDocuments not implemented")
+}
+func (UnimplementedBraingainServer) ListCollections(context.Context, *emptypb.Empty) (*Collections, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListCollections not implemented")
+}
+func (UnimplementedBraingainServer) IndexDocument(*StorageRef, Braingain_IndexDocumentServer) error {
+	return status.Errorf(codes.Unimplemented, "method IndexDocument not implemented")
 }
 func (UnimplementedBraingainServer) mustEmbedUnimplementedBraingainServer() {}
 
@@ -125,6 +179,45 @@ func _Braingain_FindDocuments_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Braingain_ListCollections_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BraingainServer).ListCollections(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Braingain_ListCollections_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BraingainServer).ListCollections(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Braingain_IndexDocument_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(StorageRef)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(BraingainServer).IndexDocument(m, &braingainIndexDocumentServer{stream})
+}
+
+type Braingain_IndexDocumentServer interface {
+	Send(*IndexProgress) error
+	grpc.ServerStream
+}
+
+type braingainIndexDocumentServer struct {
+	grpc.ServerStream
+}
+
+func (x *braingainIndexDocumentServer) Send(m *IndexProgress) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 // Braingain_ServiceDesc is the grpc.ServiceDesc for Braingain service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -140,7 +233,17 @@ var Braingain_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "FindDocuments",
 			Handler:    _Braingain_FindDocuments_Handler,
 		},
+		{
+			MethodName: "ListCollections",
+			Handler:    _Braingain_ListCollections_Handler,
+		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "IndexDocument",
+			Handler:       _Braingain_IndexDocument_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "braingain.proto",
 }
