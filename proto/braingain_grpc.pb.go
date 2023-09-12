@@ -22,6 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	Braingain_Chat_FullMethodName           = "/endpoint.braingain.v1.Braingain/Chat"
 	Braingain_GetDocuments_FullMethodName   = "/endpoint.braingain.v1.Braingain/GetDocuments"
+	Braingain_DeleteDocument_FullMethodName = "/endpoint.braingain.v1.Braingain/DeleteDocument"
 	Braingain_GetCollections_FullMethodName = "/endpoint.braingain.v1.Braingain/GetCollections"
 	Braingain_IndexDocument_FullMethodName  = "/endpoint.braingain.v1.Braingain/IndexDocument"
 )
@@ -32,6 +33,7 @@ const (
 type BraingainClient interface {
 	Chat(ctx context.Context, in *Prompt, opts ...grpc.CallOption) (*Completion, error)
 	GetDocuments(ctx context.Context, in *DocumentQuery, opts ...grpc.CallOption) (*Documents, error)
+	DeleteDocument(ctx context.Context, in *StorageRef, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetCollections(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Collections, error)
 	IndexDocument(ctx context.Context, in *StorageRef, opts ...grpc.CallOption) (Braingain_IndexDocumentClient, error)
 }
@@ -56,6 +58,15 @@ func (c *braingainClient) Chat(ctx context.Context, in *Prompt, opts ...grpc.Cal
 func (c *braingainClient) GetDocuments(ctx context.Context, in *DocumentQuery, opts ...grpc.CallOption) (*Documents, error) {
 	out := new(Documents)
 	err := c.cc.Invoke(ctx, Braingain_GetDocuments_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *braingainClient) DeleteDocument(ctx context.Context, in *StorageRef, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Braingain_DeleteDocument_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -109,6 +120,7 @@ func (x *braingainIndexDocumentClient) Recv() (*IndexProgress, error) {
 type BraingainServer interface {
 	Chat(context.Context, *Prompt) (*Completion, error)
 	GetDocuments(context.Context, *DocumentQuery) (*Documents, error)
+	DeleteDocument(context.Context, *StorageRef) (*emptypb.Empty, error)
 	GetCollections(context.Context, *emptypb.Empty) (*Collections, error)
 	IndexDocument(*StorageRef, Braingain_IndexDocumentServer) error
 	mustEmbedUnimplementedBraingainServer()
@@ -123,6 +135,9 @@ func (UnimplementedBraingainServer) Chat(context.Context, *Prompt) (*Completion,
 }
 func (UnimplementedBraingainServer) GetDocuments(context.Context, *DocumentQuery) (*Documents, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDocuments not implemented")
+}
+func (UnimplementedBraingainServer) DeleteDocument(context.Context, *StorageRef) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteDocument not implemented")
 }
 func (UnimplementedBraingainServer) GetCollections(context.Context, *emptypb.Empty) (*Collections, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCollections not implemented")
@@ -175,6 +190,24 @@ func _Braingain_GetDocuments_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BraingainServer).GetDocuments(ctx, req.(*DocumentQuery))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Braingain_DeleteDocument_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StorageRef)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BraingainServer).DeleteDocument(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Braingain_DeleteDocument_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BraingainServer).DeleteDocument(ctx, req.(*StorageRef))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -232,6 +265,10 @@ var Braingain_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetDocuments",
 			Handler:    _Braingain_GetDocuments_Handler,
+		},
+		{
+			MethodName: "DeleteDocument",
+			Handler:    _Braingain_DeleteDocument_Handler,
 		},
 		{
 			MethodName: "GetCollections",

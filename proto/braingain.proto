@@ -10,6 +10,7 @@ service Braingain {
   rpc Chat(Prompt) returns (Completion);
 
   rpc GetDocuments(DocumentQuery) returns (Documents);
+  rpc DeleteDocument(StorageRef) returns (google.protobuf.Empty);
 
   rpc GetCollections(google.protobuf.Empty) returns (Collections);
 
@@ -23,9 +24,9 @@ message IndexProgress {
 
 message StorageRef {
   string id = 1;
-  string filename = 2;
-  string path = 3;
-  string collection = 4;
+  string collection = 2;
+  string filename = 3;
+  string path = 4;
 }
 
 message Collections {
