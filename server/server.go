@@ -4,17 +4,23 @@ import (
 	"github.com/pzierahn/braingain/braingain"
 	"github.com/pzierahn/braingain/database"
 	pb "github.com/pzierahn/braingain/proto"
+	"github.com/sashabaranov/go-openai"
+	storage_go "github.com/supabase-community/storage-go"
 )
 
 type Server struct {
 	pb.UnimplementedBraingainServer
-	db   *database.Client
-	chat *braingain.Chat
+	db      *database.Client
+	gpt     *openai.Client
+	chat    *braingain.Chat
+	storage *storage_go.Client
 }
 
-func NewServer(db *database.Client, chat *braingain.Chat) *Server {
+func NewServer(db *database.Client, gpt *openai.Client, storage *storage_go.Client) *Server {
 	return &Server{
-		chat: chat,
-		db:   db,
+		gpt:     gpt,
+		db:      db,
+		storage: storage,
+		chat:    braingain.NewChat(db, gpt),
 	}
 }

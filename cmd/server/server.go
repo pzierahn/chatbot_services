@@ -3,11 +3,11 @@ package main
 import (
 	"context"
 	"flag"
-	"github.com/pzierahn/braingain/braingain"
 	"github.com/pzierahn/braingain/database"
 	pb "github.com/pzierahn/braingain/proto"
 	"github.com/pzierahn/braingain/server"
 	"github.com/sashabaranov/go-openai"
+	storagego "github.com/supabase-community/storage-go"
 	"google.golang.org/grpc"
 	"log"
 	"net"
@@ -37,9 +37,12 @@ func main() {
 	token := os.Getenv("OPENAI_API_KEY")
 	gpt := openai.NewClient(token)
 
-	chat := braingain.NewChat(db, gpt)
+	storage := storagego.NewClient(
+		os.Getenv("SUPABASE_URL")+"/storage/v1",
+		os.Getenv("SUPABASE_STORAGE_TOKEN"),
+		nil)
 
-	doormanServer := server.NewServer(db, chat)
+	doormanServer := server.NewServer(db, gpt, storage)
 	grpcServer := grpc.NewServer()
 	pb.RegisterBraingainServer(grpcServer, doormanServer)
 
