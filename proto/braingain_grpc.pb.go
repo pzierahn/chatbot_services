@@ -20,11 +20,12 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Braingain_Chat_FullMethodName           = "/endpoint.braingain.v1.Braingain/Chat"
-	Braingain_GetDocuments_FullMethodName   = "/endpoint.braingain.v1.Braingain/GetDocuments"
-	Braingain_DeleteDocument_FullMethodName = "/endpoint.braingain.v1.Braingain/DeleteDocument"
-	Braingain_GetCollections_FullMethodName = "/endpoint.braingain.v1.Braingain/GetCollections"
-	Braingain_IndexDocument_FullMethodName  = "/endpoint.braingain.v1.Braingain/IndexDocument"
+	Braingain_Chat_FullMethodName               = "/endpoint.braingain.v1.Braingain/Chat"
+	Braingain_GetDocuments_FullMethodName       = "/endpoint.braingain.v1.Braingain/GetDocuments"
+	Braingain_DeleteDocument_FullMethodName     = "/endpoint.braingain.v1.Braingain/DeleteDocument"
+	Braingain_GetDocumentPreview_FullMethodName = "/endpoint.braingain.v1.Braingain/GetDocumentPreview"
+	Braingain_GetCollections_FullMethodName     = "/endpoint.braingain.v1.Braingain/GetCollections"
+	Braingain_IndexDocument_FullMethodName      = "/endpoint.braingain.v1.Braingain/IndexDocument"
 )
 
 // BraingainClient is the client API for Braingain service.
@@ -34,6 +35,7 @@ type BraingainClient interface {
 	Chat(ctx context.Context, in *Prompt, opts ...grpc.CallOption) (*Completion, error)
 	GetDocuments(ctx context.Context, in *DocumentQuery, opts ...grpc.CallOption) (*Documents, error)
 	DeleteDocument(ctx context.Context, in *StorageRef, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetDocumentPreview(ctx context.Context, in *StorageRef, opts ...grpc.CallOption) (*Preview, error)
 	GetCollections(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Collections, error)
 	IndexDocument(ctx context.Context, in *StorageRef, opts ...grpc.CallOption) (Braingain_IndexDocumentClient, error)
 }
@@ -67,6 +69,15 @@ func (c *braingainClient) GetDocuments(ctx context.Context, in *DocumentQuery, o
 func (c *braingainClient) DeleteDocument(ctx context.Context, in *StorageRef, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, Braingain_DeleteDocument_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *braingainClient) GetDocumentPreview(ctx context.Context, in *StorageRef, opts ...grpc.CallOption) (*Preview, error) {
+	out := new(Preview)
+	err := c.cc.Invoke(ctx, Braingain_GetDocumentPreview_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -121,6 +132,7 @@ type BraingainServer interface {
 	Chat(context.Context, *Prompt) (*Completion, error)
 	GetDocuments(context.Context, *DocumentQuery) (*Documents, error)
 	DeleteDocument(context.Context, *StorageRef) (*emptypb.Empty, error)
+	GetDocumentPreview(context.Context, *StorageRef) (*Preview, error)
 	GetCollections(context.Context, *emptypb.Empty) (*Collections, error)
 	IndexDocument(*StorageRef, Braingain_IndexDocumentServer) error
 	mustEmbedUnimplementedBraingainServer()
@@ -138,6 +150,9 @@ func (UnimplementedBraingainServer) GetDocuments(context.Context, *DocumentQuery
 }
 func (UnimplementedBraingainServer) DeleteDocument(context.Context, *StorageRef) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteDocument not implemented")
+}
+func (UnimplementedBraingainServer) GetDocumentPreview(context.Context, *StorageRef) (*Preview, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetDocumentPreview not implemented")
 }
 func (UnimplementedBraingainServer) GetCollections(context.Context, *emptypb.Empty) (*Collections, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCollections not implemented")
@@ -212,6 +227,24 @@ func _Braingain_DeleteDocument_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Braingain_GetDocumentPreview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StorageRef)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BraingainServer).GetDocumentPreview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Braingain_GetDocumentPreview_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BraingainServer).GetDocumentPreview(ctx, req.(*StorageRef))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Braingain_GetCollections_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
@@ -269,6 +302,10 @@ var Braingain_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteDocument",
 			Handler:    _Braingain_DeleteDocument_Handler,
+		},
+		{
+			MethodName: "GetDocumentPreview",
+			Handler:    _Braingain_GetDocumentPreview_Handler,
 		},
 		{
 			MethodName: "GetCollections",

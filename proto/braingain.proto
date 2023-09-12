@@ -11,10 +11,15 @@ service Braingain {
 
   rpc GetDocuments(DocumentQuery) returns (Documents);
   rpc DeleteDocument(StorageRef) returns (google.protobuf.Empty);
+  rpc GetDocumentPreview(StorageRef) returns (Preview);
 
   rpc GetCollections(google.protobuf.Empty) returns (Collections);
 
   rpc IndexDocument(StorageRef) returns (stream IndexProgress);
+}
+
+message Preview {
+  bytes image = 1;
 }
 
 message IndexProgress {
