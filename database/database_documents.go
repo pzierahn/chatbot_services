@@ -107,7 +107,7 @@ func (client *Client) FindDocuments(ctx context.Context, query DocumentQuery) ([
 	return sources, nil
 }
 
-func (client *Client) DeleteDocument(ctx context.Context, id, uid uuid.UUID) error {
+func (client *Client) DeleteDocument(ctx context.Context, id uuid.UUID, uid string) error {
 	tx, err := client.conn.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		return err
@@ -126,21 +126,6 @@ func (client *Client) DeleteDocument(ctx context.Context, id, uid uuid.UUID) err
 
 	return tx.Commit(ctx)
 }
-
-//func (client *Client) GetDocument(ctx context.Context, id, uid uuid.UUID) (*Document, error) {
-//	source := &Document{}
-//
-//	err := client.conn.QueryRow(
-//		ctx,
-//		`select id, filename, collection from documents where id = $1 AND uid = $2`,
-//		id, uid).Scan(&source.Id, &source.Filename)
-//
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	return source, nil
-//}
 
 type PageContentQuery struct {
 	Id     uuid.UUID

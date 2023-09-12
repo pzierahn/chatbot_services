@@ -25,7 +25,7 @@ func (index Index) Process(ctx context.Context, doc DocumentId, data []byte, ch 
 	}
 
 	id, err := index.DB.UpsertDocument(ctx, database.Document{
-		UserId:     doc.UserId.String(),
+		UserId:     doc.UserId,
 		Collection: doc.Collection,
 		Filename:   doc.Filename,
 		Path:       doc.path(),

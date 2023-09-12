@@ -18,7 +18,7 @@ func (server *Server) IndexDocument(ref *pb.StorageRef, stream pb.Braingain_Inde
 	}
 
 	docId := index.DocumentId{
-		UserId:     patrick,
+		UserId:     patrick.String(),
 		Collection: uuid.MustParse(ref.Collection),
 		DocId:      uuid.MustParse(ref.Id),
 		Filename:   ref.Filename,

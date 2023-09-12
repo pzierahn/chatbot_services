@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/google/uuid"
-	storage_go "github.com/supabase-community/storage-go"
+	storagego "github.com/supabase-community/storage-go"
 )
 
 type DocumentId struct {
-	UserId     uuid.UUID
+	UserId     string
 	Collection uuid.UUID
 	DocId      uuid.UUID
 	Filename   string
@@ -22,7 +22,7 @@ const bucket = "documents"
 
 func (index Index) Upload(doc DocumentId, data []byte) error {
 
-	index.Storage.CreateBucket(bucket, storage_go.BucketOptions{
+	index.Storage.CreateBucket(bucket, storagego.BucketOptions{
 		Public:        false,
 		FileSizeLimit: "50mb",
 	})
