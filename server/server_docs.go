@@ -6,7 +6,7 @@ import (
 	"sort"
 )
 
-func (server *Server) FindDocuments(ctx context.Context, req *pb.DocumentQuery) (*pb.Documents, error) {
+func (server *Server) GetDocuments(ctx context.Context, req *pb.DocumentQuery) (*pb.Documents, error) {
 
 	docs, err := server.db.FindDocuments(ctx, patrick.String(), "%"+req.Query+"%")
 	if err != nil {

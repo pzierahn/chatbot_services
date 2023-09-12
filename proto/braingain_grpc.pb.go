@@ -21,7 +21,7 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	Braingain_Chat_FullMethodName           = "/endpoint.braingain.v1.Braingain/Chat"
-	Braingain_FindDocuments_FullMethodName  = "/endpoint.braingain.v1.Braingain/FindDocuments"
+	Braingain_GetDocuments_FullMethodName   = "/endpoint.braingain.v1.Braingain/GetDocuments"
 	Braingain_GetCollections_FullMethodName = "/endpoint.braingain.v1.Braingain/GetCollections"
 	Braingain_IndexDocument_FullMethodName  = "/endpoint.braingain.v1.Braingain/IndexDocument"
 )
@@ -31,7 +31,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BraingainClient interface {
 	Chat(ctx context.Context, in *Prompt, opts ...grpc.CallOption) (*Completion, error)
-	FindDocuments(ctx context.Context, in *DocumentQuery, opts ...grpc.CallOption) (*Documents, error)
+	GetDocuments(ctx context.Context, in *DocumentQuery, opts ...grpc.CallOption) (*Documents, error)
 	GetCollections(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Collections, error)
 	IndexDocument(ctx context.Context, in *StorageRef, opts ...grpc.CallOption) (Braingain_IndexDocumentClient, error)
 }
@@ -53,9 +53,9 @@ func (c *braingainClient) Chat(ctx context.Context, in *Prompt, opts ...grpc.Cal
 	return out, nil
 }
 
-func (c *braingainClient) FindDocuments(ctx context.Context, in *DocumentQuery, opts ...grpc.CallOption) (*Documents, error) {
+func (c *braingainClient) GetDocuments(ctx context.Context, in *DocumentQuery, opts ...grpc.CallOption) (*Documents, error) {
 	out := new(Documents)
-	err := c.cc.Invoke(ctx, Braingain_FindDocuments_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Braingain_GetDocuments_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +108,7 @@ func (x *braingainIndexDocumentClient) Recv() (*IndexProgress, error) {
 // for forward compatibility
 type BraingainServer interface {
 	Chat(context.Context, *Prompt) (*Completion, error)
-	FindDocuments(context.Context, *DocumentQuery) (*Documents, error)
+	GetDocuments(context.Context, *DocumentQuery) (*Documents, error)
 	GetCollections(context.Context, *emptypb.Empty) (*Collections, error)
 	IndexDocument(*StorageRef, Braingain_IndexDocumentServer) error
 	mustEmbedUnimplementedBraingainServer()
@@ -121,8 +121,8 @@ type UnimplementedBraingainServer struct {
 func (UnimplementedBraingainServer) Chat(context.Context, *Prompt) (*Completion, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Chat not implemented")
 }
-func (UnimplementedBraingainServer) FindDocuments(context.Context, *DocumentQuery) (*Documents, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method FindDocuments not implemented")
+func (UnimplementedBraingainServer) GetDocuments(context.Context, *DocumentQuery) (*Documents, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetDocuments not implemented")
 }
 func (UnimplementedBraingainServer) GetCollections(context.Context, *emptypb.Empty) (*Collections, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCollections not implemented")
@@ -161,20 +161,20 @@ func _Braingain_Chat_Handler(srv interface{}, ctx context.Context, dec func(inte
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Braingain_FindDocuments_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Braingain_GetDocuments_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DocumentQuery)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BraingainServer).FindDocuments(ctx, in)
+		return srv.(BraingainServer).GetDocuments(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Braingain_FindDocuments_FullMethodName,
+		FullMethod: Braingain_GetDocuments_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BraingainServer).FindDocuments(ctx, req.(*DocumentQuery))
+		return srv.(BraingainServer).GetDocuments(ctx, req.(*DocumentQuery))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -230,8 +230,8 @@ var Braingain_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Braingain_Chat_Handler,
 		},
 		{
-			MethodName: "FindDocuments",
-			Handler:    _Braingain_FindDocuments_Handler,
+			MethodName: "GetDocuments",
+			Handler:    _Braingain_GetDocuments_Handler,
 		},
 		{
 			MethodName: "GetCollections",

@@ -9,7 +9,7 @@ import "google/protobuf/empty.proto";
 service Braingain {
   rpc Chat(Prompt) returns (Completion);
 
-  rpc FindDocuments(DocumentQuery) returns (Documents);
+  rpc GetDocuments(DocumentQuery) returns (Documents);
 
   rpc GetCollections(google.protobuf.Empty) returns (Collections);
 
@@ -40,6 +40,7 @@ message Collections {
 
 message DocumentQuery {
   string query = 1;
+  string collection = 2;
 }
 
 message Documents {
