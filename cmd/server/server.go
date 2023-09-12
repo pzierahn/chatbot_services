@@ -22,11 +22,17 @@ func init() {
 func main() {
 
 	ctx := context.Background()
-	db, err := database.Connect(ctx, "postgresql://postgres:postgres@localhost:5432")
+	//db, err := database.Connect(ctx, "postgresql://postgres:postgres@localhost:5432")
+	db, err := database.Connect(ctx, os.Getenv("SUPABASE_DB"))
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
 	defer db.Close()
+
+	err = db.SetupTables(ctx)
+	if err != nil {
+		log.Fatalf("failed to setup tables: %v", err)
+	}
 
 	token := os.Getenv("OPENAI_API_KEY")
 	gpt := openai.NewClient(token)

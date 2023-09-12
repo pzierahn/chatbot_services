@@ -14,9 +14,10 @@ docker run -p 5432:5432 -e POSTGRES_PASSWORD=postgres -d ankane/pgvector
 ```sql
 create table documents
 (
-    id       uuid primary key default gen_random_uuid(),
-    filename text not null,
-    tags     text[]
+    id         uuid primary key default gen_random_uuid(),
+    filename   text not null,
+    path       text not null,
+    collection text not null
 );
 
 create table document_embeddings
