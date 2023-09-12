@@ -9,7 +9,7 @@ import (
 	storagego "github.com/supabase-community/storage-go"
 	"log"
 	"os"
-	"path/filepath"
+	"strings"
 )
 
 const (
@@ -27,12 +27,17 @@ func main() {
 	}
 	defer db.Close()
 
+	err = db.SetupTables(ctx)
+	if err != nil {
+		log.Fatalf("could not setup tables: %v", err)
+	}
+
 	token := os.Getenv("OPENAI_API_KEY")
 	gpt := openai.NewClient(token)
 
 	storage := storagego.NewClient(
-		"https://fikepkklraklkitnlfxi.supabase.co/storage/v1",
-		"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpa2Vwa2tscmFrbGtpdG5sZnhpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY5MzA0MjMxNSwiZXhwIjoyMDA4NjE4MzE1fQ.dfPSnBx4dKIeTcT4XCj5moufYGQXWajjfzeDct4tLSA",
+		os.Getenv("SUPABASE_URL")+"/storage/v1",
+		os.Getenv("SUPABASE_STORAGE_TOKEN"),
 		nil)
 
 	source := index.Index{
@@ -41,23 +46,54 @@ func main() {
 		Storage: storage,
 	}
 
-	//file := baseDir + "/Further Readings/IPTPS2002.pdf"
-	file := baseDir + "/Lecture Slides/DeSys_04_Leader_Election.pdf"
-	byt, err := os.ReadFile(file)
-	if err != nil {
-		log.Fatalf("could not read file: %v", err)
-	}
-
-	doc := index.DocumentId{
-		UserId:     uuid.MustParse("50372462-3137-4ed9-9950-ad033fa24bfc"),
-		Collection: uuid.MustParse("b452f76d-c1e4-4cdb-979f-08a4521d3372"),
-		Filename:   filepath.Base(file),
-	}
-
-	id, err := source.Process(ctx, doc, byt)
+	path := baseDir + "/Lecture Slides/"
+	files, err := os.ReadDir(path)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	log.Printf("Success! %v", id)
+	for _, file := range files {
+		if !strings.HasSuffix(file.Name(), ".pdf") {
+			continue
+		}
+
+		log.Printf("Processing: %v", file.Name())
+
+		byt, err := os.ReadFile(path + file.Name())
+		if err != nil {
+			log.Fatalf("could not read file: %v", err)
+		}
+
+		doc := index.DocumentId{
+			UserId:     uuid.MustParse("50372462-3137-4ed9-9950-ad033fa24bfc"),
+			Collection: uuid.MustParse("b452f76d-c1e4-4cdb-979f-08a4521d3372"),
+			Filename:   file.Name(),
+		}
+
+		id, err := source.Process(ctx, doc, byt)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		log.Printf("Success! %v", id)
+	}
+
+	//file := baseDir + "/Further Readings/IPTPS2002.pdf"
+	//byt, err := os.ReadFile(file)
+	//if err != nil {
+	//	log.Fatalf("could not read file: %v", err)
+	//}
+	//
+	//doc := index.DocumentId{
+	//	UserId:     uuid.MustParse("3bc23192-230a-4366-b8ec-0bd7cce69510"),
+	//	Collection: uuid.MustParse("b452f76d-c1e4-4cdb-979f-08a4521d3372"),
+	//	Filename:   filepath.Base(file),
+	//}
+	//
+	//id, err := source.Process(ctx, doc, byt)
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//
+	//log.Printf("Success! %v", id)
 }
