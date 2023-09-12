@@ -6,7 +6,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-func (server *Server) ListCollections(ctx context.Context, _ *emptypb.Empty) (*pb.Collections, error) {
+func (server *Server) GetCollections(ctx context.Context, _ *emptypb.Empty) (*pb.Collections, error) {
 
 	collections, err := server.db.ListCollections(ctx, patrick)
 	if err != nil {

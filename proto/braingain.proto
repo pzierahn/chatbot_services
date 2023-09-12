@@ -11,7 +11,7 @@ service Braingain {
 
   rpc FindDocuments(DocumentQuery) returns (Documents);
 
-  rpc ListCollections(google.protobuf.Empty) returns (Collections);
+  rpc GetCollections(google.protobuf.Empty) returns (Collections);
 
   rpc IndexDocument(StorageRef) returns (stream IndexProgress);
 }
