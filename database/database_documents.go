@@ -29,6 +29,12 @@ type DocumentInfo struct {
 	Pages      uint32
 }
 
+type DocumentQuery struct {
+	UserId     string
+	Collection *uuid.UUID
+	Query      string
+}
+
 func (client *Client) UpsertDocument(ctx context.Context, doc Document) (*uuid.UUID, error) {
 	tx, err := client.conn.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
@@ -65,7 +71,22 @@ func (client *Client) UpsertDocument(ctx context.Context, doc Document) (*uuid.U
 	return &doc.Id, tx.Commit(ctx)
 }
 
-func processSearchQuery(rows pgx.Rows) ([]DocumentInfo, error) {
+func (client *Client) FindDocuments(ctx context.Context, query DocumentQuery) ([]DocumentInfo, error) {
+	rows, err := client.conn.Query(ctx,
+		`SELECT source, filename, collection, max(page)
+		FROM documents AS doc
+		    join document_embeddings AS em on doc.id = em.source
+		WHERE
+		    doc.uid = $1 AND
+		    ($2::uuid is null OR doc.collection = $2::uuid) AND
+		    doc.filename LIKE $3
+		GROUP BY source, filename, collection`,
+		query.UserId, query.Collection, query.Query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
 	sources := make([]DocumentInfo, 0)
 
 	for rows.Next() {
@@ -84,22 +105,6 @@ func processSearchQuery(rows pgx.Rows) ([]DocumentInfo, error) {
 	}
 
 	return sources, nil
-}
-
-func (client *Client) FindDocuments(ctx context.Context, userId, like string) ([]DocumentInfo, error) {
-	rows, err := client.conn.Query(ctx,
-		`SELECT source, filename, collection, max(page)
-		FROM documents AS doc
-		    join document_embeddings AS em on doc.id = em.source
-		WHERE doc.uid = $1 AND doc.filename LIKE $2
-		GROUP BY source, filename, collection`,
-		userId, like)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	return processSearchQuery(rows)
 }
 
 func (client *Client) DeleteDocument(ctx context.Context, id, uid uuid.UUID) error {
