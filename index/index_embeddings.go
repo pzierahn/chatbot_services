@@ -5,12 +5,11 @@ import (
 	"errors"
 	"github.com/pzierahn/braingain/database"
 	"github.com/sashabaranov/go-openai"
-	"log"
 	"strings"
 	"sync"
 )
 
-func (index Index) GetPagesWithEmbeddings(ctx context.Context, pages []string) ([]*database.PageEmbedding, error) {
+func (index Index) GetPagesWithEmbeddings(ctx context.Context, pages []string, ch ...chan<- Progress) ([]*database.PageEmbedding, error) {
 	var mu sync.Mutex
 	var embeddings []*database.PageEmbedding
 	var errs []error
@@ -21,8 +20,15 @@ func (index Index) GetPagesWithEmbeddings(ctx context.Context, pages []string) (
 	for inx, page := range pages {
 		go func(inx int, page string) {
 			defer wg.Done()
+			defer func() {
+				for _, c := range ch {
+					c <- Progress{
+						TotalPages:   len(pages),
+						FinishedPage: inx,
+					}
+				}
+			}()
 
-			log.Printf("Processing page %v", inx)
 			page = strings.TrimSpace(page)
 			if len(page) == 0 {
 				return
@@ -35,8 +41,6 @@ func (index Index) GetPagesWithEmbeddings(ctx context.Context, pages []string) (
 					Input: []string{page},
 				},
 			)
-
-			log.Printf("--> Processed page %v", inx)
 
 			mu.Lock()
 			defer mu.Unlock()

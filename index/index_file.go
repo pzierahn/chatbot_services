@@ -7,14 +7,19 @@ import (
 	"github.com/pzierahn/braingain/pdf"
 )
 
-func (index Index) Process(ctx context.Context, doc DocumentId, data []byte) (*uuid.UUID, error) {
+type Progress struct {
+	TotalPages   int
+	FinishedPage int
+}
+
+func (index Index) Process(ctx context.Context, doc DocumentId, data []byte, ch ...chan<- Progress) (*uuid.UUID, error) {
 
 	pages, err := pdf.GetPagesFromBytes(ctx, data)
 	if err != nil {
 		return nil, err
 	}
 
-	embeddings, err := index.GetPagesWithEmbeddings(ctx, pages)
+	embeddings, err := index.GetPagesWithEmbeddings(ctx, pages, ch...)
 	if err != nil {
 		return nil, err
 	}
