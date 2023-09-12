@@ -18,7 +18,7 @@ type background struct {
 	docs []*pb.Completion_Document
 }
 
-var patrick = uuid.MustParse("50372462-3137-4ed9-9950-ad033fa24bfc")
+var patrick = uuid.MustParse("3bc23192-230a-4366-b8ec-0bd7cce69510")
 var coll = uuid.MustParse("b452f76d-c1e4-4cdb-979f-08a4521d3372")
 
 func (server *Server) getBackgroundFromPrompt(ctx context.Context, prompt *pb.Prompt) (*background, error) {
