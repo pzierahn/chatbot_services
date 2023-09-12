@@ -19,6 +19,7 @@ type background struct {
 }
 
 var patrick = uuid.MustParse("50372462-3137-4ed9-9950-ad033fa24bfc")
+var coll = uuid.MustParse("b452f76d-c1e4-4cdb-979f-08a4521d3372")
 
 func (server *Server) getBackgroundFromPrompt(ctx context.Context, prompt *pb.Prompt) (*background, error) {
 	sort.Slice(prompt.Documents, func(i, j int) bool {
@@ -71,9 +72,11 @@ func (server *Server) getBackgroundFromPrompt(ctx context.Context, prompt *pb.Pr
 func (server *Server) getBackgroundFromDB(ctx context.Context, prompt *pb.Prompt) (*background, error) {
 
 	query := braingain.SearchQuery{
-		Prompt:    prompt.Prompt,
-		Limit:     int(prompt.Options.Limit),
-		Threshold: prompt.Options.Threshold,
+		UserId:     patrick.String(),
+		Collection: &coll,
+		Prompt:     prompt.Prompt,
+		Limit:      int(prompt.Options.Limit),
+		Threshold:  prompt.Options.Threshold,
 	}
 
 	results, err := server.chat.Search(ctx, query)
