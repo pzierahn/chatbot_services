@@ -35,10 +35,11 @@ func (client *Client) CreateCollection(ctx context.Context, coll Collection) (id
 func (client *Client) ListCollections(ctx context.Context, uid uuid.UUID) ([]*CollectionInfo, error) {
 	rows, err := client.conn.Query(
 		ctx,
-		`select col.id, col.name, count(doc.id) as count
-			from collections col join documents doc on col.id = doc.collection
-			where col.uid = $1
-			group by col.id, col.name`,
+		`SELECT col.id, col.name, COUNT(doc.id) AS count
+			FROM collections col
+			LEFT JOIN documents doc ON col.id = doc.collection
+			WHERE col.uid = '3bc23192-230a-4366-b8ec-0bd7cce69510'
+			GROUP BY col.id, col.name;`,
 		uid)
 	if err != nil {
 		return nil, err
@@ -49,7 +50,7 @@ func (client *Client) ListCollections(ctx context.Context, uid uuid.UUID) ([]*Co
 	for rows.Next() {
 		coll := new(CollectionInfo)
 
-		err := rows.Scan(&coll.Id, &coll.Name, &coll.Documents)
+		err = rows.Scan(&coll.Id, &coll.Name, &coll.Documents)
 		if err != nil {
 			return nil, err
 		}
