@@ -38,7 +38,7 @@ func (client *Client) ListCollections(ctx context.Context, uid uuid.UUID) ([]*Co
 		`SELECT col.id, col.name, COUNT(doc.id) AS count
 			FROM collections col
 			LEFT JOIN documents doc ON col.id = doc.collection
-			WHERE col.uid = '3bc23192-230a-4366-b8ec-0bd7cce69510'
+			WHERE col.uid = $1
 			GROUP BY col.id, col.name;`,
 		uid)
 	if err != nil {
