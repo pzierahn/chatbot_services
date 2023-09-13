@@ -11,12 +11,6 @@ func (server *Server) IndexDocument(ref *pb.StorageRef, stream pb.Braingain_Inde
 
 	log.Printf("Indexing: %v", ref)
 
-	source := index.Index{
-		DB:      server.db,
-		GPT:     server.gpt,
-		Storage: server.storage,
-	}
-
 	docId := index.DocumentId{
 		UserId:     patrick.String(),
 		Collection: uuid.MustParse(ref.Collection),
@@ -24,7 +18,7 @@ func (server *Server) IndexDocument(ref *pb.StorageRef, stream pb.Braingain_Inde
 		Filename:   ref.Filename,
 	}
 
-	byt, err := source.Download(docId)
+	byt, err := server.index.Download(docId)
 	if err != nil {
 		return err
 	}
@@ -47,7 +41,7 @@ func (server *Server) IndexDocument(ref *pb.StorageRef, stream pb.Braingain_Inde
 		}
 	}()
 
-	_, err = source.Process(ctx, docId, byt, progress)
+	_, err = server.index.Process(ctx, docId, byt, progress)
 	log.Printf("Indexing done: %v", err)
 
 	return err

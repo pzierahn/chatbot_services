@@ -55,15 +55,9 @@ func (server *Server) DeleteDocument(ctx context.Context, req *pb.StorageRef) (*
 		return nil, err
 	}
 
-	source := index.Index{
-		DB:      server.db,
-		GPT:     server.gpt,
-		Storage: server.storage,
-	}
-
 	col := uuid.MustParse(req.Collection)
 
-	err = source.Delete(index.DocumentId{
+	err = server.index.Delete(index.DocumentId{
 		UserId:     patrick.String(),
 		Collection: col,
 		DocId:      id,
