@@ -67,7 +67,8 @@ message PromptOptions {
 
 message Prompt {
   string prompt = 1;
-  PromptOptions options = 2;
+  string collection = 2;
+  PromptOptions options = 3;
 
   message Document {
     string id = 1;
@@ -75,7 +76,7 @@ message Prompt {
     repeated uint32 pages = 3;
   }
 
-  repeated Document documents = 3;
+  repeated Document documents = 4;
 }
 
 message Completion {
