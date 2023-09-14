@@ -148,7 +148,7 @@ func (client *Client) GetPageContent(ctx context.Context, query PageContentQuery
 		    source = $1 and
 		    doc.id = dm.source and
 		    uid = $2 and
-		    page = ANY($2)
+		    page = ANY($3)
 		order by filename, page`, query.Id, query.UserId, query.Pages)
 	if err != nil {
 		return nil, err
