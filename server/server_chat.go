@@ -19,7 +19,6 @@ type background struct {
 }
 
 var patrick = uuid.MustParse("3bc23192-230a-4366-b8ec-0bd7cce69510")
-var coll = uuid.MustParse("b452f76d-c1e4-4cdb-979f-08a4521d3372")
 
 func (server *Server) getBackgroundFromPrompt(ctx context.Context, prompt *pb.Prompt) (*background, error) {
 	sort.Slice(prompt.Documents, func(i, j int) bool {
@@ -71,9 +70,14 @@ func (server *Server) getBackgroundFromPrompt(ctx context.Context, prompt *pb.Pr
 
 func (server *Server) getBackgroundFromDB(ctx context.Context, prompt *pb.Prompt) (*background, error) {
 
+	collection, err := uuid.Parse(prompt.Collection)
+	if err != nil {
+		return nil, err
+	}
+
 	query := braingain.SearchQuery{
 		UserId:     patrick.String(),
-		Collection: &coll,
+		Collection: &collection,
 		Prompt:     prompt.Prompt,
 		Limit:      int(prompt.Options.Limit),
 		Threshold:  prompt.Options.Threshold,
