@@ -8,6 +8,7 @@ services:
       - SUPABASE_DB=${SUPABASE_DB}
       - SUPABASE_URL=${SUPABASE_URL}
       - SUPABASE_STORAGE_TOKEN=${SUPABASE_STORAGE_TOKEN}
+      - SUPABASE_JWT_SECRET=${SUPABASE_JWT_SECRET}
   gateway:
     build:
       context: ./envoy

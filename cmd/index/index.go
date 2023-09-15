@@ -90,7 +90,8 @@ func main() {
 	//file := baseDir + "/Further Readings/shared_rsa.pdf"
 	//file := baseDir + "/Further Readings/sigma.pdf"
 	//file := baseDir + "/Further Readings/The Sybil Attack.pdf"
-	file := baseDir + "/Further Readings/The Byzantine Generals Problem.pdf"
+	//file := baseDir + "/Further Readings/The Byzantine Generals Problem.pdf"
+	file := "/Users/patrick/patrick.zierahn@gmail.com - Google Drive/My Drive/KIT/2023-SS/Praktikum Werkzeuge für Agile Modellierung/s10032-020-00361-1.pdf"
 	byt, err := os.ReadFile(file)
 	if err != nil {
 		log.Fatalf("could not read file: %v", err)
@@ -98,7 +99,7 @@ func main() {
 
 	doc := index.DocumentId{
 		UserId:     "3bc23192-230a-4366-b8ec-0bd7cce69510",
-		Collection: uuid.MustParse("b452f76d-c1e4-4cdb-979f-08a4521d3372"),
+		Collection: uuid.MustParse("7d997944-c0f8-4934-8276-0aea0e47c34f"),
 		Filename:   filepath.Base(file),
 	}
 
