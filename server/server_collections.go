@@ -2,13 +2,19 @@ package server
 
 import (
 	"context"
+	"github.com/pzierahn/braingain/auth"
 	pb "github.com/pzierahn/braingain/proto"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 func (server *Server) GetCollections(ctx context.Context, _ *emptypb.Empty) (*pb.Collections, error) {
 
-	collections, err := server.db.ListCollections(ctx, patrick)
+	uid, err := auth.ValidateToken(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	collections, err := server.db.ListCollections(ctx, *uid)
 	if err != nil {
 		return nil, err
 	}

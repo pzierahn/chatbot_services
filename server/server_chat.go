@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/pzierahn/braingain/auth"
 	"github.com/pzierahn/braingain/braingain"
 	"github.com/pzierahn/braingain/database"
 	pb "github.com/pzierahn/braingain/proto"
@@ -18,9 +19,7 @@ type background struct {
 	docs []*pb.Completion_Document
 }
 
-var patrick = uuid.MustParse("3bc23192-230a-4366-b8ec-0bd7cce69510")
-
-func (server *Server) getBackgroundFromPrompt(ctx context.Context, prompt *pb.Prompt) (*background, error) {
+func (server *Server) getBackgroundFromPrompt(ctx context.Context, uid uuid.UUID, prompt *pb.Prompt) (*background, error) {
 	sort.Slice(prompt.Documents, func(i, j int) bool {
 		return prompt.Documents[i].Filename < prompt.Documents[j].Filename
 	})
@@ -42,7 +41,7 @@ func (server *Server) getBackgroundFromPrompt(ctx context.Context, prompt *pb.Pr
 
 		content, err := server.db.GetPageContent(ctx, database.PageContentQuery{
 			Id:     id,
-			UserId: patrick.String(),
+			UserId: uid.String(),
 			Pages:  doc.Pages,
 		})
 		if err != nil {
@@ -68,7 +67,7 @@ func (server *Server) getBackgroundFromPrompt(ctx context.Context, prompt *pb.Pr
 	}, nil
 }
 
-func (server *Server) getBackgroundFromDB(ctx context.Context, prompt *pb.Prompt) (*background, error) {
+func (server *Server) getBackgroundFromDB(ctx context.Context, uid uuid.UUID, prompt *pb.Prompt) (*background, error) {
 
 	collection, err := uuid.Parse(prompt.Collection)
 	if err != nil {
@@ -76,7 +75,7 @@ func (server *Server) getBackgroundFromDB(ctx context.Context, prompt *pb.Prompt
 	}
 
 	query := braingain.SearchQuery{
-		UserId:     patrick.String(),
+		UserId:     uid.String(),
 		Collection: &collection,
 		Prompt:     prompt.Prompt,
 		Limit:      int(prompt.Options.Limit),
@@ -118,6 +117,11 @@ func (server *Server) getBackgroundFromDB(ctx context.Context, prompt *pb.Prompt
 }
 
 func (server *Server) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.Completion, error) {
+	uid, err := auth.ValidateToken(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	byt, _ := json.MarshalIndent(prompt, "", "  ")
 
 	log.Printf("Chat: %s", byt)
@@ -127,12 +131,11 @@ func (server *Server) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.Completi
 	}
 
 	var bg *background
-	var err error
 
 	if prompt.Documents == nil || len(prompt.Documents) == 0 {
-		bg, err = server.getBackgroundFromDB(ctx, prompt)
+		bg, err = server.getBackgroundFromDB(ctx, *uid, prompt)
 	} else {
-		bg, err = server.getBackgroundFromPrompt(ctx, prompt)
+		bg, err = server.getBackgroundFromPrompt(ctx, *uid, prompt)
 	}
 
 	if err != nil {
