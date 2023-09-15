@@ -6,7 +6,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"google.golang.org/grpc/metadata"
-	"log"
 	"os"
 )
 
@@ -29,10 +28,7 @@ func ValidateToken(ctx context.Context) (*uuid.UUID, error) {
 		return nil, fmt.Errorf("authorization missing")
 	}
 
-	//log.Printf("Authorization: %s", tokens[0])
-
 	bearer := tokens[0][len("Bearer "):]
-	log.Printf("bearer: %s", bearer)
 
 	var claims jwt.MapClaims
 	token, err := jwt.ParseWithClaims(bearer, &claims, func(token *jwt.Token) (interface{}, error) {

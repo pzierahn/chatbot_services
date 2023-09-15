@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"github.com/google/uuid"
+	"github.com/pzierahn/braingain/auth"
 	"github.com/pzierahn/braingain/database"
 	"github.com/pzierahn/braingain/index"
 	pb "github.com/pzierahn/braingain/proto"
@@ -13,8 +14,13 @@ import (
 
 func (server *Server) GetDocuments(ctx context.Context, req *pb.DocumentQuery) (*pb.Documents, error) {
 
+	uid, err := auth.ValidateToken(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	query := database.DocumentQuery{
-		UserId: patrick.String(),
+		UserId: uid.String(),
 		Query:  "%" + req.Query + "%",
 	}
 
@@ -47,10 +53,14 @@ func (server *Server) GetDocuments(ctx context.Context, req *pb.DocumentQuery) (
 }
 
 func (server *Server) DeleteDocument(ctx context.Context, req *pb.StorageRef) (*emptypb.Empty, error) {
-	id := uuid.MustParse(req.Id)
-	uid := patrick.String()
+	uid, err := auth.ValidateToken(ctx)
+	if err != nil {
+		return nil, err
+	}
 
-	err := server.db.DeleteDocument(ctx, id, uid)
+	id := uuid.MustParse(req.Id)
+
+	err = server.db.DeleteDocument(ctx, id, uid.String())
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +68,7 @@ func (server *Server) DeleteDocument(ctx context.Context, req *pb.StorageRef) (*
 	col := uuid.MustParse(req.Collection)
 
 	err = server.index.Delete(index.DocumentId{
-		UserId:     patrick.String(),
+		UserId:     uid.String(),
 		Collection: col,
 		DocId:      id,
 	})
