@@ -9,7 +9,7 @@ import "google/protobuf/empty.proto";
 service Braingain {
   rpc Chat(Prompt) returns (Completion);
 
-  rpc GetDocuments(DocumentQuery) returns (Documents);
+  rpc FilterDocuments(DocumentFilter) returns (Documents);
   rpc DeleteDocument(StorageRef) returns (google.protobuf.Empty);
 
   rpc GetCollections(google.protobuf.Empty) returns (Collections);
@@ -45,7 +45,7 @@ message Collections {
   repeated Collection items = 1;
 }
 
-message DocumentQuery {
+message DocumentFilter {
   string query = 1;
   string collection = 2;
 }
