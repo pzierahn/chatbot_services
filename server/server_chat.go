@@ -168,6 +168,16 @@ func (server *Server) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.Completi
 		return nil, err
 	}
 
+	_, err = server.db.CreateUsage(ctx, database.Usage{
+		UID:    uid.String(),
+		Model:  resp.Model,
+		Input:  resp.Usage.PromptTokens,
+		Output: resp.Usage.CompletionTokens,
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	completion := &pb.Completion{
 		Prompt:    prompt,
 		Text:      resp.Choices[0].Message.Content,
