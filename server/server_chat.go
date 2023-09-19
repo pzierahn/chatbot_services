@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/pzierahn/braingain/auth"
-	"github.com/pzierahn/braingain/braingain"
 	"github.com/pzierahn/braingain/database"
 	pb "github.com/pzierahn/braingain/proto"
+	"github.com/sashabaranov/go-openai"
 	"log"
 	"sort"
 	"strings"
@@ -74,7 +74,7 @@ func (server *Server) getBackgroundFromDB(ctx context.Context, uid uuid.UUID, pr
 		return nil, err
 	}
 
-	query := braingain.SearchQuery{
+	query := SearchQuery{
 		UserId:     uid.String(),
 		Collection: &collection,
 		Prompt:     prompt.Prompt,
@@ -82,7 +82,7 @@ func (server *Server) getBackgroundFromDB(ctx context.Context, uid uuid.UUID, pr
 		Threshold:  prompt.Options.Threshold,
 	}
 
-	results, err := server.chat.Search(ctx, query)
+	results, err := server.SearchDocuments(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -131,7 +131,6 @@ func (server *Server) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.Completi
 	}
 
 	var bg *background
-
 	if prompt.Documents == nil || len(prompt.Documents) == 0 {
 		bg, err = server.getBackgroundFromDB(ctx, *uid, prompt)
 	} else {
@@ -142,22 +141,36 @@ func (server *Server) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.Completi
 		return nil, err
 	}
 
-	message := braingain.Prompt{
-		Prompt:      prompt.Prompt,
-		Model:       prompt.Options.Model,
-		Temperature: prompt.Options.Temperature,
-		MaxTokens:   int(prompt.Options.MaxTokens),
-		Background:  bg.text,
+	var messages []openai.ChatCompletionMessage
+	for _, text := range bg.text {
+		messages = append(messages, openai.ChatCompletionMessage{
+			Role:    openai.ChatMessageRoleUser,
+			Content: text,
+		})
 	}
 
-	response, err := server.chat.Chat(ctx, message)
+	messages = append(messages, openai.ChatCompletionMessage{
+		Role:    openai.ChatMessageRoleUser,
+		Content: prompt.Prompt,
+	})
+
+	resp, err := server.gpt.CreateChatCompletion(
+		ctx,
+		openai.ChatCompletionRequest{
+			Model:       prompt.Options.Model,
+			Temperature: prompt.Options.Temperature,
+			MaxTokens:   int(prompt.Options.MaxTokens),
+			Messages:    messages,
+			N:           1,
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
 
 	completion := &pb.Completion{
 		Prompt:    prompt,
-		Text:      response.Completion,
+		Text:      resp.Choices[0].Message.Content,
 		Documents: bg.docs,
 	}
 
