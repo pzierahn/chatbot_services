@@ -108,23 +108,8 @@ func (client *Client) FindDocuments(ctx context.Context, query DocumentQuery) ([
 }
 
 func (client *Client) DeleteDocument(ctx context.Context, id uuid.UUID, uid string) error {
-	tx, err := client.conn.BeginTx(ctx, pgx.TxOptions{})
-	if err != nil {
-		return err
-	}
-	defer func() { _ = tx.Rollback(ctx) }()
-
-	_, err = tx.Exec(ctx, `delete from document_embeddings where source = $1`, id)
-	if err != nil {
-		return err
-	}
-
-	_, err = tx.Exec(ctx, `delete from documents where id = $1 AND uid = $2`, id, uid)
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit(ctx)
+	_, err := client.conn.Exec(ctx, `delete from documents where id = $1 and uid = $2`, id, uid)
+	return err
 }
 
 type PageContentQuery struct {
