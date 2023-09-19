@@ -11,13 +11,13 @@ create table if not exists documents
     uid        text not null,
     filename   text not null,
     path       text not null,
-    collection uuid references collections (id)
+    collection uuid references collections (id) ON DELETE CASCADE
 );
 
 create table if not exists document_embeddings
 (
     id        uuid primary key default gen_random_uuid(),
-    source    uuid references documents (id),
+    source    uuid references documents (id) ON DELETE CASCADE,
     page      integer not null,
     text      text    not null,
     embedding vector(1536)
