@@ -22,3 +22,13 @@ create table if not exists document_embeddings
     text      text    not null,
     embedding vector(1536)
 );
+
+create table if not exists openai_usage
+(
+    id         uuid primary key   default gen_random_uuid(),
+    created_at timestamp not null default now(),
+    uid        text      not null,
+    model      text      not null,
+    input      int       not null,
+    output     int       not null
+);
