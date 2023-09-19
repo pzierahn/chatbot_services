@@ -75,3 +75,26 @@ func (server *Server) UpdateCollection(ctx context.Context, collection *pb.Colle
 
 	return &emptypb.Empty{}, nil
 }
+
+func (server *Server) DeleteCollection(ctx context.Context, collection *pb.Collection) (*emptypb.Empty, error) {
+	uid, err := auth.ValidateToken(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	id, err := uuid.Parse(collection.Id)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	err = server.db.DeleteCollection(ctx, database.Collection{
+		Id:     id,
+		UserId: uid.String(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &emptypb.Empty{}, nil
+}
