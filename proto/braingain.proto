@@ -13,7 +13,9 @@ service Braingain {
   rpc DeleteDocument(StorageRef) returns (google.protobuf.Empty);
 
   rpc GetCollections(google.protobuf.Empty) returns (Collections);
+
   rpc CreateCollection(Collection) returns (google.protobuf.Empty);
+  rpc UpdateCollection(Collection) returns (google.protobuf.Empty);
 
   rpc IndexDocument(StorageRef) returns (stream IndexProgress);
 }

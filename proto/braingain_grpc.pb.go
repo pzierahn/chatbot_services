@@ -25,6 +25,7 @@ const (
 	Braingain_DeleteDocument_FullMethodName   = "/endpoint.braingain.v1.Braingain/DeleteDocument"
 	Braingain_GetCollections_FullMethodName   = "/endpoint.braingain.v1.Braingain/GetCollections"
 	Braingain_CreateCollection_FullMethodName = "/endpoint.braingain.v1.Braingain/CreateCollection"
+	Braingain_UpdateCollection_FullMethodName = "/endpoint.braingain.v1.Braingain/UpdateCollection"
 	Braingain_IndexDocument_FullMethodName    = "/endpoint.braingain.v1.Braingain/IndexDocument"
 )
 
@@ -37,6 +38,7 @@ type BraingainClient interface {
 	DeleteDocument(ctx context.Context, in *StorageRef, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetCollections(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Collections, error)
 	CreateCollection(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UpdateCollection(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	IndexDocument(ctx context.Context, in *StorageRef, opts ...grpc.CallOption) (Braingain_IndexDocumentClient, error)
 }
 
@@ -93,6 +95,15 @@ func (c *braingainClient) CreateCollection(ctx context.Context, in *Collection, 
 	return out, nil
 }
 
+func (c *braingainClient) UpdateCollection(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Braingain_UpdateCollection_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *braingainClient) IndexDocument(ctx context.Context, in *StorageRef, opts ...grpc.CallOption) (Braingain_IndexDocumentClient, error) {
 	stream, err := c.cc.NewStream(ctx, &Braingain_ServiceDesc.Streams[0], Braingain_IndexDocument_FullMethodName, opts...)
 	if err != nil {
@@ -134,6 +145,7 @@ type BraingainServer interface {
 	DeleteDocument(context.Context, *StorageRef) (*emptypb.Empty, error)
 	GetCollections(context.Context, *emptypb.Empty) (*Collections, error)
 	CreateCollection(context.Context, *Collection) (*emptypb.Empty, error)
+	UpdateCollection(context.Context, *Collection) (*emptypb.Empty, error)
 	IndexDocument(*StorageRef, Braingain_IndexDocumentServer) error
 	mustEmbedUnimplementedBraingainServer()
 }
@@ -156,6 +168,9 @@ func (UnimplementedBraingainServer) GetCollections(context.Context, *emptypb.Emp
 }
 func (UnimplementedBraingainServer) CreateCollection(context.Context, *Collection) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateCollection not implemented")
+}
+func (UnimplementedBraingainServer) UpdateCollection(context.Context, *Collection) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateCollection not implemented")
 }
 func (UnimplementedBraingainServer) IndexDocument(*StorageRef, Braingain_IndexDocumentServer) error {
 	return status.Errorf(codes.Unimplemented, "method IndexDocument not implemented")
@@ -263,6 +278,24 @@ func _Braingain_CreateCollection_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Braingain_UpdateCollection_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Collection)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BraingainServer).UpdateCollection(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Braingain_UpdateCollection_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BraingainServer).UpdateCollection(ctx, req.(*Collection))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Braingain_IndexDocument_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(StorageRef)
 	if err := stream.RecvMsg(m); err != nil {
@@ -310,6 +343,10 @@ var Braingain_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateCollection",
 			Handler:    _Braingain_CreateCollection_Handler,
+		},
+		{
+			MethodName: "UpdateCollection",
+			Handler:    _Braingain_UpdateCollection_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
