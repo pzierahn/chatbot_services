@@ -32,6 +32,15 @@ func (client *Client) CreateCollection(ctx context.Context, coll Collection) (id
 	return id, nil
 }
 
+func (client *Client) UpdateCollection(ctx context.Context, coll Collection) error {
+	_, err := client.conn.Exec(
+		ctx,
+		`update collections set name = $3 where id = $1 and uid = $2`,
+		coll.Id, coll.UserId, coll.Name)
+
+	return err
+}
+
 func (client *Client) ListCollections(ctx context.Context, uid uuid.UUID) ([]*CollectionInfo, error) {
 	rows, err := client.conn.Query(
 		ctx,
