@@ -88,6 +88,8 @@ func (server *Server) UpdateDocument(ctx context.Context, req *pb.StorageRef) (*
 		return nil, err
 	}
 
+	log.Printf("UpdateDocument: %+v", req)
+
 	docID, err := uuid.Parse(req.Id)
 	if err != nil {
 		return nil, err
@@ -98,7 +100,7 @@ func (server *Server) UpdateDocument(ctx context.Context, req *pb.StorageRef) (*
 		return nil, err
 	}
 
-	err = server.db.UpdateDocument(ctx, database.Document{
+	err = server.db.UpdateDocumentName(ctx, database.Document{
 		Id:         docID,
 		UserId:     uid.String(),
 		Collection: collection,
