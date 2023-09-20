@@ -7,6 +7,7 @@ import (
 	"github.com/pzierahn/braingain/auth"
 	"github.com/pzierahn/braingain/database"
 	pb "github.com/pzierahn/braingain/proto"
+	supastorage "github.com/supabase-community/storage-go"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"log"
 )
@@ -97,9 +98,15 @@ func (server *Server) DeleteCollection(ctx context.Context, collection *pb.Colle
 		return nil, err
 	}
 
-	resp := server.storage.RemoveFile(bucket, []string{
-		fmt.Sprintf("%s/%s", uid, id),
-	})
+	basePath := fmt.Sprintf("%s/%s", uid, id)
+
+	var paths []string
+	fileObjs := server.storage.ListFiles(bucket, basePath, supastorage.FileSearchOptions{})
+	for _, file := range fileObjs {
+		paths = append(paths, basePath+"/"+file.Name)
+	}
+
+	resp := server.storage.RemoveFile(bucket, paths)
 	if resp.Error != "" {
 		return nil, fmt.Errorf("failed to delete file: %s", resp.Error)
 	}
