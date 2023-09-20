@@ -7,22 +7,22 @@ package endpoint.braingain.v1;
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
-// Version: 2.0.0
+// Version: 3.0.0
 service Braingain {
   rpc Chat(Prompt) returns (ChatMessage);
   rpc GetChatMessages(Collection) returns (ChatMessages);
   rpc GetChatMessage(MessageID) returns (ChatMessage);
 
   rpc FilterDocuments(DocumentFilter) returns (Documents);
-  rpc DeleteDocument(StorageRef) returns (google.protobuf.Empty);
-  rpc UpdateDocument(StorageRef) returns (google.protobuf.Empty);
+
+  rpc IndexDocument(Document) returns (stream IndexProgress);
+  rpc DeleteDocument(Document) returns (google.protobuf.Empty);
+  rpc UpdateDocument(Document) returns (google.protobuf.Empty);
 
   rpc GetCollections(google.protobuf.Empty) returns (Collections);
   rpc CreateCollection(Collection) returns (google.protobuf.Empty);
   rpc UpdateCollection(Collection) returns (google.protobuf.Empty);
   rpc DeleteCollection(Collection) returns (google.protobuf.Empty);
-
-  rpc IndexDocument(StorageRef) returns (stream IndexProgress);
 }
 
 message IndexProgress {
@@ -30,7 +30,7 @@ message IndexProgress {
   uint32 processedPages = 2;
 }
 
-message StorageRef {
+message Document {
   string id = 1;
   string collection_id = 2;
   string filename = 3;

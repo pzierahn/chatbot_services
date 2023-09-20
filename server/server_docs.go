@@ -52,7 +52,7 @@ func (server *Server) FilterDocuments(ctx context.Context, req *pb.DocumentFilte
 	return &documents, nil
 }
 
-func (server *Server) DeleteDocument(ctx context.Context, req *pb.StorageRef) (*emptypb.Empty, error) {
+func (server *Server) DeleteDocument(ctx context.Context, req *pb.Document) (*emptypb.Empty, error) {
 	uid, err := auth.ValidateToken(ctx)
 	if err != nil {
 		return nil, err
@@ -82,7 +82,7 @@ func (server *Server) DeleteDocument(ctx context.Context, req *pb.StorageRef) (*
 	return &emptypb.Empty{}, nil
 }
 
-func (server *Server) UpdateDocument(ctx context.Context, req *pb.StorageRef) (*emptypb.Empty, error) {
+func (server *Server) UpdateDocument(ctx context.Context, req *pb.Document) (*emptypb.Empty, error) {
 	uid, err := auth.ValidateToken(ctx)
 	if err != nil {
 		return nil, err

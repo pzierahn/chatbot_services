@@ -24,13 +24,13 @@ const (
 	Braingain_GetChatMessages_FullMethodName  = "/endpoint.braingain.v1.Braingain/GetChatMessages"
 	Braingain_GetChatMessage_FullMethodName   = "/endpoint.braingain.v1.Braingain/GetChatMessage"
 	Braingain_FilterDocuments_FullMethodName  = "/endpoint.braingain.v1.Braingain/FilterDocuments"
+	Braingain_IndexDocument_FullMethodName    = "/endpoint.braingain.v1.Braingain/IndexDocument"
 	Braingain_DeleteDocument_FullMethodName   = "/endpoint.braingain.v1.Braingain/DeleteDocument"
 	Braingain_UpdateDocument_FullMethodName   = "/endpoint.braingain.v1.Braingain/UpdateDocument"
 	Braingain_GetCollections_FullMethodName   = "/endpoint.braingain.v1.Braingain/GetCollections"
 	Braingain_CreateCollection_FullMethodName = "/endpoint.braingain.v1.Braingain/CreateCollection"
 	Braingain_UpdateCollection_FullMethodName = "/endpoint.braingain.v1.Braingain/UpdateCollection"
 	Braingain_DeleteCollection_FullMethodName = "/endpoint.braingain.v1.Braingain/DeleteCollection"
-	Braingain_IndexDocument_FullMethodName    = "/endpoint.braingain.v1.Braingain/IndexDocument"
 )
 
 // BraingainClient is the client API for Braingain service.
@@ -41,13 +41,13 @@ type BraingainClient interface {
 	GetChatMessages(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*ChatMessages, error)
 	GetChatMessage(ctx context.Context, in *MessageID, opts ...grpc.CallOption) (*ChatMessage, error)
 	FilterDocuments(ctx context.Context, in *DocumentFilter, opts ...grpc.CallOption) (*Documents, error)
-	DeleteDocument(ctx context.Context, in *StorageRef, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	UpdateDocument(ctx context.Context, in *StorageRef, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	IndexDocument(ctx context.Context, in *Document, opts ...grpc.CallOption) (Braingain_IndexDocumentClient, error)
+	DeleteDocument(ctx context.Context, in *Document, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UpdateDocument(ctx context.Context, in *Document, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetCollections(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Collections, error)
 	CreateCollection(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	UpdateCollection(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteCollection(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	IndexDocument(ctx context.Context, in *StorageRef, opts ...grpc.CallOption) (Braingain_IndexDocumentClient, error)
 }
 
 type braingainClient struct {
@@ -94,7 +94,39 @@ func (c *braingainClient) FilterDocuments(ctx context.Context, in *DocumentFilte
 	return out, nil
 }
 
-func (c *braingainClient) DeleteDocument(ctx context.Context, in *StorageRef, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *braingainClient) IndexDocument(ctx context.Context, in *Document, opts ...grpc.CallOption) (Braingain_IndexDocumentClient, error) {
+	stream, err := c.cc.NewStream(ctx, &Braingain_ServiceDesc.Streams[0], Braingain_IndexDocument_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &braingainIndexDocumentClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type Braingain_IndexDocumentClient interface {
+	Recv() (*IndexProgress, error)
+	grpc.ClientStream
+}
+
+type braingainIndexDocumentClient struct {
+	grpc.ClientStream
+}
+
+func (x *braingainIndexDocumentClient) Recv() (*IndexProgress, error) {
+	m := new(IndexProgress)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *braingainClient) DeleteDocument(ctx context.Context, in *Document, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, Braingain_DeleteDocument_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -103,7 +135,7 @@ func (c *braingainClient) DeleteDocument(ctx context.Context, in *StorageRef, op
 	return out, nil
 }
 
-func (c *braingainClient) UpdateDocument(ctx context.Context, in *StorageRef, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *braingainClient) UpdateDocument(ctx context.Context, in *Document, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, Braingain_UpdateDocument_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -148,38 +180,6 @@ func (c *braingainClient) DeleteCollection(ctx context.Context, in *Collection, 
 	return out, nil
 }
 
-func (c *braingainClient) IndexDocument(ctx context.Context, in *StorageRef, opts ...grpc.CallOption) (Braingain_IndexDocumentClient, error) {
-	stream, err := c.cc.NewStream(ctx, &Braingain_ServiceDesc.Streams[0], Braingain_IndexDocument_FullMethodName, opts...)
-	if err != nil {
-		return nil, err
-	}
-	x := &braingainIndexDocumentClient{stream}
-	if err := x.ClientStream.SendMsg(in); err != nil {
-		return nil, err
-	}
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	return x, nil
-}
-
-type Braingain_IndexDocumentClient interface {
-	Recv() (*IndexProgress, error)
-	grpc.ClientStream
-}
-
-type braingainIndexDocumentClient struct {
-	grpc.ClientStream
-}
-
-func (x *braingainIndexDocumentClient) Recv() (*IndexProgress, error) {
-	m := new(IndexProgress)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
-}
-
 // BraingainServer is the server API for Braingain service.
 // All implementations must embed UnimplementedBraingainServer
 // for forward compatibility
@@ -188,13 +188,13 @@ type BraingainServer interface {
 	GetChatMessages(context.Context, *Collection) (*ChatMessages, error)
 	GetChatMessage(context.Context, *MessageID) (*ChatMessage, error)
 	FilterDocuments(context.Context, *DocumentFilter) (*Documents, error)
-	DeleteDocument(context.Context, *StorageRef) (*emptypb.Empty, error)
-	UpdateDocument(context.Context, *StorageRef) (*emptypb.Empty, error)
+	IndexDocument(*Document, Braingain_IndexDocumentServer) error
+	DeleteDocument(context.Context, *Document) (*emptypb.Empty, error)
+	UpdateDocument(context.Context, *Document) (*emptypb.Empty, error)
 	GetCollections(context.Context, *emptypb.Empty) (*Collections, error)
 	CreateCollection(context.Context, *Collection) (*emptypb.Empty, error)
 	UpdateCollection(context.Context, *Collection) (*emptypb.Empty, error)
 	DeleteCollection(context.Context, *Collection) (*emptypb.Empty, error)
-	IndexDocument(*StorageRef, Braingain_IndexDocumentServer) error
 	mustEmbedUnimplementedBraingainServer()
 }
 
@@ -214,10 +214,13 @@ func (UnimplementedBraingainServer) GetChatMessage(context.Context, *MessageID) 
 func (UnimplementedBraingainServer) FilterDocuments(context.Context, *DocumentFilter) (*Documents, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FilterDocuments not implemented")
 }
-func (UnimplementedBraingainServer) DeleteDocument(context.Context, *StorageRef) (*emptypb.Empty, error) {
+func (UnimplementedBraingainServer) IndexDocument(*Document, Braingain_IndexDocumentServer) error {
+	return status.Errorf(codes.Unimplemented, "method IndexDocument not implemented")
+}
+func (UnimplementedBraingainServer) DeleteDocument(context.Context, *Document) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteDocument not implemented")
 }
-func (UnimplementedBraingainServer) UpdateDocument(context.Context, *StorageRef) (*emptypb.Empty, error) {
+func (UnimplementedBraingainServer) UpdateDocument(context.Context, *Document) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateDocument not implemented")
 }
 func (UnimplementedBraingainServer) GetCollections(context.Context, *emptypb.Empty) (*Collections, error) {
@@ -231,9 +234,6 @@ func (UnimplementedBraingainServer) UpdateCollection(context.Context, *Collectio
 }
 func (UnimplementedBraingainServer) DeleteCollection(context.Context, *Collection) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteCollection not implemented")
-}
-func (UnimplementedBraingainServer) IndexDocument(*StorageRef, Braingain_IndexDocumentServer) error {
-	return status.Errorf(codes.Unimplemented, "method IndexDocument not implemented")
 }
 func (UnimplementedBraingainServer) mustEmbedUnimplementedBraingainServer() {}
 
@@ -320,8 +320,29 @@ func _Braingain_FilterDocuments_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Braingain_IndexDocument_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(Document)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(BraingainServer).IndexDocument(m, &braingainIndexDocumentServer{stream})
+}
+
+type Braingain_IndexDocumentServer interface {
+	Send(*IndexProgress) error
+	grpc.ServerStream
+}
+
+type braingainIndexDocumentServer struct {
+	grpc.ServerStream
+}
+
+func (x *braingainIndexDocumentServer) Send(m *IndexProgress) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 func _Braingain_DeleteDocument_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(StorageRef)
+	in := new(Document)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -333,13 +354,13 @@ func _Braingain_DeleteDocument_Handler(srv interface{}, ctx context.Context, dec
 		FullMethod: Braingain_DeleteDocument_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BraingainServer).DeleteDocument(ctx, req.(*StorageRef))
+		return srv.(BraingainServer).DeleteDocument(ctx, req.(*Document))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Braingain_UpdateDocument_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(StorageRef)
+	in := new(Document)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -351,7 +372,7 @@ func _Braingain_UpdateDocument_Handler(srv interface{}, ctx context.Context, dec
 		FullMethod: Braingain_UpdateDocument_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BraingainServer).UpdateDocument(ctx, req.(*StorageRef))
+		return srv.(BraingainServer).UpdateDocument(ctx, req.(*Document))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -426,27 +447,6 @@ func _Braingain_DeleteCollection_Handler(srv interface{}, ctx context.Context, d
 		return srv.(BraingainServer).DeleteCollection(ctx, req.(*Collection))
 	}
 	return interceptor(ctx, in, info, handler)
-}
-
-func _Braingain_IndexDocument_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(StorageRef)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
-	}
-	return srv.(BraingainServer).IndexDocument(m, &braingainIndexDocumentServer{stream})
-}
-
-type Braingain_IndexDocumentServer interface {
-	Send(*IndexProgress) error
-	grpc.ServerStream
-}
-
-type braingainIndexDocumentServer struct {
-	grpc.ServerStream
-}
-
-func (x *braingainIndexDocumentServer) Send(m *IndexProgress) error {
-	return x.ServerStream.SendMsg(m)
 }
 
 // Braingain_ServiceDesc is the grpc.ServiceDesc for Braingain service.

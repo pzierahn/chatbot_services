@@ -8,7 +8,7 @@ import (
 	"log"
 )
 
-func (server *Server) IndexDocument(ref *pb.StorageRef, stream pb.Braingain_IndexDocumentServer) error {
+func (server *Server) IndexDocument(ref *pb.Document, stream pb.Braingain_IndexDocumentServer) error {
 
 	uid, err := auth.ValidateToken(stream.Context())
 	if err != nil {
