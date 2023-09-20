@@ -58,7 +58,10 @@ func (server *Server) DeleteDocument(ctx context.Context, req *pb.StorageRef) (*
 		return nil, err
 	}
 
-	id := uuid.MustParse(req.Id)
+	id, err := uuid.Parse(req.Id)
+	if err != nil {
+		return nil, err
+	}
 
 	err = server.db.DeleteDocument(ctx, id, uid.String())
 	if err != nil {
