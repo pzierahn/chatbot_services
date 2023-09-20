@@ -47,7 +47,7 @@ create table if not exists chat_message
 
 create table if not exists chat_message_source
 (
-    id              uuid primary key default gen_random_uuid(),
-    chat_message_id uuid not null references chat_message (id) ON DELETE CASCADE,
-    document_page   uuid not null references document_embeddings (id) ON DELETE CASCADE
+    id                     uuid primary key default gen_random_uuid(),
+    chat_message_id        uuid not null references chat_message (id) ON DELETE CASCADE,
+    document_embeddings_id uuid not null references document_embeddings (id) ON DELETE CASCADE
 );
