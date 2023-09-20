@@ -23,6 +23,7 @@ const (
 	Braingain_Chat_FullMethodName             = "/endpoint.braingain.v1.Braingain/Chat"
 	Braingain_FilterDocuments_FullMethodName  = "/endpoint.braingain.v1.Braingain/FilterDocuments"
 	Braingain_DeleteDocument_FullMethodName   = "/endpoint.braingain.v1.Braingain/DeleteDocument"
+	Braingain_UpdateDocument_FullMethodName   = "/endpoint.braingain.v1.Braingain/UpdateDocument"
 	Braingain_GetCollections_FullMethodName   = "/endpoint.braingain.v1.Braingain/GetCollections"
 	Braingain_CreateCollection_FullMethodName = "/endpoint.braingain.v1.Braingain/CreateCollection"
 	Braingain_UpdateCollection_FullMethodName = "/endpoint.braingain.v1.Braingain/UpdateCollection"
@@ -37,6 +38,7 @@ type BraingainClient interface {
 	Chat(ctx context.Context, in *Prompt, opts ...grpc.CallOption) (*Completion, error)
 	FilterDocuments(ctx context.Context, in *DocumentFilter, opts ...grpc.CallOption) (*Documents, error)
 	DeleteDocument(ctx context.Context, in *StorageRef, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UpdateDocument(ctx context.Context, in *StorageRef, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetCollections(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Collections, error)
 	CreateCollection(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	UpdateCollection(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -73,6 +75,15 @@ func (c *braingainClient) FilterDocuments(ctx context.Context, in *DocumentFilte
 func (c *braingainClient) DeleteDocument(ctx context.Context, in *StorageRef, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, Braingain_DeleteDocument_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *braingainClient) UpdateDocument(ctx context.Context, in *StorageRef, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Braingain_UpdateDocument_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -154,6 +165,7 @@ type BraingainServer interface {
 	Chat(context.Context, *Prompt) (*Completion, error)
 	FilterDocuments(context.Context, *DocumentFilter) (*Documents, error)
 	DeleteDocument(context.Context, *StorageRef) (*emptypb.Empty, error)
+	UpdateDocument(context.Context, *StorageRef) (*emptypb.Empty, error)
 	GetCollections(context.Context, *emptypb.Empty) (*Collections, error)
 	CreateCollection(context.Context, *Collection) (*emptypb.Empty, error)
 	UpdateCollection(context.Context, *Collection) (*emptypb.Empty, error)
@@ -174,6 +186,9 @@ func (UnimplementedBraingainServer) FilterDocuments(context.Context, *DocumentFi
 }
 func (UnimplementedBraingainServer) DeleteDocument(context.Context, *StorageRef) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteDocument not implemented")
+}
+func (UnimplementedBraingainServer) UpdateDocument(context.Context, *StorageRef) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateDocument not implemented")
 }
 func (UnimplementedBraingainServer) GetCollections(context.Context, *emptypb.Empty) (*Collections, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCollections not implemented")
@@ -253,6 +268,24 @@ func _Braingain_DeleteDocument_Handler(srv interface{}, ctx context.Context, dec
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BraingainServer).DeleteDocument(ctx, req.(*StorageRef))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Braingain_UpdateDocument_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StorageRef)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BraingainServer).UpdateDocument(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Braingain_UpdateDocument_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BraingainServer).UpdateDocument(ctx, req.(*StorageRef))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -368,6 +401,10 @@ var Braingain_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteDocument",
 			Handler:    _Braingain_DeleteDocument_Handler,
+		},
+		{
+			MethodName: "UpdateDocument",
+			Handler:    _Braingain_UpdateDocument_Handler,
 		},
 		{
 			MethodName: "GetCollections",

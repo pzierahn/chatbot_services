@@ -12,6 +12,7 @@ service Braingain {
 
   rpc FilterDocuments(DocumentFilter) returns (Documents);
   rpc DeleteDocument(StorageRef) returns (google.protobuf.Empty);
+  rpc UpdateDocument(StorageRef) returns (google.protobuf.Empty);
 
   rpc GetCollections(google.protobuf.Empty) returns (Collections);
 

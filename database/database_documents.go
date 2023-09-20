@@ -112,6 +112,13 @@ func (client *Client) DeleteDocument(ctx context.Context, id uuid.UUID, uid stri
 	return err
 }
 
+func (client *Client) UpdateDocument(ctx context.Context, doc Document) error {
+	_, err := client.conn.Exec(ctx,
+		`update documents set filename = $1, path = $2 where id = $3 and uid = $4`,
+		doc.Filename, doc.Collection, doc.Id, doc.UserId)
+	return err
+}
+
 type PageContentQuery struct {
 	Id     uuid.UUID
 	UserId string

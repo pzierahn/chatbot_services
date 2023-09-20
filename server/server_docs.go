@@ -81,3 +81,33 @@ func (server *Server) DeleteDocument(ctx context.Context, req *pb.StorageRef) (*
 
 	return &emptypb.Empty{}, nil
 }
+
+func (server *Server) UpdateDocument(ctx context.Context, req *pb.StorageRef) (*emptypb.Empty, error) {
+	uid, err := auth.ValidateToken(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	docID, err := uuid.Parse(req.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	collection, err := uuid.Parse(req.Collection)
+	if err != nil {
+		return nil, err
+	}
+
+	err = server.db.UpdateDocument(ctx, database.Document{
+		Id:         docID,
+		UserId:     uid.String(),
+		Collection: collection,
+		Filename:   req.Filename,
+		Path:       req.Path,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &emptypb.Empty{}, nil
+}
