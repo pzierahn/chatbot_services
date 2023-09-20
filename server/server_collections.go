@@ -28,7 +28,7 @@ func (server *Server) GetCollections(ctx context.Context, _ *emptypb.Empty) (*pb
 		response.Items = append(response.Items, &pb.Collections_Collection{
 			Id:        collection.Id.String(),
 			Name:      collection.Name,
-			Documents: uint32(collection.Documents),
+			Documents: collection.Documents,
 		})
 	}
 

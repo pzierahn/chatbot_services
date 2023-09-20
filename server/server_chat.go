@@ -16,7 +16,7 @@ import (
 
 type chatContext struct {
 	fragments []string
-	docs      []*pb.Completion_Document
+	docs      []*pb.ChatMessage_Document
 	pageIDs   []uuid.UUID
 }
 
@@ -55,7 +55,7 @@ func (server *Server) getBackgroundFromPrompt(ctx context.Context, uid uuid.UUID
 		}
 
 		bg.fragments = append(bg.fragments, strings.Join(parts, "\n"))
-		bg.docs = append(bg.docs, &pb.Completion_Document{
+		bg.docs = append(bg.docs, &pb.ChatMessage_Document{
 			Id:       doc.Id,
 			Filename: doc.Filename,
 			Pages:    doc.Pages,
@@ -101,7 +101,7 @@ func (server *Server) getBackgroundFromDB(ctx context.Context, uid uuid.UUID, pr
 		}
 
 		bg.fragments = append(bg.fragments, strings.Join(text, "\n"))
-		bg.docs = append(bg.docs, &pb.Completion_Document{
+		bg.docs = append(bg.docs, &pb.ChatMessage_Document{
 			Id:       doc.DocId.String(),
 			Filename: doc.Filename,
 			Pages:    pages,
@@ -112,7 +112,7 @@ func (server *Server) getBackgroundFromDB(ctx context.Context, uid uuid.UUID, pr
 	return &bg, nil
 }
 
-func (server *Server) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.Completion, error) {
+func (server *Server) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMessage, error) {
 	uid, err := auth.ValidateToken(ctx)
 	if err != nil {
 		return nil, err
@@ -174,7 +174,7 @@ func (server *Server) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.Completi
 		log.Printf("Chat: error %v", err)
 	}
 
-	completion := &pb.Completion{
+	completion := &pb.ChatMessage{
 		Prompt:    prompt,
 		Text:      resp.Choices[0].Message.Content,
 		Documents: bg.docs,

@@ -7,11 +7,11 @@ package endpoint.braingain.v1;
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
-// Version: 1.1.0
+// Version: 2.0.0
 service Braingain {
-  rpc Chat(Prompt) returns (Completion);
-  rpc GetChatHistory(Collection) returns (ChatMessages);
-  rpc GetChatMessage(MessageID) returns (Completion);
+  rpc Chat(Prompt) returns (ChatMessage);
+  rpc GetChatMessages(Collection) returns (ChatMessages);
+  rpc GetChatMessage(MessageID) returns (ChatMessage);
 
   rpc FilterDocuments(DocumentFilter) returns (Documents);
   rpc DeleteDocument(StorageRef) returns (google.protobuf.Empty);
@@ -92,7 +92,7 @@ message Prompt {
   repeated Document documents = 4;
 }
 
-message Completion {
+message ChatMessage {
   Prompt prompt = 1;
   string text = 2;
 

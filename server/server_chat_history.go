@@ -40,7 +40,7 @@ func (server *Server) storeChatMessage(ctx context.Context, message chatMessage)
 	}
 }
 
-func (server *Server) GetChatHistory(ctx context.Context, collection *pb.Collection) (*pb.ChatMessages, error) {
+func (server *Server) GetChatMessages(ctx context.Context, collection *pb.Collection) (*pb.ChatMessages, error) {
 	uid, err := auth.ValidateToken(ctx)
 	if err != nil {
 		return nil, err
@@ -59,7 +59,7 @@ func (server *Server) GetChatHistory(ctx context.Context, collection *pb.Collect
 	return messages, nil
 }
 
-func (server *Server) GetChatMessage(ctx context.Context, id *pb.MessageID) (*pb.Completion, error) {
+func (server *Server) GetChatMessage(ctx context.Context, id *pb.MessageID) (*pb.ChatMessage, error) {
 	uid, err := auth.ValidateToken(ctx)
 	if err != nil {
 		return nil, err
@@ -75,7 +75,7 @@ func (server *Server) GetChatMessage(ctx context.Context, id *pb.MessageID) (*pb
 		return nil, err
 	}
 
-	completion := &pb.Completion{
+	completion := &pb.ChatMessage{
 		Prompt: &pb.Prompt{
 			Prompt: message.Prompt,
 		},
@@ -92,7 +92,7 @@ func (server *Server) GetChatMessage(ctx context.Context, id *pb.MessageID) (*pb
 	}
 
 	for key := range filename {
-		completion.Documents = append(completion.Documents, &pb.Completion_Document{
+		completion.Documents = append(completion.Documents, &pb.ChatMessage_Document{
 			Id:       key.String(),
 			Filename: filename[key],
 			Pages:    pages[key],

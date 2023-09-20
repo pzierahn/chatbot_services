@@ -21,7 +21,7 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	Braingain_Chat_FullMethodName             = "/endpoint.braingain.v1.Braingain/Chat"
-	Braingain_GetChatHistory_FullMethodName   = "/endpoint.braingain.v1.Braingain/GetChatHistory"
+	Braingain_GetChatMessages_FullMethodName  = "/endpoint.braingain.v1.Braingain/GetChatMessages"
 	Braingain_GetChatMessage_FullMethodName   = "/endpoint.braingain.v1.Braingain/GetChatMessage"
 	Braingain_FilterDocuments_FullMethodName  = "/endpoint.braingain.v1.Braingain/FilterDocuments"
 	Braingain_DeleteDocument_FullMethodName   = "/endpoint.braingain.v1.Braingain/DeleteDocument"
@@ -37,9 +37,9 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BraingainClient interface {
-	Chat(ctx context.Context, in *Prompt, opts ...grpc.CallOption) (*Completion, error)
-	GetChatHistory(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*ChatMessages, error)
-	GetChatMessage(ctx context.Context, in *MessageID, opts ...grpc.CallOption) (*Completion, error)
+	Chat(ctx context.Context, in *Prompt, opts ...grpc.CallOption) (*ChatMessage, error)
+	GetChatMessages(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*ChatMessages, error)
+	GetChatMessage(ctx context.Context, in *MessageID, opts ...grpc.CallOption) (*ChatMessage, error)
 	FilterDocuments(ctx context.Context, in *DocumentFilter, opts ...grpc.CallOption) (*Documents, error)
 	DeleteDocument(ctx context.Context, in *StorageRef, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	UpdateDocument(ctx context.Context, in *StorageRef, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -58,8 +58,8 @@ func NewBraingainClient(cc grpc.ClientConnInterface) BraingainClient {
 	return &braingainClient{cc}
 }
 
-func (c *braingainClient) Chat(ctx context.Context, in *Prompt, opts ...grpc.CallOption) (*Completion, error) {
-	out := new(Completion)
+func (c *braingainClient) Chat(ctx context.Context, in *Prompt, opts ...grpc.CallOption) (*ChatMessage, error) {
+	out := new(ChatMessage)
 	err := c.cc.Invoke(ctx, Braingain_Chat_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -67,17 +67,17 @@ func (c *braingainClient) Chat(ctx context.Context, in *Prompt, opts ...grpc.Cal
 	return out, nil
 }
 
-func (c *braingainClient) GetChatHistory(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*ChatMessages, error) {
+func (c *braingainClient) GetChatMessages(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*ChatMessages, error) {
 	out := new(ChatMessages)
-	err := c.cc.Invoke(ctx, Braingain_GetChatHistory_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Braingain_GetChatMessages_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *braingainClient) GetChatMessage(ctx context.Context, in *MessageID, opts ...grpc.CallOption) (*Completion, error) {
-	out := new(Completion)
+func (c *braingainClient) GetChatMessage(ctx context.Context, in *MessageID, opts ...grpc.CallOption) (*ChatMessage, error) {
+	out := new(ChatMessage)
 	err := c.cc.Invoke(ctx, Braingain_GetChatMessage_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -184,9 +184,9 @@ func (x *braingainIndexDocumentClient) Recv() (*IndexProgress, error) {
 // All implementations must embed UnimplementedBraingainServer
 // for forward compatibility
 type BraingainServer interface {
-	Chat(context.Context, *Prompt) (*Completion, error)
-	GetChatHistory(context.Context, *Collection) (*ChatMessages, error)
-	GetChatMessage(context.Context, *MessageID) (*Completion, error)
+	Chat(context.Context, *Prompt) (*ChatMessage, error)
+	GetChatMessages(context.Context, *Collection) (*ChatMessages, error)
+	GetChatMessage(context.Context, *MessageID) (*ChatMessage, error)
 	FilterDocuments(context.Context, *DocumentFilter) (*Documents, error)
 	DeleteDocument(context.Context, *StorageRef) (*emptypb.Empty, error)
 	UpdateDocument(context.Context, *StorageRef) (*emptypb.Empty, error)
@@ -202,13 +202,13 @@ type BraingainServer interface {
 type UnimplementedBraingainServer struct {
 }
 
-func (UnimplementedBraingainServer) Chat(context.Context, *Prompt) (*Completion, error) {
+func (UnimplementedBraingainServer) Chat(context.Context, *Prompt) (*ChatMessage, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Chat not implemented")
 }
-func (UnimplementedBraingainServer) GetChatHistory(context.Context, *Collection) (*ChatMessages, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetChatHistory not implemented")
+func (UnimplementedBraingainServer) GetChatMessages(context.Context, *Collection) (*ChatMessages, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetChatMessages not implemented")
 }
-func (UnimplementedBraingainServer) GetChatMessage(context.Context, *MessageID) (*Completion, error) {
+func (UnimplementedBraingainServer) GetChatMessage(context.Context, *MessageID) (*ChatMessage, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetChatMessage not implemented")
 }
 func (UnimplementedBraingainServer) FilterDocuments(context.Context, *DocumentFilter) (*Documents, error) {
@@ -266,20 +266,20 @@ func _Braingain_Chat_Handler(srv interface{}, ctx context.Context, dec func(inte
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Braingain_GetChatHistory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Braingain_GetChatMessages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Collection)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BraingainServer).GetChatHistory(ctx, in)
+		return srv.(BraingainServer).GetChatMessages(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Braingain_GetChatHistory_FullMethodName,
+		FullMethod: Braingain_GetChatMessages_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BraingainServer).GetChatHistory(ctx, req.(*Collection))
+		return srv.(BraingainServer).GetChatMessages(ctx, req.(*Collection))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -461,8 +461,8 @@ var Braingain_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Braingain_Chat_Handler,
 		},
 		{
-			MethodName: "GetChatHistory",
-			Handler:    _Braingain_GetChatHistory_Handler,
+			MethodName: "GetChatMessages",
+			Handler:    _Braingain_GetChatMessages_Handler,
 		},
 		{
 			MethodName: "GetChatMessage",
