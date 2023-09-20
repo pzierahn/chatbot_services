@@ -34,3 +34,20 @@ create table if not exists openai_usage
     input      int       not null,
     output     int       not null
 );
+
+create table if not exists chat_message
+(
+    id         uuid primary key   default gen_random_uuid(),
+    uid        text      not null,
+    created_at timestamp not null default now(),
+    collection uuid      not null references collections (id) ON DELETE CASCADE,
+    prompt     text      not null,
+    completion text      not null
+);
+
+create table if not exists chat_message_source
+(
+    id            uuid primary key default gen_random_uuid(),
+    chat          uuid not null references chat_message (id) ON DELETE CASCADE,
+    document_page uuid not null references document_embeddings (id) ON DELETE CASCADE
+);

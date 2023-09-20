@@ -14,12 +14,13 @@ import (
 	"strings"
 )
 
-type background struct {
-	text []string
-	docs []*pb.Completion_Document
+type chatContext struct {
+	fragments []string
+	docs      []*pb.Completion_Document
+	pageIDs   []uuid.UUID
 }
 
-func (server *Server) getBackgroundFromPrompt(ctx context.Context, uid uuid.UUID, prompt *pb.Prompt) (*background, error) {
+func (server *Server) getBackgroundFromPrompt(ctx context.Context, uid uuid.UUID, prompt *pb.Prompt) (*chatContext, error) {
 	sort.Slice(prompt.Documents, func(i, j int) bool {
 		return prompt.Documents[i].Filename < prompt.Documents[j].Filename
 	})
@@ -30,8 +31,7 @@ func (server *Server) getBackgroundFromPrompt(ctx context.Context, uid uuid.UUID
 		})
 	}
 
-	var text []string
-	var sources []*pb.Completion_Document
+	bg := chatContext{}
 
 	for _, doc := range prompt.Documents {
 		id, err := uuid.Parse(doc.Id)
@@ -51,23 +51,21 @@ func (server *Server) getBackgroundFromPrompt(ctx context.Context, uid uuid.UUID
 		var parts []string
 		for _, page := range content {
 			parts = append(parts, page.Text)
+			bg.pageIDs = append(bg.pageIDs, page.Id)
 		}
 
-		text = append(text, strings.Join(parts, "\n"))
-		sources = append(sources, &pb.Completion_Document{
+		bg.fragments = append(bg.fragments, strings.Join(parts, "\n"))
+		bg.docs = append(bg.docs, &pb.Completion_Document{
 			Id:       doc.Id,
 			Filename: doc.Filename,
 			Pages:    doc.Pages,
 		})
 	}
 
-	return &background{
-		text: text,
-		docs: sources,
-	}, nil
+	return &bg, nil
 }
 
-func (server *Server) getBackgroundFromDB(ctx context.Context, uid uuid.UUID, prompt *pb.Prompt) (*background, error) {
+func (server *Server) getBackgroundFromDB(ctx context.Context, uid uuid.UUID, prompt *pb.Prompt) (*chatContext, error) {
 
 	collection, err := uuid.Parse(prompt.Collection)
 	if err != nil {
@@ -87,8 +85,7 @@ func (server *Server) getBackgroundFromDB(ctx context.Context, uid uuid.UUID, pr
 		return nil, err
 	}
 
-	var sources []*pb.Completion_Document
-	var fragments []string
+	bg := chatContext{}
 
 	for _, doc := range results {
 		text := make([]string, len(doc.Pages))
@@ -99,10 +96,12 @@ func (server *Server) getBackgroundFromDB(ctx context.Context, uid uuid.UUID, pr
 			text[iny] = page.Text
 			pages[iny] = page.Page
 			scores[iny] = page.Score
+
+			bg.pageIDs = append(bg.pageIDs, *page.Id)
 		}
 
-		fragments = append(fragments, strings.Join(text, "\n"))
-		sources = append(sources, &pb.Completion_Document{
+		bg.fragments = append(bg.fragments, strings.Join(text, "\n"))
+		bg.docs = append(bg.docs, &pb.Completion_Document{
 			Id:       doc.DocId.String(),
 			Filename: doc.Filename,
 			Pages:    pages,
@@ -110,10 +109,7 @@ func (server *Server) getBackgroundFromDB(ctx context.Context, uid uuid.UUID, pr
 		})
 	}
 
-	return &background{
-		text: fragments,
-		docs: sources,
-	}, nil
+	return &bg, nil
 }
 
 func (server *Server) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.Completion, error) {
@@ -130,7 +126,7 @@ func (server *Server) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.Completi
 		return nil, fmt.Errorf("options missing")
 	}
 
-	var bg *background
+	var bg *chatContext
 	if prompt.Documents == nil || len(prompt.Documents) == 0 {
 		bg, err = server.getBackgroundFromDB(ctx, *uid, prompt)
 	} else {
@@ -142,7 +138,7 @@ func (server *Server) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.Completi
 	}
 
 	var messages []openai.ChatCompletionMessage
-	for _, text := range bg.text {
+	for _, text := range bg.fragments {
 		messages = append(messages, openai.ChatCompletionMessage{
 			Role:    openai.ChatMessageRoleUser,
 			Content: text,
@@ -175,7 +171,7 @@ func (server *Server) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.Completi
 		Output: resp.Usage.CompletionTokens,
 	})
 	if err != nil {
-		return nil, err
+		log.Printf("Chat: error %v", err)
 	}
 
 	completion := &pb.Completion{
@@ -183,6 +179,14 @@ func (server *Server) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.Completi
 		Text:      resp.Choices[0].Message.Content,
 		Documents: bg.docs,
 	}
+
+	server.storeChatMessage(ctx, chatMessage{
+		uid:        uid.String(),
+		collection: prompt.Collection,
+		prompt:     prompt.Prompt,
+		completion: completion.Text,
+		pageIDs:    bg.pageIDs,
+	})
 
 	return completion, nil
 }
