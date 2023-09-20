@@ -68,7 +68,7 @@ func (server *Server) DeleteDocument(ctx context.Context, req *pb.StorageRef) (*
 		return nil, err
 	}
 
-	col := uuid.MustParse(req.Collection)
+	col := uuid.MustParse(req.CollectionId)
 
 	err = server.index.Delete(index.DocumentId{
 		UserId:     uid.String(),
@@ -95,7 +95,7 @@ func (server *Server) UpdateDocument(ctx context.Context, req *pb.StorageRef) (*
 		return nil, err
 	}
 
-	collection, err := uuid.Parse(req.Collection)
+	collection, err := uuid.Parse(req.CollectionId)
 	if err != nil {
 		return nil, err
 	}

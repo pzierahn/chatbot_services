@@ -32,7 +32,7 @@ message IndexProgress {
 
 message StorageRef {
   string id = 1;
-  string collection = 2;
+  string collection_id = 2;
   string filename = 3;
   string path = 4;
 }
