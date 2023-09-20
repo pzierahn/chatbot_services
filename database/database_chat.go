@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"log"
 	"time"
 )
 
@@ -20,6 +21,8 @@ type ChatMessage struct {
 type ChatMessageSource struct {
 	ID           *uuid.UUID
 	DocumentPage uuid.UUID
+	Filename     string
+	Page         int
 }
 
 func (client *Client) CreateChat(ctx context.Context, history ChatMessage) (*uuid.UUID, error) {
@@ -62,4 +65,88 @@ func (client *Client) CreateChat(ctx context.Context, history ChatMessage) (*uui
 	}
 
 	return &id, nil
+}
+
+func (client *Client) GetChatMessages(ctx context.Context, uid, collection string) (ids []uuid.UUID, _ error) {
+	rows, err := client.conn.Query(ctx,
+		`SELECT id FROM chat_message
+          WHERE uid = $1 AND collection = $2
+          ORDER BY created_at`,
+		uid, collection)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var id uuid.UUID
+		if err = rows.Scan(&id); err != nil {
+			return nil, err
+		}
+
+		ids = append(ids, id)
+	}
+
+	return ids, nil
+}
+
+func (client *Client) GetChatMessage(ctx context.Context, id uuid.UUID, uid string) (*ChatMessage, error) {
+	var message ChatMessage
+
+	err := client.conn.QueryRow(ctx,
+		`SELECT id, created_at, prompt, completion
+			FROM chat_message
+			WHERE id = $1 AND uid = $2`,
+		id, uid).Scan(
+		&message.ID,
+		&message.CreateAt,
+		&message.Prompt,
+		&message.Completion)
+	if err != nil {
+		log.Printf("Error: %v", err)
+		return nil, err
+	}
+
+	message.Sources, err = client.GetChatMessageDocuments(ctx, id, uid)
+	if err != nil {
+		return nil, err
+	}
+
+	return &message, nil
+}
+
+func (client *Client) GetChatMessageDocuments(ctx context.Context, id uuid.UUID, uid string) ([]ChatMessageSource, error) {
+	rows, err := client.conn.Query(ctx,
+		`SELECT de.id, doc.id, doc.filename, de.page
+			FROM chat_message AS cm,
+				 chat_message_source AS cms,
+				 documents AS doc,
+				 document_embeddings as de
+			WHERE cm.id = cms.chat
+			  AND cms.document_page = de.id
+			  AND doc.id = de.source
+			  AND cm.id = $1
+			  AND cm.uid = $2`,
+		id, uid)
+	if err != nil {
+		log.Printf("Error: %v", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var sources []ChatMessageSource
+	for rows.Next() {
+		var source ChatMessageSource
+		if err = rows.Scan(
+			&source.ID,
+			&source.DocumentPage,
+			&source.Filename,
+			&source.Page); err != nil {
+			return nil, err
+		}
+
+		sources = append(sources, source)
+	}
+
+	return sources, nil
 }

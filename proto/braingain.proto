@@ -5,17 +5,19 @@ option go_package = "./proto";
 package endpoint.braingain.v1;
 
 import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
 
-// Version: 1.0.0
+// Version: 1.1.0
 service Braingain {
   rpc Chat(Prompt) returns (Completion);
+  rpc GetChatHistory(Collection) returns (ChatMessages);
+  rpc GetChatMessage(MessageID) returns (Completion);
 
   rpc FilterDocuments(DocumentFilter) returns (Documents);
   rpc DeleteDocument(StorageRef) returns (google.protobuf.Empty);
   rpc UpdateDocument(StorageRef) returns (google.protobuf.Empty);
 
   rpc GetCollections(google.protobuf.Empty) returns (Collections);
-
   rpc CreateCollection(Collection) returns (google.protobuf.Empty);
   rpc UpdateCollection(Collection) returns (google.protobuf.Empty);
   rpc DeleteCollection(Collection) returns (google.protobuf.Empty);
@@ -102,4 +104,13 @@ message Completion {
   }
 
   repeated Document documents = 3;
+  optional google.protobuf.Timestamp timestamp = 4;
+}
+
+message MessageID {
+  string id = 1;
+}
+
+message ChatMessages {
+  repeated string ids = 1;
 }
