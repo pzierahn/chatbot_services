@@ -13,8 +13,7 @@ service Braingain {
   rpc GetChatMessages(Collection) returns (ChatMessages);
   rpc GetChatMessage(MessageID) returns (ChatMessage);
 
-  rpc FilterDocuments(DocumentFilter) returns (Documents);
-
+  rpc ListDocuments(DocumentFilter) returns (Documents);
   rpc IndexDocument(Document) returns (stream IndexProgress);
   rpc DeleteDocument(Document) returns (google.protobuf.Empty);
   rpc UpdateDocument(Document) returns (google.protobuf.Empty);

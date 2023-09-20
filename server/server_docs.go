@@ -12,7 +12,7 @@ import (
 	"sort"
 )
 
-func (server *Server) FilterDocuments(ctx context.Context, req *pb.DocumentFilter) (*pb.Documents, error) {
+func (server *Server) ListDocuments(ctx context.Context, req *pb.DocumentFilter) (*pb.Documents, error) {
 
 	uid, err := auth.ValidateToken(ctx)
 	if err != nil {

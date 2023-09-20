@@ -23,7 +23,7 @@ const (
 	Braingain_Chat_FullMethodName             = "/endpoint.braingain.v1.Braingain/Chat"
 	Braingain_GetChatMessages_FullMethodName  = "/endpoint.braingain.v1.Braingain/GetChatMessages"
 	Braingain_GetChatMessage_FullMethodName   = "/endpoint.braingain.v1.Braingain/GetChatMessage"
-	Braingain_FilterDocuments_FullMethodName  = "/endpoint.braingain.v1.Braingain/FilterDocuments"
+	Braingain_ListDocuments_FullMethodName    = "/endpoint.braingain.v1.Braingain/ListDocuments"
 	Braingain_IndexDocument_FullMethodName    = "/endpoint.braingain.v1.Braingain/IndexDocument"
 	Braingain_DeleteDocument_FullMethodName   = "/endpoint.braingain.v1.Braingain/DeleteDocument"
 	Braingain_UpdateDocument_FullMethodName   = "/endpoint.braingain.v1.Braingain/UpdateDocument"
@@ -40,7 +40,7 @@ type BraingainClient interface {
 	Chat(ctx context.Context, in *Prompt, opts ...grpc.CallOption) (*ChatMessage, error)
 	GetChatMessages(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*ChatMessages, error)
 	GetChatMessage(ctx context.Context, in *MessageID, opts ...grpc.CallOption) (*ChatMessage, error)
-	FilterDocuments(ctx context.Context, in *DocumentFilter, opts ...grpc.CallOption) (*Documents, error)
+	ListDocuments(ctx context.Context, in *DocumentFilter, opts ...grpc.CallOption) (*Documents, error)
 	IndexDocument(ctx context.Context, in *Document, opts ...grpc.CallOption) (Braingain_IndexDocumentClient, error)
 	DeleteDocument(ctx context.Context, in *Document, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	UpdateDocument(ctx context.Context, in *Document, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -85,9 +85,9 @@ func (c *braingainClient) GetChatMessage(ctx context.Context, in *MessageID, opt
 	return out, nil
 }
 
-func (c *braingainClient) FilterDocuments(ctx context.Context, in *DocumentFilter, opts ...grpc.CallOption) (*Documents, error) {
+func (c *braingainClient) ListDocuments(ctx context.Context, in *DocumentFilter, opts ...grpc.CallOption) (*Documents, error) {
 	out := new(Documents)
-	err := c.cc.Invoke(ctx, Braingain_FilterDocuments_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Braingain_ListDocuments_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -187,7 +187,7 @@ type BraingainServer interface {
 	Chat(context.Context, *Prompt) (*ChatMessage, error)
 	GetChatMessages(context.Context, *Collection) (*ChatMessages, error)
 	GetChatMessage(context.Context, *MessageID) (*ChatMessage, error)
-	FilterDocuments(context.Context, *DocumentFilter) (*Documents, error)
+	ListDocuments(context.Context, *DocumentFilter) (*Documents, error)
 	IndexDocument(*Document, Braingain_IndexDocumentServer) error
 	DeleteDocument(context.Context, *Document) (*emptypb.Empty, error)
 	UpdateDocument(context.Context, *Document) (*emptypb.Empty, error)
@@ -211,8 +211,8 @@ func (UnimplementedBraingainServer) GetChatMessages(context.Context, *Collection
 func (UnimplementedBraingainServer) GetChatMessage(context.Context, *MessageID) (*ChatMessage, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetChatMessage not implemented")
 }
-func (UnimplementedBraingainServer) FilterDocuments(context.Context, *DocumentFilter) (*Documents, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method FilterDocuments not implemented")
+func (UnimplementedBraingainServer) ListDocuments(context.Context, *DocumentFilter) (*Documents, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListDocuments not implemented")
 }
 func (UnimplementedBraingainServer) IndexDocument(*Document, Braingain_IndexDocumentServer) error {
 	return status.Errorf(codes.Unimplemented, "method IndexDocument not implemented")
@@ -302,20 +302,20 @@ func _Braingain_GetChatMessage_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Braingain_FilterDocuments_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Braingain_ListDocuments_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DocumentFilter)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BraingainServer).FilterDocuments(ctx, in)
+		return srv.(BraingainServer).ListDocuments(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Braingain_FilterDocuments_FullMethodName,
+		FullMethod: Braingain_ListDocuments_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BraingainServer).FilterDocuments(ctx, req.(*DocumentFilter))
+		return srv.(BraingainServer).ListDocuments(ctx, req.(*DocumentFilter))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -469,8 +469,8 @@ var Braingain_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Braingain_GetChatMessage_Handler,
 		},
 		{
-			MethodName: "FilterDocuments",
-			Handler:    _Braingain_FilterDocuments_Handler,
+			MethodName: "ListDocuments",
+			Handler:    _Braingain_ListDocuments_Handler,
 		},
 		{
 			MethodName: "DeleteDocument",
