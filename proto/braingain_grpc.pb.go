@@ -31,6 +31,7 @@ const (
 	Braingain_CreateCollection_FullMethodName = "/endpoint.braingain.v1.Braingain/CreateCollection"
 	Braingain_UpdateCollection_FullMethodName = "/endpoint.braingain.v1.Braingain/UpdateCollection"
 	Braingain_DeleteCollection_FullMethodName = "/endpoint.braingain.v1.Braingain/DeleteCollection"
+	Braingain_GetModelUsages_FullMethodName   = "/endpoint.braingain.v1.Braingain/GetModelUsages"
 )
 
 // BraingainClient is the client API for Braingain service.
@@ -48,6 +49,7 @@ type BraingainClient interface {
 	CreateCollection(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	UpdateCollection(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteCollection(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetModelUsages(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ModelUsages, error)
 }
 
 type braingainClient struct {
@@ -180,6 +182,15 @@ func (c *braingainClient) DeleteCollection(ctx context.Context, in *Collection, 
 	return out, nil
 }
 
+func (c *braingainClient) GetModelUsages(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ModelUsages, error) {
+	out := new(ModelUsages)
+	err := c.cc.Invoke(ctx, Braingain_GetModelUsages_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BraingainServer is the server API for Braingain service.
 // All implementations must embed UnimplementedBraingainServer
 // for forward compatibility
@@ -195,6 +206,7 @@ type BraingainServer interface {
 	CreateCollection(context.Context, *Collection) (*emptypb.Empty, error)
 	UpdateCollection(context.Context, *Collection) (*emptypb.Empty, error)
 	DeleteCollection(context.Context, *Collection) (*emptypb.Empty, error)
+	GetModelUsages(context.Context, *emptypb.Empty) (*ModelUsages, error)
 	mustEmbedUnimplementedBraingainServer()
 }
 
@@ -234,6 +246,9 @@ func (UnimplementedBraingainServer) UpdateCollection(context.Context, *Collectio
 }
 func (UnimplementedBraingainServer) DeleteCollection(context.Context, *Collection) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteCollection not implemented")
+}
+func (UnimplementedBraingainServer) GetModelUsages(context.Context, *emptypb.Empty) (*ModelUsages, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetModelUsages not implemented")
 }
 func (UnimplementedBraingainServer) mustEmbedUnimplementedBraingainServer() {}
 
@@ -449,6 +464,24 @@ func _Braingain_DeleteCollection_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Braingain_GetModelUsages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BraingainServer).GetModelUsages(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Braingain_GetModelUsages_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BraingainServer).GetModelUsages(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Braingain_ServiceDesc is the grpc.ServiceDesc for Braingain service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -495,6 +528,10 @@ var Braingain_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteCollection",
 			Handler:    _Braingain_DeleteCollection_Handler,
+		},
+		{
+			MethodName: "GetModelUsages",
+			Handler:    _Braingain_GetModelUsages_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

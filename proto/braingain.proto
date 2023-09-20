@@ -22,6 +22,18 @@ service Braingain {
   rpc CreateCollection(Collection) returns (google.protobuf.Empty);
   rpc UpdateCollection(Collection) returns (google.protobuf.Empty);
   rpc DeleteCollection(Collection) returns (google.protobuf.Empty);
+
+  rpc GetModelUsages(google.protobuf.Empty) returns (ModelUsages);
+}
+
+message ModelUsages {
+  message Usage {
+    string model = 1;
+    uint32 input = 2;
+    uint32 output = 3;
+  }
+
+  repeated Usage items = 1;
 }
 
 message IndexProgress {

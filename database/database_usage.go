@@ -16,6 +16,12 @@ type Usage struct {
 	Output    int
 }
 
+type ModelUsage struct {
+	Model  string
+	Input  uint32
+	Output uint32
+}
+
 // CreateUsage inserts a new usage record into the openai_usage table
 func (client *Client) CreateUsage(ctx context.Context, usage Usage) (*uuid.UUID, error) {
 	err := client.conn.QueryRow(ctx,
@@ -28,28 +34,27 @@ func (client *Client) CreateUsage(ctx context.Context, usage Usage) (*uuid.UUID,
 	return usage.ID, err
 }
 
-// ReadUsage retrieves a usage record by ID from the openai_usage table
-func (client *Client) ReadUsage(ctx context.Context, id string) (Usage, error) {
-	var usage Usage
-	err := client.conn.QueryRow(ctx,
-		`SELECT id, created_at, uid, model, input, output
-			FROM openai_usage WHERE id = $1`, id).
-		Scan(&usage.ID, &usage.CreatedAt, &usage.UID, &usage.Model, &usage.Input, &usage.Output)
-	return usage, err
-}
+// GetModelUsages retrieves a usage record by ID from the openai_usage table
+func (client *Client) GetModelUsages(ctx context.Context, uid string) ([]ModelUsage, error) {
+	rows, err := client.conn.Query(ctx,
+		`SELECT model, SUM(input), SUM(output)
+			FROM openai_usage
+			WHERE uid = $1
+			GROUP BY model`, uid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
 
-// UpdateUsage updates an existing usage record in the openai_usage table
-func (client *Client) UpdateUsage(ctx context.Context, usage Usage) error {
-	_, err := client.conn.Exec(ctx,
-		`UPDATE openai_usage
-			SET uid = $2, model = $3, input = $4, output = $5
-			WHERE id = $1`,
-		usage.ID, usage.UID, usage.Model, usage.Input, usage.Output)
-	return err
-}
+	var usages []ModelUsage
+	for rows.Next() {
+		var usage ModelUsage
+		err = rows.Scan(&usage.Model, &usage.Input, &usage.Output)
+		if err != nil {
+			return nil, err
+		}
+		usages = append(usages, usage)
+	}
 
-// DeleteUsage deletes a usage record by ID from the openai_usage table
-func (client *Client) DeleteUsage(ctx context.Context, id string) error {
-	_, err := client.conn.Exec(ctx, `DELETE FROM openai_usage WHERE id = $1`, id)
-	return err
+	return usages, nil
 }
