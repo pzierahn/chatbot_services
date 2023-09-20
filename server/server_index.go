@@ -1,54 +1,131 @@
 package server
 
 import (
+	"errors"
 	"github.com/google/uuid"
 	"github.com/pzierahn/braingain/auth"
-	"github.com/pzierahn/braingain/index"
+	"github.com/pzierahn/braingain/database"
+	"github.com/pzierahn/braingain/pdf"
 	pb "github.com/pzierahn/braingain/proto"
+	"github.com/sashabaranov/go-openai"
 	"log"
+	"strings"
+	"sync"
+	"sync/atomic"
 )
 
-func (server *Server) IndexDocument(ref *pb.Document, stream pb.Braingain_IndexDocumentServer) error {
+const bucket = "documents"
+
+type Progress struct {
+	TotalPages   int
+	FinishedPage int
+}
+
+func (server *Server) IndexDocument(doc *pb.Document, stream pb.Braingain_IndexDocumentServer) error {
 
 	uid, err := auth.ValidateToken(stream.Context())
 	if err != nil {
 		return err
 	}
 
-	log.Printf("Indexing: %v", ref)
+	log.Printf("IndexDocument: %+v", doc)
 
-	docId := index.DocumentId{
-		UserId:     uid.String(),
-		Collection: uuid.MustParse(ref.CollectionId),
-		DocId:      uuid.MustParse(ref.Id),
-		Filename:   ref.Filename,
-	}
+	ctx := stream.Context()
 
-	byt, err := server.index.Download(docId)
+	raw, err := server.storage.DownloadFile(bucket, doc.Path)
 	if err != nil {
 		return err
 	}
 
-	ctx := stream.Context()
+	pages, err := pdf.GetPagesFromBytes(ctx, raw)
+	if err != nil {
+		return err
+	}
 
-	progress := make(chan index.Progress)
-	defer close(progress)
+	var wg sync.WaitGroup
+	wg.Add(len(pages))
 
-	go func() {
-		var processed uint32
-		for p := range progress {
-			processed += 1
-			log.Printf("Progress: %v/%v", processed, p.TotalPages)
+	var mu sync.Mutex
+	var embeddings []*database.PageEmbedding
+	var errs []error
+	var inputTokens int
+	var processed uint32
+
+	_ = stream.Send(&pb.IndexProgress{
+		TotalPages:     uint32(len(pages)),
+		ProcessedPages: 0,
+	})
+
+	for inx, page := range pages {
+		go func(inx int, page string) {
+			defer wg.Done()
+			defer atomic.AddUint32(&processed, 1)
+
+			page = strings.TrimSpace(page)
+			if len(page) == 0 {
+				return
+			}
+
+			resp, err := server.gpt.CreateEmbeddings(
+				ctx,
+				openai.EmbeddingRequestStrings{
+					Model: embeddingsModel,
+					Input: []string{page},
+				},
+			)
+
+			mu.Lock()
+			defer mu.Unlock()
+
+			inputTokens += resp.Usage.PromptTokens
+
+			if err != nil {
+				errs = append(errs, err)
+				return
+			}
+
+			embeddings = append(embeddings, &database.PageEmbedding{
+				Page:      inx,
+				Text:      page,
+				Embedding: resp.Data[0].Embedding,
+			})
 
 			_ = stream.Send(&pb.IndexProgress{
-				TotalPages:     uint32(p.TotalPages),
-				ProcessedPages: processed,
+				TotalPages:     uint32(len(pages)),
+				ProcessedPages: processed + 1,
 			})
-		}
-	}()
 
-	_, err = server.index.Process(ctx, docId, byt, progress)
-	log.Printf("Indexing done: %v", err)
+			log.Printf("Indexed page %v", inx)
+		}(inx, page)
+	}
+
+	wg.Wait()
+
+	err = errors.Join(errs...)
+	if err != nil {
+		server.storage.RemoveFile(bucket, []string{doc.Path})
+		return err
+	}
+
+	_, err = server.db.UpsertDocument(ctx, database.Document{
+		UserId:     uid.String(),
+		Collection: uuid.MustParse(doc.CollectionId),
+		Filename:   doc.Filename,
+		Path:       doc.Path,
+		Pages:      embeddings,
+	})
+	if err != nil {
+		server.storage.RemoveFile(bucket, []string{doc.Path})
+		return err
+	}
+
+	log.Printf("Indexing done: %v", doc.Filename)
+
+	_, _ = server.db.CreateUsage(ctx, database.Usage{
+		UID:   uid.String(),
+		Model: embeddingsModel.String(),
+		Input: inputTokens,
+	})
 
 	return err
 }
