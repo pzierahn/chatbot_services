@@ -7,7 +7,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-func (server *Server) GetUsage(ctx context.Context, _ *emptypb.Empty) (*pb.ModelUsages, error) {
+func (server *Server) GetModelUsages(ctx context.Context, _ *emptypb.Empty) (*pb.ModelUsages, error) {
 	uid, err := auth.ValidateToken(ctx)
 	if err != nil {
 		return nil, err
