@@ -2,10 +2,10 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/pzierahn/braingain/auth"
 	"github.com/pzierahn/braingain/database"
-	"github.com/pzierahn/braingain/index"
 	pb "github.com/pzierahn/braingain/proto"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"log"
@@ -68,15 +68,9 @@ func (server *Server) DeleteDocument(ctx context.Context, req *pb.Document) (*em
 		return nil, err
 	}
 
-	col := uuid.MustParse(req.CollectionId)
-
-	err = server.index.Delete(index.DocumentId{
-		UserId:     uid.String(),
-		Collection: col,
-		DocId:      id,
-	})
-	if err != nil {
-		return nil, err
+	resp := server.storage.RemoveFile(bucket, []string{req.Path})
+	if resp.Error != "" {
+		return nil, fmt.Errorf(resp.Error)
 	}
 
 	return &emptypb.Empty{}, nil
