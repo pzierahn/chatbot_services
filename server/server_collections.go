@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/pzierahn/braingain/auth"
 	"github.com/pzierahn/braingain/database"
@@ -94,6 +95,13 @@ func (server *Server) DeleteCollection(ctx context.Context, collection *pb.Colle
 	})
 	if err != nil {
 		return nil, err
+	}
+
+	resp := server.storage.RemoveFile(bucket, []string{
+		fmt.Sprintf("%s/%s", uid, id),
+	})
+	if resp.Error != "" {
+		return nil, fmt.Errorf("failed to delete file: %s", resp.Error)
 	}
 
 	return &emptypb.Empty{}, nil
