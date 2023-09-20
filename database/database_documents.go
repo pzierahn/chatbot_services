@@ -44,7 +44,7 @@ func (client *Client) UpsertDocument(ctx context.Context, doc Document) (*uuid.U
 
 	result := client.conn.QueryRow(
 		ctx,
-		`insert into documents (uid, filename, path, collection)
+		`insert into documents (uid, filename, path, collection_id)
 			values ($1, $2, $3, $4) returning id`,
 		doc.UserId,
 		doc.Filename,
@@ -57,7 +57,7 @@ func (client *Client) UpsertDocument(ctx context.Context, doc Document) (*uuid.U
 
 	for _, page := range doc.Pages {
 		_, err = tx.Exec(ctx,
-			`insert into document_embeddings (source, page, text, embedding)
+			`insert into document_embeddings (document_id, page, text, embedding)
 				values ($1, $2, $3, $4)`,
 			doc.Id,
 			page.Page,
@@ -73,14 +73,14 @@ func (client *Client) UpsertDocument(ctx context.Context, doc Document) (*uuid.U
 
 func (client *Client) FindDocuments(ctx context.Context, query DocumentQuery) ([]DocumentInfo, error) {
 	rows, err := client.conn.Query(ctx,
-		`SELECT source, filename, collection, max(page)
+		`SELECT document_id, filename, collection_id, max(page)
 		FROM documents AS doc
-		    join document_embeddings AS em on doc.id = em.source
+		    join document_embeddings AS em on doc.id = em.document_id
 		WHERE
 		    doc.uid = $1 AND
-		    ($2::uuid is null OR doc.collection = $2::uuid) AND
+		    ($2::uuid is null OR doc.collection_id = $2::uuid) AND
 		    doc.filename LIKE $3
-		GROUP BY source, filename, collection`,
+		GROUP BY document_id, filename, collection_id`,
 		query.UserId, query.Collection, query.Query)
 	if err != nil {
 		return nil, err
@@ -133,12 +133,13 @@ type PageContent struct {
 }
 
 func (client *Client) GetPageContent(ctx context.Context, query PageContentQuery) ([]*PageContent, error) {
+	// TODO: Replace with join
 	rows, err := client.conn.Query(ctx,
 		`select dm.id, filename, page, text
 		from document_embeddings as dm, documents as doc
 		where
-		    source = $1 and
-		    doc.id = dm.source and
+		    document_id = $1 and
+		    doc.id = dm.document_id and
 		    uid = $2 and
 		    page = ANY($3)
 		order by filename, page`, query.Id, query.UserId, query.Pages)

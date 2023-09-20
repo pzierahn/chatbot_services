@@ -35,7 +35,7 @@ func (client *Client) CreateChat(ctx context.Context, history ChatMessage) (*uui
 	id := uuid.New()
 
 	_, err = transaction.Exec(ctx,
-		`INSERT INTO chat_message (id, uid, collection, prompt, completion)
+		`INSERT INTO chat_message (id, uid, collection_id, prompt, completion)
 		VALUES ($1, $2, $3, $4, $5)`,
 		id,
 		history.UID,
@@ -48,7 +48,7 @@ func (client *Client) CreateChat(ctx context.Context, history ChatMessage) (*uui
 
 	for _, source := range history.Sources {
 		err = transaction.QueryRow(ctx,
-			`INSERT INTO chat_message_source (chat, document_page)
+			`INSERT INTO chat_message_source (chat_message_id, document_embeddings_id)
 			VALUES ($1, $2)
 			RETURNING id`,
 			id,
@@ -70,7 +70,7 @@ func (client *Client) CreateChat(ctx context.Context, history ChatMessage) (*uui
 func (client *Client) GetChatMessages(ctx context.Context, uid, collection string) (ids []uuid.UUID, _ error) {
 	rows, err := client.conn.Query(ctx,
 		`SELECT id FROM chat_message
-          WHERE uid = $1 AND collection = $2
+          WHERE uid = $1 AND collection_id = $2
           ORDER BY created_at DESC`,
 		uid, collection)
 	if err != nil {
@@ -122,9 +122,9 @@ func (client *Client) GetChatMessageDocuments(ctx context.Context, id uuid.UUID,
 				 chat_message_source AS cms,
 				 documents AS doc,
 				 document_embeddings as de
-			WHERE cm.id = cms.chat
-			  AND cms.document_page = de.id
-			  AND doc.id = de.source
+			WHERE cm.id = cms.chat_message_id
+			  AND cms.document_embeddings_id = de.id
+			  AND doc.id = de.document_id
 			  AND cm.id = $1
 			  AND cm.uid = $2`,
 		id, uid)

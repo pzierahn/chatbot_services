@@ -56,7 +56,7 @@ func (client *Client) ListCollections(ctx context.Context, uid uuid.UUID) ([]*Co
 		ctx,
 		`SELECT col.id, col.name, COUNT(doc.id) AS count
 			FROM collections col
-			LEFT JOIN documents doc ON col.id = doc.collection
+			LEFT JOIN documents doc ON col.id = doc.collection_id
 			WHERE col.uid = $1
 			GROUP BY col.id, col.name;`,
 		uid)
