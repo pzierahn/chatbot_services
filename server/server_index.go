@@ -94,8 +94,6 @@ func (server *Server) IndexDocument(doc *pb.Document, stream pb.Braingain_IndexD
 				TotalPages:     uint32(len(pages)),
 				ProcessedPages: processed + 1,
 			})
-
-			log.Printf("Indexed page %v", inx)
 		}(inx, page)
 	}
 
