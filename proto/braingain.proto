@@ -6,6 +6,7 @@ package endpoint.braingain.v1;
 
 import "google/protobuf/empty.proto";
 
+// Version: 1.0.0
 service Braingain {
   rpc Chat(Prompt) returns (Completion);
 
