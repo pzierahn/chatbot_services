@@ -71,7 +71,7 @@ func (client *Client) GetChatMessages(ctx context.Context, uid, collection strin
 	rows, err := client.conn.Query(ctx,
 		`SELECT id FROM chat_message
           WHERE uid = $1 AND collection = $2
-          ORDER BY created_at`,
+          ORDER BY created_at DESC`,
 		uid, collection)
 	if err != nil {
 		return nil, err
