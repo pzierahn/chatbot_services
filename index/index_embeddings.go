@@ -60,5 +60,7 @@ func (index Index) GetPagesWithEmbeddings(ctx context.Context, pages []string, c
 
 	wg.Wait()
 
+	// TODO: Add model usage
+
 	return embeddings, errors.Join(errs...)
 }
