@@ -3,7 +3,7 @@ package index
 import (
 	"context"
 	"errors"
-	"github.com/pzierahn/braingain/database"
+	"github.com/pzierahn/brainboost/database"
 	"github.com/sashabaranov/go-openai"
 	"strings"
 	"sync"

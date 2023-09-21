@@ -3,9 +3,9 @@ package server
 import (
 	"context"
 	"github.com/google/uuid"
-	"github.com/pzierahn/braingain/auth"
-	"github.com/pzierahn/braingain/database"
-	pb "github.com/pzierahn/braingain/proto"
+	"github.com/pzierahn/brainboost/auth"
+	"github.com/pzierahn/brainboost/database"
+	pb "github.com/pzierahn/brainboost/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"log"
 )

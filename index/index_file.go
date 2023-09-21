@@ -3,8 +3,8 @@ package index
 import (
 	"context"
 	"github.com/google/uuid"
-	"github.com/pzierahn/braingain/database"
-	"github.com/pzierahn/braingain/pdf"
+	"github.com/pzierahn/brainboost/database"
+	"github.com/pzierahn/brainboost/pdf"
 )
 
 type Progress struct {
