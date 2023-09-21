@@ -1,7 +1,7 @@
 package index
 
 import (
-	"github.com/pzierahn/braingain/database"
+	"github.com/pzierahn/brainboost/database"
 	"github.com/sashabaranov/go-openai"
 	storage_go "github.com/supabase-community/storage-go"
 )

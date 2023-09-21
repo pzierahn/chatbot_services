@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"flag"
-	"github.com/pzierahn/braingain/database"
-	pb "github.com/pzierahn/braingain/proto"
-	"github.com/pzierahn/braingain/server"
+	"github.com/pzierahn/brainboost/database"
+	pb "github.com/pzierahn/brainboost/proto"
+	"github.com/pzierahn/brainboost/server"
 	"github.com/sashabaranov/go-openai"
 	storagego "github.com/supabase-community/storage-go"
 	"google.golang.org/grpc"
@@ -22,7 +22,6 @@ func init() {
 func main() {
 
 	ctx := context.Background()
-	//db, err := database.Connect(ctx, "postgresql://postgres:postgres@localhost:5432")
 	db, err := database.Connect(ctx, os.Getenv("SUPABASE_DB"))
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)

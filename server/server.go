@@ -1,8 +1,8 @@
 package server
 
 import (
-	"github.com/pzierahn/braingain/database"
-	pb "github.com/pzierahn/braingain/proto"
+	"github.com/pzierahn/brainboost/database"
+	pb "github.com/pzierahn/brainboost/proto"
 	"github.com/sashabaranov/go-openai"
 	storage_go "github.com/supabase-community/storage-go"
 )

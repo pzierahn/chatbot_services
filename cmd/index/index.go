@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"github.com/google/uuid"
-	"github.com/pzierahn/braingain/database"
-	"github.com/pzierahn/braingain/index"
+	"github.com/pzierahn/brainboost/database"
+	"github.com/pzierahn/brainboost/index"
 	"github.com/sashabaranov/go-openai"
 	storagego "github.com/supabase-community/storage-go"
 	"log"

@@ -2,8 +2,8 @@ package server
 
 import (
 	"context"
-	"github.com/pzierahn/braingain/auth"
-	pb "github.com/pzierahn/braingain/proto"
+	"github.com/pzierahn/brainboost/auth"
+	pb "github.com/pzierahn/brainboost/proto"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
