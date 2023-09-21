@@ -20,18 +20,18 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Braingain_Chat_FullMethodName             = "/endpoint.braingain.v1.Braingain/Chat"
-	Braingain_GetChatMessages_FullMethodName  = "/endpoint.braingain.v1.Braingain/GetChatMessages"
-	Braingain_GetChatMessage_FullMethodName   = "/endpoint.braingain.v1.Braingain/GetChatMessage"
-	Braingain_ListDocuments_FullMethodName    = "/endpoint.braingain.v1.Braingain/ListDocuments"
-	Braingain_IndexDocument_FullMethodName    = "/endpoint.braingain.v1.Braingain/IndexDocument"
-	Braingain_DeleteDocument_FullMethodName   = "/endpoint.braingain.v1.Braingain/DeleteDocument"
-	Braingain_UpdateDocument_FullMethodName   = "/endpoint.braingain.v1.Braingain/UpdateDocument"
-	Braingain_GetCollections_FullMethodName   = "/endpoint.braingain.v1.Braingain/GetCollections"
-	Braingain_CreateCollection_FullMethodName = "/endpoint.braingain.v1.Braingain/CreateCollection"
-	Braingain_UpdateCollection_FullMethodName = "/endpoint.braingain.v1.Braingain/UpdateCollection"
-	Braingain_DeleteCollection_FullMethodName = "/endpoint.braingain.v1.Braingain/DeleteCollection"
-	Braingain_GetModelUsages_FullMethodName   = "/endpoint.braingain.v1.Braingain/GetModelUsages"
+	Braingain_Chat_FullMethodName             = "/endpoint.brainboost.v1.Braingain/Chat"
+	Braingain_GetChatMessages_FullMethodName  = "/endpoint.brainboost.v1.Braingain/GetChatMessages"
+	Braingain_GetChatMessage_FullMethodName   = "/endpoint.brainboost.v1.Braingain/GetChatMessage"
+	Braingain_ListDocuments_FullMethodName    = "/endpoint.brainboost.v1.Braingain/ListDocuments"
+	Braingain_IndexDocument_FullMethodName    = "/endpoint.brainboost.v1.Braingain/IndexDocument"
+	Braingain_DeleteDocument_FullMethodName   = "/endpoint.brainboost.v1.Braingain/DeleteDocument"
+	Braingain_UpdateDocument_FullMethodName   = "/endpoint.brainboost.v1.Braingain/UpdateDocument"
+	Braingain_GetCollections_FullMethodName   = "/endpoint.brainboost.v1.Braingain/GetCollections"
+	Braingain_CreateCollection_FullMethodName = "/endpoint.brainboost.v1.Braingain/CreateCollection"
+	Braingain_UpdateCollection_FullMethodName = "/endpoint.brainboost.v1.Braingain/UpdateCollection"
+	Braingain_DeleteCollection_FullMethodName = "/endpoint.brainboost.v1.Braingain/DeleteCollection"
+	Braingain_GetModelUsages_FullMethodName   = "/endpoint.brainboost.v1.Braingain/GetModelUsages"
 )
 
 // BraingainClient is the client API for Braingain service.
@@ -486,7 +486,7 @@ func _Braingain_GetModelUsages_Handler(srv interface{}, ctx context.Context, dec
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Braingain_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "endpoint.braingain.v1.Braingain",
+	ServiceName: "endpoint.brainboost.v1.Braingain",
 	HandlerType: (*BraingainServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
