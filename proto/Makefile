@@ -12,6 +12,8 @@ _gendart:
 _gengo:
 	@protoc --go_out=. --go_opt=paths=source_relative \
 		--go-grpc_out=. --go-grpc_opt=paths=source_relative \
+		--include_source_info --include_imports \
+		--descriptor_set_out=api_descriptor.pb \
 		*.proto
 
 gen: _gendart _gengo
