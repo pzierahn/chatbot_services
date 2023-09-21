@@ -8,7 +8,7 @@ import (
 )
 
 type Server struct {
-	pb.UnimplementedBraingainServer
+	pb.UnimplementedBrainboostServer
 	db      *database.Client
 	gpt     *openai.Client
 	storage *storage_go.Client

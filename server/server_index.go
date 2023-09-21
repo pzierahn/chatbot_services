@@ -21,7 +21,7 @@ type Progress struct {
 	FinishedPage int
 }
 
-func (server *Server) IndexDocument(doc *pb.Document, stream pb.Braingain_IndexDocumentServer) error {
+func (server *Server) IndexDocument(doc *pb.Document, stream pb.Brainboost_IndexDocumentServer) error {
 
 	uid, err := auth.ValidateToken(stream.Context())
 	if err != nil {

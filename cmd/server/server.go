@@ -43,7 +43,7 @@ func main() {
 
 	doormanServer := server.NewServer(db, gpt, storage)
 	grpcServer := grpc.NewServer()
-	pb.RegisterBraingainServer(grpcServer, doormanServer)
+	pb.RegisterBrainboostServer(grpcServer, doormanServer)
 
 	port := os.Getenv("PORT")
 	if port == "" {
