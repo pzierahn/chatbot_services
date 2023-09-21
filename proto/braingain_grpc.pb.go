@@ -20,29 +20,29 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Braingain_Chat_FullMethodName             = "/endpoint.brainboost.v1.Braingain/Chat"
-	Braingain_GetChatMessages_FullMethodName  = "/endpoint.brainboost.v1.Braingain/GetChatMessages"
-	Braingain_GetChatMessage_FullMethodName   = "/endpoint.brainboost.v1.Braingain/GetChatMessage"
-	Braingain_ListDocuments_FullMethodName    = "/endpoint.brainboost.v1.Braingain/ListDocuments"
-	Braingain_IndexDocument_FullMethodName    = "/endpoint.brainboost.v1.Braingain/IndexDocument"
-	Braingain_DeleteDocument_FullMethodName   = "/endpoint.brainboost.v1.Braingain/DeleteDocument"
-	Braingain_UpdateDocument_FullMethodName   = "/endpoint.brainboost.v1.Braingain/UpdateDocument"
-	Braingain_GetCollections_FullMethodName   = "/endpoint.brainboost.v1.Braingain/GetCollections"
-	Braingain_CreateCollection_FullMethodName = "/endpoint.brainboost.v1.Braingain/CreateCollection"
-	Braingain_UpdateCollection_FullMethodName = "/endpoint.brainboost.v1.Braingain/UpdateCollection"
-	Braingain_DeleteCollection_FullMethodName = "/endpoint.brainboost.v1.Braingain/DeleteCollection"
-	Braingain_GetModelUsages_FullMethodName   = "/endpoint.brainboost.v1.Braingain/GetModelUsages"
+	Brainboost_Chat_FullMethodName             = "/endpoint.brainboost.v1.Brainboost/Chat"
+	Brainboost_GetChatMessages_FullMethodName  = "/endpoint.brainboost.v1.Brainboost/GetChatMessages"
+	Brainboost_GetChatMessage_FullMethodName   = "/endpoint.brainboost.v1.Brainboost/GetChatMessage"
+	Brainboost_ListDocuments_FullMethodName    = "/endpoint.brainboost.v1.Brainboost/ListDocuments"
+	Brainboost_IndexDocument_FullMethodName    = "/endpoint.brainboost.v1.Brainboost/IndexDocument"
+	Brainboost_DeleteDocument_FullMethodName   = "/endpoint.brainboost.v1.Brainboost/DeleteDocument"
+	Brainboost_UpdateDocument_FullMethodName   = "/endpoint.brainboost.v1.Brainboost/UpdateDocument"
+	Brainboost_GetCollections_FullMethodName   = "/endpoint.brainboost.v1.Brainboost/GetCollections"
+	Brainboost_CreateCollection_FullMethodName = "/endpoint.brainboost.v1.Brainboost/CreateCollection"
+	Brainboost_UpdateCollection_FullMethodName = "/endpoint.brainboost.v1.Brainboost/UpdateCollection"
+	Brainboost_DeleteCollection_FullMethodName = "/endpoint.brainboost.v1.Brainboost/DeleteCollection"
+	Brainboost_GetModelUsages_FullMethodName   = "/endpoint.brainboost.v1.Brainboost/GetModelUsages"
 )
 
-// BraingainClient is the client API for Braingain service.
+// BrainboostClient is the client API for Brainboost service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type BraingainClient interface {
+type BrainboostClient interface {
 	Chat(ctx context.Context, in *Prompt, opts ...grpc.CallOption) (*ChatMessage, error)
 	GetChatMessages(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*ChatMessages, error)
 	GetChatMessage(ctx context.Context, in *MessageID, opts ...grpc.CallOption) (*ChatMessage, error)
 	ListDocuments(ctx context.Context, in *DocumentFilter, opts ...grpc.CallOption) (*Documents, error)
-	IndexDocument(ctx context.Context, in *Document, opts ...grpc.CallOption) (Braingain_IndexDocumentClient, error)
+	IndexDocument(ctx context.Context, in *Document, opts ...grpc.CallOption) (Brainboost_IndexDocumentClient, error)
 	DeleteDocument(ctx context.Context, in *Document, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	UpdateDocument(ctx context.Context, in *Document, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetCollections(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Collections, error)
@@ -52,56 +52,56 @@ type BraingainClient interface {
 	GetModelUsages(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ModelUsages, error)
 }
 
-type braingainClient struct {
+type brainboostClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewBraingainClient(cc grpc.ClientConnInterface) BraingainClient {
-	return &braingainClient{cc}
+func NewBrainboostClient(cc grpc.ClientConnInterface) BrainboostClient {
+	return &brainboostClient{cc}
 }
 
-func (c *braingainClient) Chat(ctx context.Context, in *Prompt, opts ...grpc.CallOption) (*ChatMessage, error) {
+func (c *brainboostClient) Chat(ctx context.Context, in *Prompt, opts ...grpc.CallOption) (*ChatMessage, error) {
 	out := new(ChatMessage)
-	err := c.cc.Invoke(ctx, Braingain_Chat_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Brainboost_Chat_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *braingainClient) GetChatMessages(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*ChatMessages, error) {
+func (c *brainboostClient) GetChatMessages(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*ChatMessages, error) {
 	out := new(ChatMessages)
-	err := c.cc.Invoke(ctx, Braingain_GetChatMessages_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Brainboost_GetChatMessages_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *braingainClient) GetChatMessage(ctx context.Context, in *MessageID, opts ...grpc.CallOption) (*ChatMessage, error) {
+func (c *brainboostClient) GetChatMessage(ctx context.Context, in *MessageID, opts ...grpc.CallOption) (*ChatMessage, error) {
 	out := new(ChatMessage)
-	err := c.cc.Invoke(ctx, Braingain_GetChatMessage_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Brainboost_GetChatMessage_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *braingainClient) ListDocuments(ctx context.Context, in *DocumentFilter, opts ...grpc.CallOption) (*Documents, error) {
+func (c *brainboostClient) ListDocuments(ctx context.Context, in *DocumentFilter, opts ...grpc.CallOption) (*Documents, error) {
 	out := new(Documents)
-	err := c.cc.Invoke(ctx, Braingain_ListDocuments_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Brainboost_ListDocuments_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *braingainClient) IndexDocument(ctx context.Context, in *Document, opts ...grpc.CallOption) (Braingain_IndexDocumentClient, error) {
-	stream, err := c.cc.NewStream(ctx, &Braingain_ServiceDesc.Streams[0], Braingain_IndexDocument_FullMethodName, opts...)
+func (c *brainboostClient) IndexDocument(ctx context.Context, in *Document, opts ...grpc.CallOption) (Brainboost_IndexDocumentClient, error) {
+	stream, err := c.cc.NewStream(ctx, &Brainboost_ServiceDesc.Streams[0], Brainboost_IndexDocument_FullMethodName, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &braingainIndexDocumentClient{stream}
+	x := &brainboostIndexDocumentClient{stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -111,16 +111,16 @@ func (c *braingainClient) IndexDocument(ctx context.Context, in *Document, opts 
 	return x, nil
 }
 
-type Braingain_IndexDocumentClient interface {
+type Brainboost_IndexDocumentClient interface {
 	Recv() (*IndexProgress, error)
 	grpc.ClientStream
 }
 
-type braingainIndexDocumentClient struct {
+type brainboostIndexDocumentClient struct {
 	grpc.ClientStream
 }
 
-func (x *braingainIndexDocumentClient) Recv() (*IndexProgress, error) {
+func (x *brainboostIndexDocumentClient) Recv() (*IndexProgress, error) {
 	m := new(IndexProgress)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -128,78 +128,78 @@ func (x *braingainIndexDocumentClient) Recv() (*IndexProgress, error) {
 	return m, nil
 }
 
-func (c *braingainClient) DeleteDocument(ctx context.Context, in *Document, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *brainboostClient) DeleteDocument(ctx context.Context, in *Document, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, Braingain_DeleteDocument_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Brainboost_DeleteDocument_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *braingainClient) UpdateDocument(ctx context.Context, in *Document, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *brainboostClient) UpdateDocument(ctx context.Context, in *Document, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, Braingain_UpdateDocument_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Brainboost_UpdateDocument_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *braingainClient) GetCollections(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Collections, error) {
+func (c *brainboostClient) GetCollections(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Collections, error) {
 	out := new(Collections)
-	err := c.cc.Invoke(ctx, Braingain_GetCollections_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Brainboost_GetCollections_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *braingainClient) CreateCollection(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *brainboostClient) CreateCollection(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, Braingain_CreateCollection_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Brainboost_CreateCollection_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *braingainClient) UpdateCollection(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *brainboostClient) UpdateCollection(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, Braingain_UpdateCollection_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Brainboost_UpdateCollection_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *braingainClient) DeleteCollection(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *brainboostClient) DeleteCollection(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, Braingain_DeleteCollection_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Brainboost_DeleteCollection_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *braingainClient) GetModelUsages(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ModelUsages, error) {
+func (c *brainboostClient) GetModelUsages(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ModelUsages, error) {
 	out := new(ModelUsages)
-	err := c.cc.Invoke(ctx, Braingain_GetModelUsages_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Brainboost_GetModelUsages_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// BraingainServer is the server API for Braingain service.
-// All implementations must embed UnimplementedBraingainServer
+// BrainboostServer is the server API for Brainboost service.
+// All implementations must embed UnimplementedBrainboostServer
 // for forward compatibility
-type BraingainServer interface {
+type BrainboostServer interface {
 	Chat(context.Context, *Prompt) (*ChatMessage, error)
 	GetChatMessages(context.Context, *Collection) (*ChatMessages, error)
 	GetChatMessage(context.Context, *MessageID) (*ChatMessage, error)
 	ListDocuments(context.Context, *DocumentFilter) (*Documents, error)
-	IndexDocument(*Document, Braingain_IndexDocumentServer) error
+	IndexDocument(*Document, Brainboost_IndexDocumentServer) error
 	DeleteDocument(context.Context, *Document) (*emptypb.Empty, error)
 	UpdateDocument(context.Context, *Document) (*emptypb.Empty, error)
 	GetCollections(context.Context, *emptypb.Empty) (*Collections, error)
@@ -207,337 +207,337 @@ type BraingainServer interface {
 	UpdateCollection(context.Context, *Collection) (*emptypb.Empty, error)
 	DeleteCollection(context.Context, *Collection) (*emptypb.Empty, error)
 	GetModelUsages(context.Context, *emptypb.Empty) (*ModelUsages, error)
-	mustEmbedUnimplementedBraingainServer()
+	mustEmbedUnimplementedBrainboostServer()
 }
 
-// UnimplementedBraingainServer must be embedded to have forward compatible implementations.
-type UnimplementedBraingainServer struct {
+// UnimplementedBrainboostServer must be embedded to have forward compatible implementations.
+type UnimplementedBrainboostServer struct {
 }
 
-func (UnimplementedBraingainServer) Chat(context.Context, *Prompt) (*ChatMessage, error) {
+func (UnimplementedBrainboostServer) Chat(context.Context, *Prompt) (*ChatMessage, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Chat not implemented")
 }
-func (UnimplementedBraingainServer) GetChatMessages(context.Context, *Collection) (*ChatMessages, error) {
+func (UnimplementedBrainboostServer) GetChatMessages(context.Context, *Collection) (*ChatMessages, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetChatMessages not implemented")
 }
-func (UnimplementedBraingainServer) GetChatMessage(context.Context, *MessageID) (*ChatMessage, error) {
+func (UnimplementedBrainboostServer) GetChatMessage(context.Context, *MessageID) (*ChatMessage, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetChatMessage not implemented")
 }
-func (UnimplementedBraingainServer) ListDocuments(context.Context, *DocumentFilter) (*Documents, error) {
+func (UnimplementedBrainboostServer) ListDocuments(context.Context, *DocumentFilter) (*Documents, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListDocuments not implemented")
 }
-func (UnimplementedBraingainServer) IndexDocument(*Document, Braingain_IndexDocumentServer) error {
+func (UnimplementedBrainboostServer) IndexDocument(*Document, Brainboost_IndexDocumentServer) error {
 	return status.Errorf(codes.Unimplemented, "method IndexDocument not implemented")
 }
-func (UnimplementedBraingainServer) DeleteDocument(context.Context, *Document) (*emptypb.Empty, error) {
+func (UnimplementedBrainboostServer) DeleteDocument(context.Context, *Document) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteDocument not implemented")
 }
-func (UnimplementedBraingainServer) UpdateDocument(context.Context, *Document) (*emptypb.Empty, error) {
+func (UnimplementedBrainboostServer) UpdateDocument(context.Context, *Document) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateDocument not implemented")
 }
-func (UnimplementedBraingainServer) GetCollections(context.Context, *emptypb.Empty) (*Collections, error) {
+func (UnimplementedBrainboostServer) GetCollections(context.Context, *emptypb.Empty) (*Collections, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCollections not implemented")
 }
-func (UnimplementedBraingainServer) CreateCollection(context.Context, *Collection) (*emptypb.Empty, error) {
+func (UnimplementedBrainboostServer) CreateCollection(context.Context, *Collection) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateCollection not implemented")
 }
-func (UnimplementedBraingainServer) UpdateCollection(context.Context, *Collection) (*emptypb.Empty, error) {
+func (UnimplementedBrainboostServer) UpdateCollection(context.Context, *Collection) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateCollection not implemented")
 }
-func (UnimplementedBraingainServer) DeleteCollection(context.Context, *Collection) (*emptypb.Empty, error) {
+func (UnimplementedBrainboostServer) DeleteCollection(context.Context, *Collection) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteCollection not implemented")
 }
-func (UnimplementedBraingainServer) GetModelUsages(context.Context, *emptypb.Empty) (*ModelUsages, error) {
+func (UnimplementedBrainboostServer) GetModelUsages(context.Context, *emptypb.Empty) (*ModelUsages, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetModelUsages not implemented")
 }
-func (UnimplementedBraingainServer) mustEmbedUnimplementedBraingainServer() {}
+func (UnimplementedBrainboostServer) mustEmbedUnimplementedBrainboostServer() {}
 
-// UnsafeBraingainServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to BraingainServer will
+// UnsafeBrainboostServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to BrainboostServer will
 // result in compilation errors.
-type UnsafeBraingainServer interface {
-	mustEmbedUnimplementedBraingainServer()
+type UnsafeBrainboostServer interface {
+	mustEmbedUnimplementedBrainboostServer()
 }
 
-func RegisterBraingainServer(s grpc.ServiceRegistrar, srv BraingainServer) {
-	s.RegisterService(&Braingain_ServiceDesc, srv)
+func RegisterBrainboostServer(s grpc.ServiceRegistrar, srv BrainboostServer) {
+	s.RegisterService(&Brainboost_ServiceDesc, srv)
 }
 
-func _Braingain_Chat_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Brainboost_Chat_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Prompt)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BraingainServer).Chat(ctx, in)
+		return srv.(BrainboostServer).Chat(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Braingain_Chat_FullMethodName,
+		FullMethod: Brainboost_Chat_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BraingainServer).Chat(ctx, req.(*Prompt))
+		return srv.(BrainboostServer).Chat(ctx, req.(*Prompt))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Braingain_GetChatMessages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Brainboost_GetChatMessages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Collection)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BraingainServer).GetChatMessages(ctx, in)
+		return srv.(BrainboostServer).GetChatMessages(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Braingain_GetChatMessages_FullMethodName,
+		FullMethod: Brainboost_GetChatMessages_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BraingainServer).GetChatMessages(ctx, req.(*Collection))
+		return srv.(BrainboostServer).GetChatMessages(ctx, req.(*Collection))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Braingain_GetChatMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Brainboost_GetChatMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(MessageID)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BraingainServer).GetChatMessage(ctx, in)
+		return srv.(BrainboostServer).GetChatMessage(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Braingain_GetChatMessage_FullMethodName,
+		FullMethod: Brainboost_GetChatMessage_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BraingainServer).GetChatMessage(ctx, req.(*MessageID))
+		return srv.(BrainboostServer).GetChatMessage(ctx, req.(*MessageID))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Braingain_ListDocuments_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Brainboost_ListDocuments_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DocumentFilter)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BraingainServer).ListDocuments(ctx, in)
+		return srv.(BrainboostServer).ListDocuments(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Braingain_ListDocuments_FullMethodName,
+		FullMethod: Brainboost_ListDocuments_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BraingainServer).ListDocuments(ctx, req.(*DocumentFilter))
+		return srv.(BrainboostServer).ListDocuments(ctx, req.(*DocumentFilter))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Braingain_IndexDocument_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _Brainboost_IndexDocument_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(Document)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(BraingainServer).IndexDocument(m, &braingainIndexDocumentServer{stream})
+	return srv.(BrainboostServer).IndexDocument(m, &brainboostIndexDocumentServer{stream})
 }
 
-type Braingain_IndexDocumentServer interface {
+type Brainboost_IndexDocumentServer interface {
 	Send(*IndexProgress) error
 	grpc.ServerStream
 }
 
-type braingainIndexDocumentServer struct {
+type brainboostIndexDocumentServer struct {
 	grpc.ServerStream
 }
 
-func (x *braingainIndexDocumentServer) Send(m *IndexProgress) error {
+func (x *brainboostIndexDocumentServer) Send(m *IndexProgress) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func _Braingain_DeleteDocument_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Brainboost_DeleteDocument_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Document)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BraingainServer).DeleteDocument(ctx, in)
+		return srv.(BrainboostServer).DeleteDocument(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Braingain_DeleteDocument_FullMethodName,
+		FullMethod: Brainboost_DeleteDocument_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BraingainServer).DeleteDocument(ctx, req.(*Document))
+		return srv.(BrainboostServer).DeleteDocument(ctx, req.(*Document))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Braingain_UpdateDocument_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Brainboost_UpdateDocument_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Document)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BraingainServer).UpdateDocument(ctx, in)
+		return srv.(BrainboostServer).UpdateDocument(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Braingain_UpdateDocument_FullMethodName,
+		FullMethod: Brainboost_UpdateDocument_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BraingainServer).UpdateDocument(ctx, req.(*Document))
+		return srv.(BrainboostServer).UpdateDocument(ctx, req.(*Document))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Braingain_GetCollections_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Brainboost_GetCollections_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BraingainServer).GetCollections(ctx, in)
+		return srv.(BrainboostServer).GetCollections(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Braingain_GetCollections_FullMethodName,
+		FullMethod: Brainboost_GetCollections_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BraingainServer).GetCollections(ctx, req.(*emptypb.Empty))
+		return srv.(BrainboostServer).GetCollections(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Braingain_CreateCollection_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Brainboost_CreateCollection_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Collection)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BraingainServer).CreateCollection(ctx, in)
+		return srv.(BrainboostServer).CreateCollection(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Braingain_CreateCollection_FullMethodName,
+		FullMethod: Brainboost_CreateCollection_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BraingainServer).CreateCollection(ctx, req.(*Collection))
+		return srv.(BrainboostServer).CreateCollection(ctx, req.(*Collection))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Braingain_UpdateCollection_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Brainboost_UpdateCollection_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Collection)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BraingainServer).UpdateCollection(ctx, in)
+		return srv.(BrainboostServer).UpdateCollection(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Braingain_UpdateCollection_FullMethodName,
+		FullMethod: Brainboost_UpdateCollection_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BraingainServer).UpdateCollection(ctx, req.(*Collection))
+		return srv.(BrainboostServer).UpdateCollection(ctx, req.(*Collection))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Braingain_DeleteCollection_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Brainboost_DeleteCollection_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Collection)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BraingainServer).DeleteCollection(ctx, in)
+		return srv.(BrainboostServer).DeleteCollection(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Braingain_DeleteCollection_FullMethodName,
+		FullMethod: Brainboost_DeleteCollection_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BraingainServer).DeleteCollection(ctx, req.(*Collection))
+		return srv.(BrainboostServer).DeleteCollection(ctx, req.(*Collection))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Braingain_GetModelUsages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Brainboost_GetModelUsages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BraingainServer).GetModelUsages(ctx, in)
+		return srv.(BrainboostServer).GetModelUsages(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Braingain_GetModelUsages_FullMethodName,
+		FullMethod: Brainboost_GetModelUsages_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BraingainServer).GetModelUsages(ctx, req.(*emptypb.Empty))
+		return srv.(BrainboostServer).GetModelUsages(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Braingain_ServiceDesc is the grpc.ServiceDesc for Braingain service.
+// Brainboost_ServiceDesc is the grpc.ServiceDesc for Brainboost service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Braingain_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "endpoint.brainboost.v1.Braingain",
-	HandlerType: (*BraingainServer)(nil),
+var Brainboost_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "endpoint.brainboost.v1.Brainboost",
+	HandlerType: (*BrainboostServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "Chat",
-			Handler:    _Braingain_Chat_Handler,
+			Handler:    _Brainboost_Chat_Handler,
 		},
 		{
 			MethodName: "GetChatMessages",
-			Handler:    _Braingain_GetChatMessages_Handler,
+			Handler:    _Brainboost_GetChatMessages_Handler,
 		},
 		{
 			MethodName: "GetChatMessage",
-			Handler:    _Braingain_GetChatMessage_Handler,
+			Handler:    _Brainboost_GetChatMessage_Handler,
 		},
 		{
 			MethodName: "ListDocuments",
-			Handler:    _Braingain_ListDocuments_Handler,
+			Handler:    _Brainboost_ListDocuments_Handler,
 		},
 		{
 			MethodName: "DeleteDocument",
-			Handler:    _Braingain_DeleteDocument_Handler,
+			Handler:    _Brainboost_DeleteDocument_Handler,
 		},
 		{
 			MethodName: "UpdateDocument",
-			Handler:    _Braingain_UpdateDocument_Handler,
+			Handler:    _Brainboost_UpdateDocument_Handler,
 		},
 		{
 			MethodName: "GetCollections",
-			Handler:    _Braingain_GetCollections_Handler,
+			Handler:    _Brainboost_GetCollections_Handler,
 		},
 		{
 			MethodName: "CreateCollection",
-			Handler:    _Braingain_CreateCollection_Handler,
+			Handler:    _Brainboost_CreateCollection_Handler,
 		},
 		{
 			MethodName: "UpdateCollection",
-			Handler:    _Braingain_UpdateCollection_Handler,
+			Handler:    _Brainboost_UpdateCollection_Handler,
 		},
 		{
 			MethodName: "DeleteCollection",
-			Handler:    _Braingain_DeleteCollection_Handler,
+			Handler:    _Brainboost_DeleteCollection_Handler,
 		},
 		{
 			MethodName: "GetModelUsages",
-			Handler:    _Braingain_GetModelUsages_Handler,
+			Handler:    _Brainboost_GetModelUsages_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "IndexDocument",
-			Handler:       _Braingain_IndexDocument_Handler,
+			Handler:       _Brainboost_IndexDocument_Handler,
 			ServerStreams: true,
 		},
 	},

@@ -8,7 +8,7 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
 // Version: 3.0.0
-service Braingain {
+service Brainboost {
   rpc Chat(Prompt) returns (ChatMessage);
   rpc GetChatMessages(Collection) returns (ChatMessages);
   rpc GetChatMessage(MessageID) returns (ChatMessage);
