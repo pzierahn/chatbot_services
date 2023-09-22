@@ -21,7 +21,8 @@ func (client *Client) CreateCollection(ctx context.Context, coll *Collection) (u
 	result := client.conn.QueryRow(
 		ctx,
 		`insert into collections (uid, name)
-			values ($1, $2) returning id`,
+			values ($1, $2)
+			returning id`,
 		coll.UserId, coll.Name)
 
 	err := result.Scan(&coll.Id)
@@ -57,7 +58,8 @@ func (client *Client) ListCollections(ctx context.Context, uid uuid.UUID) ([]*Co
 			FROM collections col
 			LEFT JOIN documents doc ON col.id = doc.collection_id
 			WHERE col.uid = $1
-			GROUP BY col.id, col.name;`,
+			GROUP BY col.id, col.name
+			ORDER BY col.name;`,
 		uid)
 	if err != nil {
 		return nil, err
