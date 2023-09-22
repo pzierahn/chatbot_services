@@ -12,7 +12,7 @@ FROM ubuntu:latest
 RUN apt-get update;  \
     apt-get upgrade -y; \
     apt-get dist-upgrade -y; \
-    apt-get install -y xpdf; \
+    apt-get install -y xpdf ca-certificates; \
     apt-get autoremove -y; \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/*
