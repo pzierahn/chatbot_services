@@ -9,10 +9,10 @@ import (
 )
 
 type ChatMessage struct {
-	ID         *uuid.UUID
-	UID        string
+	ID         uuid.UUID
+	UID        uuid.UUID
 	CreateAt   *time.Time
-	Collection string
+	Collection uuid.UUID
 	Prompt     string
 	Completion string
 	Sources    []ChatMessageSource
@@ -129,7 +129,6 @@ func (client *Client) GetChatMessageDocuments(ctx context.Context, id uuid.UUID,
 			  AND cm.uid = $2`,
 		id, uid)
 	if err != nil {
-		log.Printf("Error: %v", err)
 		return nil, err
 	}
 	defer rows.Close()

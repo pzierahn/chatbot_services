@@ -20,13 +20,13 @@ func (server *Server) ListDocuments(ctx context.Context, req *pb.DocumentFilter)
 	}
 
 	query := database.DocumentQuery{
-		UserId: uid.String(),
+		UserId: uid,
 		Query:  "%" + req.Query + "%",
 	}
 
 	if req.Collection != "" {
 		collId := uuid.MustParse(req.Collection)
-		query.Collection = &collId
+		query.Collection = collId
 	}
 
 	log.Printf("GetDocuments: %+v", query)
@@ -63,7 +63,7 @@ func (server *Server) DeleteDocument(ctx context.Context, req *pb.Document) (*em
 		return nil, err
 	}
 
-	err = server.db.DeleteDocument(ctx, id, uid.String())
+	err = server.db.DeleteDocument(ctx, id, uid)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func (server *Server) UpdateDocument(ctx context.Context, req *pb.Document) (*em
 
 	err = server.db.UpdateDocumentName(ctx, database.Document{
 		Id:         docID,
-		UserId:     uid.String(),
+		UserId:     uid,
 		Collection: collection,
 		Filename:   req.Filename,
 		Path:       req.Path,

@@ -13,7 +13,7 @@ func (server *Server) GetModelUsages(ctx context.Context, _ *emptypb.Empty) (*pb
 		return nil, err
 	}
 
-	usages, err := server.db.GetModelUsages(ctx, uid.String())
+	usages, err := server.db.GetModelUsages(ctx, uid)
 	if err != nil {
 		return nil, err
 	}
