@@ -71,6 +71,7 @@ func (server *Server) IndexDocument(doc *pb.Document, stream pb.Brainboost_Index
 				openai.EmbeddingRequestStrings{
 					Model: embeddingsModel,
 					Input: []string{page},
+					User:  uid.String(),
 				},
 			)
 

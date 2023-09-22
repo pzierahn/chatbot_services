@@ -26,6 +26,7 @@ func (server *Server) SearchDocuments(ctx context.Context, query SearchQuery) ([
 		openai.EmbeddingRequestStrings{
 			Model: embeddingsModel,
 			Input: []string{query.Prompt},
+			User:  query.UserId,
 		},
 	)
 	if err != nil {

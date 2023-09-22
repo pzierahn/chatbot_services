@@ -158,6 +158,7 @@ func (server *Server) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMess
 			MaxTokens:   int(prompt.Options.MaxTokens),
 			Messages:    messages,
 			N:           1,
+			User:        uid.String(),
 		},
 	)
 	if err != nil {
