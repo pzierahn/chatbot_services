@@ -4,22 +4,47 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8863e312-2fdf-4e7f-90f2-c6f1e830b056" name="Changes" comment="Added Authorization to allow_headers">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/brainboost.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+    <list default="true" id="8863e312-2fdf-4e7f-90f2-c6f1e830b056" name="Changes" comment="Change test db">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/index/index.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/index/index.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/database_chat.go" beforeDir="false" afterPath="$PROJECT_DIR$/database/database_chat.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/database_collections.go" beforeDir="false" afterPath="$PROJECT_DIR$/database/database_collections.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/database_collections_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/database/database_collections_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/database_documents.go" beforeDir="false" afterPath="$PROJECT_DIR$/database/database_documents.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/database_documents_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/database/database_documents_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/database_embeddings.go" beforeDir="false" afterPath="$PROJECT_DIR$/database/database_embeddings.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/database_embeddings_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/database/database_embeddings_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/database_usage.go" beforeDir="false" afterPath="$PROJECT_DIR$/database/database_usage.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/database_usage_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/database/database_usage_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/db_setup.sql" beforeDir="false" afterPath="$PROJECT_DIR$/database/db_setup.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/index/index_file.go" beforeDir="false" afterPath="$PROJECT_DIR$/index/index_file.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/proto/braingain.pb.go" beforeDir="false" afterPath="$PROJECT_DIR$/proto/braingain.pb.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/server_chat.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/server_chat.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/server_chat_history.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/server_chat_history.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/server_collections.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/server_collections.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/server_docs.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/server_docs.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/server_index.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/server_index.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/server_search.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/server_search.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Go File" />
+      </list>
+    </option>
+  </component>
   <component name="GOROOT" url="file:///opt/homebrew/opt/go/libexec" />
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="database-test" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="MarkdownSettingsMigration">
@@ -36,6 +61,7 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
+    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
@@ -46,28 +72,88 @@
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
     &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/patrick/Code/brainboost_service/envoy&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/patrick/Code/brainboost_service/database&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;settings.json.schema&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;postgresql&quot;
+    ]
   }
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/database" />
       <recent name="$PROJECT_DIR$/envoy" />
     </key>
   </component>
-  <component name="RunManager">
-    <configuration name="_gengo" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile" temporary="true">
-      <makefile filename="$PROJECT_DIR$/proto/Makefile" target="_gengo" workingDirectory="" arguments="">
-        <envs />
-      </makefile>
+  <component name="RunManager" selected="Go Test.go test github.com/pzierahn/brainboost/database">
+    <configuration name="go build github.com/pzierahn/brainboost/cmd/server" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="brainboost_service" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="github.com/pzierahn/brainboost/cmd/server" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/cmd/server/server.go" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestCreateUsage in github.com/pzierahn/brainboost/database" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="brainboost_service" />
+      <working_directory value="$PROJECT_DIR$/database" />
+      <root_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="github.com/pzierahn/brainboost/database" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <pattern value="^\QTestCreateUsage\E$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestGetModelUsages in github.com/pzierahn/brainboost/database" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="brainboost_service" />
+      <working_directory value="$PROJECT_DIR$/database" />
+      <root_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="github.com/pzierahn/brainboost/database" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <pattern value="^\QTestGetModelUsages\E$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestSearch in github.com/pzierahn/brainboost/database" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="brainboost_service" />
+      <working_directory value="$PROJECT_DIR$/database" />
+      <root_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="github.com/pzierahn/brainboost/database" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <pattern value="^\QTestSearch\E$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go test github.com/pzierahn/brainboost/database" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="brainboost_service" />
+      <working_directory value="$PROJECT_DIR$/database" />
+      <root_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="github.com/pzierahn/brainboost/database" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
       <method v="2" />
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Makefile Target._gengo" />
+        <item itemvalue="Go Test.go test github.com/pzierahn/brainboost/database" />
+        <item itemvalue="Go Test.TestSearch in github.com/pzierahn/brainboost/database" />
+        <item itemvalue="Go Test.TestGetModelUsages in github.com/pzierahn/brainboost/database" />
+        <item itemvalue="Go Test.TestCreateUsage in github.com/pzierahn/brainboost/database" />
+        <item itemvalue="Go Build.go build github.com/pzierahn/brainboost/cmd/server" />
       </list>
     </recent_temporary>
   </component>
@@ -79,7 +165,21 @@
     <MESSAGE value="Added envoy google cloud stuff" />
     <MESSAGE value="Update config" />
     <MESSAGE value="Added Authorization to allow_headers" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added Authorization to allow_headers" />
+    <MESSAGE value="IDE stuff" />
+    <MESSAGE value="Update dependencies" />
+    <MESSAGE value="Added pdftotext tool to Docker container" />
+    <MESSAGE value="Fix install cmd" />
+    <MESSAGE value="Added ca-certificates" />
+    <MESSAGE value="Added userId to openai request" />
+    <MESSAGE value="Remove comment" />
+    <MESSAGE value="Added database tests" />
+    <MESSAGE value="Sort collections" />
+    <MESSAGE value="Fix postgres leak" />
+    <MESSAGE value="Update db scheme" />
+    <MESSAGE value="Replace uid with user_id" />
+    <MESSAGE value="Change uid to user_id" />
+    <MESSAGE value="Change test db" />
+    <option name="LAST_COMMIT_MESSAGE" value="Change test db" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
