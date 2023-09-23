@@ -2,13 +2,14 @@ package database
 
 import (
 	"context"
+	"os"
 	"testing"
 )
 
 // Initialize a test client and connection string
 var testClient *Client
 
-const testConnectionString = "postgres://patrick.zierahn:EMtDKkB0n4dP@ep-round-dream-25253463.eu-central-1.aws.neon.tech/neondb"
+var testConnectionString = os.Getenv("NEON_DB")
 
 func setupTestClient(t *testing.T) {
 	if testClient != nil {
