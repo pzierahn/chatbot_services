@@ -20,7 +20,7 @@ type CollectionInfo struct {
 func (client *Client) CreateCollection(ctx context.Context, coll *Collection) (uuid.UUID, error) {
 	result := client.conn.QueryRow(
 		ctx,
-		`insert into collections (uid, name)
+		`insert into collections (user_id, name)
 			values ($1, $2)
 			returning id`,
 		coll.UserId, coll.Name)
@@ -36,7 +36,7 @@ func (client *Client) CreateCollection(ctx context.Context, coll *Collection) (u
 func (client *Client) UpdateCollection(ctx context.Context, coll Collection) error {
 	_, err := client.conn.Exec(
 		ctx,
-		`update collections set name = $3 where id = $1 and uid = $2`,
+		`update collections set name = $3 where id = $1 and user_id = $2`,
 		coll.Id, coll.UserId, coll.Name)
 
 	return err
@@ -45,7 +45,7 @@ func (client *Client) UpdateCollection(ctx context.Context, coll Collection) err
 func (client *Client) DeleteCollection(ctx context.Context, coll *Collection) error {
 	_, err := client.conn.Exec(
 		ctx,
-		`delete from collections where id = $1 and uid = $2`,
+		`delete from collections where id = $1 and user_id = $2`,
 		coll.Id, coll.UserId)
 
 	return err
@@ -57,7 +57,7 @@ func (client *Client) ListCollections(ctx context.Context, uid uuid.UUID) ([]*Co
 		`SELECT col.id, col.name, COUNT(doc.id) AS count
 			FROM collections col
 			LEFT JOIN documents doc ON col.id = doc.collection_id
-			WHERE col.uid = $1
+			WHERE col.user_id = $1
 			GROUP BY col.id, col.name
 			ORDER BY col.name;`,
 		uid)

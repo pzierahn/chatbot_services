@@ -44,7 +44,7 @@ func (client *Client) UpsertDocument(ctx context.Context, doc Document) (uuid.UU
 
 	result := client.conn.QueryRow(
 		ctx,
-		`insert into documents (uid, filename, path, collection_id)
+		`insert into documents (user_id, filename, path, collection_id)
 			values ($1, $2, $3, $4)
 			returning id`,
 		doc.UserId,
@@ -78,7 +78,7 @@ func (client *Client) FindDocuments(ctx context.Context, query DocumentQuery) ([
 		FROM documents AS doc
 		    join document_embeddings AS em on doc.id = em.document_id
 		WHERE
-		    doc.uid = $1 AND
+		    doc.user_id = $1 AND
 		    doc.collection_id = $2::uuid AND
 		    doc.filename LIKE $3
 		GROUP BY document_id, filename, collection_id`,
@@ -109,13 +109,13 @@ func (client *Client) FindDocuments(ctx context.Context, query DocumentQuery) ([
 }
 
 func (client *Client) DeleteDocument(ctx context.Context, id, uid uuid.UUID) error {
-	_, err := client.conn.Exec(ctx, `delete from documents where id = $1 and uid = $2`, id, uid)
+	_, err := client.conn.Exec(ctx, `delete from documents where id = $1 and user_id = $2`, id, uid)
 	return err
 }
 
 func (client *Client) UpdateDocumentName(ctx context.Context, doc Document) error {
 	_, err := client.conn.Exec(ctx,
-		`update documents set filename = $1 where id = $2 and uid = $3`,
+		`update documents set filename = $1 where id = $2 and user_id = $3`,
 		doc.Filename, doc.Id, doc.UserId)
 	return err
 }
@@ -141,7 +141,7 @@ func (client *Client) GetPageContent(ctx context.Context, query PageContentQuery
 		where
 		    document_id = $1 and
 		    doc.id = dm.document_id and
-		    uid = $2 and
+		    user_id = $2 and
 		    page = ANY($3)
 		order by filename, page`, query.Id, query.UserId, query.Pages)
 	if err != nil {
