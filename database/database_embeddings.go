@@ -40,7 +40,7 @@ func (client *Client) Search(ctx context.Context, query SearchQuery) ([]*SearchR
 		ctx,
 		`select em.id, document_id, filename, page, text, (1 - (embedding <=> $1)) AS score
 			from document_embeddings as em join documents as doc on doc.id = em.document_id
-			where (1 - (embedding <=> $1)) >= $2 and doc.uid = $3 and doc.collection_id = $4
+			where (1 - (embedding <=> $1)) >= $2 and doc.user_id = $3 and doc.collection_id = $4
 			ORDER BY score DESC
 		 	LIMIT $5`,
 		pgvector.NewVector(query.Embedding),
