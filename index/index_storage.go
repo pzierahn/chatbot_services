@@ -8,14 +8,14 @@ import (
 )
 
 type DocumentId struct {
-	UserId     string
-	Collection uuid.UUID
-	DocId      uuid.UUID
-	Filename   string
+	UserID       uuid.UUID
+	CollectionID uuid.UUID
+	DocumentID   uuid.UUID
+	Filename     string
 }
 
 func (id DocumentId) path() string {
-	return fmt.Sprintf("%s/%s/%s.pdf", id.UserId, id.Collection, id.DocId)
+	return fmt.Sprintf("%s/%s/%s.pdf", id.UserID, id.CollectionID, id.DocumentID)
 }
 
 const bucket = "documents"

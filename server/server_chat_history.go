@@ -87,8 +87,8 @@ func (server *Server) GetChatMessage(ctx context.Context, id *pb.MessageID) (*pb
 	pages := make(map[uuid.UUID][]uint32)
 
 	for _, source := range message.Sources {
-		filename[*source.ID] = source.Filename
-		pages[*source.ID] = append(pages[*source.ID], uint32(source.Page))
+		filename[source.ID] = source.Filename
+		pages[source.ID] = append(pages[source.ID], uint32(source.Page))
 	}
 
 	for key := range filename {

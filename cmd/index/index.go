@@ -98,9 +98,9 @@ func main() {
 	}
 
 	doc := index.DocumentId{
-		UserId:     "3bc23192-230a-4366-b8ec-0bd7cce69510",
-		Collection: uuid.MustParse("7d997944-c0f8-4934-8276-0aea0e47c34f"),
-		Filename:   filepath.Base(file),
+		UserID:       "3bc23192-230a-4366-b8ec-0bd7cce69510",
+		CollectionID: uuid.MustParse("7d997944-c0f8-4934-8276-0aea0e47c34f"),
+		Filename:     filepath.Base(file),
 	}
 
 	progress := make(chan index.Progress)
