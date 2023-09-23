@@ -25,10 +25,10 @@ type ChatMessageSource struct {
 	Page         int
 }
 
-func (client *Client) CreateChat(ctx context.Context, history ChatMessage) (*uuid.UUID, error) {
+func (client *Client) CreateChat(ctx context.Context, history ChatMessage) (uuid.UUID, error) {
 	transaction, err := client.conn.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
-		return nil, err
+		return uuid.Nil, err
 	}
 	defer func() { _ = transaction.Rollback(ctx) }()
 
@@ -43,7 +43,7 @@ func (client *Client) CreateChat(ctx context.Context, history ChatMessage) (*uui
 		history.Prompt,
 		history.Completion)
 	if err != nil {
-		return nil, err
+		return uuid.Nil, err
 	}
 
 	for _, source := range history.Sources {
@@ -55,16 +55,16 @@ func (client *Client) CreateChat(ctx context.Context, history ChatMessage) (*uui
 			source.DocumentPage).
 			Scan(&source.ID)
 		if err != nil {
-			return nil, err
+			return uuid.Nil, err
 		}
 	}
 
 	err = transaction.Commit(ctx)
 	if err != nil {
-		return nil, err
+		return uuid.Nil, err
 	}
 
-	return &id, nil
+	return id, nil
 }
 
 func (client *Client) GetChatMessages(ctx context.Context, uid, collection string) (ids []uuid.UUID, _ error) {
