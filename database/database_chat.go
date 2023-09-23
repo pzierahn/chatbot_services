@@ -90,7 +90,7 @@ func (client *Client) GetChatMessages(ctx context.Context, uid, collection strin
 	return ids, nil
 }
 
-func (client *Client) GetChatMessage(ctx context.Context, id uuid.UUID, uid string) (*ChatMessage, error) {
+func (client *Client) GetChatMessage(ctx context.Context, id, uid string) (*ChatMessage, error) {
 	var message ChatMessage
 
 	err := client.conn.QueryRow(ctx,
@@ -115,7 +115,7 @@ func (client *Client) GetChatMessage(ctx context.Context, id uuid.UUID, uid stri
 	return &message, nil
 }
 
-func (client *Client) GetChatMessageDocuments(ctx context.Context, id uuid.UUID, uid string) ([]ChatMessageSource, error) {
+func (client *Client) GetChatMessageDocuments(ctx context.Context, id, uid string) ([]ChatMessageSource, error) {
 	rows, err := client.conn.Query(ctx,
 		`SELECT de.id, doc.id, doc.filename, de.page
 			FROM chat_message AS cm,

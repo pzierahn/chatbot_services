@@ -65,12 +65,7 @@ func (server *Server) GetChatMessage(ctx context.Context, id *pb.MessageID) (*pb
 		return nil, err
 	}
 
-	chatId, err := uuid.Parse(id.Id)
-	if err != nil {
-		return nil, err
-	}
-
-	message, err := server.db.GetChatMessage(ctx, chatId, uid.String())
+	message, err := server.db.GetChatMessage(ctx, id.Id, uid.String())
 	if err != nil {
 		return nil, err
 	}
