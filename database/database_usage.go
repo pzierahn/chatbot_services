@@ -8,12 +8,12 @@ import (
 
 // Usage represents a row in the openai_usage table
 type Usage struct {
-	ID        *uuid.UUID
+	ID        uuid.UUID
+	UID       uuid.UUID
 	CreatedAt *time.Time
-	UID       string
 	Model     string
-	Input     int
-	Output    int
+	Input     uint32
+	Output    uint32
 }
 
 type ModelUsage struct {
@@ -23,9 +23,9 @@ type ModelUsage struct {
 }
 
 // CreateUsage inserts a new usage record into the openai_usage table
-func (client *Client) CreateUsage(ctx context.Context, usage Usage) (*uuid.UUID, error) {
+func (client *Client) CreateUsage(ctx context.Context, usage Usage) (uuid.UUID, error) {
 	err := client.conn.QueryRow(ctx,
-		`INSERT INTO openai_usage (uid, model, input, output)
+		`INSERT INTO openai_usage (user_id, model, input, output)
 			VALUES ($1, $2, $3, $4)
 			RETURNING id`,
 		usage.UID, usage.Model, usage.Input, usage.Output).
@@ -35,11 +35,11 @@ func (client *Client) CreateUsage(ctx context.Context, usage Usage) (*uuid.UUID,
 }
 
 // GetModelUsages retrieves a usage record by ID from the openai_usage table
-func (client *Client) GetModelUsages(ctx context.Context, uid string) ([]ModelUsage, error) {
+func (client *Client) GetModelUsages(ctx context.Context, uid uuid.UUID) ([]ModelUsage, error) {
 	rows, err := client.conn.Query(ctx,
 		`SELECT model, SUM(input), SUM(output)
 			FROM openai_usage
-			WHERE uid = $1
+			WHERE user_id = $1
 			GROUP BY model`, uid)
 	if err != nil {
 		return nil, err

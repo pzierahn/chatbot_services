@@ -9,10 +9,10 @@ import (
 	"os"
 )
 
-func ValidateToken(ctx context.Context) (*uuid.UUID, error) {
+func ValidateToken(ctx context.Context) (uuid.UUID, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		return nil, fmt.Errorf("metadata missing")
+		return uuid.Nil, fmt.Errorf("metadata missing")
 	}
 
 	var tokens []string
@@ -25,7 +25,7 @@ func ValidateToken(ctx context.Context) (*uuid.UUID, error) {
 	}
 
 	if len(tokens) == 0 {
-		return nil, fmt.Errorf("authorization missing")
+		return uuid.Nil, fmt.Errorf("authorization missing")
 	}
 
 	bearer := tokens[0][len("Bearer "):]
@@ -35,22 +35,22 @@ func ValidateToken(ctx context.Context) (*uuid.UUID, error) {
 		return []byte(os.Getenv("SUPABASE_JWT_SECRET")), nil
 	})
 	if err != nil {
-		return nil, err
+		return uuid.Nil, err
 	}
 
 	if !token.Valid {
-		return nil, fmt.Errorf("invalid token")
+		return uuid.Nil, fmt.Errorf("invalid token")
 	}
 
 	subject, err := claims.GetSubject()
 	if err != nil {
-		return nil, fmt.Errorf("invalid user id: %v", err)
+		return uuid.Nil, fmt.Errorf("invalid user id: %v", err)
 	}
 
 	id, err := uuid.Parse(subject)
 	if err != nil {
-		return nil, fmt.Errorf("invalid user id: %v", err)
+		return uuid.Nil, fmt.Errorf("invalid user id: %v", err)
 	}
 
-	return &id, nil
+	return id, nil
 }

@@ -48,7 +48,7 @@ func (server *Server) IndexDocument(doc *pb.Document, stream pb.Brainboost_Index
 	var mu sync.Mutex
 	var embeddings []*database.PageEmbedding
 	var errs []error
-	var inputTokens int
+	var inputTokens uint32
 	var processed uint32
 
 	_ = stream.Send(&pb.IndexProgress{
@@ -78,7 +78,7 @@ func (server *Server) IndexDocument(doc *pb.Document, stream pb.Brainboost_Index
 			mu.Lock()
 			defer mu.Unlock()
 
-			inputTokens += resp.Usage.PromptTokens
+			inputTokens += uint32(resp.Usage.PromptTokens)
 
 			if err != nil {
 				errs = append(errs, err)
@@ -107,7 +107,7 @@ func (server *Server) IndexDocument(doc *pb.Document, stream pb.Brainboost_Index
 	}
 
 	_, err = server.db.UpsertDocument(ctx, database.Document{
-		UserId:     uid.String(),
+		UserId:     uid,
 		Collection: uuid.MustParse(doc.CollectionId),
 		Filename:   doc.Filename,
 		Path:       doc.Path,
@@ -121,7 +121,7 @@ func (server *Server) IndexDocument(doc *pb.Document, stream pb.Brainboost_Index
 	log.Printf("Indexing done: %v", doc.Filename)
 
 	_, _ = server.db.CreateUsage(ctx, database.Usage{
-		UID:   uid.String(),
+		UID:   uid,
 		Model: embeddingsModel.String(),
 		Input: inputTokens,
 	})

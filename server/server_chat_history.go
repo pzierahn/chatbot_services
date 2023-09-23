@@ -11,8 +11,8 @@ import (
 )
 
 type chatMessage struct {
-	uid        string
-	collection string
+	uid        uuid.UUID
+	collection uuid.UUID
 	prompt     string
 	completion string
 	pageIDs    []uuid.UUID

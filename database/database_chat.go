@@ -9,10 +9,10 @@ import (
 )
 
 type ChatMessage struct {
-	ID         *uuid.UUID
-	UID        string
+	ID         uuid.UUID
+	UID        uuid.UUID
 	CreateAt   *time.Time
-	Collection string
+	Collection uuid.UUID
 	Prompt     string
 	Completion string
 	Sources    []ChatMessageSource
@@ -35,7 +35,7 @@ func (client *Client) CreateChat(ctx context.Context, history ChatMessage) (*uui
 	id := uuid.New()
 
 	_, err = transaction.Exec(ctx,
-		`INSERT INTO chat_message (id, uid, collection_id, prompt, completion)
+		`INSERT INTO chat_message (id, user_id, collection_id, prompt, completion)
 		VALUES ($1, $2, $3, $4, $5)`,
 		id,
 		history.UID,
@@ -70,7 +70,7 @@ func (client *Client) CreateChat(ctx context.Context, history ChatMessage) (*uui
 func (client *Client) GetChatMessages(ctx context.Context, uid, collection string) (ids []uuid.UUID, _ error) {
 	rows, err := client.conn.Query(ctx,
 		`SELECT id FROM chat_message
-          WHERE uid = $1 AND collection_id = $2
+          WHERE user_id = $1 AND collection_id = $2
           ORDER BY created_at DESC`,
 		uid, collection)
 	if err != nil {
@@ -96,7 +96,7 @@ func (client *Client) GetChatMessage(ctx context.Context, id uuid.UUID, uid stri
 	err := client.conn.QueryRow(ctx,
 		`SELECT id, created_at, prompt, completion
 			FROM chat_message
-			WHERE id = $1 AND uid = $2`,
+			WHERE id = $1 AND user_id = $2`,
 		id, uid).Scan(
 		&message.ID,
 		&message.CreateAt,
@@ -126,10 +126,9 @@ func (client *Client) GetChatMessageDocuments(ctx context.Context, id uuid.UUID,
 			  AND cms.document_embeddings_id = de.id
 			  AND doc.id = de.document_id
 			  AND cm.id = $1
-			  AND cm.uid = $2`,
+			  AND cm.user_id = $2`,
 		id, uid)
 	if err != nil {
-		log.Printf("Error: %v", err)
 		return nil, err
 	}
 	defer rows.Close()

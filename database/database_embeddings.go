@@ -7,23 +7,23 @@ import (
 )
 
 type ScorePoints struct {
-	Id     *uuid.UUID
-	Source *uuid.UUID
+	Id     uuid.UUID
+	Source uuid.UUID
 	Page   int
 	Text   string
 	Score  float32
 }
 
 type SearchQuery struct {
-	UserId     string
-	Collection *uuid.UUID
+	UserId     uuid.UUID
+	Collection uuid.UUID
 	Embedding  []float32
 	Limit      int
 	Threshold  float32
 }
 
 type Page struct {
-	Id    *uuid.UUID
+	Id    uuid.UUID
 	Page  uint32
 	Text  string
 	Score float32
@@ -81,7 +81,7 @@ func (client *Client) Search(ctx context.Context, query SearchQuery) ([]*SearchR
 		}
 
 		collect[docId].Pages = append(collect[docId].Pages, &Page{
-			Id:    &id,
+			Id:    id,
 			Page:  page,
 			Text:  text,
 			Score: score,

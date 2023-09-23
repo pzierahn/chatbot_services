@@ -19,7 +19,7 @@ func (server *Server) GetCollections(ctx context.Context, _ *emptypb.Empty) (*pb
 		return nil, err
 	}
 
-	collections, err := server.db.ListCollections(ctx, *uid)
+	collections, err := server.db.ListCollections(ctx, uid)
 	if err != nil {
 		return nil, err
 	}
@@ -43,8 +43,8 @@ func (server *Server) CreateCollection(ctx context.Context, collection *pb.Colle
 		return nil, err
 	}
 
-	_, err = server.db.CreateCollection(ctx, database.Collection{
-		UserId: uid.String(),
+	_, err = server.db.CreateCollection(ctx, &database.Collection{
+		UserId: uid,
 		Name:   collection.Name,
 	})
 	if err != nil {
@@ -68,7 +68,7 @@ func (server *Server) UpdateCollection(ctx context.Context, collection *pb.Colle
 
 	err = server.db.UpdateCollection(ctx, database.Collection{
 		Id:     id,
-		UserId: uid.String(),
+		UserId: uid,
 		Name:   collection.Name,
 	})
 	if err != nil {
@@ -90,9 +90,9 @@ func (server *Server) DeleteCollection(ctx context.Context, collection *pb.Colle
 		return nil, err
 	}
 
-	err = server.db.DeleteCollection(ctx, database.Collection{
+	err = server.db.DeleteCollection(ctx, &database.Collection{
 		Id:     id,
-		UserId: uid.String(),
+		UserId: uid,
 	})
 	if err != nil {
 		return nil, err

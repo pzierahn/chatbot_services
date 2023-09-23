@@ -73,8 +73,8 @@ func (server *Server) getBackgroundFromDB(ctx context.Context, uid uuid.UUID, pr
 	}
 
 	query := SearchQuery{
-		UserId:     uid.String(),
-		Collection: &collection,
+		UserId:     uid,
+		Collection: collection,
 		Prompt:     prompt.Prompt,
 		Limit:      int(prompt.Options.Limit),
 		Threshold:  prompt.Options.Threshold,
@@ -97,7 +97,7 @@ func (server *Server) getBackgroundFromDB(ctx context.Context, uid uuid.UUID, pr
 			pages[iny] = page.Page
 			scores[iny] = page.Score
 
-			bg.pageIDs = append(bg.pageIDs, *page.Id)
+			bg.pageIDs = append(bg.pageIDs, page.Id)
 		}
 
 		bg.fragments = append(bg.fragments, strings.Join(text, "\n"))
@@ -128,9 +128,9 @@ func (server *Server) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMess
 
 	var bg *chatContext
 	if prompt.Documents == nil || len(prompt.Documents) == 0 {
-		bg, err = server.getBackgroundFromDB(ctx, *uid, prompt)
+		bg, err = server.getBackgroundFromDB(ctx, uid, prompt)
 	} else {
-		bg, err = server.getBackgroundFromPrompt(ctx, *uid, prompt)
+		bg, err = server.getBackgroundFromPrompt(ctx, uid, prompt)
 	}
 
 	if err != nil {
@@ -166,10 +166,10 @@ func (server *Server) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMess
 	}
 
 	_, err = server.db.CreateUsage(ctx, database.Usage{
-		UID:    uid.String(),
+		UID:    uid,
 		Model:  resp.Model,
-		Input:  resp.Usage.PromptTokens,
-		Output: resp.Usage.CompletionTokens,
+		Input:  uint32(resp.Usage.PromptTokens),
+		Output: uint32(resp.Usage.CompletionTokens),
 	})
 	if err != nil {
 		log.Printf("Chat: error %v", err)
@@ -182,8 +182,8 @@ func (server *Server) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMess
 	}
 
 	server.storeChatMessage(ctx, chatMessage{
-		uid:        uid.String(),
-		collection: prompt.Collection,
+		uid:        uid,
+		collection: uuid.MustParse(prompt.Collection),
 		prompt:     prompt.Prompt,
 		completion: completion.Text,
 		pageIDs:    bg.pageIDs,

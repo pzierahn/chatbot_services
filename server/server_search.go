@@ -8,8 +8,8 @@ import (
 )
 
 type SearchQuery struct {
-	UserId     string
-	Collection *uuid.UUID
+	UserId     uuid.UUID
+	Collection uuid.UUID
 	Prompt     string
 	Limit      int
 	Threshold  float32
@@ -26,7 +26,7 @@ func (server *Server) SearchDocuments(ctx context.Context, query SearchQuery) ([
 		openai.EmbeddingRequestStrings{
 			Model: embeddingsModel,
 			Input: []string{query.Prompt},
-			User:  query.UserId,
+			User:  query.UserId.String(),
 		},
 	)
 	if err != nil {
@@ -36,8 +36,8 @@ func (server *Server) SearchDocuments(ctx context.Context, query SearchQuery) ([
 	_, _ = server.db.CreateUsage(ctx, database.Usage{
 		UID:    query.UserId,
 		Model:  embeddingsModel.String(),
-		Input:  resp.Usage.PromptTokens,
-		Output: resp.Usage.CompletionTokens,
+		Input:  uint32(resp.Usage.PromptTokens),
+		Output: uint32(resp.Usage.CompletionTokens),
 	})
 
 	return server.db.Search(ctx, database.SearchQuery{
