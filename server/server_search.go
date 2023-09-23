@@ -34,17 +34,17 @@ func (server *Server) SearchDocuments(ctx context.Context, query SearchQuery) ([
 	}
 
 	_, _ = server.db.CreateUsage(ctx, database.Usage{
-		UID:    query.UserId,
+		UserID: query.UserId,
 		Model:  embeddingsModel.String(),
 		Input:  uint32(resp.Usage.PromptTokens),
 		Output: uint32(resp.Usage.CompletionTokens),
 	})
 
 	return server.db.Search(ctx, database.SearchQuery{
-		UserId:     query.UserId,
-		Collection: query.Collection,
-		Embedding:  resp.Data[0].Embedding,
-		Limit:      query.Limit,
-		Threshold:  query.Threshold,
+		UserID:       query.UserId,
+		CollectionID: query.Collection,
+		Embedding:    resp.Data[0].Embedding,
+		Limit:        query.Limit,
+		Threshold:    query.Threshold,
 	})
 }

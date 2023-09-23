@@ -21,10 +21,10 @@ func TestUpsertDocument_Valid(t *testing.T) {
 	}
 
 	testDocument := Document{
-		UserId:     testCollection.UserId,
-		Collection: testCollectionID,
-		Filename:   "test.pdf",
-		Path:       "/path/to/test.pdf",
+		UserID:       testCollection.UserID,
+		CollectionID: testCollectionID,
+		Filename:     "test.pdf",
+		Path:         "/path/to/test.pdf",
 		Pages: []*PageEmbedding{
 			{Page: 1, Text: "Page 1 Content", Embedding: make([]float32, 1536)},
 			{Page: 2, Text: "Page 2 Content", Embedding: make([]float32, 1536)},
@@ -50,8 +50,8 @@ func TestFindDocuments_Valid(t *testing.T) {
 	testCollection := setupTestCollection(t)
 
 	testDocuments := []Document{
-		{UserId: testCollection.UserId, Collection: testCollection.Id, Filename: "document1.pdf", Path: "/path/to/document1.pdf"},
-		{UserId: testCollection.UserId, Collection: testCollection.Id, Filename: "document2.pdf", Path: "/path/to/document2.pdf"},
+		{UserID: testCollection.UserID, CollectionID: testCollection.ID, Filename: "document1.pdf", Path: "/path/to/document1.pdf"},
+		{UserID: testCollection.UserID, CollectionID: testCollection.ID, Filename: "document2.pdf", Path: "/path/to/document2.pdf"},
 	}
 
 	for _, doc := range testDocuments {
@@ -63,8 +63,8 @@ func TestFindDocuments_Valid(t *testing.T) {
 
 	// Define a test query
 	testQuery := DocumentQuery{
-		UserId:     testCollection.UserId,
-		Collection: testCollection.Id,
+		UserID:     testCollection.UserID,
+		Collection: testCollection.ID,
 		Query:      "document",
 	}
 
@@ -94,10 +94,10 @@ func TestDeleteDocument_Valid(t *testing.T) {
 	}
 
 	testDocument := Document{
-		UserId:     testCollection.UserId,
-		Collection: testCollectionID,
-		Filename:   "document_to_delete.pdf",
-		Path:       "/path/to/document_to_delete.pdf",
+		UserID:       testCollection.UserID,
+		CollectionID: testCollectionID,
+		Filename:     "document_to_delete.pdf",
+		Path:         "/path/to/document_to_delete.pdf",
 	}
 
 	// Insert the test document into the database
@@ -107,7 +107,7 @@ func TestDeleteDocument_Valid(t *testing.T) {
 	}
 
 	// Delete the test document
-	err = testClient.DeleteDocument(context.Background(), testDocument.Id, testCollection.UserId)
+	err = testClient.DeleteDocument(context.Background(), testDocument.ID, testCollection.UserID)
 	if err != nil {
 		t.Fatalf("Error deleting document: %v", err)
 	}
@@ -119,7 +119,7 @@ func TestUpdateDocumentName_Valid(t *testing.T) {
 
 	// Create a test collection
 	testCollection := setupTestCollection(t)
-	testUserID := testCollection.UserId
+	testUserID := testCollection.UserID
 
 	// Insert the test collection into the database
 	testCollectionID, err := testClient.CreateCollection(context.Background(), testCollection)
@@ -128,10 +128,10 @@ func TestUpdateDocumentName_Valid(t *testing.T) {
 	}
 
 	testDocument := Document{
-		UserId:     testUserID,
-		Collection: testCollectionID,
-		Filename:   "old_filename.pdf",
-		Path:       "/path/to/old_filename.pdf",
+		UserID:       testUserID,
+		CollectionID: testCollectionID,
+		Filename:     "old_filename.pdf",
+		Path:         "/path/to/old_filename.pdf",
 	}
 
 	// Insert the test document into the database

@@ -9,17 +9,17 @@ import (
 )
 
 type ChatMessage struct {
-	ID         uuid.UUID
-	UID        uuid.UUID
-	CreateAt   *time.Time
-	Collection uuid.UUID
-	Prompt     string
-	Completion string
-	Sources    []ChatMessageSource
+	ID           uuid.UUID
+	UserID       uuid.UUID
+	CollectionID uuid.UUID
+	CreateAt     *time.Time
+	Prompt       string
+	Completion   string
+	Sources      []ChatMessageSource
 }
 
 type ChatMessageSource struct {
-	ID           *uuid.UUID
+	ID           uuid.UUID
 	DocumentPage uuid.UUID
 	Filename     string
 	Page         int
@@ -38,8 +38,8 @@ func (client *Client) CreateChat(ctx context.Context, history ChatMessage) (*uui
 		`INSERT INTO chat_message (id, user_id, collection_id, prompt, completion)
 		VALUES ($1, $2, $3, $4, $5)`,
 		id,
-		history.UID,
-		history.Collection,
+		history.UserID,
+		history.CollectionID,
 		history.Prompt,
 		history.Completion)
 	if err != nil {

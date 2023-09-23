@@ -20,7 +20,7 @@ func (server *Server) ListDocuments(ctx context.Context, req *pb.DocumentFilter)
 	}
 
 	query := database.DocumentQuery{
-		UserId: uid,
+		UserID: uid,
 		Query:  "%" + req.Query + "%",
 	}
 
@@ -39,7 +39,7 @@ func (server *Server) ListDocuments(ctx context.Context, req *pb.DocumentFilter)
 	var documents pb.Documents
 	for _, doc := range docs {
 		documents.Items = append(documents.Items, &pb.Documents_Document{
-			Id:       doc.Id.String(),
+			Id:       doc.ID.String(),
 			Filename: doc.Filename,
 			Pages:    doc.Pages,
 		})
@@ -95,11 +95,11 @@ func (server *Server) UpdateDocument(ctx context.Context, req *pb.Document) (*em
 	}
 
 	err = server.db.UpdateDocumentName(ctx, database.Document{
-		Id:         docID,
-		UserId:     uid,
-		Collection: collection,
-		Filename:   req.Filename,
-		Path:       req.Path,
+		ID:           docID,
+		UserID:       uid,
+		CollectionID: collection,
+		Filename:     req.Filename,
+		Path:         req.Path,
 	})
 	if err != nil {
 		return nil, err

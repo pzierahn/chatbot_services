@@ -107,11 +107,11 @@ func (server *Server) IndexDocument(doc *pb.Document, stream pb.Brainboost_Index
 	}
 
 	_, err = server.db.UpsertDocument(ctx, database.Document{
-		UserId:     uid,
-		Collection: uuid.MustParse(doc.CollectionId),
-		Filename:   doc.Filename,
-		Path:       doc.Path,
-		Pages:      embeddings,
+		UserID:       uid,
+		CollectionID: uuid.MustParse(doc.CollectionId),
+		Filename:     doc.Filename,
+		Path:         doc.Path,
+		Pages:        embeddings,
 	})
 	if err != nil {
 		server.storage.RemoveFile(bucket, []string{doc.Path})
@@ -121,9 +121,9 @@ func (server *Server) IndexDocument(doc *pb.Document, stream pb.Brainboost_Index
 	log.Printf("Indexing done: %v", doc.Filename)
 
 	_, _ = server.db.CreateUsage(ctx, database.Usage{
-		UID:   uid,
-		Model: embeddingsModel.String(),
-		Input: inputTokens,
+		UserID: uid,
+		Model:  embeddingsModel.String(),
+		Input:  inputTokens,
 	})
 
 	return err

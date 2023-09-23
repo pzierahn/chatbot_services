@@ -9,7 +9,7 @@ import (
 // Usage represents a row in the openai_usage table
 type Usage struct {
 	ID        uuid.UUID
-	UID       uuid.UUID
+	UserID    uuid.UUID
 	CreatedAt *time.Time
 	Model     string
 	Input     uint32
@@ -28,7 +28,7 @@ func (client *Client) CreateUsage(ctx context.Context, usage Usage) (uuid.UUID, 
 		`INSERT INTO openai_usage (user_id, model, input, output)
 			VALUES ($1, $2, $3, $4)
 			RETURNING id`,
-		usage.UID, usage.Model, usage.Input, usage.Output).
+		usage.UserID, usage.Model, usage.Input, usage.Output).
 		Scan(&usage.ID)
 
 	return usage.ID, err

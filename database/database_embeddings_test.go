@@ -23,20 +23,20 @@ func TestSearch(t *testing.T) {
 
 	// Create a SearchQuery for testing
 	query := SearchQuery{
-		UserId:     testCollection.UserId, // Replace with a valid UUID for testing
-		Collection: testCollection.Id,     // Replace with a valid UUID for testing
-		Embedding:  onesEmbedding,         // Replace with valid embedding data
-		Limit:      10,                    // Replace with the desired limit for testing
-		Threshold:  0.5,                   // Replace with the desired threshold for testing
+		UserID:       testCollection.UserID, // Replace with a valid UUID for testing
+		CollectionID: testCollection.ID,     // Replace with a valid UUID for testing
+		Embedding:    onesEmbedding,         // Replace with valid embedding data
+		Limit:        10,                    // Replace with the desired limit for testing
+		Threshold:    0.5,                   // Replace with the desired threshold for testing
 	}
 
 	// Insert test data into the database
 	testData := []Document{
 		{
-			UserId:     testCollection.UserId,
-			Collection: testCollection.Id,
-			Filename:   "test1.pdf",
-			Path:       "/path/to/test1.pdf",
+			UserID:       testCollection.UserID,
+			CollectionID: testCollection.ID,
+			Filename:     "test1.pdf",
+			Path:         "/path/to/test1.pdf",
 			Pages: []*PageEmbedding{
 				{
 					Page:      0,
@@ -46,10 +46,10 @@ func TestSearch(t *testing.T) {
 			},
 		},
 		{
-			UserId:     testCollection.UserId,
-			Collection: testCollection.Id,
-			Filename:   "test2.pdf",
-			Path:       "/path/to/test2.pdf",
+			UserID:       testCollection.UserID,
+			CollectionID: testCollection.ID,
+			Filename:     "test2.pdf",
+			Path:         "/path/to/test2.pdf",
 			Pages: []*PageEmbedding{
 				{
 					Page:      0,
@@ -79,8 +79,8 @@ func TestSearch(t *testing.T) {
 	expectedResults := []*SearchResult{
 		// Define expected SearchResult objects based on your test data
 		{
-			DocId:    ids[0],
-			Filename: testData[0].Filename,
+			DocumentID: ids[0],
+			Filename:   testData[0].Filename,
 			Pages: []*Page{
 				{
 					Page:  0,
@@ -105,8 +105,8 @@ func TestSearch(t *testing.T) {
 
 	for i, actual := range results {
 		expected := expectedResults[i]
-		if actual.DocId != expected.DocId {
-			t.Errorf("Expected DocId %s, but got %s", expected.DocId, actual.DocId)
+		if actual.DocumentID != expected.DocumentID {
+			t.Errorf("Expected DocumentID %s, but got %s", expected.DocumentID, actual.DocumentID)
 		}
 
 		// Perform similar comparisons for other fields in SearchResult

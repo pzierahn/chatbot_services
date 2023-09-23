@@ -21,10 +21,10 @@ type chatMessage struct {
 func (server *Server) storeChatMessage(ctx context.Context, message chatMessage) {
 
 	dbMessage := database.ChatMessage{
-		UID:        message.uid,
-		Collection: message.collection,
-		Prompt:     message.prompt,
-		Completion: message.completion,
+		UserID:       message.uid,
+		CollectionID: message.collection,
+		Prompt:       message.prompt,
+		Completion:   message.completion,
 	}
 
 	for _, doc := range message.pageIDs {

@@ -15,24 +15,24 @@ type ScorePoints struct {
 }
 
 type SearchQuery struct {
-	UserId     uuid.UUID
-	Collection uuid.UUID
-	Embedding  []float32
-	Limit      int
-	Threshold  float32
+	UserID       uuid.UUID
+	CollectionID uuid.UUID
+	Embedding    []float32
+	Limit        int
+	Threshold    float32
 }
 
 type Page struct {
-	Id    uuid.UUID
+	ID    uuid.UUID
 	Page  uint32
 	Text  string
 	Score float32
 }
 
 type SearchResult struct {
-	DocId    uuid.UUID
-	Filename string
-	Pages    []*Page
+	DocumentID uuid.UUID
+	Filename   string
+	Pages      []*Page
 }
 
 func (client *Client) Search(ctx context.Context, query SearchQuery) ([]*SearchResult, error) {
@@ -45,8 +45,8 @@ func (client *Client) Search(ctx context.Context, query SearchQuery) ([]*SearchR
 		 	LIMIT $5`,
 		pgvector.NewVector(query.Embedding),
 		query.Threshold,
-		query.UserId,
-		query.Collection,
+		query.UserID,
+		query.CollectionID,
 		query.Limit)
 
 	if err != nil {
@@ -75,13 +75,13 @@ func (client *Client) Search(ctx context.Context, query SearchQuery) ([]*SearchR
 
 		if _, ok := collect[docId]; !ok {
 			collect[docId] = &SearchResult{
-				DocId:    docId,
-				Filename: filename,
+				DocumentID: docId,
+				Filename:   filename,
 			}
 		}
 
 		collect[docId].Pages = append(collect[docId].Pages, &Page{
-			Id:    id,
+			ID:    id,
 			Page:  page,
 			Text:  text,
 			Score: score,

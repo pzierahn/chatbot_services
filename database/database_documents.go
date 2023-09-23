@@ -14,23 +14,23 @@ type PageEmbedding struct {
 }
 
 type Document struct {
-	Id         uuid.UUID
-	UserId     uuid.UUID
-	Collection uuid.UUID
-	Filename   string
-	Path       string
-	Pages      []*PageEmbedding
+	ID           uuid.UUID
+	UserID       uuid.UUID
+	CollectionID uuid.UUID
+	Filename     string
+	Path         string
+	Pages        []*PageEmbedding
 }
 
 type DocumentInfo struct {
-	Id         uuid.UUID
-	Collection uuid.UUID
-	Filename   string
-	Pages      uint32
+	ID           uuid.UUID
+	CollectionID uuid.UUID
+	Filename     string
+	Pages        uint32
 }
 
 type DocumentQuery struct {
-	UserId     uuid.UUID
+	UserID     uuid.UUID
 	Collection uuid.UUID
 	Query      string
 }
@@ -47,11 +47,11 @@ func (client *Client) UpsertDocument(ctx context.Context, doc Document) (uuid.UU
 		`insert into documents (user_id, filename, path, collection_id)
 			values ($1, $2, $3, $4)
 			returning id`,
-		doc.UserId,
+		doc.UserID,
 		doc.Filename,
 		doc.Path,
-		doc.Collection)
-	err = result.Scan(&doc.Id)
+		doc.CollectionID)
+	err = result.Scan(&doc.ID)
 	if err != nil {
 		return uuid.Nil, err
 	}
@@ -60,7 +60,7 @@ func (client *Client) UpsertDocument(ctx context.Context, doc Document) (uuid.UU
 		_, err = tx.Exec(ctx,
 			`insert into document_embeddings (document_id, page, text, embedding)
 				values ($1, $2, $3, $4)`,
-			doc.Id,
+			doc.ID,
 			page.Page,
 			page.Text,
 			pgvector.NewVector(page.Embedding))
@@ -69,7 +69,7 @@ func (client *Client) UpsertDocument(ctx context.Context, doc Document) (uuid.UU
 		}
 	}
 
-	return doc.Id, tx.Commit(ctx)
+	return doc.ID, tx.Commit(ctx)
 }
 
 func (client *Client) FindDocuments(ctx context.Context, query DocumentQuery) ([]DocumentInfo, error) {
@@ -82,7 +82,7 @@ func (client *Client) FindDocuments(ctx context.Context, query DocumentQuery) ([
 		    doc.collection_id = $2::uuid AND
 		    doc.filename LIKE $3
 		GROUP BY document_id, filename, collection_id`,
-		query.UserId, query.Collection, query.Query)
+		query.UserID, query.Collection, query.Query)
 	if err != nil {
 		return nil, err
 	}
@@ -94,9 +94,9 @@ func (client *Client) FindDocuments(ctx context.Context, query DocumentQuery) ([
 		source := DocumentInfo{}
 
 		err := rows.Scan(
-			&source.Id,
+			&source.ID,
 			&source.Filename,
-			&source.Collection,
+			&source.CollectionID,
 			&source.Pages)
 		if err != nil {
 			return nil, err
@@ -116,7 +116,7 @@ func (client *Client) DeleteDocument(ctx context.Context, id, uid uuid.UUID) err
 func (client *Client) UpdateDocumentName(ctx context.Context, doc Document) error {
 	_, err := client.conn.Exec(ctx,
 		`update documents set filename = $1 where id = $2 and user_id = $3`,
-		doc.Filename, doc.Id, doc.UserId)
+		doc.Filename, doc.ID, doc.UserID)
 	return err
 }
 

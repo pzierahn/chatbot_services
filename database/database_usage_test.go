@@ -12,7 +12,7 @@ func TestCreateUsage(t *testing.T) {
 
 	// Define a test Usage struct
 	usage := Usage{
-		UID:    uuid.New(),
+		UserID: uuid.New(),
 		Model:  "TestModel",
 		Input:  100,
 		Output: 50,
@@ -39,13 +39,13 @@ func TestGetModelUsages(t *testing.T) {
 	// Create some test usages
 	usages := []Usage{
 		{
-			UID:    uuid.New(),
+			UserID: uuid.New(),
 			Model:  "TestModel",
 			Input:  100,
 			Output: 50,
 		},
 		{
-			UID:    uuid.New(),
+			UserID: uuid.New(),
 			Model:  "TestModel",
 			Input:  200,
 			Output: 100,
@@ -62,7 +62,7 @@ func TestGetModelUsages(t *testing.T) {
 
 	for _, usage := range usages {
 		// Call the GetModelUsages function to retrieve the usages
-		retrievedUsages, err := testClient.GetModelUsages(context.Background(), usage.UID)
+		retrievedUsages, err := testClient.GetModelUsages(context.Background(), usage.UserID)
 		if err != nil {
 			t.Errorf("GetModelUsages returned an error: %v", err)
 		}

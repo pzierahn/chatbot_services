@@ -6,13 +6,13 @@ import (
 )
 
 type Collection struct {
-	Id     uuid.UUID
-	UserId uuid.UUID
+	ID     uuid.UUID
+	UserID uuid.UUID
 	Name   string
 }
 
 type CollectionInfo struct {
-	Id        uuid.UUID
+	ID        uuid.UUID
 	Name      string
 	Documents uint32
 }
@@ -23,21 +23,21 @@ func (client *Client) CreateCollection(ctx context.Context, coll *Collection) (u
 		`insert into collections (user_id, name)
 			values ($1, $2)
 			returning id`,
-		coll.UserId, coll.Name)
+		coll.UserID, coll.Name)
 
-	err := result.Scan(&coll.Id)
+	err := result.Scan(&coll.ID)
 	if err != nil {
 		return uuid.Nil, err
 	}
 
-	return coll.Id, nil
+	return coll.ID, nil
 }
 
 func (client *Client) UpdateCollection(ctx context.Context, coll Collection) error {
 	_, err := client.conn.Exec(
 		ctx,
 		`update collections set name = $3 where id = $1 and user_id = $2`,
-		coll.Id, coll.UserId, coll.Name)
+		coll.ID, coll.UserID, coll.Name)
 
 	return err
 }
@@ -46,7 +46,7 @@ func (client *Client) DeleteCollection(ctx context.Context, coll *Collection) er
 	_, err := client.conn.Exec(
 		ctx,
 		`delete from collections where id = $1 and user_id = $2`,
-		coll.Id, coll.UserId)
+		coll.ID, coll.UserID)
 
 	return err
 }
@@ -70,7 +70,7 @@ func (client *Client) ListCollections(ctx context.Context, uid uuid.UUID) ([]*Co
 	for rows.Next() {
 		coll := new(CollectionInfo)
 
-		err = rows.Scan(&coll.Id, &coll.Name, &coll.Documents)
+		err = rows.Scan(&coll.ID, &coll.Name, &coll.Documents)
 		if err != nil {
 			return nil, err
 		}

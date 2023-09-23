@@ -10,8 +10,8 @@ import (
 func setupTestCollection(t *testing.T) *Collection {
 	testUserID := uuid.New()
 	testCollection := &Collection{
-		UserId: testUserID,
-		Name:   "Test Collection",
+		UserID: testUserID,
+		Name:   "Test CollectionID",
 	}
 
 	createdID, err := testClient.CreateCollection(context.Background(), testCollection)
@@ -49,9 +49,9 @@ func TestListCollections_Valid(t *testing.T) {
 	// Insert test collections into the database
 	testUserID := uuid.New()
 	testCollections := []*Collection{
-		{UserId: testUserID, Name: "Collection 1"},
-		{UserId: testUserID, Name: "Collection 2"},
-		{UserId: uuid.New(), Name: "Collection 3"}, // Different user ID
+		{UserID: testUserID, Name: "CollectionID 1"},
+		{UserID: testUserID, Name: "CollectionID 2"},
+		{UserID: uuid.New(), Name: "CollectionID 3"}, // Different user ID
 	}
 
 	for _, coll := range testCollections {

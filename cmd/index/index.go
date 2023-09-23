@@ -65,8 +65,8 @@ func main() {
 	//	}
 	//
 	//	doc := index.DocumentId{
-	//		UserId:     uuid.MustParse("50372462-3137-4ed9-9950-ad033fa24bfc"),
-	//		Collection: uuid.MustParse("b452f76d-c1e4-4cdb-979f-08a4521d3372"),
+	//		UserID:     uuid.MustParse("50372462-3137-4ed9-9950-ad033fa24bfc"),
+	//		CollectionID: uuid.MustParse("b452f76d-c1e4-4cdb-979f-08a4521d3372"),
 	//		Filename:   file.Name(),
 	//	}
 	//

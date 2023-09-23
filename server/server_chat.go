@@ -97,12 +97,12 @@ func (server *Server) getBackgroundFromDB(ctx context.Context, uid uuid.UUID, pr
 			pages[iny] = page.Page
 			scores[iny] = page.Score
 
-			bg.pageIDs = append(bg.pageIDs, page.Id)
+			bg.pageIDs = append(bg.pageIDs, page.ID)
 		}
 
 		bg.fragments = append(bg.fragments, strings.Join(text, "\n"))
 		bg.docs = append(bg.docs, &pb.ChatMessage_Document{
-			Id:       doc.DocId.String(),
+			Id:       doc.DocumentID.String(),
 			Filename: doc.Filename,
 			Pages:    pages,
 			Scores:   scores,
@@ -166,7 +166,7 @@ func (server *Server) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMess
 	}
 
 	_, err = server.db.CreateUsage(ctx, database.Usage{
-		UID:    uid,
+		UserID: uid,
 		Model:  resp.Model,
 		Input:  uint32(resp.Usage.PromptTokens),
 		Output: uint32(resp.Usage.CompletionTokens),
