@@ -9,7 +9,7 @@ import (
 // Initialize a test client and connection string
 var testClient *Client
 
-var testConnectionString = os.Getenv("NEON_DB")
+var testConnectionString = os.Getenv("TEST_DATABASE")
 
 func setupTestClient(t *testing.T) {
 	if testClient != nil {
