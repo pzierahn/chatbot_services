@@ -23,8 +23,6 @@ create table if not exists document_embeddings
     embedding   vector(1536)
 );
 
-CREATE INDEX IF NOT EXISTS hnsw_index ON document_embeddings USING hnsw (embedding vector_ip_ops);
-
 create table if not exists openai_usage
 (
     id         uuid primary key   default gen_random_uuid(),
