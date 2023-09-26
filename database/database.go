@@ -6,6 +6,10 @@ import (
 	"log"
 )
 
+type Database interface {
+	Close()
+}
+
 type Client struct {
 	conn *pgxpool.Pool
 }

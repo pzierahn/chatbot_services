@@ -8,6 +8,26 @@ import (
 	"time"
 )
 
+func setupTestChat(t *testing.T, testCollection *Collection) *ChatMessage {
+	message := &ChatMessage{
+		UserID:       testCollection.UserID,
+		CollectionID: testCollection.ID,
+		Prompt:       "Test Prompt",
+		Completion:   "Test Completion",
+	}
+
+	createdID, err := testClient.CreateChat(context.Background(), *message)
+	if err != nil {
+		t.Fatalf("Error creating collection: %v", err)
+	}
+
+	if createdID == uuid.Nil {
+		t.Fatal("Expected createdID to be non-nil")
+	}
+
+	return message
+}
+
 func TestGetChatMessages_Valid(t *testing.T) {
 	setupTestClient(t)
 	defer tearDownTestClient(t)
