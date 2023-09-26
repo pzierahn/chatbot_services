@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"log"
 	"time"
 )
 
@@ -12,7 +11,7 @@ type ChatMessage struct {
 	ID           uuid.UUID
 	UserID       uuid.UUID
 	CollectionID uuid.UUID
-	CreateAt     *time.Time
+	CreateAt     time.Time
 	Prompt       string
 	Completion   string
 	Sources      []ChatMessageSource
@@ -94,16 +93,17 @@ func (client *Client) GetChatMessage(ctx context.Context, id, uid string) (*Chat
 	var message ChatMessage
 
 	err := client.conn.QueryRow(ctx,
-		`SELECT id, created_at, prompt, completion
+		`SELECT id, user_id, collection_id, created_at, prompt, completion
 			FROM chat_message
 			WHERE id = $1 AND user_id = $2`,
 		id, uid).Scan(
 		&message.ID,
+		&message.UserID,
+		&message.CollectionID,
 		&message.CreateAt,
 		&message.Prompt,
 		&message.Completion)
 	if err != nil {
-		log.Printf("Error: %v", err)
 		return nil, err
 	}
 

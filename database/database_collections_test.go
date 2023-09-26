@@ -26,6 +26,33 @@ func setupTestCollection(t *testing.T) *Collection {
 	return testCollection
 }
 
+func setupTestDocument(t *testing.T, testCollection *Collection) *Document {
+	doc := &Document{
+		UserID:       testCollection.UserID,
+		CollectionID: testCollection.ID,
+		Filename:     "Test Filename",
+		Path:         "/path/to/file",
+		Pages: []*PageEmbedding{
+			{
+				Page:      1,
+				Text:      "Test text",
+				Embedding: make([]float32, 1536),
+			},
+		},
+	}
+
+	createdID, err := testClient.UpsertDocument(context.Background(), *doc)
+	if err != nil {
+		t.Fatalf("Error creating collection: %v", err)
+	}
+
+	if createdID == uuid.Nil {
+		t.Fatal("Expected createdID to be non-nil")
+	}
+
+	return doc
+}
+
 func TestCreateCollection_Valid(t *testing.T) {
 	setupTestClient(t)
 	defer tearDownTestClient(t)
