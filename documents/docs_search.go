@@ -36,7 +36,7 @@ func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.
 		return nil, err
 	}
 
-	embedding := resp.Data[0].Embedding
+	promptEmbedding := resp.Data[0].Embedding
 	_, _ = service.account.CreateUsage(ctx, account.Usage{
 		UserID: userID,
 		Model:  embeddingsModel.String(),
@@ -51,7 +51,7 @@ func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.
 			where (1 - (embedding <=> $1)) >= $2 and doc.user_id = $3 and doc.collection_id = $4
 			ORDER BY score DESC
 		 	LIMIT $5`,
-		pgvector.NewVector(embedding),
+		pgvector.NewVector(promptEmbedding),
 		query.Threshold,
 		userID,
 		query.CollectionID,
