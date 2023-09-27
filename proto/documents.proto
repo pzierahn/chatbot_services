@@ -48,7 +48,7 @@ message Document {
 
 message DocumentFilter {
   string query = 1;
-  string collection = 2;
+  string collectionID = 2;
 }
 
 message Documents {

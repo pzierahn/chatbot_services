@@ -40,9 +40,10 @@ message PromptOptions {
 }
 
 message ChatMessage {
-  string id = 5;
-  Prompt prompt = 1;
-  string text = 2;
+  string id = 1;
+  string collectionId = 2;
+  Prompt prompt = 3;
+  string text = 4;
 
   message Document {
     string id = 1;
@@ -51,8 +52,8 @@ message ChatMessage {
     repeated float scores = 4;
   }
 
-  repeated Document documents = 3;
-  optional google.protobuf.Timestamp timestamp = 4;
+  repeated Document documents = 5;
+  optional google.protobuf.Timestamp timestamp = 6;
 }
 
 message MessageID {
