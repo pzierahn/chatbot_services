@@ -6,6 +6,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	pb "github.com/pzierahn/brainboost/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
+	"log"
 	"time"
 )
 
@@ -64,9 +65,10 @@ func (service *Service) GetChatMessages(ctx context.Context, collection *pb.Coll
 
 	rows, err := service.db.Query(ctx,
 		`SELECT id FROM chat_message
-          WHERE user_id = $1 AND collection_id = $2
+          WHERE user_id = $1 AND
+                collection_id = $2
           ORDER BY created_at DESC`,
-		uid, collection)
+		uid, collection.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +87,7 @@ func (service *Service) GetChatMessages(ctx context.Context, collection *pb.Coll
 	return messages, nil
 }
 
-func (service *Service) getChatMessageDocuments(ctx context.Context, userID uuid.UUID, message *pb.ChatMessage) ([]*pb.ChatMessage_Document, error) {
+func (service *Service) getChatMessageDocuments(ctx context.Context, userId uuid.UUID, message *pb.ChatMessage) ([]*pb.ChatMessage_Document, error) {
 	rows, err := service.db.Query(ctx,
 		`SELECT de.id, doc.id, doc.filename, de.page
 			FROM chat_message AS cm,
@@ -99,7 +101,7 @@ func (service *Service) getChatMessageDocuments(ctx context.Context, userID uuid
 			      cm.user_id = $2 AND
 			      doc.collection_id = $3
 			ORDER BY de.page`,
-		message.Id, userID, message.CollectionId)
+		message.Id, userId, message.CollectionId)
 	if err != nil {
 		return nil, err
 	}
@@ -143,12 +145,14 @@ func (service *Service) getChatMessageDocuments(ctx context.Context, userID uuid
 }
 
 func (service *Service) GetChatMessage(ctx context.Context, id *pb.MessageID) (*pb.ChatMessage, error) {
-	userID, err := service.auth.ValidateToken(ctx)
+	userId, err := service.auth.ValidateToken(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	var message pb.ChatMessage
+
+	var pompt string
 	var createdAt time.Time
 
 	err = service.db.QueryRow(ctx,
@@ -156,19 +160,24 @@ func (service *Service) GetChatMessage(ctx context.Context, id *pb.MessageID) (*
 			FROM chat_message
 			WHERE id = $1 AND
 			      user_id = $2`,
-		id, userID).Scan(
+		id.Id, userId).Scan(
 		&message.Id,
 		&message.CollectionId,
 		&createdAt,
-		&message.Prompt,
+		&pompt,
 		&message.Text)
 	if err != nil {
+		log.Printf("GetChatMessage: %v", err)
 		return nil, err
 	}
 
+	message.Prompt = &pb.Prompt{
+		Prompt:       pompt,
+		CollectionId: message.CollectionId,
+	}
 	message.Timestamp = timestamppb.New(createdAt)
 
-	message.Documents, err = service.getChatMessageDocuments(ctx, userID, &message)
+	message.Documents, err = service.getChatMessageDocuments(ctx, userId, &message)
 	if err != nil {
 		return nil, err
 	}
