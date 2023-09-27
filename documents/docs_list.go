@@ -6,7 +6,7 @@ import (
 	"sort"
 )
 
-func (service *Service) ListDocuments(ctx context.Context, req *pb.DocumentFilter) (*pb.Documents, error) {
+func (service *Service) List(ctx context.Context, req *pb.DocumentFilter) (*pb.Documents, error) {
 
 	userID, err := service.auth.ValidateToken(ctx)
 	if err != nil {

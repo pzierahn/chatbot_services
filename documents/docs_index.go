@@ -19,7 +19,7 @@ import (
 type embeddingsBatch struct {
 	userID uuid.UUID
 	pages  []string
-	stream pb.DocumentService_IndexDocumentServer
+	stream pb.DocumentService_IndexServer
 }
 
 type document struct {
@@ -148,7 +148,7 @@ func (service *Service) insertEmbeddings(ctx context.Context, doc *document) (uu
 	return docID, tx.Commit(ctx)
 }
 
-func (service *Service) IndexDocument(doc *pb.Document, stream pb.DocumentService_IndexDocumentServer) error {
+func (service *Service) Index(doc *pb.Document, stream pb.DocumentService_IndexServer) error {
 
 	userID, err := service.auth.ValidateToken(stream.Context())
 	if err != nil {

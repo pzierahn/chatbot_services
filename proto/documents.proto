@@ -7,10 +7,10 @@ package endpoint.brainboost.documents.v1;
 import "google/protobuf/empty.proto";
 
 service DocumentService {
-  rpc ListDocuments(DocumentFilter) returns (Documents);
-  rpc IndexDocument(Document) returns (stream IndexProgress);
-  rpc DeleteDocument(Document) returns (google.protobuf.Empty);
-  rpc UpdateDocument(Document) returns (google.protobuf.Empty);
+  rpc List(DocumentFilter) returns (Documents);
+  rpc Index(Document) returns (stream IndexProgress);
+  rpc Delete(Document) returns (google.protobuf.Empty);
+  rpc Update(Document) returns (google.protobuf.Empty);
   rpc Search(SearchQuery) returns (SearchResults);
 }
 

@@ -6,7 +6,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-func (service *Service) UpdateDocument(ctx context.Context, req *pb.Document) (*emptypb.Empty, error) {
+func (service *Service) Update(ctx context.Context, req *pb.Document) (*emptypb.Empty, error) {
 	userID, err := service.auth.ValidateToken(ctx)
 	if err != nil {
 		return nil, err

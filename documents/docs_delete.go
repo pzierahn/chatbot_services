@@ -7,7 +7,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-func (service *Service) DeleteDocument(ctx context.Context, req *pb.Document) (*emptypb.Empty, error) {
+func (service *Service) Delete(ctx context.Context, req *pb.Document) (*emptypb.Empty, error) {
 	uid, err := service.auth.ValidateToken(ctx)
 	if err != nil {
 		return nil, err
