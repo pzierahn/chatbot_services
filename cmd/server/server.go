@@ -3,9 +3,14 @@ package main
 import (
 	"context"
 	"flag"
-	"github.com/pzierahn/brainboost/database"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/pzierahn/brainboost/account"
+	"github.com/pzierahn/brainboost/auth"
+	"github.com/pzierahn/brainboost/chat"
+	"github.com/pzierahn/brainboost/collections"
+	"github.com/pzierahn/brainboost/documents"
 	pb "github.com/pzierahn/brainboost/proto"
-	"github.com/pzierahn/brainboost/server"
+	"github.com/pzierahn/brainboost/setup"
 	"github.com/sashabaranov/go-openai"
 	storagego "github.com/supabase-community/storage-go"
 	"google.golang.org/grpc"
@@ -22,13 +27,15 @@ func init() {
 func main() {
 
 	ctx := context.Background()
-	db, err := database.Connect(ctx, os.Getenv("SUPABASE_DB"))
+
+	addr := os.Getenv("SUPABASE_DB")
+	db, err := pgxpool.New(ctx, addr)
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
 	defer db.Close()
 
-	err = db.SetupTables(ctx)
+	err = setup.SetupTables(ctx, db)
 	if err != nil {
 		log.Fatalf("failed to setup tables: %v", err)
 	}
@@ -41,9 +48,36 @@ func main() {
 		os.Getenv("SUPABASE_STORAGE_TOKEN"),
 		nil)
 
-	doormanServer := server.NewServer(db, gpt, storage)
+	supabaseAuth := auth.WithSupabase()
+
 	grpcServer := grpc.NewServer()
-	pb.RegisterBrainboostServer(grpcServer, doormanServer)
+
+	collectionServer := collections.NewServer(supabaseAuth, db, storage)
+	pb.RegisterCollectionServiceServer(grpcServer, collectionServer)
+
+	accountService := account.FromConfig(&account.Config{
+		Auth: supabaseAuth,
+		DB:   db,
+	})
+	pb.RegisterAccountServiceServer(grpcServer, accountService)
+
+	docsService := documents.FromConfig(&documents.Config{
+		Auth:    supabaseAuth,
+		Account: accountService,
+		DB:      db,
+		GPT:     gpt,
+		Storage: storage,
+	})
+	pb.RegisterDocumentServiceServer(grpcServer, docsService)
+
+	chatServer := chat.FromConfig(&chat.Config{
+		DB:              db,
+		GPT:             gpt,
+		DocumentService: docsService,
+		AccountService:  accountService,
+		AuthService:     supabaseAuth,
+	})
+	pb.RegisterChatServiceServer(grpcServer, chatServer)
 
 	port := os.Getenv("PORT")
 	if port == "" {

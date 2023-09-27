@@ -3,10 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/pzierahn/brainboost/database"
-	"github.com/pzierahn/brainboost/index"
 	"github.com/sashabaranov/go-openai"
-	storagego "github.com/supabase-community/storage-go"
 	"log"
 	"os"
 	"path/filepath"
@@ -21,38 +18,14 @@ func main() {
 	log.SetFlags(log.Lshortfile | log.LstdFlags)
 
 	ctx := context.Background()
-	//db, err := database.Connect(ctx, "postgresql://postgres:postgres@localhost:5432")
-	db, err := database.Connect(ctx, os.Getenv("SUPABASE_DB"))
-	if err != nil {
-		log.Fatalf("did not connect: %v", err)
-	}
-	defer db.Close()
-
-	err = db.SetupTables(ctx)
-	if err != nil {
-		log.Fatalf("could not setup tables: %v", err)
-	}
 
 	token := os.Getenv("OPENAI_API_KEY")
 	gpt := openai.NewClient(token)
 
-	storage := storagego.NewClient(
-		os.Getenv("SUPABASE_URL")+"/storage/v1",
-		os.Getenv("SUPABASE_STORAGE_TOKEN"),
-		nil)
-
-	source := index.Index{
-		DB:      db,
-		GPT:     gpt,
-		Storage: storage,
-	}
-
-	source.DB = db
-
 	var messages []openai.ChatCompletionMessage
 
 	// Read files recursively
-	err = filepath.Walk(baseDir, func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(baseDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -102,7 +75,7 @@ func main() {
 
 	messages = append(messages, openai.ChatCompletionMessage{
 		Role:    openai.ChatMessageRoleUser,
-		Content: "Write tests for function CreateChat",
+		Content: "Write tests for function Search in database/database_embeddings.go",
 	})
 
 	resp, err := gpt.CreateChatCompletion(ctx, openai.ChatCompletionRequest{
@@ -118,7 +91,7 @@ func main() {
 
 	log.Printf("Usage: %+v", resp.Usage)
 
-	err = os.WriteFile("database_test.go", []byte(content), 0644)
+	err = os.WriteFile("output.md", []byte(content), 0644)
 	if err != nil {
 		log.Fatal(err)
 	}

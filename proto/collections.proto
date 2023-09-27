@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+option go_package = "./proto";
+
+package endpoint.brainboost.collections.v1;
+
+import "google/protobuf/empty.proto";
+
+service CollectionService {
+  rpc GetAll(google.protobuf.Empty) returns (Collections);
+  rpc Create(Collection) returns (Collection);
+  rpc Update(Collection) returns (Collection);
+  rpc Delete(Collection) returns (google.protobuf.Empty);
+}
+
+message Collection {
+  string id = 1;
+  string name = 2;
+}
+
+message Collections {
+  message Collection {
+    string id = 1;
+    string name = 2;
+    uint32 documentCount = 3;
+  }
+
+  repeated Collection items = 1;
+}

@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+option go_package = "./proto";
+
+package endpoint.brainboost.account.v1;
+
+import "google/protobuf/empty.proto";
+
+service AccountService {
+  rpc GetModelUsages(google.protobuf.Empty) returns (ModelUsages);
+}
+
+message ModelUsages {
+  message Usage {
+    string model = 1;
+    uint32 input = 2;
+    uint32 output = 3;
+  }
+
+  repeated Usage items = 1;
+}
