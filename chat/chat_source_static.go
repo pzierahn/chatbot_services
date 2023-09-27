@@ -97,6 +97,7 @@ func (service *Service) getBackgroundFromPrompt(ctx context.Context, userID uuid
 
 		bg.fragments = append(bg.fragments, fragment)
 		bg.docs = append(bg.docs, content)
+		bg.pageIds = append(bg.pageIds, uuid.MustParse(doc.Id))
 	}
 
 	return &bg, nil

@@ -2,6 +2,7 @@ package chat
 
 import (
 	"context"
+	"github.com/google/uuid"
 	pb "github.com/pzierahn/brainboost/proto"
 	"sort"
 	"strings"
@@ -28,6 +29,7 @@ func (service *Service) getSourceFromDB(ctx context.Context, prompt *pb.Prompt) 
 	bg := chatContext{}
 
 	filename := make(map[string]string)
+	pageIds := make(map[string][]uuid.UUID)
 	pages := make(map[string][]uint32)
 	scores := make(map[string][]float32)
 	text := make(map[string][]string)
@@ -39,16 +41,18 @@ func (service *Service) getSourceFromDB(ctx context.Context, prompt *pb.Prompt) 
 		pages[docId] = append(pages[docId], doc.Page)
 		scores[docId] = append(scores[docId], doc.Score)
 		text[docId] = append(text[docId], doc.Content)
+		pageIds[docId] = append(pageIds[docId], uuid.MustParse(doc.Id))
 	}
 
-	for id := range filename {
-		bg.fragments = append(bg.fragments, strings.Join(text[id], "\n"))
+	for docId := range filename {
+		bg.fragments = append(bg.fragments, strings.Join(text[docId], "\n"))
 		bg.docs = append(bg.docs, &pb.ChatMessage_Document{
-			Id:       id,
-			Filename: filename[id],
-			Pages:    pages[id],
-			Scores:   scores[id],
+			Id:       docId,
+			Filename: filename[docId],
+			Pages:    pages[docId],
+			Scores:   scores[docId],
 		})
+		bg.pageIds = pageIds[docId]
 	}
 
 	return &bg, nil
