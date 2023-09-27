@@ -12,9 +12,9 @@ type Collection struct {
 }
 
 type CollectionInfo struct {
-	ID        uuid.UUID
-	Name      string
-	Documents uint32
+	ID            uuid.UUID
+	Name          string
+	DocumentCount uint32
 }
 
 func (client *Client) CreateCollection(ctx context.Context, coll *Collection) (uuid.UUID, error) {
@@ -70,7 +70,7 @@ func (client *Client) ListCollections(ctx context.Context, uid uuid.UUID) ([]*Co
 	for rows.Next() {
 		coll := new(CollectionInfo)
 
-		err = rows.Scan(&coll.ID, &coll.Name, &coll.Documents)
+		err = rows.Scan(&coll.ID, &coll.Name, &coll.DocumentCount)
 		if err != nil {
 			return nil, err
 		}
