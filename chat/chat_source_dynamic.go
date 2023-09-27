@@ -33,10 +33,12 @@ func (service *Service) getSourceFromDB(ctx context.Context, prompt *pb.Prompt) 
 	text := make(map[string][]string)
 
 	for _, doc := range results.Items {
-		filename[doc.Id] = doc.Filename
-		pages[doc.Id] = append(pages[doc.Id], doc.Page)
-		scores[doc.Id] = append(scores[doc.Id], doc.Score)
-		text[doc.Id] = append(text[doc.Id], doc.Content)
+		docId := doc.DocumentId
+
+		filename[docId] = doc.Filename
+		pages[docId] = append(pages[docId], doc.Page)
+		scores[docId] = append(scores[docId], doc.Score)
+		text[docId] = append(text[docId], doc.Content)
 	}
 
 	for id := range filename {
