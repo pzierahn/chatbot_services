@@ -24,13 +24,16 @@ func setupTestService(t *testing.T) {
 	}
 
 	userAuth := auth.WithUser(uuid.New())
-	user := account.NewServer(userAuth, conn)
+	user := account.FromConfig(&account.Config{
+		Auth: userAuth,
+		DB:   conn,
+	})
 
 	testService = FromConfig(&Config{
 		Auth:    userAuth,
 		Account: user,
-		Db:      conn,
-		Gpt:     nil,
+		DB:      conn,
+		GPT:     nil,
 		Storage: nil,
 	})
 	err = setup.SetupTables(ctx, testService.db)
