@@ -17,7 +17,7 @@ const (
 type Service struct {
 	pb.UnimplementedDocumentServiceServer
 	auth    auth.Service
-	account account.Service
+	account account.ServiceImpl
 	db      *pgxpool.Pool
 	gpt     *openai.Client
 	storage *storage_go.Client
@@ -25,7 +25,7 @@ type Service struct {
 
 type Config struct {
 	Auth    auth.Service
-	Account *account.Service
+	Account *account.ServiceImpl
 	DB      *pgxpool.Pool
 	GPT     *openai.Client
 	Storage *storage_go.Client

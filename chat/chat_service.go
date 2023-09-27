@@ -18,7 +18,7 @@ type Service struct {
 	db      *pgxpool.Pool
 	gpt     *openai.Client
 	docs    *documents.Service
-	account *account.Service
+	account account.Service
 	auth    auth.Service
 }
 
@@ -26,7 +26,7 @@ type Config struct {
 	DB              *pgxpool.Pool
 	GPT             *openai.Client
 	DocumentService *documents.Service
-	AccountService  *account.Service
+	AccountService  account.Service
 	AuthService     auth.Service
 }
 

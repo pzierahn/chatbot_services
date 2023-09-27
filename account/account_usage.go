@@ -15,7 +15,7 @@ type Usage struct {
 	Output uint32
 }
 
-func (service *Service) GetModelUsages(ctx context.Context, _ *emptypb.Empty) (*pb.ModelUsages, error) {
+func (service *ServiceImpl) GetModelUsages(ctx context.Context, _ *emptypb.Empty) (*pb.ModelUsages, error) {
 	userID, err := service.auth.ValidateToken(ctx)
 	if err != nil {
 		return nil, err
@@ -49,7 +49,7 @@ func (service *Service) GetModelUsages(ctx context.Context, _ *emptypb.Empty) (*
 }
 
 // CreateUsage inserts a new usage record into the openai_usage table
-func (service *Service) CreateUsage(ctx context.Context, usage Usage) (uuid.UUID, error) {
+func (service *ServiceImpl) CreateUsage(ctx context.Context, usage Usage) (uuid.UUID, error) {
 	// Validate the token
 	userID, err := service.auth.ValidateToken(ctx)
 	if err != nil {
