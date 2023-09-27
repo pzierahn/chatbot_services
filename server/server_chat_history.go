@@ -75,7 +75,7 @@ func (server *Server) GetChatMessage(ctx context.Context, id *pb.MessageID) (*pb
 			Prompt: message.Prompt,
 		},
 		Text:      message.Completion,
-		Timestamp: timestamppb.New(*message.CreateAt),
+		Timestamp: timestamppb.New(message.CreateAt),
 	}
 
 	filename := make(map[uuid.UUID]string)
