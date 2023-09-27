@@ -9,10 +9,6 @@ import (
 	"github.com/sashabaranov/go-openai"
 )
 
-const (
-	embeddingsModel = openai.AdaEmbeddingV2
-)
-
 type Service struct {
 	pb.UnimplementedChatServiceServer
 	db      *pgxpool.Pool
