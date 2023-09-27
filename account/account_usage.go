@@ -58,7 +58,7 @@ func (service *Service) CreateUsage(ctx context.Context, usage Usage) (uuid.UUID
 
 	var id uuid.UUID
 	err = service.db.QueryRow(ctx,
-		`INSERT INTO openai_usage (user_id, model, input, output)
+		`INSERT INTO openai_usage (user_id, model, input_tokens, output_tokens)
 			VALUES ($1, $2, $3, $4)
 			RETURNING id`,
 		userID, usage.Model, usage.Input, usage.Output).
