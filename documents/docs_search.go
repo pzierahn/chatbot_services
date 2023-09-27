@@ -38,7 +38,7 @@ func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.
 
 	promptEmbedding := resp.Data[0].Embedding
 	_, _ = service.account.CreateUsage(ctx, account.Usage{
-		UserID: userID,
+		UserId: userID,
 		Model:  embeddingsModel.String(),
 		Input:  uint32(resp.Usage.PromptTokens),
 		Output: uint32(resp.Usage.CompletionTokens),
@@ -54,7 +54,7 @@ func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.
 		pgvector.NewVector(promptEmbedding),
 		query.Threshold,
 		userID,
-		query.CollectionID,
+		query.CollectionId,
 		query.Limit)
 
 	if err != nil {
@@ -68,7 +68,7 @@ func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.
 
 		err = rows.Scan(
 			&doc.Id,
-			&doc.DocumentID,
+			&doc.DocumentId,
 			&doc.Filename,
 			&doc.Page,
 			&doc.Content,

@@ -22,7 +22,7 @@ type Config struct {
 	DB              *pgxpool.Pool
 	GPT             *openai.Client
 	DocumentService *documents.Service
-	AccountService  account.Service
+	AccountService  *account.Service
 	AuthService     auth.Service
 }
 
@@ -31,7 +31,7 @@ func FromConfig(config *Config) *Service {
 		gpt:     config.GPT,
 		db:      config.DB,
 		docs:    config.DocumentService,
-		account: config.AccountService,
+		account: *config.AccountService,
 		auth:    config.AuthService,
 	}
 }

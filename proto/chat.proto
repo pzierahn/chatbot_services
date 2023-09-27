@@ -16,7 +16,7 @@ service ChatService {
 
 message Prompt {
   string prompt = 1;
-  string collectionID = 2;
+  string collection_id = 2;
   PromptOptions options = 3;
 
   message Document {
@@ -41,7 +41,7 @@ message PromptOptions {
 
 message ChatMessage {
   string id = 1;
-  string collectionId = 2;
+  string collection_id = 2;
   Prompt prompt = 3;
   string text = 4;
 

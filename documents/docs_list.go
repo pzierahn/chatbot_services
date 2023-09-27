@@ -22,7 +22,7 @@ func (service *Service) List(ctx context.Context, req *pb.DocumentFilter) (*pb.D
 		    doc.collection_id = $2::uuid AND
 		    doc.filename LIKE $3
 		GROUP BY document_id, filename, collection_id`,
-		userID, req.CollectionID, "%"+req.Query+"%")
+		userID, req.CollectionId, "%"+req.Query+"%")
 	if err != nil {
 		return nil, err
 	}

@@ -16,7 +16,7 @@ service DocumentService {
 
 message SearchQuery {
   string query = 1;
-  string collectionID = 2;
+  string collection_id = 2;
   float threshold = 3;
   uint32 limit = 4;
 }
@@ -24,7 +24,7 @@ message SearchQuery {
 message SearchResults {
   message Document {
     string id = 1;
-    string documentID = 2;
+    string document_id = 2;
     string filename = 3;
     string content = 4;
     uint32 page = 5;
@@ -48,7 +48,7 @@ message Document {
 
 message DocumentFilter {
   string query = 1;
-  string collectionID = 2;
+  string collection_id = 2;
 }
 
 message Documents {

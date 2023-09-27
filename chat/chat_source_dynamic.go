@@ -10,7 +10,7 @@ import (
 func (service *Service) getSourceFromDB(ctx context.Context, prompt *pb.Prompt) (*chatContext, error) {
 
 	query := &pb.SearchQuery{
-		CollectionID: prompt.CollectionID,
+		CollectionId: prompt.CollectionId,
 		Query:        prompt.Prompt,
 		Limit:        prompt.Options.Limit,
 		Threshold:    prompt.Options.Threshold,

@@ -8,8 +8,8 @@ import (
 )
 
 type Usage struct {
-	ID     uuid.UUID
-	UserID uuid.UUID
+	Id     uuid.UUID
+	UserId uuid.UUID
 	Model  string
 	Input  uint32
 	Output uint32

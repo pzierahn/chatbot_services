@@ -187,7 +187,7 @@ func (service *Service) Index(doc *pb.Document, stream pb.DocumentService_IndexS
 	}
 
 	_, _ = service.account.CreateUsage(ctx, account.Usage{
-		UserID: userID,
+		UserId: userID,
 		Model:  embeddingsModel.String(),
 		Input:  inputTokens,
 	})

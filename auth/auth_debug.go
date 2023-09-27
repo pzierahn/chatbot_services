@@ -6,15 +6,15 @@ import (
 )
 
 type Debug struct {
-	user uuid.UUID
+	userId uuid.UUID
 }
 
-func WithUser(user uuid.UUID) Service {
+func WithUser(userId uuid.UUID) Service {
 	return &Debug{
-		user: user,
+		userId: userId,
 	}
 }
 
 func (auth *Debug) ValidateToken(_ context.Context) (uuid.UUID, error) {
-	return auth.user, nil
+	return auth.userId, nil
 }

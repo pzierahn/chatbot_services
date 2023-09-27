@@ -59,7 +59,7 @@ func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMe
 	}
 
 	_, err = service.account.CreateUsage(ctx, account.Usage{
-		UserID: userID,
+		UserId: userID,
 		Model:  resp.Model,
 		Input:  uint32(resp.Usage.PromptTokens),
 		Output: uint32(resp.Usage.CompletionTokens),
@@ -76,10 +76,10 @@ func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMe
 
 	_, _ = service.storeChatMessage(ctx, chatMessage{
 		userID:       userID,
-		collectionID: prompt.CollectionID,
+		collectionID: prompt.CollectionId,
 		prompt:       prompt.Prompt,
 		completion:   completion.Text,
-		references:   bg.pageIDs,
+		references:   bg.pageIds,
 	})
 
 	return completion, nil

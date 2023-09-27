@@ -9,22 +9,22 @@ import (
 )
 
 type SearchQuery struct {
-	UserId     uuid.UUID
-	Collection uuid.UUID
-	Prompt     string
-	Limit      int
-	Threshold  float32
+	UserId       uuid.UUID
+	CollectionId uuid.UUID
+	Prompt       string
+	Limit        int
+	Threshold    float32
 }
 
 type chatContext struct {
 	fragments []string
 	docs      []*pb.ChatMessage_Document
-	pageIDs   []uuid.UUID
+	pageIds   []uuid.UUID
 }
 
 type PageContentQuery struct {
-	DocumentID   string
-	CollectionID string
+	DocumentId   string
+	CollectionId string
 	UserId       string
 	Pages        []uint32
 }
@@ -40,7 +40,7 @@ func (service *Service) getPageContent(ctx context.Context, query PageContentQue
 		    user_id = $3 AND
 		    page = ANY($4)
 		ORDER BY filename, page`,
-		query.DocumentID, query.CollectionID, query.UserId, query.Pages)
+		query.DocumentId, query.CollectionId, query.UserId, query.Pages)
 	if err != nil {
 		return "", nil, err
 	}
@@ -86,8 +86,8 @@ func (service *Service) getBackgroundFromPrompt(ctx context.Context, userID uuid
 	bg := chatContext{}
 	for _, doc := range prompt.Documents {
 		fragment, content, err := service.getPageContent(ctx, PageContentQuery{
-			DocumentID:   doc.Id,
-			CollectionID: prompt.CollectionID,
+			DocumentId:   doc.Id,
+			CollectionId: prompt.CollectionId,
 			UserId:       userID.String(),
 			Pages:        doc.Pages,
 		})
