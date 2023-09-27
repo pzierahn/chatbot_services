@@ -25,12 +25,12 @@ create table if not exists document_embeddings
 
 create table if not exists openai_usage
 (
-    id         uuid primary key   default gen_random_uuid(),
-    user_id    uuid      not null,
-    created_at timestamp not null default now(),
-    model      text      not null,
-    input      int       not null,
-    output     int       not null
+    id            uuid primary key   default gen_random_uuid(),
+    user_id       uuid      not null,
+    created_at    timestamp not null default now(),
+    model         text      not null,
+    input_tokens  int       not null,
+    output_tokens int       not null
 );
 
 create table if not exists chat_message
