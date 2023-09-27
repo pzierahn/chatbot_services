@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+option go_package = "./proto";
+
+package endpoint.brainboost.documents.v1;
+
+import "google/protobuf/empty.proto";
+
+service DocumentService {
+  rpc ListDocuments(DocumentFilter) returns (Documents);
+  rpc IndexDocument(Document) returns (stream IndexProgress);
+  rpc DeleteDocument(Document) returns (google.protobuf.Empty);
+  rpc UpdateDocument(Document) returns (google.protobuf.Empty);
+  rpc Search(SearchQuery) returns (SearchResults);
+}
+
+message SearchQuery {
+  string query = 1;
+  string collectionID = 2;
+  float threshold = 3;
+  uint32 limit = 4;
+}
+
+message SearchResults {
+  message Document {
+    string id = 1;
+    string documentID = 2;
+    string filename = 3;
+    string content = 4;
+    uint32 page = 5;
+    float score = 6;
+  }
+
+  repeated Document items = 1;
+}
+
+message IndexProgress {
+  uint32 totalPages = 1;
+  uint32 processedPages = 2;
+}
+
+message Document {
+  string id = 1;
+  string collection_id = 2;
+  string filename = 3;
+  string path = 4;
+}
+
+message DocumentFilter {
+  string query = 1;
+  string collection = 2;
+}
+
+message Documents {
+  message Document {
+    string id = 1;
+    string filename = 2;
+    uint32 pages = 3;
+  }
+
+  repeated Document items = 1;
+}
