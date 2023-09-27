@@ -29,6 +29,6 @@ func (mock *Mock) CreateUsage(_ context.Context, _ Usage) (uuid.UUID, error) {
 	return uuid.New(), nil
 }
 
-func NewMock() Service {
+func NewMock() *Mock {
 	return &Mock{}
 }
