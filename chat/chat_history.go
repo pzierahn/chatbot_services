@@ -11,8 +11,8 @@ import (
 )
 
 type chatMessage struct {
-	userID       uuid.UUID
-	collectionID string
+	userId       uuid.UUID
+	collectionId string
 	prompt       string
 	completion   string
 	references   []uuid.UUID
@@ -26,15 +26,15 @@ func (service *Service) storeChatMessage(ctx context.Context, message chatMessag
 	}
 	defer func() { _ = transaction.Rollback(ctx) }()
 
-	var chatID uuid.UUID
+	var chatId uuid.UUID
 	err = transaction.QueryRow(ctx,
 		`INSERT INTO chat_message (user_id, collection_id, prompt, completion)
 		VALUES ($1, $2, $3, $4)
 		RETURNING id`,
-		message.userID,
-		message.collectionID,
+		message.userId,
+		message.collectionId,
 		message.prompt,
-		message.completion).Scan(&chatID)
+		message.completion).Scan(&chatId)
 	if err != nil {
 		return uuid.Nil, err
 	}
@@ -43,7 +43,7 @@ func (service *Service) storeChatMessage(ctx context.Context, message chatMessag
 		_, err = transaction.Exec(ctx,
 			`INSERT INTO chat_message_source (chat_message_id, document_embeddings_id)
 			VALUES ($1, $2)`,
-			chatID, source)
+			chatId, source)
 		if err != nil {
 			return uuid.Nil, err
 		}
@@ -54,7 +54,7 @@ func (service *Service) storeChatMessage(ctx context.Context, message chatMessag
 		return uuid.Nil, err
 	}
 
-	return chatID, nil
+	return chatId, nil
 }
 
 func (service *Service) GetChatMessages(ctx context.Context, collection *pb.Collection) (*pb.ChatMessages, error) {

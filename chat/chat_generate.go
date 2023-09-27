@@ -75,8 +75,8 @@ func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMe
 	}
 
 	_, _ = service.storeChatMessage(ctx, chatMessage{
-		userID:       userID,
-		collectionID: prompt.CollectionId,
+		userId:       userID,
+		collectionId: prompt.CollectionId,
 		prompt:       prompt.Prompt,
 		completion:   completion.Text,
 		references:   bg.pageIds,
