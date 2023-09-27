@@ -22,7 +22,7 @@ func (service *Service) GetModelUsages(ctx context.Context, _ *emptypb.Empty) (*
 	}
 
 	rows, err := service.db.Query(ctx,
-		`SELECT model, SUM(input), SUM(output)
+		`SELECT model, SUM(input_tokens), SUM(output_tokens)
 			FROM openai_usage
 			WHERE user_id = $1
 			GROUP BY model`, userID)
