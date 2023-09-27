@@ -8,13 +8,13 @@ import (
 
 func (service *Service) List(ctx context.Context, req *pb.DocumentFilter) (*pb.Documents, error) {
 
-	userID, err := service.auth.ValidateToken(ctx)
+	userId, err := service.auth.ValidateToken(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	rows, err := service.db.Query(ctx,
-		`SELECT document_id, filename, collection_id, max(page)
+		`SELECT document_id, filename, max(page)
 		FROM documents AS doc
 		    join document_embeddings AS em on doc.id = em.document_id
 		WHERE
@@ -22,7 +22,7 @@ func (service *Service) List(ctx context.Context, req *pb.DocumentFilter) (*pb.D
 		    doc.collection_id = $2::uuid AND
 		    doc.filename LIKE $3
 		GROUP BY document_id, filename, collection_id`,
-		userID, req.CollectionId, "%"+req.Query+"%")
+		userId, req.CollectionId, "%"+req.Query+"%")
 	if err != nil {
 		return nil, err
 	}
