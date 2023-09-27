@@ -231,7 +231,7 @@ func (x *Collection) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use CollectionID.ProtoReflect.Descriptor instead.
+// Deprecated: Use Collection.ProtoReflect.Descriptor instead.
 func (*Collection) Descriptor() ([]byte, []int) {
 	return file_braingain_proto_rawDescGZIP(), []int{3}
 }
@@ -558,6 +558,7 @@ type ChatMessage struct {
 
 	Prompt    *Prompt                 `protobuf:"bytes,1,opt,name=prompt,proto3" json:"prompt,omitempty"`
 	Text      string                  `protobuf:"bytes,2,opt,name=text,proto3" json:"text,omitempty"`
+	Id        string                  `protobuf:"bytes,5,opt,name=id,proto3" json:"id,omitempty"`
 	Documents []*ChatMessage_Document `protobuf:"bytes,3,rep,name=documents,proto3" json:"documents,omitempty"`
 	Timestamp *timestamppb.Timestamp  `protobuf:"bytes,4,opt,name=timestamp,proto3,oneof" json:"timestamp,omitempty"`
 }
@@ -604,6 +605,13 @@ func (x *ChatMessage) GetPrompt() *Prompt {
 func (x *ChatMessage) GetText() string {
 	if x != nil {
 		return x.Text
+	}
+	return ""
+}
+
+func (x *ChatMessage) GetId() string {
+	if x != nil {
+		return x.Id
 	}
 	return ""
 }
@@ -1126,12 +1134,13 @@ var file_braingain_proto_rawDesc = []byte{
 	0x64, 0x12, 0x1a, 0x0a, 0x08, 0x66, 0x69, 0x6c, 0x65, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02, 0x20,
 	0x01, 0x28, 0x09, 0x52, 0x08, 0x66, 0x69, 0x6c, 0x65, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x14, 0x0a,
 	0x05, 0x70, 0x61, 0x67, 0x65, 0x73, 0x18, 0x03, 0x20, 0x03, 0x28, 0x0d, 0x52, 0x05, 0x70, 0x61,
-	0x67, 0x65, 0x73, 0x22, 0xd8, 0x02, 0x0a, 0x0b, 0x43, 0x68, 0x61, 0x74, 0x4d, 0x65, 0x73, 0x73,
+	0x67, 0x65, 0x73, 0x22, 0xe8, 0x02, 0x0a, 0x0b, 0x43, 0x68, 0x61, 0x74, 0x4d, 0x65, 0x73, 0x73,
 	0x61, 0x67, 0x65, 0x12, 0x36, 0x0a, 0x06, 0x70, 0x72, 0x6f, 0x6d, 0x70, 0x74, 0x18, 0x01, 0x20,
 	0x01, 0x28, 0x0b, 0x32, 0x1e, 0x2e, 0x65, 0x6e, 0x64, 0x70, 0x6f, 0x69, 0x6e, 0x74, 0x2e, 0x62,
 	0x72, 0x61, 0x69, 0x6e, 0x62, 0x6f, 0x6f, 0x73, 0x74, 0x2e, 0x76, 0x31, 0x2e, 0x50, 0x72, 0x6f,
 	0x6d, 0x70, 0x74, 0x52, 0x06, 0x70, 0x72, 0x6f, 0x6d, 0x70, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x74,
 	0x65, 0x78, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x74, 0x65, 0x78, 0x74, 0x12,
+	0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x12,
 	0x4a, 0x0a, 0x09, 0x64, 0x6f, 0x63, 0x75, 0x6d, 0x65, 0x6e, 0x74, 0x73, 0x18, 0x03, 0x20, 0x03,
 	0x28, 0x0b, 0x32, 0x2c, 0x2e, 0x65, 0x6e, 0x64, 0x70, 0x6f, 0x69, 0x6e, 0x74, 0x2e, 0x62, 0x72,
 	0x61, 0x69, 0x6e, 0x62, 0x6f, 0x6f, 0x73, 0x74, 0x2e, 0x76, 0x31, 0x2e, 0x43, 0x68, 0x61, 0x74,
@@ -1236,7 +1245,7 @@ var file_braingain_proto_goTypes = []interface{}{
 	(*ModelUsages)(nil),            // 0: endpoint.brainboost.v1.ModelUsages
 	(*IndexProgress)(nil),          // 1: endpoint.brainboost.v1.IndexProgress
 	(*Document)(nil),               // 2: endpoint.brainboost.v1.Document
-	(*Collection)(nil),             // 3: endpoint.brainboost.v1.CollectionID
+	(*Collection)(nil),             // 3: endpoint.brainboost.v1.Collection
 	(*Collections)(nil),            // 4: endpoint.brainboost.v1.Collections
 	(*DocumentFilter)(nil),         // 5: endpoint.brainboost.v1.DocumentFilter
 	(*Documents)(nil),              // 6: endpoint.brainboost.v1.Documents
@@ -1246,7 +1255,7 @@ var file_braingain_proto_goTypes = []interface{}{
 	(*MessageID)(nil),              // 10: endpoint.brainboost.v1.MessageID
 	(*ChatMessages)(nil),           // 11: endpoint.brainboost.v1.ChatMessages
 	(*ModelUsages_Usage)(nil),      // 12: endpoint.brainboost.v1.ModelUsages.Usage
-	(*Collections_Collection)(nil), // 13: endpoint.brainboost.v1.Collections.CollectionID
+	(*Collections_Collection)(nil), // 13: endpoint.brainboost.v1.Collections.Collection
 	(*Documents_Document)(nil),     // 14: endpoint.brainboost.v1.Documents.Document
 	(*Prompt_Document)(nil),        // 15: endpoint.brainboost.v1.Prompt.Document
 	(*ChatMessage_Document)(nil),   // 16: endpoint.brainboost.v1.ChatMessage.Document
@@ -1255,7 +1264,7 @@ var file_braingain_proto_goTypes = []interface{}{
 }
 var file_braingain_proto_depIdxs = []int32{
 	12, // 0: endpoint.brainboost.v1.ModelUsages.items:type_name -> endpoint.brainboost.v1.ModelUsages.Usage
-	13, // 1: endpoint.brainboost.v1.Collections.items:type_name -> endpoint.brainboost.v1.Collections.CollectionID
+	13, // 1: endpoint.brainboost.v1.Collections.items:type_name -> endpoint.brainboost.v1.Collections.Collection
 	14, // 2: endpoint.brainboost.v1.Documents.items:type_name -> endpoint.brainboost.v1.Documents.Document
 	7,  // 3: endpoint.brainboost.v1.Prompt.options:type_name -> endpoint.brainboost.v1.PromptOptions
 	15, // 4: endpoint.brainboost.v1.Prompt.documents:type_name -> endpoint.brainboost.v1.Prompt.Document
@@ -1263,16 +1272,16 @@ var file_braingain_proto_depIdxs = []int32{
 	16, // 6: endpoint.brainboost.v1.ChatMessage.documents:type_name -> endpoint.brainboost.v1.ChatMessage.Document
 	17, // 7: endpoint.brainboost.v1.ChatMessage.timestamp:type_name -> google.protobuf.Timestamp
 	8,  // 8: endpoint.brainboost.v1.Brainboost.Chat:input_type -> endpoint.brainboost.v1.Prompt
-	3,  // 9: endpoint.brainboost.v1.Brainboost.GetChatMessages:input_type -> endpoint.brainboost.v1.CollectionID
+	3,  // 9: endpoint.brainboost.v1.Brainboost.GetChatMessages:input_type -> endpoint.brainboost.v1.Collection
 	10, // 10: endpoint.brainboost.v1.Brainboost.GetChatMessage:input_type -> endpoint.brainboost.v1.MessageID
 	5,  // 11: endpoint.brainboost.v1.Brainboost.ListDocuments:input_type -> endpoint.brainboost.v1.DocumentFilter
 	2,  // 12: endpoint.brainboost.v1.Brainboost.IndexDocument:input_type -> endpoint.brainboost.v1.Document
 	2,  // 13: endpoint.brainboost.v1.Brainboost.DeleteDocument:input_type -> endpoint.brainboost.v1.Document
 	2,  // 14: endpoint.brainboost.v1.Brainboost.UpdateDocument:input_type -> endpoint.brainboost.v1.Document
 	18, // 15: endpoint.brainboost.v1.Brainboost.GetCollections:input_type -> google.protobuf.Empty
-	3,  // 16: endpoint.brainboost.v1.Brainboost.CreateCollection:input_type -> endpoint.brainboost.v1.CollectionID
-	3,  // 17: endpoint.brainboost.v1.Brainboost.UpdateCollection:input_type -> endpoint.brainboost.v1.CollectionID
-	3,  // 18: endpoint.brainboost.v1.Brainboost.DeleteCollection:input_type -> endpoint.brainboost.v1.CollectionID
+	3,  // 16: endpoint.brainboost.v1.Brainboost.CreateCollection:input_type -> endpoint.brainboost.v1.Collection
+	3,  // 17: endpoint.brainboost.v1.Brainboost.UpdateCollection:input_type -> endpoint.brainboost.v1.Collection
+	3,  // 18: endpoint.brainboost.v1.Brainboost.DeleteCollection:input_type -> endpoint.brainboost.v1.Collection
 	18, // 19: endpoint.brainboost.v1.Brainboost.GetModelUsages:input_type -> google.protobuf.Empty
 	9,  // 20: endpoint.brainboost.v1.Brainboost.Chat:output_type -> endpoint.brainboost.v1.ChatMessage
 	11, // 21: endpoint.brainboost.v1.Brainboost.GetChatMessages:output_type -> endpoint.brainboost.v1.ChatMessages

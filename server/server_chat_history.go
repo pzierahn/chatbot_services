@@ -71,6 +71,7 @@ func (server *Server) GetChatMessage(ctx context.Context, id *pb.MessageID) (*pb
 	}
 
 	completion := &pb.ChatMessage{
+		Id: message.ID.String(),
 		Prompt: &pb.Prompt{
 			Prompt: message.Prompt,
 		},
