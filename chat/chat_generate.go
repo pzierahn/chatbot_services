@@ -30,7 +30,13 @@ func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMe
 		return nil, err
 	}
 
-	var messages []openai.ChatCompletionMessage
+	messages := []openai.ChatCompletionMessage{
+		{
+			Role:    openai.ChatMessageRoleSystem,
+			Content: "Always answer in Markdown format",
+		},
+	}
+
 	for _, text := range bg.fragments {
 		messages = append(messages, openai.ChatCompletionMessage{
 			Role:    openai.ChatMessageRoleUser,
