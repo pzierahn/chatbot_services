@@ -5,6 +5,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pzierahn/brainboost/auth"
+	pb "github.com/pzierahn/brainboost/proto"
 	"github.com/pzierahn/brainboost/setup"
 	"os"
 	"testing"
@@ -40,4 +41,68 @@ func teardownTestService(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+}
+
+type mockCollections struct {
+	userId      uuid.UUID
+	collections []*pb.Collection
+}
+
+func setupCollections(t *testing.T) []mockCollections {
+	ctx := context.Background()
+
+	users := []struct {
+		id          uuid.UUID
+		collections []*pb.Collection
+	}{
+		{
+			id: uuid.New(),
+			collections: []*pb.Collection{
+				{
+					Name: "Collection 1",
+				},
+				{
+					Name: "Collection 2",
+				},
+			},
+		},
+		{
+			id: uuid.New(),
+			collections: []*pb.Collection{
+				{
+					Name: "Data 1",
+				},
+				{
+					Name: "Data 2",
+				},
+			},
+		},
+	}
+
+	var mocks []mockCollections
+
+	// Create users and collections
+	for _, user := range users {
+		service := &Service{
+			auth: auth.WithUser(user.id),
+			db:   testConn,
+		}
+
+		mock := mockCollections{
+			userId: user.id,
+		}
+
+		for _, req := range user.collections {
+			collection, err := service.Create(ctx, req)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			mock.collections = append(mock.collections, collection)
+		}
+
+		mocks = append(mocks, mock)
+	}
+
+	return mocks
 }

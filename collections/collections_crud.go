@@ -51,7 +51,7 @@ func (server *Service) Update(ctx context.Context, collection *pb.Collection) (*
 	return &update, nil
 }
 
-func (server *Service) DeleteCollection(ctx context.Context, collection *pb.Collection) (*emptypb.Empty, error) {
+func (server *Service) Delete(ctx context.Context, collection *pb.Collection) (*emptypb.Empty, error) {
 	uid, err := server.auth.ValidateToken(ctx)
 	if err != nil {
 		return nil, err
