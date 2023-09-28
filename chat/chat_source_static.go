@@ -67,6 +67,7 @@ func (service *Service) getPageContent(ctx context.Context, query PageContentQue
 		}
 
 		doc.Pages = append(doc.Pages, page)
+		fragments = append(fragments, text)
 	}
 
 	return strings.Join(fragments, "\n"), &doc, nil
