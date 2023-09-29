@@ -3,16 +3,14 @@ package main
 import (
 	"github.com/pzierahn/brainboost/test"
 	"log"
-	"os"
 )
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	service := test.Service{
-		SupabaseUrl: os.Getenv("API_EXTERNAL_URL"),
-		Token:       os.Getenv("SERVICE_ROLE_KEY"),
-	}
+	testing := test.NewTestSetup()
+	defer testing.Close()
 
-	service.CreateCollection()
+	testing.CreateCollection()
+	testing.RenameCollection()
 }

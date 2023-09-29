@@ -51,8 +51,8 @@ type Credentials struct {
 	Password string
 }
 
-func (service Service) CreateUser() (user Credentials) {
-	url := service.SupabaseUrl + "/auth/v1/admin/users"
+func (setup Setup) CreateUser() (user Credentials) {
+	url := setup.SupabaseUrl + "/auth/v1/admin/users"
 
 	userName := fmt.Sprintf("user-%x", uuid.New().ID())
 
@@ -72,8 +72,8 @@ func (service Service) CreateUser() (user Credentials) {
 
 	// Set headers
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+service.Token)
-	req.Header.Set("apikey", service.Token)
+	req.Header.Set("Authorization", "Bearer "+setup.Token)
+	req.Header.Set("apikey", setup.Token)
 
 	// Send request
 	client := &http.Client{}
