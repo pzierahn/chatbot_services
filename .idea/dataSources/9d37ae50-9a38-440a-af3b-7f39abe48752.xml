@@ -11,7 +11,7 @@
 5||-9223372036854775808|T|G
 5||10|T|G
 5||16595|T|G</Grants>
-      <IntrospectionStateNumber>3280</IntrospectionStateNumber>
+      <IntrospectionStateNumber>3902</IntrospectionStateNumber>
       <ServerVersion>15.1</ServerVersion>
       <StartupTime>1694512004</StartupTime>
       <TimeZones>true ACDT
@@ -268,10 +268,10 @@ false Antarctica/Davis
 false Antarctica/DumontDUrville
 false Antarctica/Macquarie
 false Antarctica/Mawson
-false Antarctica/McMurdo
+true Antarctica/McMurdo
 false Antarctica/Palmer
 false Antarctica/Rothera
-false Antarctica/South_Pole
+true Antarctica/South_Pole
 false Antarctica/Syowa
 true Antarctica/Troll
 false Antarctica/Vostok
@@ -661,8 +661,8 @@ false NOVT
 false NPT
 false NST
 false NUT
-false NZ
-false NZ-CHAT
+true NZ
+true NZ-CHAT
 true NZDT
 false NZST
 false NZT
@@ -688,9 +688,9 @@ false PWT
 true PYST
 false PYT
 false Pacific/Apia
-false Pacific/Auckland
+true Pacific/Auckland
 false Pacific/Bougainville
-false Pacific/Chatham
+true Pacific/Chatham
 false Pacific/Chuuk
 true Pacific/Easter
 false Pacific/Efate
@@ -1037,10 +1037,10 @@ false posix/Antarctica/Davis
 false posix/Antarctica/DumontDUrville
 false posix/Antarctica/Macquarie
 false posix/Antarctica/Mawson
-false posix/Antarctica/McMurdo
+true posix/Antarctica/McMurdo
 false posix/Antarctica/Palmer
 false posix/Antarctica/Rothera
-false posix/Antarctica/South_Pole
+true posix/Antarctica/South_Pole
 false posix/Antarctica/Syowa
 true posix/Antarctica/Troll
 false posix/Antarctica/Vostok
@@ -1334,15 +1334,15 @@ true posix/MST7MDT
 true posix/Mexico/BajaNorte
 false posix/Mexico/BajaSur
 false posix/Mexico/General
-false posix/NZ
-false posix/NZ-CHAT
+true posix/NZ
+true posix/NZ-CHAT
 true posix/Navajo
 false posix/PRC
 true posix/PST8PDT
 false posix/Pacific/Apia
-false posix/Pacific/Auckland
+true posix/Pacific/Auckland
 false posix/Pacific/Bougainville
-false posix/Pacific/Chatham
+true posix/Pacific/Chatham
 false posix/Pacific/Chuuk
 true posix/Pacific/Easter
 false posix/Pacific/Efate
@@ -1493,7 +1493,7 @@ true posixrules
 16949||16732|C|G
 16949||16420|U|G
 16949||16732|U|G</Grants>
-      <IntrospectionStateNumber>3280</IntrospectionStateNumber>
+      <IntrospectionStateNumber>3902</IntrospectionStateNumber>
       <ObjectId>5</ObjectId>
       <OwnerName>postgres</OwnerName>
     </database>
@@ -5592,34 +5592,6 @@ idle_in_transaction_session_timeout=60000</Config>
 28717||16478|w|G
 28717||16479|w|G
 28717||16480|w|G
-33188||10|d|G
-33188||16478|d|G
-33188||16479|d|G
-33188||16480|d|G
-33188||10|a|G
-33188||16478|a|G
-33188||16479|a|G
-33188||16480|a|G
-33188||10|x|G
-33188||16478|x|G
-33188||16479|x|G
-33188||16480|x|G
-33188||10|r|G
-33188||16478|r|G
-33188||16479|r|G
-33188||16480|r|G
-33188||10|t|G
-33188||16478|t|G
-33188||16479|t|G
-33188||16480|t|G
-33188||10|D|G
-33188||16478|D|G
-33188||16479|D|G
-33188||16480|D|G
-33188||10|w|G
-33188||16478|w|G
-33188||16479|w|G
-33188||16480|w|G
 34871||10|d|G
 34871||16478|d|G
 34871||16479|d|G
@@ -5675,10 +5647,38 @@ idle_in_transaction_session_timeout=60000</Config>
 34885||10|w|G
 34885||16478|w|G
 34885||16479|w|G
-34885||16480|w|G</Grants>
-      <IntrospectionStateNumber>3280</IntrospectionStateNumber>
-      <IntrospectionTimestamp>2023-09-23.12:47:08.064</IntrospectionTimestamp>
-      <LocalIntrospectionTimestamp>2023-09-23.10:47:09</LocalIntrospectionTimestamp>
+34885||16480|w|G
+46397||10|d|G
+46397||16478|d|G
+46397||16479|d|G
+46397||16480|d|G
+46397||10|a|G
+46397||16478|a|G
+46397||16479|a|G
+46397||16480|a|G
+46397||10|x|G
+46397||16478|x|G
+46397||16479|x|G
+46397||16480|x|G
+46397||10|r|G
+46397||16478|r|G
+46397||16479|r|G
+46397||16480|r|G
+46397||10|t|G
+46397||16478|t|G
+46397||16479|t|G
+46397||16480|t|G
+46397||10|D|G
+46397||16478|D|G
+46397||16479|D|G
+46397||16480|D|G
+46397||10|w|G
+46397||16478|w|G
+46397||16479|w|G
+46397||16480|w|G</Grants>
+      <IntrospectionStateNumber>3902</IntrospectionStateNumber>
+      <IntrospectionTimestamp>2023-09-27.18:41:33.922</IntrospectionTimestamp>
+      <LocalIntrospectionTimestamp>2023-09-27.16:41:52</LocalIntrospectionTimestamp>
       <ObjectId>2200</ObjectId>
       <StateNumber>749</StateNumber>
       <OwnerName>pg_database_owner</OwnerName>
@@ -5789,8 +5789,8 @@ SECURITY LABEL</Tags>
       <OwnerName>postgres</OwnerName>
     </table>
     <table id="316" parent="298" name="openai_usage">
-      <ObjectId>33188</ObjectId>
-      <StateNumber>3274</StateNumber>
+      <ObjectId>46397</ObjectId>
+      <StateNumber>3896</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>postgres</OwnerName>
     </table>
@@ -6094,60 +6094,58 @@ SECURITY LABEL</Tags>
       <DefaultExpression>gen_random_uuid()</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <StateNumber>1933</StateNumber>
+      <StateNumber>3896</StateNumber>
       <TypeId>2950</TypeId>
     </column>
-    <column id="357" parent="316" name="created_at">
+    <column id="357" parent="316" name="user_id">
+      <DasType>uuid|0s</DasType>
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StateNumber>3896</StateNumber>
+      <TypeId>2950</TypeId>
+    </column>
+    <column id="358" parent="316" name="created_at">
       <DasType>timestamp|0s</DasType>
       <DefaultExpression>now()</DefaultExpression>
       <NotNull>1</NotNull>
-      <Position>2</Position>
-      <StateNumber>1933</StateNumber>
-      <TypeId>1114</TypeId>
-    </column>
-    <column id="358" parent="316" name="user_id">
-      <DasType>uuid|0s</DasType>
-      <NotNull>1</NotNull>
       <Position>3</Position>
-      <StateNumber>3274</StateNumber>
-      <TypeId>2950</TypeId>
+      <StateNumber>3896</StateNumber>
+      <TypeId>1114</TypeId>
     </column>
     <column id="359" parent="316" name="model">
       <DasType>text|0s</DasType>
       <NotNull>1</NotNull>
       <Position>4</Position>
-      <StateNumber>1933</StateNumber>
+      <StateNumber>3896</StateNumber>
       <TypeId>25</TypeId>
     </column>
-    <column id="360" parent="316" name="input">
+    <column id="360" parent="316" name="input_tokens">
       <DasType>integer|0s</DasType>
       <NotNull>1</NotNull>
       <Position>5</Position>
-      <StateNumber>1933</StateNumber>
+      <StateNumber>3896</StateNumber>
       <TypeId>23</TypeId>
     </column>
-    <column id="361" parent="316" name="output">
+    <column id="361" parent="316" name="output_tokens">
       <DasType>integer|0s</DasType>
       <NotNull>1</NotNull>
       <Position>6</Position>
-      <StateNumber>1933</StateNumber>
+      <StateNumber>3896</StateNumber>
       <TypeId>23</TypeId>
     </column>
-    <index id="362" parent="316" name="openai_usage_pkey">
+    <index id="362" parent="316" name="openai_usage_pkey1">
       <ColNames>id</ColNames>
-      <NameSurrogate>1</NameSurrogate>
-      <ObjectId>33195</ObjectId>
+      <ObjectId>46404</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>3274</StateNumber>
+      <StateNumber>3896</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="363" parent="316" name="openai_usage_pkey">
-      <NameSurrogate>1</NameSurrogate>
-      <ObjectId>33196</ObjectId>
+    <key id="363" parent="316" name="openai_usage_pkey1">
+      <ObjectId>46405</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>1933</StateNumber>
-      <UnderlyingIndexId>33195</UnderlyingIndexId>
+      <StateNumber>3896</StateNumber>
+      <UnderlyingIndexId>46404</UnderlyingIndexId>
     </key>
   </database-model>
 </dataSource>
