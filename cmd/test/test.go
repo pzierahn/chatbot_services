@@ -11,7 +11,8 @@ func main() {
 	testing := test.NewTestSetup()
 	defer testing.Close()
 
-	testing.CollectionCreate()
-	testing.CollectionRename()
-	testing.CollectionDelete()
+	//testing.CollectionCreate()
+	//testing.CollectionRename()
+	//testing.CollectionDelete()
+	testing.DocumentsIndex()
 }

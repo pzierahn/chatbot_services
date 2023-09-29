@@ -150,14 +150,13 @@ func (service *Service) insertEmbeddings(ctx context.Context, doc *document) (uu
 
 func (service *Service) Index(doc *pb.Document, stream pb.DocumentService_IndexServer) error {
 
-	userID, err := service.auth.ValidateToken(stream.Context())
+	ctx := stream.Context()
+	userID, err := service.auth.ValidateToken(ctx)
 	if err != nil {
 		return err
 	}
 
 	log.Printf("IndexDocument: %+v", doc)
-
-	ctx := stream.Context()
 
 	pages, err := service.getDocPages(ctx, doc.Path)
 	if err != nil {
