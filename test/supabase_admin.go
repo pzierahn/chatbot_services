@@ -139,9 +139,9 @@ func (setup *Setup) createRandomSignIn() (context.Context, string) {
 	}
 
 	ctx := context.Background()
-	ctx = metadata.NewIncomingContext(ctx, metadata.MD{
-		"Authorization": []string{"Bearer " + details.AccessToken},
-	})
+	ctx = metadata.NewOutgoingContext(ctx, metadata.New(map[string]string{
+		"Authorization": "Bearer " + details.AccessToken,
+	}))
 
 	return ctx, user.Id
 }
