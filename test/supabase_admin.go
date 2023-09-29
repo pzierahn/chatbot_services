@@ -2,9 +2,12 @@ package test
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
+	supa "github.com/nedpals/supabase-go"
+	"google.golang.org/grpc/metadata"
 	"log"
 	"net/http"
 	"time"
@@ -121,4 +124,24 @@ func (setup *Setup) DeleteUser(id string) {
 	}
 
 	log.Printf("Delete user %s: %s", id, resp.Status)
+}
+
+func (setup *Setup) createRandomSignIn() (context.Context, string) {
+	user := setup.CreateUser()
+
+	supabase := supa.CreateClient(setup.SupabaseUrl, setup.Token)
+	details, err := supabase.Auth.SignIn(context.Background(), supa.UserCredentials{
+		Email:    user.Email,
+		Password: user.Password,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	ctx := context.Background()
+	ctx = metadata.NewIncomingContext(ctx, metadata.MD{
+		"Authorization": []string{"Bearer " + details.AccessToken},
+	})
+
+	return ctx, user.Id
 }

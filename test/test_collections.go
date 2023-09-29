@@ -1,32 +1,15 @@
 package test
 
 import (
-	"context"
-	supa "github.com/nedpals/supabase-go"
 	pb "github.com/pzierahn/brainboost/proto"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"log"
 )
 
 func (setup *Setup) CollectionCreate() {
 
-	user := setup.CreateUser()
-	defer setup.DeleteUser(user.Id)
-
-	supabase := supa.CreateClient(setup.SupabaseUrl, setup.Token)
-	details, err := supabase.Auth.SignIn(context.Background(), supa.UserCredentials{
-		Email:    user.Email,
-		Password: user.Password,
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	ctx := context.Background()
-	ctx = metadata.NewIncomingContext(ctx, metadata.MD{
-		"Authorization": []string{"Bearer " + details.AccessToken},
-	})
+	ctx, userId := setup.createRandomSignIn()
+	defer setup.DeleteUser(userId)
 
 	coll, err := setup.collections.Create(ctx, &pb.Collection{
 		Name: "Test Collection",
@@ -57,22 +40,8 @@ func (setup *Setup) CollectionCreate() {
 
 func (setup *Setup) CollectionRename() {
 
-	user := setup.CreateUser()
-	defer setup.DeleteUser(user.Id)
-
-	supabase := supa.CreateClient(setup.SupabaseUrl, setup.Token)
-	details, err := supabase.Auth.SignIn(context.Background(), supa.UserCredentials{
-		Email:    user.Email,
-		Password: user.Password,
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	ctx := context.Background()
-	ctx = metadata.NewIncomingContext(ctx, metadata.MD{
-		"Authorization": []string{"Bearer " + details.AccessToken},
-	})
+	ctx, userId := setup.createRandomSignIn()
+	defer setup.DeleteUser(userId)
 
 	coll, err := setup.collections.Create(ctx, &pb.Collection{
 		Name: "Test Collection",
@@ -109,22 +78,8 @@ func (setup *Setup) CollectionRename() {
 
 func (setup *Setup) CollectionDelete() {
 
-	user := setup.CreateUser()
-	defer setup.DeleteUser(user.Id)
-
-	supabase := supa.CreateClient(setup.SupabaseUrl, setup.Token)
-	details, err := supabase.Auth.SignIn(context.Background(), supa.UserCredentials{
-		Email:    user.Email,
-		Password: user.Password,
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	ctx := context.Background()
-	ctx = metadata.NewIncomingContext(ctx, metadata.MD{
-		"Authorization": []string{"Bearer " + details.AccessToken},
-	})
+	ctx, userId := setup.createRandomSignIn()
+	defer setup.DeleteUser(userId)
 
 	coll, err := setup.collections.Create(ctx, &pb.Collection{
 		Name: "Test Collection",
