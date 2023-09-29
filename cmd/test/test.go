@@ -13,4 +13,5 @@ func main() {
 
 	testing.CollectionCreate()
 	testing.CollectionRename()
+	testing.CollectionDelete()
 }

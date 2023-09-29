@@ -12,6 +12,7 @@ import (
 func (setup *Setup) CollectionCreate() {
 
 	user := setup.CreateUser()
+	defer setup.DeleteUser(user.Id)
 
 	supabase := supa.CreateClient(setup.SupabaseUrl, setup.Token)
 	details, err := supabase.Auth.SignIn(context.Background(), supa.UserCredentials{
@@ -57,6 +58,7 @@ func (setup *Setup) CollectionCreate() {
 func (setup *Setup) CollectionRename() {
 
 	user := setup.CreateUser()
+	defer setup.DeleteUser(user.Id)
 
 	supabase := supa.CreateClient(setup.SupabaseUrl, setup.Token)
 	details, err := supabase.Auth.SignIn(context.Background(), supa.UserCredentials{

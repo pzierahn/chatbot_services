@@ -95,3 +95,30 @@ func (setup *Setup) CreateUser() (user Credentials) {
 		Password: reqBody.Password,
 	}
 }
+
+func (setup *Setup) DeleteUser(id string) {
+	url := setup.SupabaseUrl + "/auth/v1/admin/users/" + id
+
+	reqBody := struct{}{}
+	byt, _ := json.Marshal(reqBody)
+
+	// Post http request to create user
+	req, err := http.NewRequest("DELETE", url, bytes.NewBuffer(byt))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Set headers
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+setup.Token)
+	req.Header.Set("apikey", setup.Token)
+
+	// Send request
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Printf("Delete user %s: %s", id, resp.Status)
+}
