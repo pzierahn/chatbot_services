@@ -106,3 +106,65 @@ func (setup *Setup) CollectionRename() {
 		break
 	}
 }
+
+func (setup *Setup) CollectionDelete() {
+
+	user := setup.CreateUser()
+	defer setup.DeleteUser(user.Id)
+
+	supabase := supa.CreateClient(setup.SupabaseUrl, setup.Token)
+	details, err := supabase.Auth.SignIn(context.Background(), supa.UserCredentials{
+		Email:    user.Email,
+		Password: user.Password,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	ctx := context.Background()
+	ctx = metadata.NewIncomingContext(ctx, metadata.MD{
+		"Authorization": []string{"Bearer " + details.AccessToken},
+	})
+
+	coll, err := setup.collections.Create(ctx, &pb.Collection{
+		Name: "Test Collection",
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	colls, err := setup.collections.GetAll(ctx, &emptypb.Empty{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, c := range colls.Items {
+		if c.Id != coll.Id {
+			continue
+		}
+
+		log.Println("Collection found:", c.Name)
+
+		if c.Name != coll.Name {
+			log.Fatal("Collection name mismatch")
+		}
+
+		break
+	}
+
+	_, err = setup.collections.Delete(ctx, coll)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	colls, err = setup.collections.GetAll(ctx, &emptypb.Empty{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, c := range colls.Items {
+		if c.Id == coll.Id {
+			log.Fatalf("Collection %s not deleted", c.Name)
+		}
+	}
+}
