@@ -9,7 +9,7 @@ import (
 	"log"
 )
 
-func (setup Setup) CreateCollection() {
+func (setup *Setup) CreateCollection() {
 
 	user := setup.CreateUser()
 
@@ -54,7 +54,7 @@ func (setup Setup) CreateCollection() {
 	}
 }
 
-func (setup Setup) RenameCollection() {
+func (setup *Setup) RenameCollection() {
 
 	user := setup.CreateUser()
 

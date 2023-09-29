@@ -51,7 +51,7 @@ type Credentials struct {
 	Password string
 }
 
-func (setup Setup) CreateUser() (user Credentials) {
+func (setup *Setup) CreateUser() (user Credentials) {
 	url := setup.SupabaseUrl + "/auth/v1/admin/users"
 
 	userName := fmt.Sprintf("user-%x", uuid.New().ID())
