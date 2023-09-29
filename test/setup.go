@@ -3,9 +3,12 @@ package test
 import (
 	"context"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/pzierahn/brainboost/account"
 	"github.com/pzierahn/brainboost/auth"
 	"github.com/pzierahn/brainboost/collections"
+	"github.com/pzierahn/brainboost/documents"
 	dbsetup "github.com/pzierahn/brainboost/setup"
+	"github.com/sashabaranov/go-openai"
 	storagego "github.com/supabase-community/storage-go"
 	"log"
 	"os"
@@ -17,6 +20,8 @@ type Setup struct {
 	db          *pgxpool.Pool
 	storage     *storagego.Client
 	collections *collections.Service
+	documents   *documents.Service
+	account     *account.Service
 }
 
 func NewTestSetup() Setup {
@@ -40,12 +45,27 @@ func NewTestSetup() Setup {
 
 	supabaseAuth := auth.WithSupabase()
 
+	acc := account.FromConfig(&account.Config{
+		Auth: supabaseAuth,
+		DB:   db,
+	})
+
+	gpt := openai.NewClient(os.Getenv("OPENAI_API_KEY"))
+
 	return Setup{
 		SupabaseUrl: supabaseUrl,
 		Token:       token,
 		db:          db,
 		storage:     storage,
 		collections: collections.NewServer(supabaseAuth, db, storage),
+		account:     acc,
+		documents: documents.FromConfig(&documents.Config{
+			Auth:    supabaseAuth,
+			Account: acc,
+			DB:      db,
+			GPT:     gpt,
+			Storage: storage,
+		}),
 	}
 }
 
