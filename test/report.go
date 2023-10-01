@@ -8,10 +8,11 @@ type Report struct {
 
 func (report *Report) Run(name string, testCase func() error) {
 
-	log.Printf("Running test %s", name)
 	err := testCase()
 	if err != nil {
-		log.Fatalf("Test %s failed: %s", name, err)
+		log.Printf("Test %s failed: %s", name, err)
+	} else {
+		log.Printf("Passsing %s test", name)
 	}
 
 	report.Total++
@@ -22,7 +23,9 @@ func (report *Report) ExpectError(name string, testCase func() error) {
 	log.Printf("Running test %s", name)
 	err := testCase()
 	if err == nil {
-		log.Fatalf("Test %s failed: expected error", name)
+		log.Printf("Test %s failed: expected error", name)
+	} else {
+		log.Printf("Passsing %s test", name)
 	}
 
 	report.Total++
