@@ -52,6 +52,10 @@ func (setup *Setup) DocumentsIndex() {
 			log.Fatal(err)
 		}
 
+		if update.TotalPages <= 0 {
+			log.Fatalf("invalid total pages: %v", update.TotalPages)
+		}
+
 		log.Printf("update: %v", update)
 	}
 
