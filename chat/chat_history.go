@@ -6,11 +6,11 @@ import (
 	"github.com/jackc/pgx/v5"
 	pb "github.com/pzierahn/brainboost/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"log"
 	"time"
 )
 
 type chatMessage struct {
+	id           string
 	userId       uuid.UUID
 	collectionId string
 	prompt       string
@@ -18,43 +18,42 @@ type chatMessage struct {
 	references   []uuid.UUID
 }
 
-func (service *Service) storeChatMessage(ctx context.Context, message chatMessage) (uuid.UUID, error) {
+func (service *Service) storeChatMessage(ctx context.Context, message chatMessage) error {
 
 	transaction, err := service.db.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
-		return uuid.Nil, err
+		return err
 	}
 	defer func() { _ = transaction.Rollback(ctx) }()
 
-	var chatId uuid.UUID
-	err = transaction.QueryRow(ctx,
-		`INSERT INTO chat_message (user_id, collection_id, prompt, completion)
-		VALUES ($1, $2, $3, $4)
-		RETURNING id`,
+	_, err = transaction.Exec(ctx,
+		`INSERT INTO chat_message (id, user_id, collection_id, prompt, completion)
+		VALUES ($1, $2, $3, $4, $5)`,
+		message.id,
 		message.userId,
 		message.collectionId,
 		message.prompt,
-		message.completion).Scan(&chatId)
+		message.completion)
 	if err != nil {
-		return uuid.Nil, err
+		return err
 	}
 
 	for _, source := range message.references {
 		_, err = transaction.Exec(ctx,
 			`INSERT INTO chat_message_source (chat_message_id, document_embeddings_id)
 			VALUES ($1, $2)`,
-			chatId, source)
+			message.id, source)
 		if err != nil {
-			return uuid.Nil, err
+			return err
 		}
 	}
 
 	err = transaction.Commit(ctx)
 	if err != nil {
-		return uuid.Nil, err
+		return err
 	}
 
-	return chatId, nil
+	return nil
 }
 
 func (service *Service) GetChatMessages(ctx context.Context, collection *pb.Collection) (*pb.ChatMessages, error) {
@@ -167,7 +166,6 @@ func (service *Service) GetChatMessage(ctx context.Context, id *pb.MessageID) (*
 		&pompt,
 		&message.Text)
 	if err != nil {
-		log.Printf("GetChatMessage: %v", err)
 		return nil, err
 	}
 

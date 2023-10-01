@@ -89,16 +89,14 @@ func (setup *Setup) ChatGenerate() {
 			Options: &pb.PromptOptions{
 				Model:       openai.GPT3Dot5Turbo,
 				Temperature: 0,
-				MaxTokens:   1,
+				MaxTokens:   10,
 				Threshold:   0,
 				Limit:       1,
 			},
 			Documents: []*pb.Prompt_Document{
 				{
-					Id: doc.Id,
-					Pages: []uint32{
-						0,
-					},
+					Id:    doc.Id,
+					Pages: []uint32{0},
 				},
 			},
 		}
@@ -108,7 +106,7 @@ func (setup *Setup) ChatGenerate() {
 			return err
 		}
 
-		if strings.ToLower(response.Text) != "red" {
+		if !strings.Contains(response.Text, "red") {
 			return fmt.Errorf("expected answer red, got %s", response.Text)
 		}
 
@@ -142,6 +140,10 @@ func (setup *Setup) ChatGenerate() {
 
 		if response.Text == "red" {
 			return fmt.Errorf("didn't expect the right anwser")
+		}
+
+		if len(response.Documents[0].Pages) != 0 {
+			return fmt.Errorf("expected page 0, got %d", response.Documents[0].Pages)
 		}
 
 		return nil

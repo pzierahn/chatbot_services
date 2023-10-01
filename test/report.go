@@ -10,7 +10,7 @@ func (report *Report) Run(name string, testCase func() error) {
 
 	err := testCase()
 	if err != nil {
-		log.Printf("Test %s failed: %s", name, err)
+		log.Printf("Failed %s failed: %s", name, err)
 	} else {
 		log.Printf("Passsing %s test", name)
 	}
@@ -22,7 +22,7 @@ func (report *Report) ExpectError(name string, testCase func() error) {
 
 	err := testCase()
 	if err == nil {
-		log.Printf("Test %s failed: expected error", name)
+		log.Printf("Failed %s failed: expected error", name)
 	} else {
 		log.Printf("Passsing %s test", name)
 	}
