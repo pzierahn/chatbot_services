@@ -39,25 +39,25 @@ func (setup *Setup) DocumentsIndex() {
 		Path:         path,
 	}
 
-	stream, err := setup.documents.Index(ctx, doc)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for {
-		update, err := stream.Recv()
-		if errors.Is(err, io.EOF) {
-			break
-		} else if err != nil {
+	setup.report.Run("documents_index", func() error {
+		stream, err := setup.documents.Index(ctx, doc)
+		if err != nil {
 			log.Fatal(err)
 		}
 
-		if update.TotalPages <= 0 {
-			log.Fatalf("invalid total pages: %v", update.TotalPages)
+		for {
+			update, err := stream.Recv()
+			if errors.Is(err, io.EOF) {
+				break
+			} else if err != nil {
+				return err
+			}
+
+			if update.TotalPages <= 0 {
+				return fmt.Errorf("invalid total pages: %v", update.TotalPages)
+			}
 		}
 
-		log.Printf("update: %v", update)
-	}
-
-	log.Printf("Uploaded and processed: %v", doc)
+		return nil
+	})
 }
