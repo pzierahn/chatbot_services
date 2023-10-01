@@ -2,6 +2,7 @@ package test
 
 import (
 	"bytes"
+	"context"
 	_ "embed"
 	"errors"
 	"fmt"
@@ -95,5 +96,29 @@ func (setup *Setup) DocumentsList() {
 		}
 
 		return nil
+	})
+
+	setup.report.Run("documents_list_wrong_collection", func() error {
+		list, err := setup.documents.List(ctx, &pb.DocumentFilter{
+			Query:        doc.Filename,
+			CollectionId: uuid.NewString(),
+		})
+		if err != nil {
+			return err
+		}
+
+		if len(list.Items) != 0 {
+			return fmt.Errorf("invalid document list: %v", list)
+		}
+
+		return err
+	})
+
+	setup.report.ExpectError("documents_list_without_auth", func() error {
+		_, err = setup.documents.List(context.Background(), &pb.DocumentFilter{
+			Query:        doc.Filename,
+			CollectionId: collection.Id,
+		})
+		return err
 	})
 }
