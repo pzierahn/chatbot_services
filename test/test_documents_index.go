@@ -2,6 +2,7 @@ package test
 
 import (
 	"bytes"
+	"context"
 	_ "embed"
 	"errors"
 	"fmt"
@@ -38,6 +39,11 @@ func (setup *Setup) DocumentsIndex() {
 		Filename:     "test.pdf",
 		Path:         path,
 	}
+
+	setup.report.ExpectError("documents_index_without_auth", func() error {
+		_, err = setup.documents.Index(context.Background(), doc)
+		return err
+	})
 
 	setup.report.Run("documents_index", func() error {
 		stream, err := setup.documents.Index(ctx, doc)
