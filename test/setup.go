@@ -27,6 +27,7 @@ type Setup struct {
 	collections pb.CollectionServiceClient
 	documents   pb.DocumentServiceClient
 	account     *account.Service
+	report      *Report
 }
 
 const bucket = "documents"
@@ -103,6 +104,7 @@ func NewTestSetup() Setup {
 		account:     acc,
 		documents:   pb.NewDocumentServiceClient(conn),
 		lis:         lis,
+		report:      &Report{},
 	}
 }
 

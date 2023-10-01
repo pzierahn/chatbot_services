@@ -4,13 +4,11 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8863e312-2fdf-4e7f-90f2-c6f1e830b056" name="Changes" comment="Fix auth issue">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/9d37ae50-9a38-440a-af3b-7f39abe48752.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/9d37ae50-9a38-440a-af3b-7f39abe48752.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/9d37ae50-9a38-440a-af3b-7f39abe48752/storage_v2/_src_/database/postgres.edMnLQ/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/9d37ae50-9a38-440a-af3b-7f39abe48752/storage_v2/_src_/database/postgres.edMnLQ/schema/public.abK9xQ.meta" afterDir="false" />
+    <list default="true" id="8863e312-2fdf-4e7f-90f2-c6f1e830b056" name="Changes" comment="Document list test">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/test/test.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/test/test.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/documents/docs_index.go" beforeDir="false" afterPath="$PROJECT_DIR$/documents/docs_index.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/setup.go" beforeDir="false" afterPath="$PROJECT_DIR$/test/setup.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/test_documents_list.go" beforeDir="false" afterPath="$PROJECT_DIR$/test/test_documents_list.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -20,8 +18,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Go File" />
         <option value="Go Application" />
+        <option value="Go File" />
       </list>
     </option>
   </component>
@@ -49,31 +47,31 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;DefaultGoTemplateProperty&quot;: &quot;Go Application&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.modules.automatic.dependencies.download&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;test&quot;,
-    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/patrick/Code/brainboost_service/test&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;settings.json.schema&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultGoTemplateProperty": "Go File",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "RunOnceActivity.go.modules.automatic.dependencies.download": "true",
+    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "test",
+    "go.import.settings.migrated": "true",
+    "go.sdk.automatically.set": "true",
+    "last_opened_file_path": "/Users/patrick/Code/brainboost_service/test",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "settings.json.schema"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;postgresql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "postgresql"
     ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/test" />
@@ -160,12 +158,6 @@
     <option name="version" value="3" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Clean up go.sum" />
-    <MESSAGE value="Added some tests" />
-    <MESSAGE value="Refactor" />
-    <MESSAGE value="Rename Documents to DocumentCount" />
-    <MESSAGE value="Fix timing issue" />
-    <MESSAGE value="Added id" />
     <MESSAGE value="Modularize protos" />
     <MESSAGE value="New auth package" />
     <MESSAGE value="Remove legacy code" />
@@ -185,7 +177,13 @@
     <MESSAGE value="Refactor to setup.go" />
     <MESSAGE value="Create a createRandomSignIn function" />
     <MESSAGE value="Fix auth issue" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fix auth issue" />
+    <MESSAGE value="Check in" />
+    <MESSAGE value="IDE stuff" />
+    <MESSAGE value="Delete empty storage bucket before deletion" />
+    <MESSAGE value="Added test case" />
+    <MESSAGE value="Rename to test_documents_index.go" />
+    <MESSAGE value="Document list test" />
+    <option name="LAST_COMMIT_MESSAGE" value="Document list test" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>

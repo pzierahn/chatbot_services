@@ -50,42 +50,50 @@ func (setup *Setup) DocumentsList() {
 		}
 	}
 
-	log.Printf("Uploaded and processed: %v", doc)
+	setup.report.Run("documents_list", func() error {
+		list, err := setup.documents.List(ctx, &pb.DocumentFilter{
+			CollectionId: collection.Id,
+		})
+		if err != nil {
+			return err
+		}
 
-	list, err := setup.documents.List(ctx, &pb.DocumentFilter{
-		CollectionId: collection.Id,
+		if len(list.Items) != 1 {
+			return fmt.Errorf("invalid document list: %v", list)
+		}
+
+		return nil
 	})
-	if err != nil {
-		log.Fatal(err)
-	}
 
-	if len(list.Items) != 1 {
-		log.Fatalf("invalid document list: %v", list)
-	}
+	setup.report.Run("document_list_nothing", func() error {
+		list, err := setup.documents.List(ctx, &pb.DocumentFilter{
+			Query:        "find nothing",
+			CollectionId: collection.Id,
+		})
+		if err != nil {
+			return err
+		}
 
-	list, err = setup.documents.List(ctx, &pb.DocumentFilter{
-		Query:        "find nothing",
-		CollectionId: collection.Id,
+		if len(list.Items) != 0 {
+			return fmt.Errorf("invalid document list: %v", list)
+		}
+
+		return nil
 	})
-	if err != nil {
-		log.Fatal(err)
-	}
 
-	if len(list.Items) != 0 {
-		log.Fatalf("invalid document list: %v", list)
-	}
+	setup.report.Run("document_list_query", func() error {
+		list, err := setup.documents.List(ctx, &pb.DocumentFilter{
+			Query:        doc.Filename,
+			CollectionId: collection.Id,
+		})
+		if err != nil {
+			return nil
+		}
 
-	list, err = setup.documents.List(ctx, &pb.DocumentFilter{
-		Query:        doc.Filename,
-		CollectionId: collection.Id,
+		if len(list.Items) != 1 {
+			return fmt.Errorf("invalid document list: %v", list)
+		}
+
+		return nil
 	})
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if len(list.Items) != 1 {
-		log.Fatalf("invalid document list: %v", list)
-	}
-
-	log.Printf("Test passed")
 }

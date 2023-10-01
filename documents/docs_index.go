@@ -10,7 +10,6 @@ import (
 	"github.com/pzierahn/brainboost/pdf"
 	pb "github.com/pzierahn/brainboost/proto"
 	"github.com/sashabaranov/go-openai"
-	"log"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -155,8 +154,6 @@ func (service *Service) Index(doc *pb.Document, stream pb.DocumentService_IndexS
 	if err != nil {
 		return err
 	}
-
-	log.Printf("IndexDocument: %+v", doc)
 
 	pages, err := service.getDocPages(ctx, doc.Path)
 	if err != nil {
