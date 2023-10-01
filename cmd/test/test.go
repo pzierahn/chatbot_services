@@ -15,5 +15,6 @@ func main() {
 	//testing.CollectionRename()
 	//testing.CollectionDelete()
 	//testing.DocumentsIndex()
-	testing.DocumentsList()
+	//testing.DocumentsList()
+	testing.DocumentsDelete()
 }
