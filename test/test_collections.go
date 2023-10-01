@@ -61,30 +61,41 @@ func (setup *Setup) CollectionRename() {
 		log.Fatal(err)
 	}
 
-	coll.Name = "Test Collection 2"
-	_, err = setup.collections.Update(ctx, coll)
-	if err != nil {
-		log.Fatal(err)
+	update := &pb.Collection{
+		Id:   coll.Id,
+		Name: "Test Collection 2",
 	}
 
-	colls, err := setup.collections.GetAll(ctx, &emptypb.Empty{})
-	if err != nil {
-		log.Fatal(err)
-	}
+	setup.report.ExpectError("collection_update_without_auth", func() error {
+		_, err = setup.collections.Update(context.Background(), update)
+		return err
+	})
 
-	for _, c := range colls.Items {
-		if c.Id != coll.Id {
-			continue
+	setup.report.Run("collection_update_valid", func() error {
+		_, err = setup.collections.Update(ctx, update)
+		if err != nil {
+			return err
 		}
 
-		log.Println("Collection found:", c.Name)
-
-		if c.Name != coll.Name {
-			log.Fatal("Collection name mismatch")
+		colls, err := setup.collections.GetAll(ctx, &emptypb.Empty{})
+		if err != nil {
+			return err
 		}
 
-		break
-	}
+		if len(colls.Items) != 1 {
+			return fmt.Errorf("expected 1 collection")
+		}
+
+		if colls.Items[0].Id != coll.Id {
+			return fmt.Errorf("collection id mismatch")
+		}
+
+		if colls.Items[0].Name != update.Name {
+			return fmt.Errorf("collection name mismatch")
+		}
+
+		return nil
+	})
 }
 
 func (setup *Setup) CollectionDelete() {
