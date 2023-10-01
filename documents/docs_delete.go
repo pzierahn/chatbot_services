@@ -8,14 +8,16 @@ import (
 )
 
 func (service *Service) Delete(ctx context.Context, req *pb.Document) (*emptypb.Empty, error) {
-	uid, err := service.auth.ValidateToken(ctx)
+	userId, err := service.auth.ValidateToken(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	_, err = service.db.Exec(ctx,
-		`DELETE FROM documents WHERE id = $1 AND user_id = $2`,
-		req.Id, uid)
+		`DELETE FROM documents WHERE id = $1 AND
+                            collection_id = $2 AND
+                            user_id = $3`,
+		req.Id, req.CollectionId, userId)
 	if err != nil {
 		return nil, err
 	}
