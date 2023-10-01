@@ -95,6 +95,14 @@ func (setup *Setup) DocumentsList() {
 			return fmt.Errorf("invalid document list: %v", list)
 		}
 
+		if list.Items[0].Filename != doc.Filename {
+			return fmt.Errorf("invalid document name: %v", list.Items[0].Filename)
+		}
+
+		if list.Items[0].Id != doc.Id {
+			return fmt.Errorf("invalid document id: %v", list.Items[0].Id)
+		}
+
 		return nil
 	})
 
