@@ -120,17 +120,15 @@ func (setup *Setup) Close() {
 
 	setup.db.Close()
 
-	files := setup.storage.ListFiles(bucket, "", storagego.FileSearchOptions{})
-	for _, file := range files {
-		log.Printf("Delete file: %s", file.Name)
-		resp := setup.storage.RemoveFile(bucket, []string{file.Id})
-		if resp.Error != "" {
-			log.Fatalf("delete failed: %v", resp.Error)
-		}
+	_, emErr := setup.storage.EmptyBucket(bucket)
+	if emErr.Error != "" {
+		log.Fatal(emErr)
 	}
 
-	_, errr := setup.storage.DeleteBucket(bucket)
-	if errr.Error != "" {
-		log.Fatal(errr)
+	_, delError := setup.storage.DeleteBucket(bucket)
+	if delError.Error != "" {
+		log.Fatal(delError)
 	}
+
+	log.Printf("Deleted bucket: %v", bucket)
 }
