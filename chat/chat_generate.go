@@ -76,10 +76,11 @@ func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMe
 	}
 
 	completion := &pb.ChatMessage{
-		Id:        uuid.NewString(),
-		Prompt:    prompt,
-		Text:      resp.Choices[0].Message.Content,
-		Documents: bg.docs,
+		Id:           uuid.NewString(),
+		CollectionId: prompt.CollectionId,
+		Prompt:       prompt,
+		Text:         resp.Choices[0].Message.Content,
+		Documents:    bg.docs,
 	}
 
 	_ = service.storeChatMessage(ctx, chatMessage{
