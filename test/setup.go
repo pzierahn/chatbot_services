@@ -5,6 +5,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pzierahn/brainboost/account"
 	"github.com/pzierahn/brainboost/auth"
+	"github.com/pzierahn/brainboost/chat"
 	"github.com/pzierahn/brainboost/collections"
 	"github.com/pzierahn/brainboost/documents"
 	pb "github.com/pzierahn/brainboost/proto"
@@ -26,6 +27,7 @@ type Setup struct {
 	storage     *storagego.Client
 	collections pb.CollectionServiceClient
 	documents   pb.DocumentServiceClient
+	chat        pb.ChatServiceClient
 	account     *account.Service
 	report      *Report
 }
@@ -81,6 +83,13 @@ func NewTestSetup() Setup {
 	grpcServer := grpc.NewServer()
 	pb.RegisterDocumentServiceServer(grpcServer, docServer)
 	pb.RegisterCollectionServiceServer(grpcServer, collectionsServer)
+	pb.RegisterChatServiceServer(grpcServer, chat.FromConfig(&chat.Config{
+		DB:              db,
+		GPT:             gpt,
+		AuthService:     supabaseAuth,
+		DocumentService: docServer,
+		AccountService:  acc,
+	}))
 
 	lis, err := net.Listen("tcp", ":50051")
 	if err != nil {
@@ -103,6 +112,7 @@ func NewTestSetup() Setup {
 		collections: pb.NewCollectionServiceClient(conn),
 		account:     acc,
 		documents:   pb.NewDocumentServiceClient(conn),
+		chat:        pb.NewChatServiceClient(conn),
 		lis:         lis,
 		report:      &Report{},
 	}
