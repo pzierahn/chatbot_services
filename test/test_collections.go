@@ -110,38 +110,33 @@ func (setup *Setup) CollectionDelete() {
 		log.Fatal(err)
 	}
 
-	colls, err := setup.collections.GetAll(ctx, &emptypb.Empty{})
-	if err != nil {
-		log.Fatal(err)
-	}
+	setup.report.ExpectError("collection_delete_without_auth", func() error {
+		_, err = setup.collections.Delete(context.Background(), coll)
+		return err
+	})
 
-	for _, c := range colls.Items {
-		if c.Id != coll.Id {
-			continue
+	setup.report.ExpectError("collection_delete_invalid", func() error {
+		_, err = setup.collections.Delete(ctx, &pb.Collection{})
+		return err
+	})
+
+	setup.report.Run("collection_delete_valid", func() error {
+		_, err = setup.collections.Delete(ctx, coll)
+		if err != nil {
+			return err
 		}
 
-		log.Println("Collection found:", c.Name)
-
-		if c.Name != coll.Name {
-			log.Fatal("Collection name mismatch")
+		colls, err := setup.collections.GetAll(ctx, &emptypb.Empty{})
+		if err != nil {
+			log.Fatal(err)
 		}
 
-		break
-	}
-
-	_, err = setup.collections.Delete(ctx, coll)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	colls, err = setup.collections.GetAll(ctx, &emptypb.Empty{})
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for _, c := range colls.Items {
-		if c.Id == coll.Id {
-			log.Fatalf("Collection %s not deleted", c.Name)
+		for _, c := range colls.Items {
+			if c.Id == coll.Id {
+				return fmt.Errorf("collection %s not deleted", c.Name)
+			}
 		}
-	}
+
+		return nil
+	})
 }
