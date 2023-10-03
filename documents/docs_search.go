@@ -46,9 +46,11 @@ func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.
 
 	rows, err := service.db.Query(
 		ctx,
-		`select em.id, document_id, filename, page, text, (1 - (embedding <=> $1)) AS score
-			from document_embeddings as em join documents as doc on doc.id = em.document_id
-			where (1 - (embedding <=> $1)) >= $2 and doc.user_id = $3 and doc.collection_id = $4
+		`SELECT em.id, document_id, filename, page, text, (1 - (embedding <=> $1)) AS score
+			FROM document_embeddings AS em JOIN documents AS doc ON doc.id = em.document_id
+			where (1 - (embedding <=> $1)) >= $2 AND
+			      doc.user_id = $3 AND
+			      doc.collection_id = $4
 			ORDER BY score DESC
 		 	LIMIT $5`,
 		pgvector.NewVector(promptEmbedding),
