@@ -50,7 +50,7 @@ func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.
 			FROM document_embeddings AS em JOIN documents AS doc ON doc.id = em.document_id
 			where (1 - (embedding <=> $1)) >= $2 AND
 			      doc.user_id = $3 AND
-			      doc.collection_id = $4
+			      ($4 = '' OR doc.collection_id = $4::uuid)
 			ORDER BY score DESC
 		 	LIMIT $5`,
 		pgvector.NewVector(promptEmbedding),
