@@ -41,7 +41,12 @@ func (setup *Setup) DocumentsIndex() {
 	}
 
 	setup.Report.Run("documents_index_without_auth", func(t testing) bool {
-		_, err = setup.documents.Index(context.Background(), doc)
+		stream, err := setup.documents.Index(context.Background(), doc)
+		if err != nil {
+			return t.fail(err)
+		}
+
+		_, err = stream.Recv()
 		return t.expectError(err)
 	})
 
