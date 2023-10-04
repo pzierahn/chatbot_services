@@ -51,76 +51,77 @@ func (setup *Setup) DocumentsSearch() {
 		}
 	}
 
-	setup.report.ExpectError("documents_search_without_auth", func() error {
+	setup.Report.Run("documents_search_without_auth", func(t testing) bool {
 		_, err = setup.documents.Search(context.Background(), &pb.SearchQuery{
 			CollectionId: collection.Id,
 		})
-		return err
+		return t.expectError(err)
 	})
 
-	setup.report.ExpectError("documents_search_without_query", func() error {
+	setup.Report.Run("documents_search_without_query", func(t testing) bool {
 		_, err = setup.documents.Search(ctx, &pb.SearchQuery{
 			CollectionId: collection.Id,
 		})
-		return err
+		return t.expectError(err)
 	})
 
-	setup.report.Run("documents_search_limit", func() error {
+	setup.Report.Run("documents_search_limit", func(t testing) bool {
 		results, err := setup.documents.Search(ctx, &pb.SearchQuery{
 			Query:        "Clancy the Crab",
 			CollectionId: collection.Id,
 			Limit:        0,
 		})
 		if err != nil {
-			return err
+			return t.fail(err)
 		}
 
 		if len(results.Items) != 0 {
-			return fmt.Errorf("expected 0 results, got %d", len(results.Items))
+			return t.fail(fmt.Errorf("expected 0 results, got %d", len(results.Items)))
 		}
 
-		return nil
+		return t.pass()
 	})
 
-	setup.report.Run("documents_search_valid", func() error {
+	setup.Report.Run("documents_search_valid", func(t testing) bool {
 		results, err := setup.documents.Search(ctx, &pb.SearchQuery{
 			Query:        "Clancy the Crab",
 			CollectionId: collection.Id,
 			Limit:        15,
 		})
 		if err != nil {
-			return err
+			return t.fail(err)
 		}
 
 		if len(results.Items) != 1 {
-			return fmt.Errorf("expected 1 results, got %d", len(results.Items))
+			return t.fail(fmt.Errorf("expected 1 results, got %d", len(results.Items)))
 		}
 
 		if results.Items[0].DocumentId != docId {
-			return fmt.Errorf("expected document id %s, got %s", docId, results.Items[0].DocumentId)
+			return t.fail(fmt.Errorf("expected document id %s, got %s", docId, results.Items[0].DocumentId))
 		}
 
 		if results.Items[0].Score <= 0 {
-			return fmt.Errorf("expected score > 0, got %f", results.Items[0].Score)
+			return t.fail(fmt.Errorf("expected score > 0, got %f", results.Items[0].Score))
 		}
 
-		return nil
+		return t.pass()
 	})
 
-	setup.report.Run("documents_search_invalid", func() error {
+	setup.Report.Run("documents_search_invalid", func(t testing) bool {
 		results, err := setup.documents.Search(ctx, &pb.SearchQuery{
 			Query:        "This is not in the document",
 			CollectionId: collection.Id,
+			Threshold:    0.8,
 			Limit:        15,
 		})
 		if err != nil {
-			return err
+			return t.fail(err)
 		}
 
 		if len(results.Items) != 0 {
-			return fmt.Errorf("expected 0 results, got %d", len(results.Items))
+			return t.fail(fmt.Errorf("expected 0 results, got %d", len(results.Items)))
 		}
 
-		return nil
+		return t.pass()
 	})
 }

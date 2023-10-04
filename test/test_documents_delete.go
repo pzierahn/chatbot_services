@@ -52,38 +52,38 @@ func (setup *Setup) DocumentsDelete() {
 		}
 	}
 
-	setup.report.ExpectError("documents_delete_invalid", func() error {
+	setup.Report.Run("documents_delete_invalid", func(t testing) bool {
 		_, err = setup.documents.Delete(ctx, &pb.Document{})
-		return err
+		return t.expectError(err)
 	})
 
-	setup.report.ExpectError("documents_delete_without_auth", func() error {
+	setup.Report.Run("documents_delete_without_auth", func(t testing) bool {
 		_, err = setup.documents.Delete(context.Background(), doc)
-		return err
+		return t.expectError(err)
 	})
 
-	setup.report.Run("documents_delete", func() error {
+	setup.Report.Run("documents_delete", func(t testing) bool {
 		_, err = setup.documents.Delete(ctx, doc)
 		if err != nil {
-			return err
+			return t.fail(err)
 		}
 
 		list, err := setup.documents.List(ctx, &pb.DocumentFilter{
 			CollectionId: collection.Id,
 		})
 		if err != nil {
-			return err
+			return t.fail(err)
 		}
 
 		if len(list.Items) != 0 {
-			return fmt.Errorf("invalid document list: %v", list)
+			return t.fail(fmt.Errorf("invalid document list: %v", list))
 		}
 
 		files := setup.storage.ListFiles(bucket, userId+"/"+collection.Id, storage_go.FileSearchOptions{})
 		if len(files) != 0 {
-			return fmt.Errorf("invalid storage list: %v", files)
+			return t.fail(fmt.Errorf("invalid storage list: %v", files))
 		}
 
-		return nil
+		return t.pass()
 	})
 }

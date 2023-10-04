@@ -64,25 +64,25 @@ func (setup *Setup) ChatGenerate() {
 		},
 	}
 
-	setup.report.ExpectError("chat_without_auth", func() error {
+	setup.Report.Run("chat_without_auth", func(t testing) bool {
 		_, err = setup.chat.Chat(context.Background(), prompt)
-		return err
+		return t.expectError(err)
 	})
 
-	setup.report.Run("chat_auto_search", func() error {
+	setup.Report.Run("chat_auto_search", func(t testing) bool {
 		response, err := setup.chat.Chat(ctx, prompt)
 		if err != nil {
-			return err
+			return t.fail(err)
 		}
 
 		if response.Text != "red" {
-			return fmt.Errorf("expected answer red, got %s", response.Text)
+			return t.fail(fmt.Errorf("expected answer red, got %s", response.Text))
 		}
 
-		return nil
+		return t.pass()
 	})
 
-	setup.report.Run("chat_auto_with_pages", func() error {
+	setup.Report.Run("chat_auto_with_pages", func(t testing) bool {
 		promptWithDoc := &pb.Prompt{
 			Prompt:       "What is the color of Clancy the Crab's house? Answer with one word",
 			CollectionId: collection.Id,
@@ -103,17 +103,17 @@ func (setup *Setup) ChatGenerate() {
 
 		response, err := setup.chat.Chat(ctx, promptWithDoc)
 		if err != nil {
-			return err
+			return t.fail(err)
 		}
 
 		if !strings.Contains(response.Text, "red") {
-			return fmt.Errorf("expected answer red, got %s", response.Text)
+			return t.fail(fmt.Errorf("expected answer red, got %s", response.Text))
 		}
 
-		return nil
+		return t.pass()
 	})
 
-	setup.report.Run("chat_auto_without_pages", func() error {
+	setup.Report.Run("chat_auto_without_pages", func(t testing) bool {
 		promptWithDoc := &pb.Prompt{
 			Prompt:       "What is the color of Clancy the Crab's house? Answer with one word",
 			CollectionId: collection.Id,
@@ -135,21 +135,21 @@ func (setup *Setup) ChatGenerate() {
 
 		response, err := setup.chat.Chat(ctx, promptWithDoc)
 		if err != nil {
-			return err
+			return t.fail(err)
 		}
 
 		if response.Text == "red" {
-			return fmt.Errorf("didn't expect the right anwser")
+			return t.fail(fmt.Errorf("didn't expect the right anwser"))
 		}
 
 		if len(response.Documents[0].Pages) != 0 {
-			return fmt.Errorf("expected page 0, got %d", response.Documents[0].Pages)
+			return t.fail(fmt.Errorf("expected page 0, got %d", response.Documents[0].Pages))
 		}
 
-		return nil
+		return t.pass()
 	})
 
-	setup.report.Run("chat_auto_with_pages_invalid", func() error {
+	setup.Report.Run("chat_auto_with_pages_invalid", func(t testing) bool {
 		promptWithDoc := &pb.Prompt{
 			Prompt:       "What is the color of Clancy the Crab's house? Answer with one word",
 			CollectionId: collection.Id,
@@ -172,13 +172,13 @@ func (setup *Setup) ChatGenerate() {
 
 		response, err := setup.chat.Chat(ctx, promptWithDoc)
 		if err != nil {
-			return err
+			return t.fail(err)
 		}
 
 		if strings.ToLower(response.Text) == "red" {
-			return fmt.Errorf("didn't expect the right anwser")
+			return t.fail(fmt.Errorf("didn't expect the right anwser"))
 		}
 
-		return nil
+		return t.pass()
 	})
 }

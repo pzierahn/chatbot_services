@@ -63,79 +63,79 @@ func (setup *Setup) ChatHistory() {
 		},
 	}
 
-	setup.report.ExpectError("chat_history_without_auth", func() error {
+	setup.Report.Run("chat_history_without_auth", func(t testing) bool {
 		_, err = setup.chat.Chat(context.Background(), prompt)
-		return err
+		return t.expectError(err)
 	})
 
-	setup.report.Run("chat_history_valid", func() error {
+	setup.Report.Run("chat_history_valid", func(t testing) bool {
 		response, err := setup.chat.Chat(ctx, prompt)
 		if err != nil {
-			return err
+			return t.fail(err)
 		}
 
 		if response.Text != "red" {
-			return fmt.Errorf("expected answer red, got %s", response.Text)
+			return t.fail(fmt.Errorf("expected answer red, got %s", response.Text))
 		}
 
 		messages, err := setup.chat.GetChatMessages(ctx, collection)
 		if err != nil {
-			return err
+			return t.fail(err)
 		}
 
 		if len(messages.Ids) != 1 {
-			return fmt.Errorf("expected 1 message, got %d", len(messages.Ids))
+			return t.fail(fmt.Errorf("expected 1 message, got %d", len(messages.Ids)))
 		}
 
 		if messages.Ids[0] != response.Id {
-			return fmt.Errorf("expected message id %s, got %s", response.Id, messages.Ids[0])
+			return t.fail(fmt.Errorf("expected message id %s, got %s", response.Id, messages.Ids[0]))
 		}
 
-		return nil
+		return t.pass()
 	})
 
-	setup.report.Run("chat_history_get_massage", func() error {
+	setup.Report.Run("chat_history_get_massage", func(t testing) bool {
 		response, err := setup.chat.Chat(ctx, prompt)
 		if err != nil {
-			return err
+			return t.fail(err)
 		}
 
 		message, err := setup.chat.GetChatMessage(ctx, &pb.MessageID{Id: response.Id})
 		if err != nil {
-			return err
+			return t.fail(err)
 		}
 
 		if message.Id != response.Id {
-			return fmt.Errorf("expected message id %s, got %s", response.Id, message.Id)
+			return t.fail(fmt.Errorf("expected message id %s, got %s", response.Id, message.Id))
 		}
 
 		if message.Text != response.Text {
-			return fmt.Errorf("expected message text %s, got %s", response.Text, message.Text)
+			return t.fail(fmt.Errorf("expected message text %s, got %s", response.Text, message.Text))
 		}
 
 		if message.CollectionId != response.CollectionId {
-			return fmt.Errorf("expected message collection id %s, got %s", response.CollectionId, message.CollectionId)
+			return t.fail(fmt.Errorf("expected message collection id %s, got %s", response.CollectionId, message.CollectionId))
 		}
 
 		if message.Prompt.Prompt != response.Prompt.Prompt {
-			return fmt.Errorf("expected message prompt %v, got %v", response.Prompt.Prompt, message.Prompt.Prompt)
+			return t.fail(fmt.Errorf("expected message prompt %v, got %v", response.Prompt.Prompt, message.Prompt.Prompt))
 		}
 
-		return nil
+		return t.pass()
 	})
 
-	setup.report.Run("chat_history_wrong_collection", func() error {
+	setup.Report.Run("chat_history_wrong_collection", func(t testing) bool {
 		messages, err := setup.chat.GetChatMessages(ctx, &pb.Collection{
 			Id: uuid.NewString(),
 		})
 		if err != nil {
-			return err
+			return t.fail(err)
 		}
 
 		if len(messages.Ids) != 0 {
-			return fmt.Errorf("expected 0 messages, got %d", len(messages.Ids))
+			return t.fail(fmt.Errorf("expected 0 messages, got %d", len(messages.Ids)))
 		}
 
-		return nil
+		return t.pass()
 	})
 }

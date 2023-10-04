@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"github.com/pzierahn/brainboost/test"
 	"log"
 )
@@ -11,16 +12,19 @@ func main() {
 	testing := test.NewTestSetup()
 	defer testing.Close()
 
-	//testing.CollectionCreate()
-	//testing.CollectionRename()
-	//testing.CollectionDelete()
+	testing.CollectionCreate()
+	testing.CollectionRename()
+	testing.CollectionDelete()
 
-	//testing.DocumentsIndex()
-	//testing.DocumentsList()
-	//testing.DocumentsDelete()
-	//testing.DocumentsSearch()
-	//testing.DocumentsUpdate()
+	testing.DocumentsIndex()
+	testing.DocumentsList()
+	testing.DocumentsDelete()
+	testing.DocumentsSearch()
+	testing.DocumentsUpdate()
 
 	testing.ChatGenerate()
 	testing.ChatHistory()
+
+	byt, _ := json.MarshalIndent(testing.Report, "", "  ")
+	log.Println(string(byt))
 }

@@ -40,12 +40,12 @@ func (setup *Setup) DocumentsIndex() {
 		Path:         path,
 	}
 
-	setup.report.ExpectError("documents_index_without_auth", func() error {
+	setup.Report.Run("documents_index_without_auth", func(t testing) bool {
 		_, err = setup.documents.Index(context.Background(), doc)
-		return err
+		return t.expectError(err)
 	})
 
-	setup.report.Run("documents_index", func() error {
+	setup.Report.Run("documents_index", func(t testing) bool {
 		stream, err := setup.documents.Index(ctx, doc)
 		if err != nil {
 			log.Fatal(err)
@@ -56,14 +56,14 @@ func (setup *Setup) DocumentsIndex() {
 			if errors.Is(err, io.EOF) {
 				break
 			} else if err != nil {
-				return err
+				return t.fail(err)
 			}
 
 			if update.TotalPages <= 0 {
-				return fmt.Errorf("invalid total pages: %v", update.TotalPages)
+				return t.fail(fmt.Errorf("invalid total pages: %v", update.TotalPages))
 			}
 		}
 
-		return nil
+		return t.pass()
 	})
 }

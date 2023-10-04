@@ -29,7 +29,7 @@ type Setup struct {
 	documents   pb.DocumentServiceClient
 	chat        pb.ChatServiceClient
 	account     *account.Service
-	report      *Report
+	Report      *Report
 }
 
 const bucket = "documents"
@@ -114,7 +114,7 @@ func NewTestSetup() Setup {
 		documents:   pb.NewDocumentServiceClient(conn),
 		chat:        pb.NewChatServiceClient(conn),
 		lis:         lis,
-		report:      &Report{},
+		Report:      &Report{},
 	}
 }
 

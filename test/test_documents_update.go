@@ -51,17 +51,17 @@ func (setup *Setup) DocumentsUpdate() {
 		}
 	}
 
-	setup.report.ExpectError("documents_update_without_auth", func() error {
+	setup.Report.Run("documents_update_without_auth", func(t testing) bool {
 		_, err = setup.documents.Update(context.Background(), doc)
-		return err
+		return t.expectError(err)
 	})
 
-	setup.report.ExpectError("documents_update_without_doc", func() error {
+	setup.Report.Run("documents_update_without_doc", func(t testing) bool {
 		_, err = setup.documents.Update(ctx, &pb.Document{})
-		return err
+		return t.expectError(err)
 	})
 
-	setup.report.Run("documents_update_valid", func() error {
+	setup.Report.Run("documents_update_valid", func(t testing) bool {
 		update := &pb.Document{
 			Id:           docId,
 			CollectionId: collection.Id,
@@ -70,7 +70,7 @@ func (setup *Setup) DocumentsUpdate() {
 
 		_, err = setup.documents.Update(ctx, update)
 		if err != nil {
-			return err
+			return t.fail(err)
 		}
 
 		list, err := setup.documents.List(ctx, &pb.DocumentFilter{
@@ -78,21 +78,21 @@ func (setup *Setup) DocumentsUpdate() {
 			CollectionId: collection.Id,
 		})
 		if err != nil {
-			return err
+			return t.fail(err)
 		}
 
 		if len(list.Items) != 1 {
-			return fmt.Errorf("expected 1 document, got %d", len(list.Items))
+			return t.fail(fmt.Errorf("expected 1 document, got %d", len(list.Items)))
 		}
 
 		if list.Items[0].Filename != update.Filename {
-			return fmt.Errorf("expected filename %s, got %s", update.Filename, list.Items[0].Filename)
+			return t.fail(fmt.Errorf("expected filename %s, got %s", update.Filename, list.Items[0].Filename))
 		}
 
 		if list.Items[0].Id != doc.Id {
-			return fmt.Errorf("expected id %s, got %s", doc.Id, list.Items[0].Id)
+			return t.fail(fmt.Errorf("expected id %s, got %s", doc.Id, list.Items[0].Id))
 		}
 
-		return nil
+		return t.pass()
 	})
 }

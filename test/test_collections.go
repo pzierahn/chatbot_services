@@ -13,39 +13,39 @@ func (setup *Setup) CollectionCreate() {
 	ctx, userId := setup.createRandomSignIn()
 	defer setup.DeleteUser(userId)
 
-	setup.report.ExpectError("collection_create_without_auth", func() error {
+	setup.Report.Run("collection_create_without_auth", func(t testing) bool {
 		_, err := setup.collections.Create(context.Background(), &pb.Collection{
 			Name: "Test Collection",
 		})
-		return err
+		return t.expectError(err)
 	})
 
-	setup.report.Run("collection_create", func() error {
+	setup.Report.Run("collection_create", func(t testing) bool {
 		coll, err := setup.collections.Create(ctx, &pb.Collection{
 			Name: "Test Collection",
 		})
 		if err != nil {
-			return err
+			return t.fail(err)
 		}
 
 		colls, err := setup.collections.GetAll(ctx, &emptypb.Empty{})
 		if err != nil {
-			return err
+			return t.fail(err)
 		}
 
 		if len(colls.Items) != 1 {
-			return fmt.Errorf("collection not created")
+			return t.fail(fmt.Errorf("collection not created"))
 		}
 
 		if colls.Items[0].Id != coll.Id {
-			return fmt.Errorf("collection id mismatch")
+			return t.fail(fmt.Errorf("collection id mismatch"))
 		}
 
 		if colls.Items[0].Name != coll.Name {
-			return fmt.Errorf("collection name mismatch")
+			return t.fail(fmt.Errorf("collection name mismatch"))
 		}
 
-		return nil
+		return t.pass()
 	})
 }
 
@@ -66,35 +66,35 @@ func (setup *Setup) CollectionRename() {
 		Name: "Test Collection 2",
 	}
 
-	setup.report.ExpectError("collection_update_without_auth", func() error {
+	setup.Report.Run("collection_update_without_auth", func(t testing) bool {
 		_, err = setup.collections.Update(context.Background(), update)
-		return err
+		return t.expectError(err)
 	})
 
-	setup.report.Run("collection_update_valid", func() error {
+	setup.Report.Run("collection_update_valid", func(t testing) bool {
 		_, err = setup.collections.Update(ctx, update)
 		if err != nil {
-			return err
+			return t.fail(err)
 		}
 
 		colls, err := setup.collections.GetAll(ctx, &emptypb.Empty{})
 		if err != nil {
-			return err
+			return t.fail(err)
 		}
 
 		if len(colls.Items) != 1 {
-			return fmt.Errorf("expected 1 collection")
+			return t.fail(fmt.Errorf("expected 1 collection"))
 		}
 
 		if colls.Items[0].Id != coll.Id {
-			return fmt.Errorf("collection id mismatch")
+			return t.fail(fmt.Errorf("collection id mismatch"))
 		}
 
 		if colls.Items[0].Name != update.Name {
-			return fmt.Errorf("collection name mismatch")
+			return t.fail(fmt.Errorf("collection name mismatch"))
 		}
 
-		return nil
+		return t.pass()
 	})
 }
 
@@ -110,33 +110,33 @@ func (setup *Setup) CollectionDelete() {
 		log.Fatal(err)
 	}
 
-	setup.report.ExpectError("collection_delete_without_auth", func() error {
+	setup.Report.Run("collection_delete_without_auth", func(t testing) bool {
 		_, err = setup.collections.Delete(context.Background(), coll)
-		return err
+		return t.expectError(err)
 	})
 
-	setup.report.ExpectError("collection_delete_invalid", func() error {
+	setup.Report.Run("collection_delete_invalid", func(t testing) bool {
 		_, err = setup.collections.Delete(ctx, &pb.Collection{})
-		return err
+		return t.expectError(err)
 	})
 
-	setup.report.Run("collection_delete_valid", func() error {
+	setup.Report.Run("collection_delete_valid", func(t testing) bool {
 		_, err = setup.collections.Delete(ctx, coll)
 		if err != nil {
-			return err
+			return t.fail(err)
 		}
 
 		colls, err := setup.collections.GetAll(ctx, &emptypb.Empty{})
 		if err != nil {
-			log.Fatal(err)
+			return t.fail(err)
 		}
 
 		for _, c := range colls.Items {
 			if c.Id == coll.Id {
-				return fmt.Errorf("collection %s not deleted", c.Name)
+				return t.fail(fmt.Errorf("collection %s not deleted", c.Name))
 			}
 		}
 
-		return nil
+		return t.pass()
 	})
 }

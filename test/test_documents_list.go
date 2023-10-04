@@ -51,82 +51,82 @@ func (setup *Setup) DocumentsList() {
 		}
 	}
 
-	setup.report.Run("documents_list", func() error {
+	setup.Report.Run("documents_list", func(t testing) bool {
 		list, err := setup.documents.List(ctx, &pb.DocumentFilter{
 			CollectionId: collection.Id,
 		})
 		if err != nil {
-			return err
+			return t.fail(err)
 		}
 
 		if len(list.Items) != 1 {
-			return fmt.Errorf("invalid document list: %v", list)
+			return t.fail(fmt.Errorf("invalid document list: %v", list))
 		}
 
-		return nil
+		return t.pass()
 	})
 
-	setup.report.Run("document_list_nothing", func() error {
+	setup.Report.Run("document_list_nothing", func(t testing) bool {
 		list, err := setup.documents.List(ctx, &pb.DocumentFilter{
 			Query:        "find nothing",
 			CollectionId: collection.Id,
 		})
 		if err != nil {
-			return err
+			return t.fail(err)
 		}
 
 		if len(list.Items) != 0 {
-			return fmt.Errorf("invalid document list: %v", list)
+			return t.fail(fmt.Errorf("invalid document list: %v", list))
 		}
 
-		return nil
+		return t.pass()
 	})
 
-	setup.report.Run("document_list_query", func() error {
+	setup.Report.Run("document_list_query", func(t testing) bool {
 		list, err := setup.documents.List(ctx, &pb.DocumentFilter{
 			Query:        doc.Filename,
 			CollectionId: collection.Id,
 		})
 		if err != nil {
-			return nil
+			return t.fail(err)
 		}
 
 		if len(list.Items) != 1 {
-			return fmt.Errorf("invalid document list: %v", list)
+			return t.fail(fmt.Errorf("invalid document list: %v", list))
 		}
 
 		if list.Items[0].Filename != doc.Filename {
-			return fmt.Errorf("invalid document name: %v", list.Items[0].Filename)
+			return t.fail(fmt.Errorf("invalid document name: %v", list.Items[0].Filename))
 		}
 
 		if list.Items[0].Id != doc.Id {
-			return fmt.Errorf("invalid document id: %v", list.Items[0].Id)
+			return t.fail(fmt.Errorf("invalid document id: %v", list.Items[0].Id))
 		}
 
-		return nil
+		return t.pass()
 	})
 
-	setup.report.Run("documents_list_wrong_collection", func() error {
+	setup.Report.Run("documents_list_wrong_collection", func(t testing) bool {
 		list, err := setup.documents.List(ctx, &pb.DocumentFilter{
 			Query:        doc.Filename,
 			CollectionId: uuid.NewString(),
 		})
 		if err != nil {
-			return err
+			return t.fail(err)
 		}
 
 		if len(list.Items) != 0 {
-			return fmt.Errorf("invalid document list: %v", list)
+			return t.fail(fmt.Errorf("invalid document list: %v", list))
 		}
 
-		return err
+		return t.pass()
 	})
 
-	setup.report.ExpectError("documents_list_without_auth", func() error {
+	setup.Report.Run("documents_list_without_auth", func(t testing) bool {
 		_, err = setup.documents.List(context.Background(), &pb.DocumentFilter{
 			Query:        doc.Filename,
 			CollectionId: collection.Id,
 		})
-		return err
+		return t.expectError(err)
 	})
 }
