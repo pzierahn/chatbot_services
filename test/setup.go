@@ -28,7 +28,7 @@ type Setup struct {
 	collections pb.CollectionServiceClient
 	documents   pb.DocumentServiceClient
 	chat        pb.ChatServiceClient
-	account     *account.Service
+	account     pb.AccountServiceClient
 	Report      *Report
 }
 
@@ -81,6 +81,7 @@ func NewTestSetup() Setup {
 		collections.NewServer(supabaseAuth, db, storage)
 
 	grpcServer := grpc.NewServer()
+	pb.RegisterAccountServiceServer(grpcServer, acc)
 	pb.RegisterDocumentServiceServer(grpcServer, docServer)
 	pb.RegisterCollectionServiceServer(grpcServer, collectionsServer)
 	pb.RegisterChatServiceServer(grpcServer, chat.FromConfig(&chat.Config{
@@ -110,7 +111,7 @@ func NewTestSetup() Setup {
 		db:          db,
 		storage:     storage,
 		collections: pb.NewCollectionServiceClient(conn),
-		account:     acc,
+		account:     pb.NewAccountServiceClient(conn),
 		documents:   pb.NewDocumentServiceClient(conn),
 		chat:        pb.NewChatServiceClient(conn),
 		lis:         lis,

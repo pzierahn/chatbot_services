@@ -25,6 +25,8 @@ func main() {
 	testing.ChatGenerate()
 	testing.ChatHistory()
 
+	testing.Account()
+
 	byt, _ := json.MarshalIndent(testing.Report, "", "  ")
 	log.Println(string(byt))
 }
