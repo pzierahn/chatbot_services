@@ -3,6 +3,7 @@ package chat
 import (
 	"context"
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/pzierahn/brainboost/account"
 	pb "github.com/pzierahn/brainboost/proto"
 	"github.com/sashabaranov/go-openai"
@@ -10,7 +11,7 @@ import (
 )
 
 func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMessage, error) {
-	userID, err := service.auth.ValidateToken(ctx)
+	userId, err := service.auth.ValidateToken(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -23,7 +24,7 @@ func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMe
 	if prompt.Documents == nil || len(prompt.Documents) == 0 {
 		bg, err = service.getSourceFromDB(ctx, prompt)
 	} else {
-		bg, err = service.getBackgroundFromPrompt(ctx, userID, prompt)
+		bg, err = service.getBackgroundFromPrompt(ctx, userId, prompt)
 	}
 
 	if err != nil {
@@ -57,7 +58,7 @@ func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMe
 			MaxTokens:   int(prompt.Options.MaxTokens),
 			Messages:    messages,
 			N:           1,
-			User:        userID.String(),
+			User:        userId.String(),
 		},
 	)
 	if err != nil {
@@ -65,7 +66,7 @@ func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMe
 	}
 
 	_, err = service.account.CreateUsage(ctx, account.Usage{
-		UserId: userID,
+		UserId: userId,
 		Model:  resp.Model,
 		Input:  uint32(resp.Usage.PromptTokens),
 		Output: uint32(resp.Usage.CompletionTokens),
@@ -75,13 +76,16 @@ func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMe
 	}
 
 	completion := &pb.ChatMessage{
-		Prompt:    prompt,
-		Text:      resp.Choices[0].Message.Content,
-		Documents: bg.docs,
+		Id:           uuid.NewString(),
+		CollectionId: prompt.CollectionId,
+		Prompt:       prompt,
+		Text:         resp.Choices[0].Message.Content,
+		Documents:    bg.docs,
 	}
 
-	_, _ = service.storeChatMessage(ctx, chatMessage{
-		userId:       userID,
+	_ = service.storeChatMessage(ctx, chatMessage{
+		id:           completion.Id,
+		userId:       userId,
 		collectionId: prompt.CollectionId,
 		prompt:       prompt.Prompt,
 		completion:   completion.Text,

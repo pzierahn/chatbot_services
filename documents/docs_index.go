@@ -10,7 +10,6 @@ import (
 	"github.com/pzierahn/brainboost/pdf"
 	pb "github.com/pzierahn/brainboost/proto"
 	"github.com/sashabaranov/go-openai"
-	"log"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -23,8 +22,9 @@ type embeddingsBatch struct {
 }
 
 type document struct {
-	userID       uuid.UUID
-	collectionID string
+	id           string
+	userId       string
+	collectionId string
 	filename     string
 	path         string
 	embeddings   []*embedding
@@ -110,54 +110,49 @@ func (service *Service) processEmbeddings(ctx context.Context, batch *embeddings
 	return embeddings, inputTokens, errors.Join(errs...)
 }
 
-func (service *Service) insertEmbeddings(ctx context.Context, doc *document) (uuid.UUID, error) {
+func (service *Service) insertEmbeddings(ctx context.Context, doc *document) error {
 	tx, err := service.db.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
-		return uuid.Nil, err
+		return err
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
 
-	var docID uuid.UUID
-	result := service.db.QueryRow(
+	_, err = service.db.Exec(
 		ctx,
-		`insert into documents (user_id, filename, path, collection_id)
-			values ($1, $2, $3, $4)
-			returning id`,
-		doc.userID,
+		`insert into documents (id, user_id, filename, path, collection_id)
+			values ($1, $2, $3, $4, $5)`,
+		doc.id,
+		doc.userId,
 		doc.filename,
-		&doc.path,
-		doc.collectionID)
-	err = result.Scan(&docID)
+		doc.path,
+		doc.collectionId)
 	if err != nil {
-		return uuid.Nil, err
+		return err
 	}
 
 	for _, fragment := range doc.embeddings {
 		_, err = tx.Exec(ctx,
 			`insert into document_embeddings (document_id, page, text, embedding)
 				values ($1, $2, $3, $4)`,
-			docID,
+			doc.id,
 			fragment.Page,
 			fragment.Text,
 			pgvector.NewVector(fragment.Embedding))
 		if err != nil {
-			return uuid.Nil, err
+			return err
 		}
 	}
 
-	return docID, tx.Commit(ctx)
+	return tx.Commit(ctx)
 }
 
 func (service *Service) Index(doc *pb.Document, stream pb.DocumentService_IndexServer) error {
 
-	userID, err := service.auth.ValidateToken(stream.Context())
+	ctx := stream.Context()
+	userId, err := service.auth.ValidateToken(ctx)
 	if err != nil {
 		return err
 	}
-
-	log.Printf("IndexDocument: %+v", doc)
-
-	ctx := stream.Context()
 
 	pages, err := service.getDocPages(ctx, doc.Path)
 	if err != nil {
@@ -165,7 +160,7 @@ func (service *Service) Index(doc *pb.Document, stream pb.DocumentService_IndexS
 	}
 
 	embeddings, inputTokens, err := service.processEmbeddings(ctx, &embeddingsBatch{
-		userID: userID,
+		userID: userId,
 		pages:  pages,
 		stream: stream,
 	})
@@ -174,9 +169,10 @@ func (service *Service) Index(doc *pb.Document, stream pb.DocumentService_IndexS
 		return err
 	}
 
-	_, err = service.insertEmbeddings(ctx, &document{
-		userID:       userID,
-		collectionID: doc.CollectionId,
+	err = service.insertEmbeddings(ctx, &document{
+		id:           doc.Id,
+		userId:       userId.String(),
+		collectionId: doc.CollectionId,
 		filename:     doc.Filename,
 		path:         doc.Path,
 		embeddings:   embeddings,
@@ -187,7 +183,7 @@ func (service *Service) Index(doc *pb.Document, stream pb.DocumentService_IndexS
 	}
 
 	_, _ = service.account.CreateUsage(ctx, account.Usage{
-		UserId: userID,
+		UserId: userId,
 		Model:  embeddingsModel.String(),
 		Input:  inputTokens,
 	})
