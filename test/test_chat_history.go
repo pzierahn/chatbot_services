@@ -10,12 +10,16 @@ import (
 	"github.com/sashabaranov/go-openai"
 	"io"
 	"log"
+	"time"
 )
 
 func (setup *Setup) ChatHistory() {
 
 	ctx, userId := setup.createRandomSignIn()
 	defer setup.DeleteUser(userId)
+
+	ctx, cnl := context.WithTimeout(ctx, 10*time.Second)
+	defer cnl()
 
 	collection, err := setup.collections.Create(ctx, &pb.Collection{Name: "test"})
 	if err != nil {
@@ -57,7 +61,7 @@ func (setup *Setup) ChatHistory() {
 		Options: &pb.PromptOptions{
 			Model:       openai.GPT3Dot5Turbo,
 			Temperature: 0,
-			MaxTokens:   1,
+			MaxTokens:   10,
 			Threshold:   0,
 			Limit:       1,
 		},
