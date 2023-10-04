@@ -6,9 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="8863e312-2fdf-4e7f-90f2-c6f1e830b056" name="Changes" comment="Document list test">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/documents/docs_index.go" beforeDir="false" afterPath="$PROJECT_DIR$/documents/docs_index.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/setup.go" beforeDir="false" afterPath="$PROJECT_DIR$/test/setup.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/test_documents_list.go" beforeDir="false" afterPath="$PROJECT_DIR$/test/test_documents_list.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,7 +26,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="main" />
+        <entry key="$PROJECT_DIR$" value="test" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -57,7 +56,7 @@
     "RunOnceActivity.go.modules.automatic.dependencies.download": "true",
     "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
     "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "test",
+    "git-widget-placeholder": "main",
     "go.import.settings.migrated": "true",
     "go.sdk.automatically.set": "true",
     "last_opened_file_path": "/Users/patrick/Code/brainboost_service/test",
