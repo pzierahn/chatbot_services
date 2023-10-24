@@ -26,37 +26,13 @@ docker run --rm \
     -it brainboost
 ```
 
-## Build ESPv2 Google Cloud Endpoint (Not working)
+## Run Tests
 
-[set-up-cloud-run-espv2](https://cloud.google.com/endpoints/docs/grpc/set-up-cloud-run-espv2)
+Start supabase in a shell
 
-```bash
-# Switch to project
-gcloud config set project ${PROJECT_ID}
-
-# Enable services
-gcloud services enable servicemanagement.googleapis.com
-gcloud services enable servicecontrol.googleapis.com
-gcloud services enable endpoints.googleapis.com
-
-# Deploy dummy service
-gcloud run deploy brainboost-gateway \
-  --image="gcr.io/cloudrun/hello" \
-  --allow-unauthenticated \
-  --platform managed \
-  --project=${PROJECT_ID}
-
-# Deploy ESPv2 endpoint --> CONFIG
-gcloud endpoints services deploy proto/api_descriptor.pb google_cloud/api_config.yaml
-
-# Run deploy script --> IMAGE
-# https://github.com/GoogleCloudPlatform/esp-v2/blob/master/docker/serverless/gcloud_build_image
-./google_cloud/gcloud_build_image -s brainboost-gateway-2qkjmuus4a-ey.a.run.app \
-  -c 2023-09-22r1 -p ${PROJECT_ID}
-
-gcloud run deploy brainboost-gateway \
-  --image="gcr.io/brainboost-399710/endpoints-runtime-serverless:2.45.0-brainboost-gateway-2qkjmuus4a-ey.a.run.app-2023-09-22r1" \
-  --allow-unauthenticated \
-  --platform managed \
-  --project=${PROJECT_ID}
+```shell
+# In one terminal
+git clone https://github.com/supabase/supabase
+cd supabase/docker
+docker-compose up
 ```
