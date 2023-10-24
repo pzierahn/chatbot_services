@@ -70,7 +70,7 @@ func (setup *Setup) Payments() {
 		}
 
 		message, err := setup.chat.Chat(ctx, &pb.Prompt{
-			Prompt:       "Say something hello",
+			Prompt:       "Say hello",
 			CollectionId: coll.Id,
 			Options: &pb.PromptOptions{
 				Model:       openai.GPT3Dot5Turbo,
@@ -87,5 +87,30 @@ func (setup *Setup) Payments() {
 		}
 
 		return t.pass()
+	})
+
+	setup.Report.Run("payments_without_founding", func(t testing) bool {
+		amount1 := 0
+		ctx, userId := setup.createRandomSignInWithFunding(amount1)
+		defer setup.DeleteUser(userId)
+
+		coll, err := setup.collections.Create(ctx, &pb.Collection{
+			Name: "Test",
+		})
+		if err != nil {
+			return t.fail(err)
+		}
+
+		_, err = setup.chat.Chat(ctx, &pb.Prompt{
+			Prompt:       "Say hello",
+			CollectionId: coll.Id,
+			Options: &pb.PromptOptions{
+				Model:       openai.GPT3Dot5Turbo,
+				Temperature: 0,
+				MaxTokens:   10,
+			},
+		})
+
+		return t.expectError(err)
 	})
 }
