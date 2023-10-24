@@ -49,3 +49,13 @@ create table if not exists chat_message_source
     chat_message_id        uuid not null references chat_message (id) ON DELETE CASCADE,
     document_embeddings_id uuid not null references document_embeddings (id) ON DELETE CASCADE
 );
+
+create table if not exists payments
+(
+    id         uuid primary key   default gen_random_uuid(),
+    created_at timestamp not null default now(),
+    user_id    uuid      not null,
+    email      text      not null,
+    amount     integer   not null,
+    currency   text      not null
+);
