@@ -151,7 +151,7 @@ func (setup *Setup) ChatGenerate() {
 
 	setup.Report.Run("chat_auto_with_pages_invalid", func(t testing) bool {
 		promptWithDoc := &pb.Prompt{
-			Prompt:       "What is the color of Clancy the Crab's house? Answer with one word",
+			Prompt:       "What is the color of Clancy the Crab's house?",
 			CollectionId: collection.Id,
 			Options: &pb.PromptOptions{
 				Model:       openai.GPT3Dot5Turbo,
