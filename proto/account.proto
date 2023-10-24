@@ -5,9 +5,11 @@ option go_package = "./proto";
 package endpoint.brainboost.account.v1;
 
 import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
 
 service AccountService {
   rpc GetModelUsages(google.protobuf.Empty) returns (ModelUsages);
+  rpc GetPayments(google.protobuf.Empty) returns (Payments);
 }
 
 message ModelUsages {
@@ -18,4 +20,14 @@ message ModelUsages {
   }
 
   repeated Usage items = 1;
+}
+
+message Payments {
+  message Payment {
+    string id = 1;
+    google.protobuf.Timestamp date = 2;
+    uint32 amount = 3;
+  }
+
+  repeated Payment items = 1;
 }

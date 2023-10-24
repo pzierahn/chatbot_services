@@ -52,10 +52,8 @@ create table if not exists chat_message_source
 
 create table if not exists payments
 (
-    id         uuid primary key   default gen_random_uuid(),
-    created_at timestamp not null default now(),
-    user_id    uuid      not null,
-    email      text      not null,
-    amount     integer   not null,
-    currency   text      not null
+    id      uuid primary key   default gen_random_uuid(),
+    date    timestamp not null default now(),
+    user_id uuid      not null,
+    amount  integer   not null
 );
