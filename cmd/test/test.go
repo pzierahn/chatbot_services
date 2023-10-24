@@ -12,20 +12,20 @@ func main() {
 	testing := test.NewTestSetup()
 	defer testing.Close()
 
-	//testing.CollectionCreate()
-	//testing.CollectionRename()
-	//testing.CollectionDelete()
-	//
-	//testing.DocumentsIndex()
-	//testing.DocumentsList()
-	//testing.DocumentsDelete()
-	//testing.DocumentsSearch()
-	//testing.DocumentsUpdate()
-	//
-	//testing.ChatGenerate()
-	//testing.ChatHistory()
-	//
-	//testing.Account()
+	testing.CollectionCreate()
+	testing.CollectionRename()
+	testing.CollectionDelete()
+
+	testing.DocumentsIndex()
+	testing.DocumentsList()
+	testing.DocumentsDelete()
+	testing.DocumentsSearch()
+	testing.DocumentsUpdate()
+
+	testing.ChatGenerate()
+	testing.ChatHistory()
+
+	testing.Account()
 
 	testing.Payments()
 

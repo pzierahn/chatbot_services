@@ -15,7 +15,7 @@ import (
 
 func (setup *Setup) ChatHistory() {
 
-	ctx, userId := setup.createRandomSignIn()
+	ctx, userId := setup.createRandomSignInWithFunding(1000)
 	defer setup.DeleteUser(userId)
 
 	ctx, cnl := context.WithTimeout(ctx, 10*time.Second)

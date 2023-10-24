@@ -14,7 +14,7 @@ import (
 
 func (setup *Setup) DocumentsSearch() {
 
-	ctx, userId := setup.createRandomSignIn()
+	ctx, userId := setup.createRandomSignInWithFunding(1000)
 	defer setup.DeleteUser(userId)
 
 	collection, err := setup.collections.Create(ctx, &pb.Collection{Name: "test"})

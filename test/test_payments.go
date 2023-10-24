@@ -29,22 +29,22 @@ func (setup *Setup) paymentsCreateUsage(ctx context.Context, userId string, usag
 
 func (setup *Setup) Payments() {
 
-	ctx, userId := setup.createRandomSignIn()
+	amount1 := 1000
+	ctx, userId := setup.createRandomSignInWithFunding(amount1)
 	defer setup.DeleteUser(userId)
-
-	amount1 := 999
-	setup.paymentsCreateFounds(ctx, userId, amount1)
-
-	amount2 := 1200
-	setup.paymentsCreateFounds(ctx, userId, amount2)
 
 	payments, err := setup.account.GetPayments(ctx, &emptypb.Empty{})
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	setup.Report.Run("payments_without_auth", func(t testing) bool {
+		_, err := setup.account.GetPayments(context.Background(), &emptypb.Empty{})
+		return t.expectError(err)
+	})
+
 	setup.Report.Run("payments_insert", func(t testing) bool {
-		if len(payments.Items) != 2 {
+		if len(payments.Items) != 1 {
 			return t.fail(fmt.Errorf("payments_insert: payments.Items != 1"))
 		}
 
@@ -52,21 +52,6 @@ func (setup *Setup) Payments() {
 			return t.fail(fmt.Errorf("payments_insert: payments.Items[0].Amount != %d", amount1))
 		}
 
-		if payments.Items[1].Amount != uint32(amount2) {
-			return t.fail(fmt.Errorf("payments_insert: payments.Items[1].Amount != %d", amount2))
-		}
-
 		return t.pass()
 	})
-
-	//setup.paymentsCreateUsage(ctx, userId, account.Usage{
-	//	Model:  openai.GPT3Dot5Turbo,
-	//	Input:  1,
-	//	Output: 2,
-	//})
-	//
-	//usage, err := setup.account.GetModelUsages(ctx, &emptypb.Empty{})
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
 }

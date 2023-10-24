@@ -3,6 +3,7 @@ package documents
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/pgvector/pgvector-go"
@@ -152,6 +153,15 @@ func (service *Service) Index(doc *pb.Document, stream pb.DocumentService_IndexS
 	userId, err := service.auth.ValidateToken(ctx)
 	if err != nil {
 		return err
+	}
+
+	founding, err := service.account.HasFounding(ctx)
+	if err != nil {
+		return err
+	}
+
+	if !founding {
+		return fmt.Errorf("no founding")
 	}
 
 	pages, err := service.getDocPages(ctx, doc.Path)
