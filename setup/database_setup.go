@@ -16,6 +16,6 @@ func SetupTables(ctx context.Context, conn *pgxpool.Pool) error {
 }
 
 func DropTables(ctx context.Context, conn *pgxpool.Pool) error {
-	_, err := conn.Exec(ctx, `DROP TABLE IF EXISTS collections, documents, document_embeddings, openai_usage, chat_message, chat_message_source`)
+	_, err := conn.Exec(ctx, `DROP TABLE IF EXISTS collections, documents, document_embeddings, openai_usage, chat_message, chat_message_source,payments`)
 	return err
 }

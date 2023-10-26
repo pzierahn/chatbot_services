@@ -16,7 +16,7 @@ import (
 
 func (setup *Setup) Account() {
 
-	ctx, userId := setup.createRandomSignIn()
+	ctx, userId := setup.createRandomSignInWithFunding(1000)
 	defer setup.DeleteUser(userId)
 
 	collection, err := setup.collections.Create(ctx, &pb.Collection{Name: "test"})
@@ -27,9 +27,9 @@ func (setup *Setup) Account() {
 	docId := uuid.NewString()
 	path := fmt.Sprintf("%s/%s/%s.pdf", userId, collection.Id, docId)
 
-	resp := setup.storage.UploadFile(bucket, path, bytes.NewReader(testPdf))
-	if resp.Error != "" {
-		log.Fatalf("upload failed: %v", resp.Error)
+	_, err = setup.storage.UploadFile(bucket, path, bytes.NewReader(testPdf))
+	if err != nil {
+		log.Fatalf("upload failed: %v", err)
 	}
 
 	doc := &pb.Document{

@@ -20,6 +20,15 @@ func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMe
 		return nil, fmt.Errorf("options missing")
 	}
 
+	founding, err := service.account.HasFounding(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if !founding {
+		return nil, account.NoFoundingError()
+	}
+
 	var bg *chatContext
 	if prompt.Documents == nil || len(prompt.Documents) == 0 {
 		bg, err = service.getSourceFromDB(ctx, prompt)

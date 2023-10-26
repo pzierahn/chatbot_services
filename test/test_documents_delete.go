@@ -15,7 +15,7 @@ import (
 
 func (setup *Setup) DocumentsDelete() {
 
-	ctx, userId := setup.createRandomSignIn()
+	ctx, userId := setup.createRandomSignInWithFunding(1000)
 	defer setup.DeleteUser(userId)
 
 	collection, err := setup.collections.Create(ctx, &pb.Collection{Name: "test"})
@@ -26,9 +26,9 @@ func (setup *Setup) DocumentsDelete() {
 	docId := uuid.NewString()
 	path := fmt.Sprintf("%s/%s/%s.pdf", userId, collection.Id, docId)
 
-	resp := setup.storage.UploadFile(bucket, path, bytes.NewReader(testPdf))
-	if resp.Error != "" {
-		log.Fatalf("upload failed: %v", resp.Error)
+	_, err = setup.storage.UploadFile(bucket, path, bytes.NewReader(testPdf))
+	if err != nil {
+		log.Fatalf("upload failed: %v", err)
 	}
 
 	doc := &pb.Document{
@@ -79,7 +79,11 @@ func (setup *Setup) DocumentsDelete() {
 			return t.fail(fmt.Errorf("invalid document list: %v", list))
 		}
 
-		files := setup.storage.ListFiles(bucket, userId+"/"+collection.Id, storage_go.FileSearchOptions{})
+		files, err := setup.storage.ListFiles(bucket, userId+"/"+collection.Id, storage_go.FileSearchOptions{})
+		if err != nil {
+			return t.fail(err)
+		}
+
 		if len(files) != 0 {
 			return t.fail(fmt.Errorf("invalid storage list: %v", files))
 		}

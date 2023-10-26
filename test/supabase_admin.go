@@ -126,7 +126,12 @@ func (setup *Setup) DeleteUser(id string) {
 	log.Printf("Delete user %s: %s", id, resp.Status)
 }
 
-func (setup *Setup) createRandomSignIn() (context.Context, string) {
+func (setup *Setup) createRandomSignInWithoutFunding() (context.Context, string) {
+	ctx, userId := setup.createRandomSignInWithFunding(0)
+	return ctx, userId
+}
+
+func (setup *Setup) createRandomSignInWithFunding(amount int) (context.Context, string) {
 	user := setup.CreateUser()
 
 	supabase := supa.CreateClient(setup.SupabaseUrl, setup.Token)
@@ -142,6 +147,14 @@ func (setup *Setup) createRandomSignIn() (context.Context, string) {
 	ctx = metadata.NewOutgoingContext(ctx, metadata.New(map[string]string{
 		"Authorization": "Bearer " + details.AccessToken,
 	}))
+
+	err = supabase.DB.From("payments").Insert(map[string]interface{}{
+		"user_id": user.Id,
+		"amount":  amount,
+	}).ExecuteWithContext(ctx, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	return ctx, user.Id
 }

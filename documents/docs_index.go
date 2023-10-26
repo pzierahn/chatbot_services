@@ -154,6 +154,15 @@ func (service *Service) Index(doc *pb.Document, stream pb.DocumentService_IndexS
 		return err
 	}
 
+	founding, err := service.account.HasFounding(ctx)
+	if err != nil {
+		return err
+	}
+
+	if !founding {
+		return account.NoFoundingError()
+	}
+
 	pages, err := service.getDocPages(ctx, doc.Path)
 	if err != nil {
 		return err

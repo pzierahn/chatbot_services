@@ -27,6 +27,8 @@ func main() {
 
 	testing.Account()
 
+	testing.Payments()
+
 	byt, _ := json.MarshalIndent(testing.Report, "", "  ")
 	log.Println(string(byt))
 }

@@ -1,13 +1,20 @@
-# Brainboost
+# Brainboost Services
 
-## Install postgresql
+This repository contains gRPC services for the Brainboost App
+
+## Run locally
+
+To kickstart your journey with these services, you can use the following commands:
+
+### Start the server
+
+To start the server, run the following command:
 
 ```bash
-docker pull ankane/pgvector
-docker run -p 5432:5432 -e POSTGRES_PASSWORD=postgres -d ankane/pgvector
+go run cmd/server/server.go
 ```
 
-## Start docker container(s)
+Or use the following command to start the server with an envoy proxy:
 
 ```bash
 # Use docker-compose to start service and gateway
@@ -26,37 +33,32 @@ docker run --rm \
     -it brainboost
 ```
 
-## Build ESPv2 Google Cloud Endpoint (Not working)
+### Run tests
 
-[set-up-cloud-run-espv2](https://cloud.google.com/endpoints/docs/grpc/set-up-cloud-run-espv2)
+To run the tests, run the following command:
 
 ```bash
-# Switch to project
-gcloud config set project ${PROJECT_ID}
+# Tests require a running local Supabase instance
+git clone https://github.com/supabase/supabase
+cd supabase/docker
+docker-compose up
 
-# Enable services
-gcloud services enable servicemanagement.googleapis.com
-gcloud services enable servicecontrol.googleapis.com
-gcloud services enable endpoints.googleapis.com
-
-# Deploy dummy service
-gcloud run deploy brainboost-gateway \
-  --image="gcr.io/cloudrun/hello" \
-  --allow-unauthenticated \
-  --platform managed \
-  --project=${PROJECT_ID}
-
-# Deploy ESPv2 endpoint --> CONFIG
-gcloud endpoints services deploy proto/api_descriptor.pb google_cloud/api_config.yaml
-
-# Run deploy script --> IMAGE
-# https://github.com/GoogleCloudPlatform/esp-v2/blob/master/docker/serverless/gcloud_build_image
-./google_cloud/gcloud_build_image -s brainboost-gateway-2qkjmuus4a-ey.a.run.app \
-  -c 2023-09-22r1 -p ${PROJECT_ID}
-
-gcloud run deploy brainboost-gateway \
-  --image="gcr.io/brainboost-399710/endpoints-runtime-serverless:2.45.0-brainboost-gateway-2qkjmuus4a-ey.a.run.app-2023-09-22r1" \
-  --allow-unauthenticated \
-  --platform managed \
-  --project=${PROJECT_ID}
+# Run tests with
+go run cmd/test/test.go
 ```
+
+## Deploy a new release
+
+Prepare a new release by following these steps:
+
+1. Update the changelog in `CHANGELOG.md`
+2. Update dependencies `go get -u all`
+3. Commit changes `git commit -am "Release vX.X.X"`
+4. Push changes `git push`
+5. Create a new git tag:
+    1. `git tag -a vX.X.X -m "Release vX.X.X"`
+    2. `git push origin vX.X.X`
+6. Merge `main` branch into `stable` branch
+
+After the release is merged into the `stable` branch, the new release will be automatically deployed by using Google
+Cloud Run.

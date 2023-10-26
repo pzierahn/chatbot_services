@@ -2,7 +2,6 @@ package documents
 
 import (
 	"context"
-	"fmt"
 	pb "github.com/pzierahn/brainboost/proto"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -22,9 +21,9 @@ func (service *Service) Delete(ctx context.Context, req *pb.Document) (*emptypb.
 		return nil, err
 	}
 
-	resp := service.storage.RemoveFile(bucket, []string{req.Path})
-	if resp.Error != "" {
-		return nil, fmt.Errorf(resp.Error)
+	_, err = service.storage.RemoveFile(bucket, []string{req.Path})
+	if err != nil {
+		return nil, err
 	}
 
 	return &emptypb.Empty{}, nil

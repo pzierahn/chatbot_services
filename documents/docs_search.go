@@ -24,6 +24,15 @@ func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.
 		return nil, err
 	}
 
+	founding, err := service.account.HasFounding(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if !founding {
+		return nil, account.NoFoundingError()
+	}
+
 	resp, err := service.gpt.CreateEmbeddings(
 		ctx,
 		openai.EmbeddingRequestStrings{

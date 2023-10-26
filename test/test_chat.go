@@ -15,7 +15,7 @@ import (
 
 func (setup *Setup) ChatGenerate() {
 
-	ctx, userId := setup.createRandomSignIn()
+	ctx, userId := setup.createRandomSignInWithFunding(1000)
 	defer setup.DeleteUser(userId)
 
 	collection, err := setup.collections.Create(ctx, &pb.Collection{Name: "test"})
@@ -26,9 +26,9 @@ func (setup *Setup) ChatGenerate() {
 	docId := uuid.NewString()
 	path := fmt.Sprintf("%s/%s/%s.pdf", userId, collection.Id, docId)
 
-	resp := setup.storage.UploadFile(bucket, path, bytes.NewReader(testPdf))
-	if resp.Error != "" {
-		log.Fatalf("upload failed: %v", resp.Error)
+	_, err = setup.storage.UploadFile(bucket, path, bytes.NewReader(testPdf))
+	if err != nil {
+		log.Fatalf("upload failed: %v", err)
 	}
 
 	doc := &pb.Document{
@@ -151,7 +151,7 @@ func (setup *Setup) ChatGenerate() {
 
 	setup.Report.Run("chat_auto_with_pages_invalid", func(t testing) bool {
 		promptWithDoc := &pb.Prompt{
-			Prompt:       "What is the color of Clancy the Crab's house? Answer with one word",
+			Prompt:       "What is the color of Clancy the Crab's house?",
 			CollectionId: collection.Id,
 			Options: &pb.PromptOptions{
 				Model:       openai.GPT3Dot5Turbo,

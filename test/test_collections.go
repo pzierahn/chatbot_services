@@ -10,7 +10,7 @@ import (
 
 func (setup *Setup) CollectionCreate() {
 
-	ctx, userId := setup.createRandomSignIn()
+	ctx, userId := setup.createRandomSignInWithoutFunding()
 	defer setup.DeleteUser(userId)
 
 	setup.Report.Run("collection_create_without_auth", func(t testing) bool {
@@ -51,7 +51,7 @@ func (setup *Setup) CollectionCreate() {
 
 func (setup *Setup) CollectionRename() {
 
-	ctx, userId := setup.createRandomSignIn()
+	ctx, userId := setup.createRandomSignInWithoutFunding()
 	defer setup.DeleteUser(userId)
 
 	coll, err := setup.collections.Create(ctx, &pb.Collection{
@@ -100,7 +100,7 @@ func (setup *Setup) CollectionRename() {
 
 func (setup *Setup) CollectionDelete() {
 
-	ctx, userId := setup.createRandomSignIn()
+	ctx, userId := setup.createRandomSignInWithoutFunding()
 	defer setup.DeleteUser(userId)
 
 	coll, err := setup.collections.Create(ctx, &pb.Collection{
