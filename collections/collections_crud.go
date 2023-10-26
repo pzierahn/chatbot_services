@@ -68,14 +68,18 @@ func (server *Service) Delete(ctx context.Context, collection *pb.Collection) (*
 	basePath := fmt.Sprintf("%s/%s", uid, collection.Id)
 
 	var paths []string
-	fileObjs := server.storage.ListFiles(bucket, basePath, supastorage.FileSearchOptions{})
+	fileObjs, err := server.storage.ListFiles(bucket, basePath, supastorage.FileSearchOptions{})
+	if err != nil {
+		return nil, err
+	}
+
 	for _, file := range fileObjs {
 		paths = append(paths, basePath+"/"+file.Name)
 	}
 
-	resp := server.storage.RemoveFile(bucket, paths)
-	if resp.Error != "" {
-		return nil, fmt.Errorf("failed to delete files: %s", resp.Error)
+	_, err = server.storage.RemoveFile(bucket, paths)
+	if err != nil {
+		return nil, fmt.Errorf("failed to delete files: %s", err)
 	}
 
 	return &emptypb.Empty{}, nil

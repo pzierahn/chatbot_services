@@ -40,12 +40,9 @@ func NewTestSetup() Setup {
 	postgresDB := "postgres://postgres:your-super-secret-and-long-postgres-password@localhost:5432/postgres"
 
 	storage := storagego.NewClient(supabaseUrl+"/storage/v1", token, nil)
-	storage.CreateBucket(bucket, storagego.BucketOptions{
+	_, _ = storage.CreateBucket(bucket, storagego.BucketOptions{
 		Public:        false,
 		FileSizeLimit: "50mb",
-		//AllowedMimeTypes: []string{
-		//	"application/pdf",
-		//},
 	})
 
 	ctx := context.Background()
@@ -134,12 +131,12 @@ func (setup *Setup) Close() {
 	setup.db.Close()
 
 	_, emErr := setup.storage.EmptyBucket(bucket)
-	if emErr.Error != "" {
+	if emErr != nil {
 		log.Fatal(emErr)
 	}
 
 	_, delError := setup.storage.DeleteBucket(bucket)
-	if delError.Error != "" {
+	if delError != nil {
 		log.Fatal(delError)
 	}
 

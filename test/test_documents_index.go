@@ -28,9 +28,9 @@ func (setup *Setup) DocumentsIndex() {
 	docId := uuid.NewString()
 	path := fmt.Sprintf("%s/%s/%s.pdf", userId, collection.Id, docId)
 
-	resp := setup.storage.UploadFile(bucket, path, bytes.NewReader(testPdf))
-	if resp.Error != "" {
-		log.Fatalf("upload failed: %v", resp.Error)
+	_, err = setup.storage.UploadFile(bucket, path, bytes.NewReader(testPdf))
+	if err != nil {
+		log.Fatalf("upload failed: %v", err)
 	}
 
 	doc := &pb.Document{
