@@ -1,11 +1,6 @@
-# Brainboost
+# Brainboost Services
 
-## Install postgresql
-
-```bash
-docker pull ankane/pgvector
-docker run -p 5432:5432 -e POSTGRES_PASSWORD=postgres -d ankane/pgvector
-```
+This repository
 
 ## Start docker container(s)
 
@@ -28,11 +23,18 @@ docker run --rm \
 
 ## Run Tests
 
-Start supabase in a shell
-
 ```shell
+#
 # In one terminal
+#
+
 git clone https://github.com/supabase/supabase
 cd supabase/docker
 docker-compose up
+
+#
+# In another terminal
+#
+
+go run cmd/test/test.go
 ```
