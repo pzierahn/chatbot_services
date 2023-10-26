@@ -29,7 +29,7 @@ func (service *Service) GetPayments(ctx context.Context, _ *emptypb.Empty) (*pb.
 	payments := &pb.Payments{}
 
 	for rows.Next() {
-		payment := &pb.Payments_Payment{}
+		payment := &pb.Payment{}
 		var date time.Time
 
 		err = rows.Scan(
@@ -46,28 +46,4 @@ func (service *Service) GetPayments(ctx context.Context, _ *emptypb.Empty) (*pb.
 	}
 
 	return payments, nil
-}
-
-func (service *Service) HasFounding(ctx context.Context) (bool, error) {
-	payments, err := service.GetPayments(ctx, &emptypb.Empty{})
-	if err != nil {
-		return false, err
-	}
-
-	var payedAmount uint32
-	for _, payment := range payments.Items {
-		payedAmount += payment.Amount
-	}
-
-	usages, err := service.GetModelUsages(ctx, &emptypb.Empty{})
-	if err != nil {
-		return false, err
-	}
-
-	var costs uint32
-	for _, usage := range usages.Items {
-		costs += usage.Costs
-	}
-
-	return payedAmount > costs, nil
 }

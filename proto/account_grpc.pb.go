@@ -20,16 +20,18 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	AccountService_GetModelUsages_FullMethodName = "/endpoint.brainboost.account.v1.AccountService/GetModelUsages"
-	AccountService_GetPayments_FullMethodName    = "/endpoint.brainboost.account.v1.AccountService/GetPayments"
+	AccountService_GetCosts_FullMethodName        = "/endpoint.brainboost.account.v1.AccountService/GetCosts"
+	AccountService_GetPayments_FullMethodName     = "/endpoint.brainboost.account.v1.AccountService/GetPayments"
+	AccountService_GetBalanceSheet_FullMethodName = "/endpoint.brainboost.account.v1.AccountService/GetBalanceSheet"
 )
 
 // AccountServiceClient is the client API for AccountService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AccountServiceClient interface {
-	GetModelUsages(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ModelUsages, error)
+	GetCosts(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Costs, error)
 	GetPayments(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Payments, error)
+	GetBalanceSheet(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*BalanceSheet, error)
 }
 
 type accountServiceClient struct {
@@ -40,9 +42,9 @@ func NewAccountServiceClient(cc grpc.ClientConnInterface) AccountServiceClient {
 	return &accountServiceClient{cc}
 }
 
-func (c *accountServiceClient) GetModelUsages(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ModelUsages, error) {
-	out := new(ModelUsages)
-	err := c.cc.Invoke(ctx, AccountService_GetModelUsages_FullMethodName, in, out, opts...)
+func (c *accountServiceClient) GetCosts(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Costs, error) {
+	out := new(Costs)
+	err := c.cc.Invoke(ctx, AccountService_GetCosts_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -58,12 +60,22 @@ func (c *accountServiceClient) GetPayments(ctx context.Context, in *emptypb.Empt
 	return out, nil
 }
 
+func (c *accountServiceClient) GetBalanceSheet(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*BalanceSheet, error) {
+	out := new(BalanceSheet)
+	err := c.cc.Invoke(ctx, AccountService_GetBalanceSheet_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AccountServiceServer is the server API for AccountService service.
 // All implementations must embed UnimplementedAccountServiceServer
 // for forward compatibility
 type AccountServiceServer interface {
-	GetModelUsages(context.Context, *emptypb.Empty) (*ModelUsages, error)
+	GetCosts(context.Context, *emptypb.Empty) (*Costs, error)
 	GetPayments(context.Context, *emptypb.Empty) (*Payments, error)
+	GetBalanceSheet(context.Context, *emptypb.Empty) (*BalanceSheet, error)
 	mustEmbedUnimplementedAccountServiceServer()
 }
 
@@ -71,11 +83,14 @@ type AccountServiceServer interface {
 type UnimplementedAccountServiceServer struct {
 }
 
-func (UnimplementedAccountServiceServer) GetModelUsages(context.Context, *emptypb.Empty) (*ModelUsages, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetModelUsages not implemented")
+func (UnimplementedAccountServiceServer) GetCosts(context.Context, *emptypb.Empty) (*Costs, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCosts not implemented")
 }
 func (UnimplementedAccountServiceServer) GetPayments(context.Context, *emptypb.Empty) (*Payments, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPayments not implemented")
+}
+func (UnimplementedAccountServiceServer) GetBalanceSheet(context.Context, *emptypb.Empty) (*BalanceSheet, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetBalanceSheet not implemented")
 }
 func (UnimplementedAccountServiceServer) mustEmbedUnimplementedAccountServiceServer() {}
 
@@ -90,20 +105,20 @@ func RegisterAccountServiceServer(s grpc.ServiceRegistrar, srv AccountServiceSer
 	s.RegisterService(&AccountService_ServiceDesc, srv)
 }
 
-func _AccountService_GetModelUsages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AccountService_GetCosts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AccountServiceServer).GetModelUsages(ctx, in)
+		return srv.(AccountServiceServer).GetCosts(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AccountService_GetModelUsages_FullMethodName,
+		FullMethod: AccountService_GetCosts_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AccountServiceServer).GetModelUsages(ctx, req.(*emptypb.Empty))
+		return srv.(AccountServiceServer).GetCosts(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -126,6 +141,24 @@ func _AccountService_GetPayments_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AccountService_GetBalanceSheet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AccountServiceServer).GetBalanceSheet(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AccountService_GetBalanceSheet_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AccountServiceServer).GetBalanceSheet(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AccountService_ServiceDesc is the grpc.ServiceDesc for AccountService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -134,12 +167,16 @@ var AccountService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*AccountServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetModelUsages",
-			Handler:    _AccountService_GetModelUsages_Handler,
+			MethodName: "GetCosts",
+			Handler:    _AccountService_GetCosts_Handler,
 		},
 		{
 			MethodName: "GetPayments",
 			Handler:    _AccountService_GetPayments_Handler,
+		},
+		{
+			MethodName: "GetBalanceSheet",
+			Handler:    _AccountService_GetBalanceSheet_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

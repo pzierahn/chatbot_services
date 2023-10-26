@@ -15,7 +15,7 @@ type Usage struct {
 	Output uint32
 }
 
-func (service *Service) GetModelUsages(ctx context.Context, _ *emptypb.Empty) (*pb.ModelUsages, error) {
+func (service *Service) GetCosts(ctx context.Context, _ *emptypb.Empty) (*pb.Costs, error) {
 	userID, err := service.auth.ValidateToken(ctx)
 	if err != nil {
 		return nil, err
@@ -31,25 +31,25 @@ func (service *Service) GetModelUsages(ctx context.Context, _ *emptypb.Empty) (*
 	}
 	defer rows.Close()
 
-	var usages pb.ModelUsages
+	var costs pb.Costs
 	for rows.Next() {
-		var usage pb.ModelUsages_Usage
+		var model pb.ModelCosts
 		err = rows.Scan(
-			&usage.Model,
-			&usage.Input,
-			&usage.Output,
+			&model.Model,
+			&model.Input,
+			&model.Output,
 		)
 		if err != nil {
 			return nil, err
 		}
 
-		usage.Costs += uint32(float32(usage.Input)*inputCosts[usage.Model]) / 10
-		usage.Costs += uint32(float32(usage.Output)*outputCosts[usage.Model]) / 10
+		model.Costs += uint32(float32(model.Input)*inputCosts[model.Model]) / 10
+		model.Costs += uint32(float32(model.Output)*outputCosts[model.Model]) / 10
 
-		usages.Items = append(usages.Items, &usage)
+		costs.Models = append(costs.Models, &model)
 	}
 
-	return &usages, nil
+	return &costs, nil
 }
 
 // CreateUsage inserts a new usage record into the openai_usage table
