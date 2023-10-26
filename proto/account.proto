@@ -17,6 +17,7 @@ message ModelUsages {
     string model = 1;
     uint32 input = 2;
     uint32 output = 3;
+    uint32 costs = 4;
   }
 
   repeated Usage items = 1;

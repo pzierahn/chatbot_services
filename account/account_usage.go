@@ -37,10 +37,14 @@ func (service *Service) GetModelUsages(ctx context.Context, _ *emptypb.Empty) (*
 		err = rows.Scan(
 			&usage.Model,
 			&usage.Input,
-			&usage.Output)
+			&usage.Output,
+		)
 		if err != nil {
 			return nil, err
 		}
+
+		usage.Costs += uint32((float32(usage.Input) / 1000) * inputCosts[usage.Model])
+		usage.Costs += uint32((float32(usage.Output) / 1000) * outputCosts[usage.Model])
 
 		usages.Items = append(usages.Items, &usage)
 	}
