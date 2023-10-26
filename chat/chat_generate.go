@@ -26,7 +26,7 @@ func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMe
 	}
 
 	if !founding {
-		return nil, fmt.Errorf("no founding")
+		return nil, account.NoFoundingError()
 	}
 
 	var bg *chatContext

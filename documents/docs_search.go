@@ -2,7 +2,6 @@ package documents
 
 import (
 	"context"
-	"fmt"
 	"github.com/google/uuid"
 	"github.com/pgvector/pgvector-go"
 	"github.com/pzierahn/brainboost/account"
@@ -31,7 +30,7 @@ func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.
 	}
 
 	if !founding {
-		return nil, fmt.Errorf("no founding")
+		return nil, account.NoFoundingError()
 	}
 
 	resp, err := service.gpt.CreateEmbeddings(
