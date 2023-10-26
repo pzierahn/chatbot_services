@@ -1,8 +1,20 @@
 # Brainboost Services
 
-This repository
+This repository contains gRPC services for the Brainboost App
 
-## Start docker container(s)
+## Run locally
+
+To kickstart your journey with these services, you can use the following commands:
+
+### Start the server
+
+To start the server, run the following command:
+
+```bash
+go run cmd/server/server.go
+```
+
+Or use the following command to start the server with an envoy proxy:
 
 ```bash
 # Use docker-compose to start service and gateway
@@ -21,20 +33,32 @@ docker run --rm \
     -it brainboost
 ```
 
-## Run Tests
+### Run tests
 
-```shell
-#
-# In one terminal
-#
+To run the tests, run the following command:
 
+```bash
+# Tests require a running local Supabase instance
 git clone https://github.com/supabase/supabase
 cd supabase/docker
 docker-compose up
 
-#
-# In another terminal
-#
-
+# Run tests with
 go run cmd/test/test.go
 ```
+
+## Deploy a new release
+
+Prepare a new release by following these steps:
+
+1. Update the changelog in `CHANGELOG.md`
+2. Update dependencies `go get -u all`
+3. Commit changes `git commit -am "Release vX.X.X"`
+4. Push changes `git push`
+5. Create a new git tag:
+    1. `git tag -a vX.X.X -m "Release vX.X.X"`
+    2. `git push origin vX.X.X`
+6. Merge `main` branch into `stable` branch
+
+After the release is merged into the `stable` branch, the new release will be automatically deployed by using Google
+Cloud Run.
