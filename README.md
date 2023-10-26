@@ -1,10 +1,28 @@
 # Brainboost Services
 
-This repository contains gRPC services for the Brainboost App
+This repository contains gRPC services for the Brainboost App. These services require a
+running [Supabase](https://supabase.com/) instance.
 
 ## Run locally
 
 To kickstart your journey with these services, you can use the following commands:
+
+### Set environment variables
+
+Before you can start the server, you need to set the following environment variables:
+
+```bash
+# OpenAI API key
+export OPENAI_API_KEY=""
+# Supabase database name
+export SUPABASE_DB=""
+# Supabase URL
+export SUPABASE_URL=""
+# Supabase storage token
+export SUPABASE_STORAGE_TOKEN=""
+# Supabase JWT secret
+export SUPABASE_JWT_SECRET=""
+```
 
 ### Start the server
 
