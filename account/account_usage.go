@@ -5,6 +5,7 @@ import (
 	"github.com/google/uuid"
 	pb "github.com/pzierahn/brainboost/proto"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"log"
 )
 
 type Usage struct {
@@ -43,8 +44,12 @@ func (service *Service) GetModelUsages(ctx context.Context, _ *emptypb.Empty) (*
 			return nil, err
 		}
 
-		usage.Costs += uint32((float32(usage.Input) / 1000) * inputCosts[usage.Model])
-		usage.Costs += uint32((float32(usage.Output) / 1000) * outputCosts[usage.Model])
+		log.Printf("%v: inputCosts=%v outputCosts=%v Input=%d Output=%d",
+			usage.Model,
+			inputCosts[usage.Model], outputCosts[usage.Model],
+			usage.Input, usage.Output)
+		usage.Costs += uint32(float32(usage.Input)*inputCosts[usage.Model]) / 10
+		usage.Costs += uint32(float32(usage.Output)*outputCosts[usage.Model]) / 10
 
 		usages.Items = append(usages.Items, &usage)
 	}
