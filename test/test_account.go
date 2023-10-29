@@ -54,7 +54,7 @@ func (setup *Setup) Account() {
 	}
 
 	setup.Report.Run("account_without_auth", func(t testing) bool {
-		_, err = setup.account.GetModelUsages(context.Background(), &emptypb.Empty{})
+		_, err = setup.account.GetCosts(context.Background(), &emptypb.Empty{})
 		return t.expectError(err)
 	})
 
@@ -71,16 +71,16 @@ func (setup *Setup) Account() {
 			return t.fail(err)
 		}
 
-		usage, err := setup.account.GetModelUsages(ctx, &emptypb.Empty{})
+		usage, err := setup.account.GetCosts(ctx, &emptypb.Empty{})
 		if err != nil {
 			return t.fail(err)
 		}
 
-		if len(usage.Items) == 0 {
+		if len(usage.Models) == 0 {
 			return t.fail(fmt.Errorf("no usage generated"))
 		}
 
-		for _, item := range usage.Items {
+		for _, item := range usage.Models {
 			if item.Model == "" {
 				return t.fail(fmt.Errorf("invalid model name: %v", item.Model))
 			}
