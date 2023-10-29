@@ -6,16 +6,15 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"google.golang.org/grpc/metadata"
-	"os"
 )
 
 type SupabaseAuth struct {
 	jwtSecret []byte
 }
 
-func WithSupabase() Service {
+func WithSupabase(jwtSec string) Service {
 	return &SupabaseAuth{
-		jwtSecret: []byte(os.Getenv("SUPABASE_JWT_SECRET")),
+		jwtSecret: []byte(jwtSec),
 	}
 }
 

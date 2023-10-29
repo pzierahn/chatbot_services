@@ -1,3 +1,5 @@
 /cmd/debug/
 
 .idea
+
+*.env

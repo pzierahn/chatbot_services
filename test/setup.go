@@ -2,6 +2,7 @@ package test
 
 import (
 	"context"
+	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pzierahn/brainboost/account"
 	"github.com/pzierahn/brainboost/auth"
@@ -35,9 +36,15 @@ type Setup struct {
 const bucket = "documents"
 
 func NewTestSetup() Setup {
-	supabaseUrl := os.Getenv("API_EXTERNAL_URL")
-	token := os.Getenv("SERVICE_ROLE_KEY")
-	postgresDB := "postgres://postgres:your-super-secret-and-long-postgres-password@localhost:5432/postgres"
+	supabaseUrl := os.Getenv("TEST_API_EXTERNAL_URL")
+	token := os.Getenv("TEST_SERVICE_ROLE_KEY")
+	dbAddr := os.Getenv("TEST_POSTGRES_URL")
+	dbName := os.Getenv("TEST_POSTGRES_DB")
+	dbPassword := os.Getenv("TEST_POSTGRES_PASSWORD")
+	jwtSecret := os.Getenv("TEST_JWT_SECRET")
+
+	postgresDB := fmt.Sprintf("postgres://postgres:%s@%s/%s", dbPassword, dbAddr, dbName)
+	log.Println(postgresDB)
 
 	storage := storagego.NewClient(supabaseUrl+"/storage/v1", token, nil)
 	_, _ = storage.CreateBucket(bucket, storagego.BucketOptions{
@@ -57,7 +64,7 @@ func NewTestSetup() Setup {
 		log.Fatal(err)
 	}
 
-	supabaseAuth := auth.WithSupabase()
+	supabaseAuth := auth.WithSupabase(jwtSecret)
 
 	acc := account.FromConfig(&account.Config{
 		Auth: supabaseAuth,

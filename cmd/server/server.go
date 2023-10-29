@@ -48,7 +48,8 @@ func main() {
 		os.Getenv("SUPABASE_STORAGE_TOKEN"),
 		nil)
 
-	supabaseAuth := auth.WithSupabase()
+	jwtSec := os.Getenv("SUPABASE_JWT_SECRET")
+	supabaseAuth := auth.WithSupabase(jwtSec)
 
 	grpcServer := grpc.NewServer()
 
