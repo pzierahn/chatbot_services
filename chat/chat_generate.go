@@ -43,7 +43,7 @@ func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMe
 	messages := []openai.ChatCompletionMessage{
 		{
 			Role:    openai.ChatMessageRoleSystem,
-			Content: "Always answer in Markdown format",
+			Content: "Always answer in Markdown format without any code blocks",
 		},
 	}
 
