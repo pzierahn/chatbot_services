@@ -18,6 +18,10 @@ var inputCosts = map[string]float32{
 	openai.GPT432K0613: 0.06,
 	openai.GPT432K0314: 0.06,
 
+	// GPT 4 Turbo
+	openai.GPT4TurboPreview:  0.01,
+	openai.GPT4VisionPreview: 0.01,
+
 	// Embeddings
 	openai.AdaEmbeddingV2.String(): 0.0001,
 }
@@ -37,4 +41,8 @@ var outputCosts = map[string]float32{
 	openai.GPT432K:     0.12,
 	openai.GPT432K0613: 0.12,
 	openai.GPT432K0314: 0.12,
+
+	// GPT 4 Turbo
+	openai.GPT4TurboPreview:  0.03,
+	openai.GPT4VisionPreview: 0.03,
 }
