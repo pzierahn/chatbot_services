@@ -81,3 +81,12 @@ Prepare a new release by following these steps:
 
 After the release is merged into the `stable` branch, the new release will be automatically deployed by using Google
 Cloud Run.
+
+## Database migrations
+
+To run database migrations, you can use the following command:
+
+```bash
+pg_dump -Fc -v -d $SUPABASE_DB -f brainboost.dump
+pg_restore -v -d $NEON_DB brainboost.dump
+```
