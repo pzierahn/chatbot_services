@@ -65,15 +65,19 @@ func PineconeImport(ctx context.Context) {
 			})
 		}
 
-		upsertResult, upsertErr := client.Upsert(ctx, &pinecone_grpc.UpsertRequest{
-			Vectors:   vectors,
-			Namespace: "files",
-		})
+		for inx := 0; inx < len(vectors); inx += 50 {
+			end := min(inx+50, len(vectors))
 
-		if upsertErr != nil {
-			log.Fatalf("upsert error: %v", upsertErr)
-		} else {
-			log.Printf("upsert result: %v", upsertResult)
+			upsertResult, upsertErr := client.Upsert(ctx, &pinecone_grpc.UpsertRequest{
+				Vectors:   vectors[inx:end],
+				Namespace: "files",
+			})
+
+			if upsertErr != nil {
+				log.Fatalf("upsert error: %v", upsertErr)
+			} else {
+				log.Printf("upsert result: %v", upsertResult)
+			}
 		}
 
 		//break
