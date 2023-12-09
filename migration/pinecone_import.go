@@ -54,6 +54,8 @@ func PineconeImport(ctx context.Context) {
 				Fields: map[string]*structpb.Value{
 					"documentId":   {Kind: &structpb.Value_StringValue{StringValue: embedding.DocumentId}},
 					"collectionId": {Kind: &structpb.Value_StringValue{StringValue: doc.CollectionId}},
+					"userId":       {Kind: &structpb.Value_StringValue{StringValue: doc.UserId}},
+					"filename":     {Kind: &structpb.Value_StringValue{StringValue: doc.Filename}},
 					"text":         {Kind: &structpb.Value_StringValue{StringValue: embedding.Text}},
 					"page":         {Kind: &structpb.Value_NumberValue{NumberValue: float64(embedding.Page)}},
 				},
