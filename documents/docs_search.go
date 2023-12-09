@@ -2,7 +2,6 @@ package documents
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/google/uuid"
 	"github.com/pinecone-io/go-pinecone/pinecone_grpc"
 	"github.com/pzierahn/brainboost/account"
@@ -10,7 +9,6 @@ import (
 	"github.com/sashabaranov/go-openai"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/structpb"
-	"log"
 	"os"
 )
 
@@ -24,29 +22,26 @@ type SearchQuery struct {
 
 func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.SearchResults, error) {
 
-	userID, err := service.auth.ValidateToken(ctx)
+	userId, err := service.auth.ValidateToken(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	founding, err := service.account.HasFunding(ctx)
+	funding, err := service.account.HasFunding(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	if !founding {
+	if !funding {
 		return nil, account.NoFundingError()
 	}
-
-	out, _ := json.MarshalIndent(query, "", "  ")
-	log.Printf("######## query: %s", out)
 
 	resp, err := service.gpt.CreateEmbeddings(
 		ctx,
 		openai.EmbeddingRequestStrings{
 			Model: embeddingsModel,
 			Input: []string{query.Query},
-			User:  userID.String(),
+			User:  userId.String(),
 		},
 	)
 	if err != nil {
@@ -55,7 +50,7 @@ func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.
 
 	promptEmbedding := resp.Data[0].Embedding
 	_, _ = service.account.CreateUsage(ctx, account.Usage{
-		UserId: userID,
+		UserId: userId,
 		Model:  embeddingsModel.String(),
 		Input:  uint32(resp.Usage.PromptTokens),
 		Output: uint32(resp.Usage.CompletionTokens),
@@ -78,6 +73,19 @@ func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.
 								"$eq": {
 									Kind: &structpb.Value_StringValue{
 										StringValue: query.CollectionId,
+									},
+								},
+							},
+						},
+					},
+				},
+				"userId": {
+					Kind: &structpb.Value_StructValue{
+						StructValue: &structpb.Struct{
+							Fields: map[string]*structpb.Value{
+								"$eq": {
+									Kind: &structpb.Value_StringValue{
+										StringValue: userId.String(),
 									},
 								},
 							},
