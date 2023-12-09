@@ -52,9 +52,10 @@ func PineconeImport(ctx context.Context) {
 		for _, embedding := range embeddings {
 			meta := &structpb.Struct{
 				Fields: map[string]*structpb.Value{
-					"fileId": {Kind: &structpb.Value_StringValue{StringValue: embedding.DocumentId}},
-					"text":   {Kind: &structpb.Value_StringValue{StringValue: embedding.Text}},
-					"page":   {Kind: &structpb.Value_NumberValue{NumberValue: float64(embedding.Page)}},
+					"documentId":   {Kind: &structpb.Value_StringValue{StringValue: embedding.DocumentId}},
+					"collectionId": {Kind: &structpb.Value_StringValue{StringValue: doc.CollectionId}},
+					"text":         {Kind: &structpb.Value_StringValue{StringValue: embedding.Text}},
+					"page":         {Kind: &structpb.Value_NumberValue{NumberValue: float64(embedding.Page)}},
 				},
 			}
 
@@ -70,7 +71,7 @@ func PineconeImport(ctx context.Context) {
 
 			upsertResult, upsertErr := client.Upsert(ctx, &pinecone_grpc.UpsertRequest{
 				Vectors:   vectors[inx:end],
-				Namespace: "files",
+				Namespace: "documents",
 			})
 
 			if upsertErr != nil {
