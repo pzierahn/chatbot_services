@@ -5,7 +5,7 @@
 To run database migrations, you can use the following command:
 
 ```shell
-docker run --rm -it postgres /bin/bash
+docker run --rm -it -e SUPABASE_DB=$SUPABASE_DB postgres /bin/bash
 
 pg_dump -Fc -v -d $SUPABASE_DB -f brainboost.dump
 pg_restore -v -d $AWS_BRAINBOOST_DB brainboost.dump
