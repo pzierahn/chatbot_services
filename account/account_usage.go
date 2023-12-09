@@ -9,7 +9,7 @@ import (
 
 type Usage struct {
 	Id     uuid.UUID
-	UserId uuid.UUID
+	UserId string
 	Model  string
 	Input  uint32
 	Output uint32

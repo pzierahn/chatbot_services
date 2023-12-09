@@ -41,7 +41,7 @@ func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.
 		openai.EmbeddingRequestStrings{
 			Model: embeddingsModel,
 			Input: []string{query.Query},
-			User:  userId.String(),
+			User:  userId,
 		},
 	)
 	if err != nil {
@@ -85,7 +85,7 @@ func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.
 							Fields: map[string]*structpb.Value{
 								"$eq": {
 									Kind: &structpb.Value_StringValue{
-										StringValue: userId.String(),
+										StringValue: userId,
 									},
 								},
 							},

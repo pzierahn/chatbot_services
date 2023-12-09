@@ -67,7 +67,7 @@ func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMe
 			MaxTokens:   int(prompt.Options.MaxTokens),
 			Messages:    messages,
 			N:           1,
-			User:        userId.String(),
+			User:        userId,
 		},
 	)
 	if err != nil {

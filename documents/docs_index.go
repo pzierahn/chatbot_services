@@ -3,7 +3,6 @@ package documents
 import (
 	"context"
 	"errors"
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/pgvector/pgvector-go"
 	"github.com/pzierahn/brainboost/account"
@@ -16,7 +15,7 @@ import (
 )
 
 type embeddingsBatch struct {
-	userID uuid.UUID
+	userId string
 	pages  []string
 	stream pb.DocumentService_IndexServer
 }
@@ -78,7 +77,7 @@ func (service *Service) processEmbeddings(ctx context.Context, batch *embeddings
 				openai.EmbeddingRequestStrings{
 					Model: embeddingsModel,
 					Input: []string{page},
-					User:  batch.userID.String(),
+					User:  batch.userId,
 				},
 			)
 
@@ -169,7 +168,7 @@ func (service *Service) Index(doc *pb.Document, stream pb.DocumentService_IndexS
 	}
 
 	embeddings, inputTokens, err := service.processEmbeddings(ctx, &embeddingsBatch{
-		userID: userId,
+		userId: userId,
 		pages:  pages,
 		stream: stream,
 	})
@@ -180,7 +179,7 @@ func (service *Service) Index(doc *pb.Document, stream pb.DocumentService_IndexS
 
 	err = service.insertEmbeddings(ctx, &document{
 		id:           doc.Id,
-		userId:       userId.String(),
+		userId:       userId,
 		collectionId: doc.CollectionId,
 		filename:     doc.Filename,
 		path:         doc.Path,

@@ -11,7 +11,7 @@ import (
 
 type chatMessage struct {
 	id           string
-	userId       uuid.UUID
+	userId       string
 	collectionId string
 	prompt       string
 	completion   string
@@ -86,7 +86,7 @@ func (service *Service) GetChatMessages(ctx context.Context, collection *pb.Coll
 	return messages, nil
 }
 
-func (service *Service) getChatMessageDocuments(ctx context.Context, userId uuid.UUID, message *pb.ChatMessage) ([]*pb.ChatMessage_Document, error) {
+func (service *Service) getChatMessageDocuments(ctx context.Context, userId string, message *pb.ChatMessage) ([]*pb.ChatMessage_Document, error) {
 	rows, err := service.db.Query(ctx,
 		`SELECT de.id, doc.id, doc.filename, de.page
 			FROM chat_message AS cm,

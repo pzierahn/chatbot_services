@@ -73,7 +73,7 @@ func (service *Service) getPageContent(ctx context.Context, query PageContentQue
 	return strings.Join(fragments, "\n"), &doc, nil
 }
 
-func (service *Service) getBackgroundFromPrompt(ctx context.Context, userID uuid.UUID, prompt *pb.Prompt) (*chatContext, error) {
+func (service *Service) getBackgroundFromPrompt(ctx context.Context, userId string, prompt *pb.Prompt) (*chatContext, error) {
 	sort.Slice(prompt.Documents, func(i, j int) bool {
 		return prompt.Documents[i].Filename < prompt.Documents[j].Filename
 	})
@@ -89,7 +89,7 @@ func (service *Service) getBackgroundFromPrompt(ctx context.Context, userID uuid
 		fragment, content, err := service.getPageContent(ctx, PageContentQuery{
 			DocumentId:   doc.Id,
 			CollectionId: prompt.CollectionId,
-			UserId:       userID.String(),
+			UserId:       userId,
 			Pages:        doc.Pages,
 		})
 		if err != nil {
