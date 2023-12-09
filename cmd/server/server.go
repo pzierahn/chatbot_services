@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"crypto/tls"
-	"flag"
+	firebase "firebase.google.com/go"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pinecone-io/go-pinecone/pinecone_grpc"
 	"github.com/pzierahn/brainboost/account"
@@ -15,6 +15,7 @@ import (
 	"github.com/pzierahn/brainboost/setup"
 	"github.com/sashabaranov/go-openai"
 	storagego "github.com/supabase-community/storage-go"
+	"google.golang.org/api/option"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/metadata"
@@ -23,14 +24,27 @@ import (
 	"os"
 )
 
+const credentialsFile = "service_account.json"
+
 func init() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	flag.Parse()
 }
 
 func main() {
 
 	ctx := context.Background()
+
+	var opts []option.ClientOption
+
+	if _, err := os.Stat(credentialsFile); err == nil {
+		serviceAccount := option.WithCredentialsFile(credentialsFile)
+		opts = append(opts, serviceAccount)
+	}
+
+	app, err := firebase.NewApp(ctx, nil, opts...)
+	if err != nil {
+		log.Fatalf("failed to create firebase app: %v", err)
+	}
 
 	addr := os.Getenv("SUPABASE_DB")
 	db, err := pgxpool.New(ctx, addr)
@@ -52,8 +66,10 @@ func main() {
 		os.Getenv("SUPABASE_STORAGE_TOKEN"),
 		nil)
 
-	jwtSec := os.Getenv("SUPABASE_JWT_SECRET")
-	supabaseAuth := auth.WithSupabase(jwtSec)
+	supabaseAuth, err := auth.WithFirebase(ctx, app)
+	if err != nil {
+		log.Fatalf("failed to create auth service: %v", err)
+	}
 
 	grpcServer := grpc.NewServer()
 
