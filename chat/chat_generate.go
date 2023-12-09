@@ -26,7 +26,7 @@ func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMe
 	}
 
 	if !funding {
-		return nil, account.NoFoundingError()
+		return nil, account.NoFundingError()
 	}
 
 	var bg *chatContext

@@ -160,7 +160,7 @@ func (service *Service) Index(doc *pb.Document, stream pb.DocumentService_IndexS
 	}
 
 	if !founding {
-		return account.NoFoundingError()
+		return account.NoFundingError()
 	}
 
 	pages, err := service.getDocPages(ctx, doc.Path)
