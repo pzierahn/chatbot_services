@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"flag"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/pinecone-io/go-pinecone/pinecone_grpc"
 	"github.com/pzierahn/brainboost/account"
 	"github.com/pzierahn/brainboost/auth"
 	"github.com/pzierahn/brainboost/chat"
@@ -14,6 +16,8 @@ import (
 	"github.com/sashabaranov/go-openai"
 	storagego "github.com/supabase-community/storage-go"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/metadata"
 	"log"
 	"net"
 	"os"
@@ -62,12 +66,34 @@ func main() {
 	})
 	pb.RegisterAccountServiceServer(grpcServer, accountService)
 
+	config := &tls.Config{}
+
+	ctx = metadata.AppendToOutgoingContext(ctx, "api-key", os.Getenv("PINECONE_KEY"))
+	target := os.Getenv("PINECONE_URL")
+
+	log.Printf("connecting to %v", target)
+
+	conn, err := grpc.DialContext(
+		ctx,
+		target,
+		grpc.WithTransportCredentials(credentials.NewTLS(config)),
+		grpc.WithAuthority(target),
+		grpc.WithBlock(),
+	)
+	if err != nil {
+		log.Fatalf("fail to dial: %v", err)
+	}
+	defer func() { _ = conn.Close() }()
+
+	pineconeClient := pinecone_grpc.NewVectorServiceClient(conn)
+
 	docsService := documents.FromConfig(&documents.Config{
-		Auth:    supabaseAuth,
-		Account: accountService,
-		DB:      db,
-		GPT:     gpt,
-		Storage: storage,
+		Auth:     supabaseAuth,
+		Account:  accountService,
+		DB:       db,
+		GPT:      gpt,
+		Storage:  storage,
+		Pinecone: pineconeClient,
 	})
 	pb.RegisterDocumentServiceServer(grpcServer, docsService)
 
