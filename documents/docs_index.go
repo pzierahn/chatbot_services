@@ -154,7 +154,7 @@ func (service *Service) Index(doc *pb.Document, stream pb.DocumentService_IndexS
 		return err
 	}
 
-	founding, err := service.account.HasFounding(ctx)
+	founding, err := service.account.HasFunding(ctx)
 	if err != nil {
 		return err
 	}

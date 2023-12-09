@@ -24,7 +24,7 @@ func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.
 		return nil, err
 	}
 
-	founding, err := service.account.HasFounding(ctx)
+	founding, err := service.account.HasFunding(ctx)
 	if err != nil {
 		return nil, err
 	}

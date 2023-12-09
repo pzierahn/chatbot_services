@@ -20,12 +20,12 @@ func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMe
 		return nil, fmt.Errorf("options missing")
 	}
 
-	founding, err := service.account.HasFounding(ctx)
+	funding, err := service.account.HasFunding(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	if !founding {
+	if !funding {
 		return nil, account.NoFoundingError()
 	}
 
