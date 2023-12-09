@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	pb "github.com/pzierahn/brainboost/proto"
-	supastorage "github.com/supabase-community/storage-go"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"log"
 )
 
 func (server *Service) Create(ctx context.Context, collection *pb.Collection) (*pb.Collection, error) {
@@ -57,29 +57,41 @@ func (server *Service) Delete(ctx context.Context, collection *pb.Collection) (*
 		return nil, err
 	}
 
+	// Get all document chunk ids
+	rows, err := server.db.Query(
+		ctx,
+		`SELECT id FROM documents WHERE collection_id = $1 AND user_id = $2`,
+		collection.Id, uid)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch document ids: %s", err)
+	}
+
+	var ids []string
+	for rows.Next() {
+		var id string
+		err = rows.Scan(&id)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan document id: %s", err)
+		}
+		ids = append(ids, id)
+	}
+
 	_, err = server.db.Exec(
 		ctx,
-		`delete from collections where id = $1 and user_id = $2`,
+		`DELETE FROM collections WHERE id = $1 AND user_id = $2`,
 		collection.Id, uid)
 	if err != nil {
 		return nil, fmt.Errorf("failed to delete collection: %s", err)
 	}
 
-	basePath := fmt.Sprintf("%s/%s", uid, collection.Id)
+	for _, id := range ids {
+		basePath := fmt.Sprintf("documents/%s/%s/%s.pdf", uid, collection.Id, id)
+		log.Printf("deleting %s", basePath)
 
-	var paths []string
-	fileObjs, err := server.storage.ListFiles(bucket, basePath, supastorage.FileSearchOptions{})
-	if err != nil {
-		return nil, err
-	}
-
-	for _, file := range fileObjs {
-		paths = append(paths, basePath+"/"+file.Name)
-	}
-
-	_, err = server.storage.RemoveFile(bucket, paths)
-	if err != nil {
-		return nil, fmt.Errorf("failed to delete files: %s", err)
+		err = server.storage.Object(basePath).Delete(ctx)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return &emptypb.Empty{}, nil

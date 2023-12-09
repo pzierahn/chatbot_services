@@ -21,7 +21,8 @@ func (service *Service) Delete(ctx context.Context, req *pb.Document) (*emptypb.
 		return nil, err
 	}
 
-	_, err = service.storage.RemoveFile(bucket, []string{req.Path})
+	obj := service.storage.Object(req.Path)
+	err = obj.Delete(ctx)
 	if err != nil {
 		return nil, err
 	}

@@ -14,7 +14,6 @@ import (
 	pb "github.com/pzierahn/brainboost/proto"
 	"github.com/pzierahn/brainboost/setup"
 	"github.com/sashabaranov/go-openai"
-	storagego "github.com/supabase-community/storage-go"
 	"google.golang.org/api/option"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -46,7 +45,17 @@ func main() {
 		log.Fatalf("failed to create firebase app: %v", err)
 	}
 
-	addr := os.Getenv("SUPABASE_DB")
+	firebaseStorage, err := app.Storage(ctx)
+	if err != nil {
+		log.Fatalf("failed to create firebase storage client: %v", err)
+	}
+
+	bucket, err := firebaseStorage.Bucket("brainboost-399710.appspot.com")
+	if err != nil {
+		log.Fatalf("did not get bucket: %v", err)
+	}
+
+	addr := os.Getenv("BRAINBOOST_COCKROACH_DB")
 	db, err := pgxpool.New(ctx, addr)
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
@@ -61,11 +70,6 @@ func main() {
 	token := os.Getenv("OPENAI_API_KEY")
 	gpt := openai.NewClient(token)
 
-	storage := storagego.NewClient(
-		os.Getenv("SUPABASE_URL")+"/storage/v1",
-		os.Getenv("SUPABASE_STORAGE_TOKEN"),
-		nil)
-
 	supabaseAuth, err := auth.WithFirebase(ctx, app)
 	if err != nil {
 		log.Fatalf("failed to create auth service: %v", err)
@@ -73,7 +77,7 @@ func main() {
 
 	grpcServer := grpc.NewServer()
 
-	collectionServer := collections.NewServer(supabaseAuth, db, storage)
+	collectionServer := collections.NewServer(supabaseAuth, db, bucket)
 	pb.RegisterCollectionServiceServer(grpcServer, collectionServer)
 
 	accountService := account.FromConfig(&account.Config{
@@ -108,7 +112,7 @@ func main() {
 		Account:  accountService,
 		DB:       db,
 		GPT:      gpt,
-		Storage:  storage,
+		Storage:  bucket,
 		Pinecone: pineconeClient,
 	})
 	pb.RegisterDocumentServiceServer(grpcServer, docsService)

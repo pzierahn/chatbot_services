@@ -1,13 +1,13 @@
 package documents
 
 import (
+	"cloud.google.com/go/storage"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pinecone-io/go-pinecone/pinecone_grpc"
 	"github.com/pzierahn/brainboost/account"
 	"github.com/pzierahn/brainboost/auth"
 	pb "github.com/pzierahn/brainboost/proto"
 	"github.com/sashabaranov/go-openai"
-	storage_go "github.com/supabase-community/storage-go"
 )
 
 const (
@@ -21,7 +21,7 @@ type Service struct {
 	account  *account.Service
 	db       *pgxpool.Pool
 	gpt      *openai.Client
-	storage  *storage_go.Client
+	storage  *storage.BucketHandle
 	pinecone pinecone_grpc.VectorServiceClient
 }
 
@@ -30,7 +30,7 @@ type Config struct {
 	Account  *account.Service
 	DB       *pgxpool.Pool
 	GPT      *openai.Client
-	Storage  *storage_go.Client
+	Storage  *storage.BucketHandle
 	Pinecone pinecone_grpc.VectorServiceClient
 }
 

@@ -3,12 +3,18 @@ package documents
 import (
 	"context"
 	"errors"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/pgvector/pgvector-go"
+	"github.com/pinecone-io/go-pinecone/pinecone_grpc"
 	"github.com/pzierahn/brainboost/account"
 	"github.com/pzierahn/brainboost/pdf"
 	pb "github.com/pzierahn/brainboost/proto"
 	"github.com/sashabaranov/go-openai"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/protobuf/types/known/structpb"
+	"io"
+	"log"
+	"os"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -36,7 +42,15 @@ type embedding struct {
 }
 
 func (service *Service) getDocPages(ctx context.Context, path string) ([]string, error) {
-	raw, err := service.storage.DownloadFile(bucket, path)
+
+	obj := service.storage.Object(path)
+	read, err := obj.NewReader(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = read.Close() }()
+
+	raw, err := io.ReadAll(read)
 	if err != nil {
 		return nil, err
 	}
@@ -129,15 +143,53 @@ func (service *Service) insertEmbeddings(ctx context.Context, doc *document) err
 		return err
 	}
 
+	var vectors []*pinecone_grpc.Vector
+
 	for _, fragment := range doc.embeddings {
+		chunkId := uuid.NewString()
+
 		_, err = tx.Exec(ctx,
-			`insert into document_chunks (document_id, page, text, embedding)
+			`insert into document_chunks (id, document_id, page, text)
 				values ($1, $2, $3, $4)`,
+			chunkId,
 			doc.id,
 			fragment.Page,
 			fragment.Text,
-			pgvector.NewVector(fragment.Embedding))
+		)
 		if err != nil {
+			return err
+		}
+
+		meta := &structpb.Struct{
+			Fields: map[string]*structpb.Value{
+				"documentId":   {Kind: &structpb.Value_StringValue{StringValue: doc.id}},
+				"collectionId": {Kind: &structpb.Value_StringValue{StringValue: doc.collectionId}},
+				"userId":       {Kind: &structpb.Value_StringValue{StringValue: doc.userId}},
+				"filename":     {Kind: &structpb.Value_StringValue{StringValue: doc.filename}},
+				"text":         {Kind: &structpb.Value_StringValue{StringValue: fragment.Text}},
+				"page":         {Kind: &structpb.Value_NumberValue{NumberValue: float64(fragment.Page)}},
+			},
+		}
+
+		vectors = append(vectors, &pinecone_grpc.Vector{
+			Id:       chunkId,
+			Values:   fragment.Embedding,
+			Metadata: meta,
+		})
+	}
+
+	pineCtx := metadata.AppendToOutgoingContext(context.Background(), "api-key", os.Getenv("PINECONE_KEY"))
+
+	for inx := 0; inx < len(vectors); inx += 50 {
+		end := min(inx+50, len(vectors))
+
+		_, err = service.pinecone.Upsert(pineCtx, &pinecone_grpc.UpsertRequest{
+			Vectors:   vectors[inx:end],
+			Namespace: "documents",
+		})
+
+		if err != nil {
+			log.Printf("upsert error: %v", err)
 			return err
 		}
 	}
@@ -167,13 +219,15 @@ func (service *Service) Index(doc *pb.Document, stream pb.DocumentService_IndexS
 		return err
 	}
 
+	obj := service.storage.Object(doc.Path)
+
 	embeddings, inputTokens, err := service.processEmbeddings(ctx, &embeddingsBatch{
 		userId: userId,
 		pages:  pages,
 		stream: stream,
 	})
 	if err != nil {
-		_, _ = service.storage.RemoveFile(bucket, []string{doc.Path})
+		_ = obj.Delete(ctx)
 		return err
 	}
 
@@ -186,7 +240,7 @@ func (service *Service) Index(doc *pb.Document, stream pb.DocumentService_IndexS
 		embeddings:   embeddings,
 	})
 	if err != nil {
-		_, _ = service.storage.RemoveFile(bucket, []string{doc.Path})
+		_ = obj.Delete(ctx)
 		return err
 	}
 
