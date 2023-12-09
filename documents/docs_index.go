@@ -174,7 +174,7 @@ func (service *Service) Index(doc *pb.Document, stream pb.DocumentService_IndexS
 		stream: stream,
 	})
 	if err != nil {
-		service.storage.RemoveFile(bucket, []string{doc.Path})
+		_, _ = service.storage.RemoveFile(bucket, []string{doc.Path})
 		return err
 	}
 
@@ -187,7 +187,7 @@ func (service *Service) Index(doc *pb.Document, stream pb.DocumentService_IndexS
 		embeddings:   embeddings,
 	})
 	if err != nil {
-		service.storage.RemoveFile(bucket, []string{doc.Path})
+		_, _ = service.storage.RemoveFile(bucket, []string{doc.Path})
 		return err
 	}
 
