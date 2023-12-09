@@ -131,7 +131,7 @@ func (service *Service) insertEmbeddings(ctx context.Context, doc *document) err
 
 	for _, fragment := range doc.embeddings {
 		_, err = tx.Exec(ctx,
-			`insert into document_embeddings (document_id, page, text, embedding)
+			`insert into document_chunks (document_id, page, text, embedding)
 				values ($1, $2, $3, $4)`,
 			doc.id,
 			fragment.Page,

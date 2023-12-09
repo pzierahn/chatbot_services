@@ -27,7 +27,7 @@ func (service *Service) storeChatMessage(ctx context.Context, message chatMessag
 	defer func() { _ = transaction.Rollback(ctx) }()
 
 	_, err = transaction.Exec(ctx,
-		`INSERT INTO chat_message (id, user_id, collection_id, prompt, completion)
+		`INSERT INTO chat_messages (id, user_id, collection_id, prompt, completion)
 		VALUES ($1, $2, $3, $4, $5)`,
 		message.id,
 		message.userId,
@@ -40,7 +40,7 @@ func (service *Service) storeChatMessage(ctx context.Context, message chatMessag
 
 	for _, source := range message.references {
 		_, err = transaction.Exec(ctx,
-			`INSERT INTO chat_message_source (chat_message_id, document_embeddings_id)
+			`INSERT INTO chat_message_references (chat_message_id, document_chunk_id)
 			VALUES ($1, $2)`,
 			message.id, source)
 		if err != nil {
@@ -63,7 +63,7 @@ func (service *Service) GetChatMessages(ctx context.Context, collection *pb.Coll
 	}
 
 	rows, err := service.db.Query(ctx,
-		`SELECT id FROM chat_message
+		`SELECT id FROM chat_messages
           WHERE user_id = $1 AND
                 collection_id = $2
           ORDER BY created_at DESC`,
@@ -89,12 +89,12 @@ func (service *Service) GetChatMessages(ctx context.Context, collection *pb.Coll
 func (service *Service) getChatMessageDocuments(ctx context.Context, userId string, message *pb.ChatMessage) ([]*pb.ChatMessage_Document, error) {
 	rows, err := service.db.Query(ctx,
 		`SELECT de.id, doc.id, doc.filename, de.page
-			FROM chat_message AS cm,
-				 chat_message_source AS cms,
+			FROM chat_messages AS cm,
+				 chat_message_references AS cms,
 				 documents AS doc,
-				 document_embeddings as de
+				 document_chunks as de
 			WHERE cm.id = cms.chat_message_id AND
-			      cms.document_embeddings_id = de.id AND
+			      cms.document_chunk_id = de.id AND
 			      doc.id = de.document_id AND
 			      cm.id = $1 AND
 			      cm.user_id = $2 AND
@@ -156,7 +156,7 @@ func (service *Service) GetChatMessage(ctx context.Context, id *pb.MessageID) (*
 
 	err = service.db.QueryRow(ctx,
 		`SELECT id, collection_id, created_at, prompt, completion
-			FROM chat_message
+			FROM chat_messages
 			WHERE id = $1 AND
 			      user_id = $2`,
 		id.Id, userId).Scan(
