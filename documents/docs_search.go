@@ -2,11 +2,16 @@ package documents
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/google/uuid"
-	"github.com/pgvector/pgvector-go"
+	"github.com/pinecone-io/go-pinecone/pinecone_grpc"
 	"github.com/pzierahn/brainboost/account"
 	pb "github.com/pzierahn/brainboost/proto"
 	"github.com/sashabaranov/go-openai"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/protobuf/types/known/structpb"
+	"log"
+	"os"
 )
 
 type SearchQuery struct {
@@ -33,6 +38,9 @@ func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.
 		return nil, account.NoFundingError()
 	}
 
+	out, _ := json.MarshalIndent(query, "", "  ")
+	log.Printf("######## query: %s", out)
+
 	resp, err := service.gpt.CreateEmbeddings(
 		ctx,
 		openai.EmbeddingRequestStrings{
@@ -53,42 +61,61 @@ func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.
 		Output: uint32(resp.Usage.CompletionTokens),
 	})
 
-	rows, err := service.db.Query(
-		ctx,
-		`SELECT em.id, document_id, filename, page, text, (1 - (embedding <=> $1)) AS score
-			FROM document_embeddings AS em JOIN documents AS doc ON doc.id = em.document_id
-			where (1 - (embedding <=> $1)) >= $2 AND
-			      doc.user_id = $3 AND
-			      ($4 = '' OR doc.collection_id = $4::uuid)
-			ORDER BY score DESC
-		 	LIMIT $5`,
-		pgvector.NewVector(promptEmbedding),
-		query.Threshold,
-		userID,
-		query.CollectionId,
-		query.Limit)
+	ctx = metadata.AppendToOutgoingContext(ctx, "api-key", os.Getenv("PINECONE_KEY"))
 
+	queryResult, err := service.pinecone.Query(ctx, &pinecone_grpc.QueryRequest{
+		Queries: []*pinecone_grpc.QueryVector{
+			{
+				Values: promptEmbedding,
+			},
+		},
+		Filter: &structpb.Struct{
+			Fields: map[string]*structpb.Value{
+				"collectionId": {
+					Kind: &structpb.Value_StructValue{
+						StructValue: &structpb.Struct{
+							Fields: map[string]*structpb.Value{
+								"$eq": {
+									Kind: &structpb.Value_StringValue{
+										StringValue: query.CollectionId,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		TopK:            200,
+		IncludeValues:   false,
+		IncludeMetadata: true,
+		Namespace:       "documents",
+	})
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 
 	results := &pb.SearchResults{}
-	for rows.Next() {
-		var doc pb.SearchResults_Document
 
-		err = rows.Scan(
-			&doc.Id,
-			&doc.DocumentId,
-			&doc.Filename,
-			&doc.Page,
-			&doc.Content,
-			&doc.Score)
-		if err != nil {
-			return nil, err
+	for _, item := range queryResult.Results[0].Matches {
+		if item.Score < query.Threshold {
+			break
 		}
 
-		results.Items = append(results.Items, &doc)
+		if len(results.Items) >= int(query.Limit) {
+			break
+		}
+
+		doc := &pb.SearchResults_Document{
+			Id:         item.Id,
+			DocumentId: item.Metadata.Fields["documentId"].GetStringValue(),
+			Filename:   item.Metadata.Fields["filename"].GetStringValue(),
+			Page:       uint32(item.Metadata.Fields["page"].GetNumberValue()),
+			Content:    item.Metadata.Fields["text"].GetStringValue(),
+			Score:      item.Score,
+		}
+
+		results.Items = append(results.Items, doc)
 	}
 
 	return results, nil
