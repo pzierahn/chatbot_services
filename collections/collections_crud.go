@@ -3,6 +3,7 @@ package collections
 import (
 	"context"
 	"fmt"
+	"github.com/pinecone-io/go-pinecone/pinecone_grpc"
 	pb "github.com/pzierahn/brainboost/proto"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"log"
@@ -92,6 +93,15 @@ func (server *Service) Delete(ctx context.Context, collection *pb.Collection) (*
 		if err != nil {
 			return nil, err
 		}
+	}
+
+	_, err = server.pinecone.Delete(ctx, &pinecone_grpc.DeleteRequest{
+		Ids:       ids,
+		DeleteAll: false,
+		Namespace: "documents",
+	})
+	if err != nil {
+		return nil, err
 	}
 
 	return &emptypb.Empty{}, nil

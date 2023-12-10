@@ -75,17 +75,6 @@ func main() {
 		log.Fatalf("failed to create auth service: %v", err)
 	}
 
-	grpcServer := grpc.NewServer()
-
-	collectionServer := collections.NewServer(supabaseAuth, db, bucket)
-	pb.RegisterCollectionServiceServer(grpcServer, collectionServer)
-
-	accountService := account.FromConfig(&account.Config{
-		Auth: supabaseAuth,
-		DB:   db,
-	})
-	pb.RegisterAccountServiceServer(grpcServer, accountService)
-
 	config := &tls.Config{}
 
 	ctx = metadata.AppendToOutgoingContext(ctx, "api-key", os.Getenv("PINECONE_KEY"))
@@ -106,6 +95,16 @@ func main() {
 	defer func() { _ = conn.Close() }()
 
 	pineconeClient := pinecone_grpc.NewVectorServiceClient(conn)
+
+	grpcServer := grpc.NewServer()
+	collectionServer := collections.NewServer(supabaseAuth, db, bucket, pineconeClient)
+	pb.RegisterCollectionServiceServer(grpcServer, collectionServer)
+
+	accountService := account.FromConfig(&account.Config{
+		Auth: supabaseAuth,
+		DB:   db,
+	})
+	pb.RegisterAccountServiceServer(grpcServer, accountService)
 
 	docsService := documents.FromConfig(&documents.Config{
 		Auth:     supabaseAuth,

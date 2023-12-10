@@ -27,5 +27,7 @@ func (service *Service) Delete(ctx context.Context, req *pb.Document) (*emptypb.
 		return nil, err
 	}
 
+	// TODO: Delete from search index
+
 	return &emptypb.Empty{}, nil
 }
