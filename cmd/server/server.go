@@ -13,6 +13,7 @@ import (
 	"github.com/pzierahn/brainboost/documents"
 	pb "github.com/pzierahn/brainboost/proto"
 	"github.com/pzierahn/brainboost/setup"
+	"github.com/pzierahn/brainboost/vectordb"
 	"github.com/sashabaranov/go-openai"
 	"google.golang.org/api/option"
 	"google.golang.org/grpc"
@@ -95,6 +96,10 @@ func main() {
 	defer func() { _ = conn.Close() }()
 
 	pineconeClient := pinecone_grpc.NewVectorServiceClient(conn)
+	vecDB, err := vectordb.New()
+	if err != nil {
+		log.Fatalf("failed to create vector db: %v", err)
+	}
 
 	grpcServer := grpc.NewServer()
 	collectionServer := collections.NewServer(supabaseAuth, db, bucket, pineconeClient)
@@ -112,7 +117,7 @@ func main() {
 		DB:       db,
 		GPT:      gpt,
 		Storage:  bucket,
-		Pinecone: pineconeClient,
+		VectorDB: vecDB,
 	})
 	pb.RegisterDocumentServiceServer(grpcServer, docsService)
 

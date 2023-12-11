@@ -12,6 +12,11 @@ func (service *Service) Delete(ctx context.Context, req *pb.Document) (*emptypb.
 		return nil, err
 	}
 
+	ids, err := service.getChunkIds(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+
 	_, err = service.db.Exec(ctx,
 		`DELETE FROM documents WHERE id = $1 AND
                             collection_id = $2 AND
@@ -27,7 +32,10 @@ func (service *Service) Delete(ctx context.Context, req *pb.Document) (*emptypb.
 		return nil, err
 	}
 
-	// TODO: Delete from search index
+	err = service.vectorDB.Delete(ids)
+	if err != nil {
+		return nil, err
+	}
 
 	return &emptypb.Empty{}, nil
 }

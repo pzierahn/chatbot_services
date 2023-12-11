@@ -3,10 +3,10 @@ package documents
 import (
 	"cloud.google.com/go/storage"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/pinecone-io/go-pinecone/pinecone_grpc"
 	"github.com/pzierahn/brainboost/account"
 	"github.com/pzierahn/brainboost/auth"
 	pb "github.com/pzierahn/brainboost/proto"
+	"github.com/pzierahn/brainboost/vectordb"
 	"github.com/sashabaranov/go-openai"
 )
 
@@ -22,7 +22,7 @@ type Service struct {
 	db       *pgxpool.Pool
 	gpt      *openai.Client
 	storage  *storage.BucketHandle
-	pinecone pinecone_grpc.VectorServiceClient
+	vectorDB *vectordb.DB
 }
 
 type Config struct {
@@ -31,7 +31,7 @@ type Config struct {
 	DB       *pgxpool.Pool
 	GPT      *openai.Client
 	Storage  *storage.BucketHandle
-	Pinecone pinecone_grpc.VectorServiceClient
+	VectorDB *vectordb.DB
 }
 
 func FromConfig(config *Config) *Service {
@@ -41,6 +41,6 @@ func FromConfig(config *Config) *Service {
 		db:       config.DB,
 		storage:  config.Storage,
 		account:  config.Account,
-		pinecone: config.Pinecone,
+		vectorDB: config.VectorDB,
 	}
 }

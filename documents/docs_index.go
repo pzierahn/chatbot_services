@@ -5,16 +5,12 @@ import (
 	"errors"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/pinecone-io/go-pinecone/pinecone_grpc"
 	"github.com/pzierahn/brainboost/account"
 	"github.com/pzierahn/brainboost/pdf"
 	pb "github.com/pzierahn/brainboost/proto"
+	"github.com/pzierahn/brainboost/vectordb"
 	"github.com/sashabaranov/go-openai"
-	"google.golang.org/grpc/metadata"
-	"google.golang.org/protobuf/types/known/structpb"
 	"io"
-	"log"
-	"os"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -143,7 +139,7 @@ func (service *Service) insertEmbeddings(ctx context.Context, doc *document) err
 		return err
 	}
 
-	var vectors []*pinecone_grpc.Vector
+	var vectors []*vectordb.Vector
 
 	for _, fragment := range doc.embeddings {
 		chunkId := uuid.NewString()
@@ -160,38 +156,21 @@ func (service *Service) insertEmbeddings(ctx context.Context, doc *document) err
 			return err
 		}
 
-		meta := &structpb.Struct{
-			Fields: map[string]*structpb.Value{
-				"documentId":   {Kind: &structpb.Value_StringValue{StringValue: doc.id}},
-				"collectionId": {Kind: &structpb.Value_StringValue{StringValue: doc.collectionId}},
-				"userId":       {Kind: &structpb.Value_StringValue{StringValue: doc.userId}},
-				"filename":     {Kind: &structpb.Value_StringValue{StringValue: doc.filename}},
-				"text":         {Kind: &structpb.Value_StringValue{StringValue: fragment.Text}},
-				"page":         {Kind: &structpb.Value_NumberValue{NumberValue: float64(fragment.Page)}},
-			},
-		}
-
-		vectors = append(vectors, &pinecone_grpc.Vector{
-			Id:       chunkId,
-			Values:   fragment.Embedding,
-			Metadata: meta,
+		vectors = append(vectors, &vectordb.Vector{
+			Id:           chunkId,
+			DocumentId:   doc.id,
+			CollectionId: doc.collectionId,
+			UserId:       doc.userId,
+			Filename:     doc.filename,
+			Text:         fragment.Text,
+			Page:         fragment.Page,
+			Vector:       fragment.Embedding,
 		})
 	}
 
-	pineCtx := metadata.AppendToOutgoingContext(context.Background(), "api-key", os.Getenv("PINECONE_KEY"))
-
-	for inx := 0; inx < len(vectors); inx += 50 {
-		end := min(inx+50, len(vectors))
-
-		_, err = service.pinecone.Upsert(pineCtx, &pinecone_grpc.UpsertRequest{
-			Vectors:   vectors[inx:end],
-			Namespace: "documents",
-		})
-
-		if err != nil {
-			log.Printf("upsert error: %v", err)
-			return err
-		}
+	err = service.vectorDB.Upsert(vectors)
+	if err != nil {
+		return err
 	}
 
 	return tx.Commit(ctx)

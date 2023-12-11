@@ -18,7 +18,7 @@ type Vector struct {
 	Vector       []float32
 }
 
-func (db *DB) Upsert(items []Vector) error {
+func (db *DB) Upsert(items []*Vector) error {
 
 	var vectors []*pinecone_grpc.Vector
 

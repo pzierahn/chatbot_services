@@ -3,13 +3,10 @@ package documents
 import (
 	"context"
 	"github.com/google/uuid"
-	"github.com/pinecone-io/go-pinecone/pinecone_grpc"
 	"github.com/pzierahn/brainboost/account"
 	pb "github.com/pzierahn/brainboost/proto"
+	"github.com/pzierahn/brainboost/vectordb"
 	"github.com/sashabaranov/go-openai"
-	"google.golang.org/grpc/metadata"
-	"google.golang.org/protobuf/types/known/structpb"
-	"os"
 )
 
 type SearchQuery struct {
@@ -56,75 +53,13 @@ func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.
 		Output: uint32(resp.Usage.CompletionTokens),
 	})
 
-	ctx = metadata.AppendToOutgoingContext(ctx, "api-key", os.Getenv("PINECONE_KEY"))
-
-	queryResult, err := service.pinecone.Query(ctx, &pinecone_grpc.QueryRequest{
-		Queries: []*pinecone_grpc.QueryVector{
-			{
-				Values: promptEmbedding,
-			},
-		},
-		Filter: &structpb.Struct{
-			Fields: map[string]*structpb.Value{
-				"collectionId": {
-					Kind: &structpb.Value_StructValue{
-						StructValue: &structpb.Struct{
-							Fields: map[string]*structpb.Value{
-								"$eq": {
-									Kind: &structpb.Value_StringValue{
-										StringValue: query.CollectionId,
-									},
-								},
-							},
-						},
-					},
-				},
-				"userId": {
-					Kind: &structpb.Value_StructValue{
-						StructValue: &structpb.Struct{
-							Fields: map[string]*structpb.Value{
-								"$eq": {
-									Kind: &structpb.Value_StringValue{
-										StringValue: userId,
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-		},
-		TopK:            200,
-		IncludeValues:   false,
-		IncludeMetadata: true,
-		Namespace:       "documents",
+	results, err := service.vectorDB.Search(vectordb.SearchQuery{
+		UserId:       userId,
+		CollectionId: query.CollectionId,
+		Vector:       promptEmbedding,
+		Limit:        int(query.Limit),
+		Threshold:    query.Threshold,
 	})
-	if err != nil {
-		return nil, err
-	}
 
-	results := &pb.SearchResults{}
-
-	for _, item := range queryResult.Results[0].Matches {
-		if item.Score < query.Threshold {
-			break
-		}
-
-		if len(results.Items) >= int(query.Limit) {
-			break
-		}
-
-		doc := &pb.SearchResults_Document{
-			Id:         item.Id,
-			DocumentId: item.Metadata.Fields["documentId"].GetStringValue(),
-			Filename:   item.Metadata.Fields["filename"].GetStringValue(),
-			Page:       uint32(item.Metadata.Fields["page"].GetNumberValue()),
-			Content:    item.Metadata.Fields["text"].GetStringValue(),
-			Score:      item.Score,
-		}
-
-		results.Items = append(results.Items, doc)
-	}
-
-	return results, nil
+	return results, err
 }
