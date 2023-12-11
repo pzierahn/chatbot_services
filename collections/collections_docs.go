@@ -31,15 +31,11 @@ func (server *Service) collectionDocumentIds(ctx context.Context, userId, collec
 	return ids, nil
 }
 
-func (server *Service) documentChunkIds(ctx context.Context, userId, collectionId string) ([]string, error) {
+func (server *Service) documentChunkIds(ctx context.Context, docIds []string) ([]string, error) {
 
 	rows, err := server.db.Query(ctx,
-		`SELECT id
-		FROM documents
-		WHERE
-		    user_id = $1 AND
-		    collection_id = $2::uuid`,
-		userId, collectionId)
+		`SELECT id FROM document_chunks WHERE document_id = ANY($1::uuid[])`,
+		docIds)
 	if err != nil {
 		return nil, err
 	}

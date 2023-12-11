@@ -61,7 +61,7 @@ func (server *Service) Delete(ctx context.Context, collection *pb.Collection) (*
 		return nil, err
 	}
 
-	chunkIds, err := server.documentChunkIds(ctx, uid, collection.Id)
+	chunkIds, err := server.documentChunkIds(ctx, docIds)
 	if err != nil {
 		return nil, err
 	}

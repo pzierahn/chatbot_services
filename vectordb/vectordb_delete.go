@@ -22,3 +22,19 @@ func (db *DB) Delete(ids []string) error {
 
 	return err
 }
+
+func (db *DB) DeleteAll() error {
+
+	ctx := metadata.AppendToOutgoingContext(
+		context.Background(),
+		"api-key",
+		db.apiKey,
+	)
+
+	_, err := db.client.Delete(ctx, &pinecone_grpc.DeleteRequest{
+		DeleteAll: true,
+		Namespace: "documents",
+	})
+
+	return err
+}
