@@ -1,10 +1,12 @@
 package collections
 
 import (
+	"cloud.google.com/go/storage"
 	"context"
 	"fmt"
 	pb "github.com/pzierahn/brainboost/proto"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"log"
 )
 
 func (server *Service) Create(ctx context.Context, collection *pb.Collection) (*pb.Collection, error) {
@@ -71,9 +73,18 @@ func (server *Service) Delete(ctx context.Context, collection *pb.Collection) (*
 		return nil, err
 	}
 
-	for _, id := range docIds {
-		basePath := fmt.Sprintf("documents/%s/%s/%s.pdf", uid, collection.Id, id)
-		err = server.storage.Object(basePath).Delete(ctx)
+	basePath := fmt.Sprintf("documents/%s/%s", uid, collection.Id)
+
+	iter := server.storage.Objects(ctx, &storage.Query{Prefix: basePath})
+	for {
+		attrs, err := iter.Next()
+		if err != nil {
+			break
+		}
+
+		log.Printf("Delete: %s", attrs.Name)
+
+		err = server.storage.Object(attrs.Name).Delete(ctx)
 		if err != nil {
 			return nil, err
 		}
