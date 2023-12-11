@@ -3,10 +3,8 @@ package collections
 import (
 	"context"
 	"fmt"
-	"github.com/pinecone-io/go-pinecone/pinecone_grpc"
 	pb "github.com/pzierahn/brainboost/proto"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"log"
 )
 
 func (server *Service) Create(ctx context.Context, collection *pb.Collection) (*pb.Collection, error) {
@@ -58,23 +56,27 @@ func (server *Service) Delete(ctx context.Context, collection *pb.Collection) (*
 		return nil, err
 	}
 
-	// Get all document chunk ids
-	rows, err := server.db.Query(
-		ctx,
-		`SELECT id FROM documents WHERE collection_id = $1 AND user_id = $2`,
-		collection.Id, uid)
+	docIds, err := server.collectionDocumentIds(ctx, uid, collection.Id)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch document ids: %s", err)
+		return nil, err
 	}
 
-	var ids []string
-	for rows.Next() {
-		var id string
-		err = rows.Scan(&id)
+	chunkIds, err := server.documentChunkIds(ctx, uid, collection.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	err = server.vectorDB.Delete(chunkIds)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, id := range docIds {
+		basePath := fmt.Sprintf("documents/%s/%s/%s.pdf", uid, collection.Id, id)
+		err = server.storage.Object(basePath).Delete(ctx)
 		if err != nil {
-			return nil, fmt.Errorf("failed to scan document id: %s", err)
+			return nil, err
 		}
-		ids = append(ids, id)
 	}
 
 	_, err = server.db.Exec(
@@ -83,25 +85,6 @@ func (server *Service) Delete(ctx context.Context, collection *pb.Collection) (*
 		collection.Id, uid)
 	if err != nil {
 		return nil, fmt.Errorf("failed to delete collection: %s", err)
-	}
-
-	for _, id := range ids {
-		basePath := fmt.Sprintf("documents/%s/%s/%s.pdf", uid, collection.Id, id)
-		log.Printf("deleting %s", basePath)
-
-		err = server.storage.Object(basePath).Delete(ctx)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	_, err = server.pinecone.Delete(ctx, &pinecone_grpc.DeleteRequest{
-		Ids:       ids,
-		DeleteAll: false,
-		Namespace: "documents",
-	})
-	if err != nil {
-		return nil, err
 	}
 
 	return &emptypb.Empty{}, nil

@@ -2,10 +2,8 @@ package main
 
 import (
 	"context"
-	"crypto/tls"
 	firebase "firebase.google.com/go"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/pinecone-io/go-pinecone/pinecone_grpc"
 	"github.com/pzierahn/brainboost/account"
 	"github.com/pzierahn/brainboost/auth"
 	"github.com/pzierahn/brainboost/chat"
@@ -17,8 +15,6 @@ import (
 	"github.com/sashabaranov/go-openai"
 	"google.golang.org/api/option"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
-	"google.golang.org/grpc/metadata"
 	"log"
 	"net"
 	"os"
@@ -76,33 +72,14 @@ func main() {
 		log.Fatalf("failed to create auth service: %v", err)
 	}
 
-	config := &tls.Config{}
-
-	ctx = metadata.AppendToOutgoingContext(ctx, "api-key", os.Getenv("PINECONE_KEY"))
-	target := os.Getenv("PINECONE_URL")
-
-	log.Printf("connecting to %v", target)
-
-	conn, err := grpc.DialContext(
-		ctx,
-		target,
-		grpc.WithTransportCredentials(credentials.NewTLS(config)),
-		grpc.WithAuthority(target),
-		grpc.WithBlock(),
-	)
-	if err != nil {
-		log.Fatalf("fail to dial: %v", err)
-	}
-	defer func() { _ = conn.Close() }()
-
-	pineconeClient := pinecone_grpc.NewVectorServiceClient(conn)
 	vecDB, err := vectordb.New()
 	if err != nil {
 		log.Fatalf("failed to create vector db: %v", err)
 	}
+	defer func() { _ = vecDB.Close() }()
 
 	grpcServer := grpc.NewServer()
-	collectionServer := collections.NewServer(supabaseAuth, db, bucket, pineconeClient)
+	collectionServer := collections.NewServer(supabaseAuth, db, bucket, vecDB)
 	pb.RegisterCollectionServiceServer(grpcServer, collectionServer)
 
 	accountService := account.FromConfig(&account.Config{
