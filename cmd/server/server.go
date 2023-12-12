@@ -67,7 +67,7 @@ func main() {
 	token := os.Getenv("OPENAI_API_KEY")
 	gpt := openai.NewClient(token)
 
-	supabaseAuth, err := auth.WithFirebase(ctx, app)
+	authService, err := auth.WithFirebase(ctx, app)
 	if err != nil {
 		log.Fatalf("failed to create auth service: %v", err)
 	}
@@ -79,17 +79,17 @@ func main() {
 	defer func() { _ = vecDB.Close() }()
 
 	grpcServer := grpc.NewServer()
-	collectionServer := collections.NewServer(supabaseAuth, db, bucket, vecDB)
+	collectionServer := collections.NewServer(authService, db, bucket, vecDB)
 	pb.RegisterCollectionServiceServer(grpcServer, collectionServer)
 
 	accountService := account.FromConfig(&account.Config{
-		Auth: supabaseAuth,
+		Auth: authService,
 		DB:   db,
 	})
 	pb.RegisterAccountServiceServer(grpcServer, accountService)
 
 	docsService := documents.FromConfig(&documents.Config{
-		Auth:     supabaseAuth,
+		Auth:     authService,
 		Account:  accountService,
 		DB:       db,
 		GPT:      gpt,
@@ -103,7 +103,7 @@ func main() {
 		GPT:             gpt,
 		DocumentService: docsService,
 		AccountService:  accountService,
-		AuthService:     supabaseAuth,
+		AuthService:     authService,
 	})
 	pb.RegisterChatServiceServer(grpcServer, chatServer)
 
