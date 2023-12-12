@@ -8,6 +8,10 @@ import (
 
 func (db *DB) Delete(ids []string) error {
 
+	if len(ids) == 0 {
+		return nil
+	}
+
 	ctx := metadata.AppendToOutgoingContext(
 		context.Background(),
 		"api-key",
