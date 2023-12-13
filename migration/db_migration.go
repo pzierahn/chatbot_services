@@ -239,3 +239,40 @@ func MigrateDocuments(from, to *pgxpool.Pool) {
 		}
 	}
 }
+
+func MigrateDocumentsChunks(from, to *pgxpool.Pool) {
+
+	ctx := context.Background()
+
+	rows, err := from.Query(ctx, `
+		SELECT id, document_id, page, text
+		FROM document_embeddings`)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	for rows.Next() {
+		var (
+			id    string
+			docId string
+			page  int
+			text  string
+		)
+
+		err = rows.Scan(&id, &docId, &page, &text)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		log.Printf("Document chunk: %v", id)
+
+		_, err = to.Exec(ctx, `
+			INSERT INTO document_chunks (id, document_id, page, text)
+			VALUES ($1, $2, $3, $4)
+			ON CONFLICT DO NOTHING
+		`, id, docId, page, text)
+		if err != nil {
+			log.Fatalln(err)
+		}
+	}
+}

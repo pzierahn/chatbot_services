@@ -53,7 +53,8 @@ func main() {
 	//migration.MigrateOpenaiUsage(supa.DB, con)
 	//migration.MigrateCollections(supa.DB, con)
 	//migration.MigrateChatMessages(supa.DB, con)
-	migration.MigrateDocuments(supa.DB, con)
+	//migration.MigrateDocuments(supa.DB, con)
+	migration.MigrateDocumentsChunks(supa.DB, con)
 
 	//migration.PineconeImport(ctx)
 }
