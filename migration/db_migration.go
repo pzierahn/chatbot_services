@@ -246,11 +246,12 @@ func MigrateDocumentsChunks(from, to *pgxpool.Pool) {
 
 	rows, err := from.Query(ctx, `
 		SELECT id, document_id, page, text
-		FROM document_embeddings`)
+		FROM document_embeddings OFFSET 0 LIMIT 30000`)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
+	var count int
 	for rows.Next() {
 		var (
 			id    string
@@ -264,15 +265,52 @@ func MigrateDocumentsChunks(from, to *pgxpool.Pool) {
 			log.Fatalln(err)
 		}
 
-		log.Printf("Document chunk: %v", id)
+		log.Printf("Document chunk %d: %v", count, id)
+		count++
 
 		_, err = to.Exec(ctx, `
 			INSERT INTO document_chunks (id, document_id, page, text)
-			VALUES ($1, $2, $3, $4)
+			VALUES ($1::uuid, $2, $3, $4)
 			ON CONFLICT DO NOTHING
 		`, id, docId, page, text)
 		if err != nil {
 			log.Fatalln(err)
 		}
+	}
+}
+
+func MigrateChatSources(from, to *pgxpool.Pool) {
+
+	ctx := context.Background()
+
+	rows, err := from.Query(ctx, `
+		SELECT id, chat_message_id, document_embeddings_id
+		FROM chat_message_source`)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	for rows.Next() {
+		var (
+			id    string
+			msgId string
+			refId string
+		)
+
+		err = rows.Scan(&id, &msgId, &refId)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		log.Printf("Message Ref: %v %v %v", id, msgId, refId)
+
+		//_, err = to.Exec(ctx, `
+		//	INSERT INTO chat_message_references (id, chat_message_id, document_chunk_id)
+		//	VALUES ($1, $2, $3)
+		//	ON CONFLICT DO NOTHING
+		//`, id, msgId, refId)
+		//if err != nil {
+		//	log.Fatalln(err)
+		//}
 	}
 }
