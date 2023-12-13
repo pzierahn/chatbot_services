@@ -72,7 +72,7 @@ func ExportDocumentVectors(ctx context.Context, doc Document) []DocumentEmbeddin
 	// Get all from table documents_embeddings
 	rows, err := con.Query(ctx, `
 		SELECT id, page, text, embedding, document_id
-		FROM document_chunks
+		FROM document_embeddings
 		WHERE document_id = $1
 	`, doc.Id)
 	if err != nil {
