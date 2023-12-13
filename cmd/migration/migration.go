@@ -50,7 +50,8 @@ func main() {
 	//migration.UpdateCollections(ctx, con)
 
 	//migration.MigratePayments(supa.DB, con)
-	migration.MigrateOpenaiUsage(supa.DB, con)
+	//migration.MigrateOpenaiUsage(supa.DB, con)
+	migration.MigrateCollections(supa.DB, con)
 
 	//migration.PineconeImport(ctx)
 }
