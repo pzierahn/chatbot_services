@@ -143,3 +143,50 @@ func MigrateCollections(from, to *pgxpool.Pool) {
 		}
 	}
 }
+
+func MigrateChatMessages(from, to *pgxpool.Pool) {
+
+	// Get user mapping
+	userMapping := GetUserIdMapping()
+
+	ctx := context.Background()
+
+	rows, err := from.Query(ctx, `
+		SELECT id, user_id, created_at, collection_id, prompt, completion
+		FROM chat_message`)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	for rows.Next() {
+		var (
+			id     string
+			userId string
+			date   time.Time
+			collId string
+			prompt string
+			compl  string
+		)
+
+		err = rows.Scan(&id, &userId, &date, &collId, &prompt, &compl)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		newUserId, ok := userMapping[userId]
+		if !ok {
+			log.Fatalf("user not found: %v", userId)
+		}
+
+		log.Printf("Chat message: %v", id)
+
+		_, err = to.Exec(ctx, `
+			INSERT INTO chat_messages (id, user_id, created_at, collection_id, prompt, completion)
+			VALUES ($1, $2, $3, $4, $5, $6)
+			ON CONFLICT DO NOTHING
+		`, id, newUserId, date, collId, prompt, compl)
+		if err != nil {
+			log.Fatalln(err)
+		}
+	}
+}
