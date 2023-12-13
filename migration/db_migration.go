@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -185,6 +186,54 @@ func MigrateChatMessages(from, to *pgxpool.Pool) {
 			VALUES ($1, $2, $3, $4, $5, $6)
 			ON CONFLICT DO NOTHING
 		`, id, newUserId, date, collId, prompt, compl)
+		if err != nil {
+			log.Fatalln(err)
+		}
+	}
+}
+
+func MigrateDocuments(from, to *pgxpool.Pool) {
+
+	// Get user mapping
+	userMapping := GetUserIdMapping()
+
+	ctx := context.Background()
+
+	rows, err := from.Query(ctx, `
+		SELECT id, user_id, filename, path, collection_id
+		FROM documents`)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	for rows.Next() {
+		var (
+			id       string
+			userId   string
+			filename string
+			path     string
+			collId   string
+		)
+
+		err = rows.Scan(&id, &userId, &filename, &path, &collId)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		newUserId, ok := userMapping[userId]
+		if !ok {
+			log.Fatalf("user not found: %v", userId)
+		}
+
+		newPath := "documents/" + strings.Replace(path, userId, newUserId, 1)
+		//log.Printf("Documents: %v %s --> %s", id, path, newPath)
+		log.Printf("Documents: %v", id)
+
+		_, err = to.Exec(ctx, `
+			INSERT INTO documents (id, user_id, filename, path, collection_id)
+			VALUES ($1, $2, $3, $4, $5)
+			ON CONFLICT DO NOTHING
+		`, id, newUserId, filename, newPath, collId)
 		if err != nil {
 			log.Fatalln(err)
 		}
