@@ -304,13 +304,13 @@ func MigrateChatSources(from, to *pgxpool.Pool) {
 
 		log.Printf("Message Ref: %v %v %v", id, msgId, refId)
 
-		//_, err = to.Exec(ctx, `
-		//	INSERT INTO chat_message_references (id, chat_message_id, document_chunk_id)
-		//	VALUES ($1, $2, $3)
-		//	ON CONFLICT DO NOTHING
-		//`, id, msgId, refId)
-		//if err != nil {
-		//	log.Fatalln(err)
-		//}
+		_, err = to.Exec(ctx, `
+			INSERT INTO chat_message_references (id, chat_message_id, document_chunk_id)
+			VALUES ($1, $2, $3)
+			ON CONFLICT DO NOTHING
+		`, id, msgId, refId)
+		if err != nil {
+			log.Fatalln(err)
+		}
 	}
 }
