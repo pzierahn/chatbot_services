@@ -3,9 +3,11 @@ package main
 import (
 	"context"
 	firebase "firebase.google.com/go"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pzierahn/brainboost/migration"
 	"google.golang.org/api/option"
 	"log"
+	"os"
 )
 
 var app *firebase.App
@@ -26,17 +28,18 @@ func main() {
 	ctx, cnl := context.WithCancel(context.Background())
 	defer cnl()
 
-	//supa := migration.InitSupabase(ctx)
+	supa := migration.InitSupabase(ctx)
 	// migration.Storage(supa, app)
 
+	connection := os.Getenv("BRAINBOOST_COCKROACH_DB")
 	//connection := os.Getenv("NEON_DB")
-	////connection := os.Getenv("AWS_BRAINBOOST_DB")
-	//con, err := pgxpool.New(ctx, connection)
-	//if err != nil {
-	//	log.Fatalf("did not connect: %v", err)
-	//}
-	//defer con.Close()
-	//
+	//connection := os.Getenv("AWS_BRAINBOOST_DB")
+	con, err := pgxpool.New(ctx, connection)
+	if err != nil {
+		log.Fatalf("did not connect: %v", err)
+	}
+	defer con.Close()
+
 	//err = con.Ping(ctx)
 	//if err != nil {
 	//	log.Fatalf("did not ping: %v", err)
@@ -46,5 +49,7 @@ func main() {
 
 	//migration.UpdateCollections(ctx, con)
 
-	migration.PineconeImport(ctx)
+	migration.MigratePayments(supa.DB, con)
+
+	//migration.PineconeImport(ctx)
 }

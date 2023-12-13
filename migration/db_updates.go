@@ -4,25 +4,51 @@ import (
 	"context"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"log"
+	"time"
 )
 
-// UpdateCollections updates the user_id column in the collections table.
-func UpdateCollections(ctx context.Context, db *pgxpool.Pool) {
+func MigratePayments(from, to *pgxpool.Pool) {
 
 	// Get user mapping
 	userMapping := GetUserIdMapping()
 
-	// Update collections
-	for oldId, newId := range userMapping {
-		log.Printf("Update collection: %v -> %v", oldId, newId)
+	ctx := context.Background()
 
-		_, err := db.Exec(ctx,
-			`UPDATE collections
-				SET user_id = $1
-				WHERE id = $2`,
-			newId, oldId)
+	// Get all payments from supabase
+
+	rows, err := from.Query(ctx, `SELECT id, user_id, date, amount FROM payments`)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	// Iterate over payments
+	for rows.Next() {
+		var (
+			id     string
+			userId string
+			date   time.Time
+			amount string
+		)
+
+		err = rows.Scan(&id, &userId, &date, &amount)
 		if err != nil {
-			log.Fatalf("did not update: %v", err)
+			log.Fatalln(err)
+		}
+
+		newUserId, ok := userMapping[userId]
+		if !ok {
+			log.Fatalf("user not found: %v", userId)
+		}
+
+		log.Printf("Payment: %v", id)
+
+		_, err = to.Exec(ctx, `
+			INSERT INTO payments (id, user_id, date, amount)
+			VALUES ($1, $2, $3, $4)
+			ON CONFLICT DO NOTHING
+		`, id, newUserId, date, amount)
+		if err != nil {
+			log.Fatalln(err)
 		}
 	}
 }
