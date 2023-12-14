@@ -37,8 +37,8 @@ func PineconeImport(ctx context.Context) {
 	docs := ExportDocumentsMeta(ctx)
 	log.Printf("docs: %v", len(docs))
 
-	for _, doc := range docs {
-		log.Printf("doc: %v", doc)
+	for inx, doc := range docs {
+		log.Printf("doc: %v (%d/%d)", doc.Id, inx, len(docs))
 
 		embeddings := ExportDocumentVectors(ctx, doc)
 		log.Printf("embeddings: %v", len(embeddings))

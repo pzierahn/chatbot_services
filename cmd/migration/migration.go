@@ -3,11 +3,9 @@ package main
 import (
 	"context"
 	firebase "firebase.google.com/go"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pzierahn/brainboost/migration"
 	"google.golang.org/api/option"
 	"log"
-	"os"
 )
 
 var app *firebase.App
@@ -31,14 +29,14 @@ func main() {
 	//supa := migration.InitSupabase(ctx)
 	//migration.Storage(supa, app)
 
-	connection := os.Getenv("BRAINBOOST_COCKROACH_DB")
-	//connection := os.Getenv("NEON_DB")
-	//connection := os.Getenv("AWS_BRAINBOOST_DB")
-	con, err := pgxpool.New(ctx, connection)
-	if err != nil {
-		log.Fatalf("did not connect: %v", err)
-	}
-	defer con.Close()
+	//connection := os.Getenv("BRAINBOOST_COCKROACH_DB")
+	////connection := os.Getenv("NEON_DB")
+	////connection := os.Getenv("AWS_BRAINBOOST_DB")
+	//con, err := pgxpool.New(ctx, connection)
+	//if err != nil {
+	//	log.Fatalf("did not connect: %v", err)
+	//}
+	//defer con.Close()
 
 	//migration.MigratePayments(supa.DB, con)
 	//migration.MigrateOpenaiUsage(supa.DB, con)
