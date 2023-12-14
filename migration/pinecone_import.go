@@ -15,6 +15,8 @@ import (
 func PineconeImport(ctx context.Context) {
 	config := &tls.Config{}
 
+	userMapping := GetUserIdMapping()
+
 	ctx = metadata.AppendToOutgoingContext(ctx, "api-key", os.Getenv("PINECONE_KEY"))
 	target := os.Getenv("PINECONE_URL")
 
@@ -49,12 +51,17 @@ func PineconeImport(ctx context.Context) {
 
 		var vectors []*pinecone_grpc.Vector
 
+		newUserId, ok := userMapping[doc.UserId]
+		if !ok {
+			log.Fatalf("user not found: %v", doc.UserId)
+		}
+
 		for _, embedding := range embeddings {
 			meta := &structpb.Struct{
 				Fields: map[string]*structpb.Value{
 					"documentId":   {Kind: &structpb.Value_StringValue{StringValue: embedding.DocumentId}},
 					"collectionId": {Kind: &structpb.Value_StringValue{StringValue: doc.CollectionId}},
-					"userId":       {Kind: &structpb.Value_StringValue{StringValue: doc.UserId}},
+					"userId":       {Kind: &structpb.Value_StringValue{StringValue: newUserId}},
 					"filename":     {Kind: &structpb.Value_StringValue{StringValue: doc.Filename}},
 					"text":         {Kind: &structpb.Value_StringValue{StringValue: embedding.Text}},
 					"page":         {Kind: &structpb.Value_NumberValue{NumberValue: float64(embedding.Page)}},
