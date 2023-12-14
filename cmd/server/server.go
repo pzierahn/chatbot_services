@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"flag"
+	firebase "firebase.google.com/go"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pzierahn/brainboost/account"
 	"github.com/pzierahn/brainboost/auth"
@@ -11,24 +11,48 @@ import (
 	"github.com/pzierahn/brainboost/documents"
 	pb "github.com/pzierahn/brainboost/proto"
 	"github.com/pzierahn/brainboost/setup"
+	"github.com/pzierahn/brainboost/vectordb"
 	"github.com/sashabaranov/go-openai"
-	storagego "github.com/supabase-community/storage-go"
+	"google.golang.org/api/option"
 	"google.golang.org/grpc"
 	"log"
 	"net"
 	"os"
 )
 
+const credentialsFile = "service_account.json"
+
 func init() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	flag.Parse()
 }
 
 func main() {
 
 	ctx := context.Background()
 
-	addr := os.Getenv("SUPABASE_DB")
+	var opts []option.ClientOption
+
+	if _, err := os.Stat(credentialsFile); err == nil {
+		serviceAccount := option.WithCredentialsFile(credentialsFile)
+		opts = append(opts, serviceAccount)
+	}
+
+	app, err := firebase.NewApp(ctx, nil, opts...)
+	if err != nil {
+		log.Fatalf("failed to create firebase app: %v", err)
+	}
+
+	firebaseStorage, err := app.Storage(ctx)
+	if err != nil {
+		log.Fatalf("failed to create firebase storage client: %v", err)
+	}
+
+	bucket, err := firebaseStorage.Bucket("brainboost-399710.appspot.com")
+	if err != nil {
+		log.Fatalf("did not get bucket: %v", err)
+	}
+
+	addr := os.Getenv("BRAINBOOST_COCKROACH_DB")
 	db, err := pgxpool.New(ctx, addr)
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
@@ -43,31 +67,34 @@ func main() {
 	token := os.Getenv("OPENAI_API_KEY")
 	gpt := openai.NewClient(token)
 
-	storage := storagego.NewClient(
-		os.Getenv("SUPABASE_URL")+"/storage/v1",
-		os.Getenv("SUPABASE_STORAGE_TOKEN"),
-		nil)
+	authService, err := auth.WithFirebase(ctx, app)
+	if err != nil {
+		log.Fatalf("failed to create auth service: %v", err)
+	}
 
-	jwtSec := os.Getenv("SUPABASE_JWT_SECRET")
-	supabaseAuth := auth.WithSupabase(jwtSec)
+	vecDB, err := vectordb.New()
+	if err != nil {
+		log.Fatalf("failed to create vector db: %v", err)
+	}
+	defer func() { _ = vecDB.Close() }()
 
 	grpcServer := grpc.NewServer()
-
-	collectionServer := collections.NewServer(supabaseAuth, db, storage)
+	collectionServer := collections.NewServer(authService, db, bucket, vecDB)
 	pb.RegisterCollectionServiceServer(grpcServer, collectionServer)
 
 	accountService := account.FromConfig(&account.Config{
-		Auth: supabaseAuth,
+		Auth: authService,
 		DB:   db,
 	})
 	pb.RegisterAccountServiceServer(grpcServer, accountService)
 
 	docsService := documents.FromConfig(&documents.Config{
-		Auth:    supabaseAuth,
-		Account: accountService,
-		DB:      db,
-		GPT:     gpt,
-		Storage: storage,
+		Auth:     authService,
+		Account:  accountService,
+		DB:       db,
+		GPT:      gpt,
+		Storage:  bucket,
+		VectorDB: vecDB,
 	})
 	pb.RegisterDocumentServiceServer(grpcServer, docsService)
 
@@ -76,7 +103,7 @@ func main() {
 		GPT:             gpt,
 		DocumentService: docsService,
 		AccountService:  accountService,
-		AuthService:     supabaseAuth,
+		AuthService:     authService,
 	})
 	pb.RegisterChatServiceServer(grpcServer, chatServer)
 

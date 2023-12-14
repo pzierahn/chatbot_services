@@ -23,7 +23,7 @@ static_resources:
                       routes:
                         - match: { prefix: "/" }
                           route:
-                            cluster: brainboost_service
+                            cluster: brainboost_services
                             auto_host_rewrite: true
                             max_stream_duration:
                               grpc_timeout_header_max: 0s
@@ -45,7 +45,7 @@ static_resources:
                     typed_config:
                       "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
   clusters:
-    - name: brainboost_service
+    - name: brainboost_services
       connect_timeout: 0.25s
       type: logical_dns
       dns_lookup_family: V4_ONLY
@@ -62,5 +62,5 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      address: brainboost-service-2qkjmuus4a-ey.a.run.app
+                      address: brainboost-services-2qkjmuus4a-ey.a.run.app
                       port_value: 443

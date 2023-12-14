@@ -4,6 +4,7 @@ import (
 	"context"
 	pb "github.com/pzierahn/brainboost/proto"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"log"
 )
 
 func (service *Service) Delete(ctx context.Context, req *pb.Document) (*emptypb.Empty, error) {
@@ -12,16 +13,30 @@ func (service *Service) Delete(ctx context.Context, req *pb.Document) (*emptypb.
 		return nil, err
 	}
 
-	_, err = service.db.Exec(ctx,
-		`DELETE FROM documents WHERE id = $1 AND
-                            collection_id = $2 AND
-                            user_id = $3`,
-		req.Id, req.CollectionId, userId)
+	ids, err := service.getChunkIds(ctx, req.Id)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = service.storage.RemoveFile(bucket, []string{req.Path})
+	err = service.db.QueryRow(ctx,
+		`DELETE FROM documents
+       		  WHERE id = $1 AND
+					collection_id = $2 AND
+					user_id = $3
+ 			  RETURNING path`,
+		req.Id, req.CollectionId, userId).Scan(&req.Path)
+	if err != nil {
+		return nil, err
+	}
+
+	obj := service.storage.Object(req.Path)
+	err = obj.Delete(ctx)
+	if err != nil {
+		log.Printf("error: %v", err)
+		return nil, err
+	}
+
+	err = service.vectorDB.Delete(ids)
 	if err != nil {
 		return nil, err
 	}

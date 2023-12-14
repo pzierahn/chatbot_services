@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/google/uuid"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -18,10 +17,10 @@ func WithSupabase(jwtSec string) Service {
 	}
 }
 
-func (auth *SupabaseAuth) ValidateToken(ctx context.Context) (uuid.UUID, error) {
+func (auth *SupabaseAuth) ValidateToken(ctx context.Context) (string, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		return uuid.Nil, fmt.Errorf("metadata missing")
+		return "", fmt.Errorf("metadata missing")
 	}
 
 	var tokens []string
@@ -34,7 +33,7 @@ func (auth *SupabaseAuth) ValidateToken(ctx context.Context) (uuid.UUID, error) 
 	}
 
 	if len(tokens) == 0 {
-		return uuid.Nil, fmt.Errorf("authorization missing")
+		return "", fmt.Errorf("authorization missing")
 	}
 
 	bearer := tokens[0][len("Bearer "):]
@@ -44,22 +43,17 @@ func (auth *SupabaseAuth) ValidateToken(ctx context.Context) (uuid.UUID, error) 
 		return auth.jwtSecret, nil
 	})
 	if err != nil {
-		return uuid.Nil, err
+		return "", err
 	}
 
 	if !token.Valid {
-		return uuid.Nil, fmt.Errorf("invalid token")
+		return "", fmt.Errorf("invalid token")
 	}
 
 	subject, err := claims.GetSubject()
 	if err != nil {
-		return uuid.Nil, fmt.Errorf("invalid user id: %v", err)
+		return "", fmt.Errorf("invalid user id: %v", err)
 	}
 
-	id, err := uuid.Parse(subject)
-	if err != nil {
-		return uuid.Nil, fmt.Errorf("invalid user id: %v", err)
-	}
-
-	return id, nil
+	return subject, nil
 }

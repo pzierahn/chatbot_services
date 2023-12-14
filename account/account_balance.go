@@ -33,7 +33,7 @@ func (service *Service) GetBalanceSheet(ctx context.Context, req *emptypb.Empty)
 	return balanceSheet, nil
 }
 
-func (service *Service) HasFounding(ctx context.Context) (bool, error) {
+func (service *Service) HasFunding(ctx context.Context) (bool, error) {
 	payments, err := service.GetPayments(ctx, &emptypb.Empty{})
 	if err != nil {
 		return false, err

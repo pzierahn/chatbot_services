@@ -32,7 +32,7 @@ type PageContentQuery struct {
 func (service *Service) getPageContent(ctx context.Context, query PageContentQuery) (string, *pb.ChatMessage_Document, error) {
 	rows, err := service.db.Query(ctx,
 		`SELECT doc.filename, dm.page, dm.text
-		FROM document_embeddings as dm, documents as doc
+		FROM document_chunks as dm, documents as doc
 		WHERE
 		    document_id = $1 AND
 		    doc.collection_id = $2 AND
@@ -73,7 +73,7 @@ func (service *Service) getPageContent(ctx context.Context, query PageContentQue
 	return strings.Join(fragments, "\n"), &doc, nil
 }
 
-func (service *Service) getBackgroundFromPrompt(ctx context.Context, userID uuid.UUID, prompt *pb.Prompt) (*chatContext, error) {
+func (service *Service) getBackgroundFromPrompt(ctx context.Context, userId string, prompt *pb.Prompt) (*chatContext, error) {
 	sort.Slice(prompt.Documents, func(i, j int) bool {
 		return prompt.Documents[i].Filename < prompt.Documents[j].Filename
 	})
@@ -89,7 +89,7 @@ func (service *Service) getBackgroundFromPrompt(ctx context.Context, userID uuid
 		fragment, content, err := service.getPageContent(ctx, PageContentQuery{
 			DocumentId:   doc.Id,
 			CollectionId: prompt.CollectionId,
-			UserId:       userID.String(),
+			UserId:       userId,
 			Pages:        doc.Pages,
 		})
 		if err != nil {

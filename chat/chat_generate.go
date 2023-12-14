@@ -20,13 +20,13 @@ func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMe
 		return nil, fmt.Errorf("options missing")
 	}
 
-	founding, err := service.account.HasFounding(ctx)
+	funding, err := service.account.HasFunding(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	if !founding {
-		return nil, account.NoFoundingError()
+	if !funding {
+		return nil, account.NoFundingError()
 	}
 
 	var bg *chatContext
@@ -67,7 +67,7 @@ func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMe
 			MaxTokens:   int(prompt.Options.MaxTokens),
 			Messages:    messages,
 			N:           1,
-			User:        userId.String(),
+			User:        userId,
 		},
 	)
 	if err != nil {

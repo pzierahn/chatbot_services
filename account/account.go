@@ -25,9 +25,9 @@ func FromConfig(config *Config) *Service {
 	}
 }
 
-// NoFoundingCode is the error code returned when a user has no founding. https://grpc.github.io/grpc/core/md_doc_statuscodes.html
-const NoFoundingCode = 17
+// NoFundingCode is the error code returned when a user has no founding. https://grpc.github.io/grpc/core/md_doc_statuscodes.html
+const NoFundingCode = 17
 
-func NoFoundingError() error {
-	return status.Errorf(NoFoundingCode, "no founding")
+func NoFundingError() error {
+	return status.Errorf(NoFundingCode, "no funding")
 }

@@ -1,11 +1,12 @@
 package collections
 
 import (
+	"cloud.google.com/go/storage"
 	"context"
 	"fmt"
 	pb "github.com/pzierahn/brainboost/proto"
-	supastorage "github.com/supabase-community/storage-go"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"log"
 )
 
 func (server *Service) Create(ctx context.Context, collection *pb.Collection) (*pb.Collection, error) {
@@ -57,29 +58,44 @@ func (server *Service) Delete(ctx context.Context, collection *pb.Collection) (*
 		return nil, err
 	}
 
-	_, err = server.db.Exec(
-		ctx,
-		`delete from collections where id = $1 and user_id = $2`,
-		collection.Id, uid)
-	if err != nil {
-		return nil, fmt.Errorf("failed to delete collection: %s", err)
-	}
-
-	basePath := fmt.Sprintf("%s/%s", uid, collection.Id)
-
-	var paths []string
-	fileObjs, err := server.storage.ListFiles(bucket, basePath, supastorage.FileSearchOptions{})
+	docIds, err := server.collectionDocumentIds(ctx, uid, collection.Id)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, file := range fileObjs {
-		paths = append(paths, basePath+"/"+file.Name)
+	chunkIds, err := server.documentChunkIds(ctx, docIds)
+	if err != nil {
+		return nil, err
 	}
 
-	_, err = server.storage.RemoveFile(bucket, paths)
+	err = server.vectorDB.Delete(chunkIds)
 	if err != nil {
-		return nil, fmt.Errorf("failed to delete files: %s", err)
+		return nil, err
+	}
+
+	basePath := fmt.Sprintf("documents/%s/%s", uid, collection.Id)
+
+	iter := server.storage.Objects(ctx, &storage.Query{Prefix: basePath})
+	for {
+		attrs, err := iter.Next()
+		if err != nil {
+			break
+		}
+
+		log.Printf("Delete: %s", attrs.Name)
+
+		err = server.storage.Object(attrs.Name).Delete(ctx)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	_, err = server.db.Exec(
+		ctx,
+		`DELETE FROM collections WHERE id = $1 AND user_id = $2`,
+		collection.Id, uid)
+	if err != nil {
+		return nil, fmt.Errorf("failed to delete collection: %s", err)
 	}
 
 	return &emptypb.Empty{}, nil

@@ -5,18 +5,19 @@ import (
 	"errors"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/pgvector/pgvector-go"
 	"github.com/pzierahn/brainboost/account"
 	"github.com/pzierahn/brainboost/pdf"
 	pb "github.com/pzierahn/brainboost/proto"
+	"github.com/pzierahn/brainboost/vectordb"
 	"github.com/sashabaranov/go-openai"
+	"io"
 	"strings"
 	"sync"
 	"sync/atomic"
 )
 
 type embeddingsBatch struct {
-	userID uuid.UUID
+	userId string
 	pages  []string
 	stream pb.DocumentService_IndexServer
 }
@@ -37,7 +38,15 @@ type embedding struct {
 }
 
 func (service *Service) getDocPages(ctx context.Context, path string) ([]string, error) {
-	raw, err := service.storage.DownloadFile(bucket, path)
+
+	obj := service.storage.Object(path)
+	read, err := obj.NewReader(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = read.Close() }()
+
+	raw, err := io.ReadAll(read)
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +87,7 @@ func (service *Service) processEmbeddings(ctx context.Context, batch *embeddings
 				openai.EmbeddingRequestStrings{
 					Model: embeddingsModel,
 					Input: []string{page},
-					User:  batch.userID.String(),
+					User:  batch.userId,
 				},
 			)
 
@@ -130,17 +139,38 @@ func (service *Service) insertEmbeddings(ctx context.Context, doc *document) err
 		return err
 	}
 
+	var vectors []*vectordb.Vector
+
 	for _, fragment := range doc.embeddings {
+		chunkId := uuid.NewString()
+
 		_, err = tx.Exec(ctx,
-			`insert into document_embeddings (document_id, page, text, embedding)
+			`insert into document_chunks (id, document_id, page, text)
 				values ($1, $2, $3, $4)`,
+			chunkId,
 			doc.id,
 			fragment.Page,
 			fragment.Text,
-			pgvector.NewVector(fragment.Embedding))
+		)
 		if err != nil {
 			return err
 		}
+
+		vectors = append(vectors, &vectordb.Vector{
+			Id:           chunkId,
+			DocumentId:   doc.id,
+			CollectionId: doc.collectionId,
+			UserId:       doc.userId,
+			Filename:     doc.filename,
+			Text:         fragment.Text,
+			Page:         fragment.Page,
+			Vector:       fragment.Embedding,
+		})
+	}
+
+	err = service.vectorDB.Upsert(vectors)
+	if err != nil {
+		return err
 	}
 
 	return tx.Commit(ctx)
@@ -154,13 +184,13 @@ func (service *Service) Index(doc *pb.Document, stream pb.DocumentService_IndexS
 		return err
 	}
 
-	founding, err := service.account.HasFounding(ctx)
+	funding, err := service.account.HasFunding(ctx)
 	if err != nil {
 		return err
 	}
 
-	if !founding {
-		return account.NoFoundingError()
+	if !funding {
+		return account.NoFundingError()
 	}
 
 	pages, err := service.getDocPages(ctx, doc.Path)
@@ -168,26 +198,28 @@ func (service *Service) Index(doc *pb.Document, stream pb.DocumentService_IndexS
 		return err
 	}
 
+	obj := service.storage.Object(doc.Path)
+
 	embeddings, inputTokens, err := service.processEmbeddings(ctx, &embeddingsBatch{
-		userID: userId,
+		userId: userId,
 		pages:  pages,
 		stream: stream,
 	})
 	if err != nil {
-		service.storage.RemoveFile(bucket, []string{doc.Path})
+		_ = obj.Delete(ctx)
 		return err
 	}
 
 	err = service.insertEmbeddings(ctx, &document{
 		id:           doc.Id,
-		userId:       userId.String(),
+		userId:       userId,
 		collectionId: doc.CollectionId,
 		filename:     doc.Filename,
 		path:         doc.Path,
 		embeddings:   embeddings,
 	})
 	if err != nil {
-		service.storage.RemoveFile(bucket, []string{doc.Path})
+		_ = obj.Delete(ctx)
 		return err
 	}
 

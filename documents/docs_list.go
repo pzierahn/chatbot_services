@@ -16,7 +16,7 @@ func (service *Service) List(ctx context.Context, req *pb.DocumentFilter) (*pb.D
 	rows, err := service.db.Query(ctx,
 		`SELECT document_id, filename, max(page)
 		FROM documents AS doc
-		    join document_embeddings AS em on doc.id = em.document_id
+		    join document_chunks AS em on doc.id = em.document_id
 		WHERE
 		    doc.user_id = $1 AND
 		    doc.collection_id = $2::uuid AND
