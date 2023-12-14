@@ -310,7 +310,7 @@ func MigrateChatSources(from, to *pgxpool.Pool) {
 			ON CONFLICT DO NOTHING
 		`, id, msgId, refId)
 		if err != nil {
-			log.Fatalln(err)
+			log.Println(err)
 		}
 	}
 }

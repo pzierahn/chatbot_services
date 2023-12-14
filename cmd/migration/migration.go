@@ -28,7 +28,7 @@ func main() {
 	ctx, cnl := context.WithCancel(context.Background())
 	defer cnl()
 
-	supa := migration.InitSupabase(ctx)
+	//supa := migration.InitSupabase(ctx)
 	//migration.Storage(supa, app)
 
 	connection := os.Getenv("BRAINBOOST_COCKROACH_DB")
@@ -47,7 +47,7 @@ func main() {
 	//migration.MigrateChatMessages(supa.DB, con)
 	//migration.MigrateDocuments(supa.DB, con)
 	//migration.MigrateDocumentsChunks(supa.DB, con)
-	migration.MigrateChatSources(supa.DB, con)
+	//migration.MigrateChatSources(supa.DB, con)
 
 	migration.PineconeImport(ctx)
 }
