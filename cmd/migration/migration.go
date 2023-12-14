@@ -28,8 +28,8 @@ func main() {
 	ctx, cnl := context.WithCancel(context.Background())
 	defer cnl()
 
-	//supa := migration.InitSupabase(ctx)
-	// migration.Storage(supa, app)
+	supa := migration.InitSupabase(ctx)
+	//migration.Storage(supa, app)
 
 	connection := os.Getenv("BRAINBOOST_COCKROACH_DB")
 	//connection := os.Getenv("NEON_DB")
@@ -40,22 +40,14 @@ func main() {
 	}
 	defer con.Close()
 
-	//err = con.Ping(ctx)
-	//if err != nil {
-	//	log.Fatalf("did not ping: %v", err)
-	//}
-	//
-	//log.Printf("connected")
-
-	//migration.UpdateCollections(ctx, con)
-
 	//migration.MigratePayments(supa.DB, con)
 	//migration.MigrateOpenaiUsage(supa.DB, con)
+	//
 	//migration.MigrateCollections(supa.DB, con)
 	//migration.MigrateChatMessages(supa.DB, con)
 	//migration.MigrateDocuments(supa.DB, con)
 	//migration.MigrateDocumentsChunks(supa.DB, con)
-	//migration.MigrateChatSources(supa.DB, con)
+	migration.MigrateChatSources(supa.DB, con)
 
 	migration.PineconeImport(ctx)
 }
