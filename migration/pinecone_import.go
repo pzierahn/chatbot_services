@@ -78,18 +78,14 @@ func PineconeImport(ctx context.Context) {
 		for iny := 0; iny < len(vectors); iny += 50 {
 			end := min(iny+50, len(vectors))
 
-			upsertResult, upsertErr := client.Upsert(ctx, &pinecone_grpc.UpsertRequest{
+			_, err = client.Upsert(ctx, &pinecone_grpc.UpsertRequest{
 				Vectors:   vectors[iny:end],
 				Namespace: "documents",
 			})
 
-			if upsertErr != nil {
-				log.Fatalf("upsert error: %v", upsertErr)
-			} else {
-				log.Printf("upsert result: %v", upsertResult)
+			if err != nil {
+				log.Fatalf("upsert error: %v", err)
 			}
 		}
-
-		//break
 	}
 }
