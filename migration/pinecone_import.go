@@ -75,11 +75,11 @@ func PineconeImport(ctx context.Context) {
 			})
 		}
 
-		for inx := 0; inx < len(vectors); inx += 50 {
-			end := min(inx+50, len(vectors))
+		for iny := 0; iny < len(vectors); iny += 50 {
+			end := min(iny+50, len(vectors))
 
 			upsertResult, upsertErr := client.Upsert(ctx, &pinecone_grpc.UpsertRequest{
-				Vectors:   vectors[inx:end],
+				Vectors:   vectors[iny:end],
 				Namespace: "documents",
 			})
 
