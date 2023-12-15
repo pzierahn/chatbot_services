@@ -49,7 +49,7 @@ message ChatMessage {
   repeated string references = 7;
 
   // Chunk id --> score
-  map<string, float> scores = 8;
+  repeated float scores = 8;
 }
 
 message MessageID {
