@@ -58,7 +58,7 @@ func (service *Service) getDocumentChunks(ctx context.Context, query documentPag
 	return chunks, nil
 }
 
-func (service *Service) getDocumentsContext(ctx context.Context, userId string, prompt *pb.Prompt) ([]string, []string, error) {
+func (service *Service) getDocumentsContext(ctx context.Context, userId string, prompt *pb.Prompt) (*chunks, error) {
 	sort.Slice(prompt.Documents, func(i, j int) bool {
 		return prompt.Documents[i].Id < prompt.Documents[j].Id
 	})
@@ -69,28 +69,27 @@ func (service *Service) getDocumentsContext(ctx context.Context, userId string, 
 		})
 	}
 
-	var chunkIds []string
-	var contextTexts []string
+	data := &chunks{}
 
 	for _, doc := range prompt.Documents {
-		chunks, err := service.getDocumentChunks(ctx, documentPages{
+		items, err := service.getDocumentChunks(ctx, documentPages{
 			id:           doc.Id,
 			collectionId: prompt.CollectionId,
 			userId:       userId,
 			pages:        doc.Pages,
 		})
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 
 		var texts []string
-		for _, chunk := range chunks {
-			chunkIds = append(chunkIds, chunk.chunkId)
+		for _, chunk := range items {
+			data.ids = append(data.ids, chunk.chunkId)
 			texts = append(texts, chunk.text)
 		}
 
-		contextTexts = append(contextTexts, strings.Join(texts, "\n"))
+		data.texts = append(data.texts, strings.Join(texts, "\n"))
 	}
 
-	return chunkIds, contextTexts, nil
+	return data, nil
 }

@@ -29,12 +29,12 @@ func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMe
 		return nil, account.NoFundingError()
 	}
 
-	var chunkIds, fragments []string
+	var chunkData *chunks
 
 	if len(prompt.Documents) == 0 {
-		chunkIds, fragments, err = service.searchForContext(ctx, prompt)
+		chunkData, err = service.searchForContext(ctx, prompt)
 	} else {
-		chunkIds, fragments, err = service.getDocumentsContext(ctx, userId, prompt)
+		chunkData, err = service.getDocumentsContext(ctx, userId, prompt)
 	}
 	if err != nil {
 		return nil, err
@@ -47,7 +47,7 @@ func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMe
 		},
 	}
 
-	for _, text := range fragments {
+	for _, text := range chunkData.texts {
 		messages = append(messages, openai.ChatCompletionMessage{
 			Role:    openai.ChatMessageRoleUser,
 			Content: text,
@@ -89,7 +89,8 @@ func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMe
 		CollectionId: prompt.CollectionId,
 		Prompt:       prompt.Prompt,
 		Text:         resp.Choices[0].Message.Content,
-		References:   chunkIds,
+		References:   chunkData.ids,
+		Scores:       chunkData.scores,
 	}
 
 	_ = service.storeChatMessage(ctx, chatMessage{
@@ -98,7 +99,7 @@ func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMe
 		collectionId: prompt.CollectionId,
 		prompt:       prompt.Prompt,
 		completion:   completion.Text,
-		references:   chunkIds,
+		references:   chunkData.ids,
 	})
 
 	return completion, nil

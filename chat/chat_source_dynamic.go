@@ -7,7 +7,13 @@ import (
 	"strings"
 )
 
-func (service *Service) searchForContext(ctx context.Context, prompt *pb.Prompt) ([]string, []string, error) {
+type chunks struct {
+	ids    []string
+	texts  []string
+	scores []float32
+}
+
+func (service *Service) searchForContext(ctx context.Context, prompt *pb.Prompt) (*chunks, error) {
 
 	results, err := service.docs.Search(ctx, &pb.SearchQuery{
 		CollectionId: prompt.CollectionId,
@@ -16,29 +22,34 @@ func (service *Service) searchForContext(ctx context.Context, prompt *pb.Prompt)
 		Threshold:    prompt.Threshold,
 	})
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	sort.Slice(results.Items, func(i, j int) bool {
 		return results.Items[i].Page > results.Items[j].Page
 	})
 
+	data := &chunks{
+		ids:    make([]string, len(results.Items)),
+		scores: make([]float32, len(results.Items)),
+	}
+
 	// Map documentIds to Content
 	text := make(map[string][]string)
-	chunkIds := make([]string, len(results.Items))
 
 	for inx, chunk := range results.Items {
 		docId := chunk.DocumentId
 		text[docId] = append(text[docId], chunk.Content)
-		chunkIds[inx] = chunk.Id
+		data.ids[inx] = chunk.Id
+		data.scores[inx] = chunk.Score
 	}
 
-	contextTexts := make([]string, len(text))
+	data.texts = make([]string, len(text))
 	var inx int
 	for _, docId := range text {
-		contextTexts[inx] = strings.Join(docId, "\n")
+		data.texts[inx] = strings.Join(docId, "\n")
 		inx++
 	}
 
-	return chunkIds, contextTexts, nil
+	return data, nil
 }
