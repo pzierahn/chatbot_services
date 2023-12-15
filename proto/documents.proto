@@ -12,6 +12,22 @@ service DocumentService {
   rpc Delete(Document) returns (google.protobuf.Empty);
   rpc Update(Document) returns (google.protobuf.Empty);
   rpc Search(SearchQuery) returns (SearchResults);
+  rpc GetChunks(ChunkIDs) returns (Chunks);
+}
+
+message ChunkIDs {
+  repeated string items = 1;
+}
+
+message Chunk {
+  string id = 1;
+  string document_id = 2;
+  string filename = 3;
+  uint32 page = 4;
+}
+
+message Chunks {
+  repeated Chunk items = 1;
 }
 
 message SearchQuery {
