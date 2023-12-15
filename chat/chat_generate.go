@@ -31,7 +31,7 @@ func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMe
 
 	var chunkIds, fragments []string
 
-	if len(prompt.Documents) > 0 {
+	if len(prompt.Documents) == 0 {
 		chunkIds, fragments, err = service.searchForContext(ctx, prompt)
 	} else {
 		chunkIds, fragments, err = service.getDocumentsContext(ctx, userId, prompt)
