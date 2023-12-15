@@ -31,7 +31,7 @@ type PageContentQuery struct {
 
 func (service *Service) getPageContent(ctx context.Context, query PageContentQuery) (string, *pb.ChatMessage_Document, error) {
 	rows, err := service.db.Query(ctx,
-		`SELECT doc.filename, dm.page, dm.text
+		`SELECT doc.filename, dm.page, dm.text, dm.id
 		FROM document_chunks as dm, documents as doc
 		WHERE
 		    document_id = $1 AND
@@ -54,14 +54,17 @@ func (service *Service) getPageContent(ctx context.Context, query PageContentQue
 
 	for rows.Next() {
 		var (
-			page uint32
-			text string
+			chunkId string
+			page    uint32
+			text    string
 		)
 
 		err = rows.Scan(
 			&doc.Filename,
 			&page,
-			&text)
+			&text,
+			&chunkId,
+		)
 		if err != nil {
 			return "", nil, err
 		}
@@ -98,6 +101,8 @@ func (service *Service) getBackgroundFromPrompt(ctx context.Context, userId stri
 
 		bg.fragments = append(bg.fragments, fragment)
 		bg.docs = append(bg.docs, content)
+
+		// TODO: Fix insert error --> use document chunk id instead of doc id
 		bg.pageIds = append(bg.pageIds, uuid.MustParse(doc.Id))
 	}
 
