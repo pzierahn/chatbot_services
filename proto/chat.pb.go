@@ -246,9 +246,9 @@ type ChatMessage struct {
 	Text         string                 `protobuf:"bytes,4,opt,name=text,proto3" json:"text,omitempty"`
 	ModelOptions *ModelOptions          `protobuf:"bytes,5,opt,name=model_options,json=modelOptions,proto3" json:"model_options,omitempty"`
 	Timestamp    *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=timestamp,proto3,oneof" json:"timestamp,omitempty"`
-	// Fragment ids
+	// Chunk ids
 	References []string `protobuf:"bytes,7,rep,name=references,proto3" json:"references,omitempty"`
-	// Fragment id --> score
+	// Chunk id --> score
 	Scores map[string]float32 `protobuf:"bytes,8,rep,name=scores,proto3" json:"scores,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"fixed32,2,opt,name=value,proto3"`
 }
 

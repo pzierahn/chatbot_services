@@ -53,10 +53,10 @@ message ChatMessage {
   ModelOptions model_options = 5;
   optional google.protobuf.Timestamp timestamp = 6;
 
-  // Fragment ids
+  // Chunk ids
   repeated string references = 7;
 
-  // Fragment id --> score
+  // Chunk id --> score
   map<string, float> scores = 8;
 }
 

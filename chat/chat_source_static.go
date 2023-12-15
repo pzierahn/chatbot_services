@@ -2,81 +2,63 @@ package chat
 
 import (
 	"context"
-	"github.com/google/uuid"
 	pb "github.com/pzierahn/brainboost/proto"
 	"sort"
 	"strings"
 )
 
-type SearchQuery struct {
-	UserId       uuid.UUID
-	CollectionId uuid.UUID
-	Prompt       string
-	Limit        int
-	Threshold    float32
+type documentPages struct {
+	id           string
+	collectionId string
+	userId       string
+	pages        []uint32
 }
 
-type chatContext struct {
-	fragments []string
-	docs      []*pb.ChatMessage_Document
-	pageIds   []uuid.UUID
+type documentChunk struct {
+	chunkId string
+	page    uint32
+	text    string
 }
 
-type PageContentQuery struct {
-	DocumentId   string
-	CollectionId string
-	UserId       string
-	Pages        []uint32
-}
-
-func (service *Service) getPageContent(ctx context.Context, query PageContentQuery) (string, *pb.ChatMessage_Document, error) {
+func (service *Service) getDocumentChunks(ctx context.Context, query documentPages) ([]documentChunk, error) {
 	rows, err := service.db.Query(ctx,
-		`SELECT doc.filename, dm.page, dm.text, dm.id
-		FROM document_chunks as dm, documents as doc
+		`SELECT chunk.id, chunk.page, chunk.text
+		FROM document_chunks as chunk, documents as doc
 		WHERE
 		    document_id = $1 AND
+		    doc.id = chunk.document_id AND
 		    doc.collection_id = $2 AND
-		    doc.id = dm.document_id AND
 		    user_id = $3 AND
 		    page = ANY($4)
-		ORDER BY filename, page`,
-		query.DocumentId, query.CollectionId, query.UserId, query.Pages)
+		ORDER BY page`,
+		query.id, query.collectionId, query.userId, query.pages)
 	if err != nil {
-		return "", nil, err
+		return nil, err
 	}
 
 	defer rows.Close()
 
-	var (
-		doc       pb.ChatMessage_Document
-		fragments []string
-	)
+	var chunks []documentChunk
 
 	for rows.Next() {
-		var (
-			chunkId string
-			page    uint32
-			text    string
-		)
+		var chunk documentChunk
 
 		err = rows.Scan(
-			&doc.Filename,
-			&page,
-			&text,
-			&chunkId,
+			&chunk.chunkId,
+			&chunk.page,
+			&chunk.text,
 		)
 		if err != nil {
-			return "", nil, err
+			return nil, err
 		}
 
-		doc.Pages = append(doc.Pages, page)
-		fragments = append(fragments, text)
+		chunks = append(chunks, chunk)
 	}
 
-	return strings.Join(fragments, "\n"), &doc, nil
+	return chunks, nil
 }
 
-func (service *Service) getBackgroundFromPrompt(ctx context.Context, userId string, prompt *pb.Prompt) (*chatContext, error) {
+func (service *Service) getDocumentsContext(ctx context.Context, userId string, prompt *pb.DocumentsPrompt) ([]string, []string, error) {
 	sort.Slice(prompt.Documents, func(i, j int) bool {
 		return prompt.Documents[i].Filename < prompt.Documents[j].Filename
 	})
@@ -87,24 +69,28 @@ func (service *Service) getBackgroundFromPrompt(ctx context.Context, userId stri
 		})
 	}
 
-	bg := chatContext{}
+	var chunkIds []string
+	var contextTexts []string
+
 	for _, doc := range prompt.Documents {
-		fragment, content, err := service.getPageContent(ctx, PageContentQuery{
-			DocumentId:   doc.Id,
-			CollectionId: prompt.CollectionId,
-			UserId:       userId,
-			Pages:        doc.Pages,
+		chunks, err := service.getDocumentChunks(ctx, documentPages{
+			id:           doc.Id,
+			collectionId: prompt.CollectionId,
+			userId:       userId,
+			pages:        doc.Pages,
 		})
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 
-		bg.fragments = append(bg.fragments, fragment)
-		bg.docs = append(bg.docs, content)
+		var texts []string
+		for _, chunk := range chunks {
+			chunkIds = append(chunkIds, chunk.chunkId)
+			texts = append(texts, chunk.text)
+		}
 
-		// TODO: Fix insert error --> use document chunk id instead of doc id
-		bg.pageIds = append(bg.pageIds, uuid.MustParse(doc.Id))
+		contextTexts = append(contextTexts, strings.Join(texts, "\n"))
 	}
 
-	return &bg, nil
+	return chunkIds, contextTexts, nil
 }

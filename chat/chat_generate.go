@@ -16,7 +16,7 @@ func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMe
 		return nil, err
 	}
 
-	if prompt.Options == nil {
+	if prompt.ModelOptions == nil {
 		return nil, fmt.Errorf("options missing")
 	}
 
@@ -29,13 +29,7 @@ func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMe
 		return nil, account.NoFundingError()
 	}
 
-	var bg *chatContext
-	if prompt.Documents == nil || len(prompt.Documents) == 0 {
-		bg, err = service.getSourceFromDB(ctx, prompt)
-	} else {
-		bg, err = service.getBackgroundFromPrompt(ctx, userId, prompt)
-	}
-
+	chunkIds, fragments, err := service.searchForContext(ctx, prompt)
 	if err != nil {
 		return nil, err
 	}
@@ -43,11 +37,11 @@ func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMe
 	messages := []openai.ChatCompletionMessage{
 		{
 			Role:    openai.ChatMessageRoleSystem,
-			Content: "Always answer in Markdown format without any code blocks",
+			Content: "Answer in Markdown format without any code blocks",
 		},
 	}
 
-	for _, text := range bg.fragments {
+	for _, text := range fragments {
 		messages = append(messages, openai.ChatCompletionMessage{
 			Role:    openai.ChatMessageRoleUser,
 			Content: text,
@@ -62,9 +56,9 @@ func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMe
 	resp, err := service.gpt.CreateChatCompletion(
 		ctx,
 		openai.ChatCompletionRequest{
-			Model:       prompt.Options.Model,
-			Temperature: prompt.Options.Temperature,
-			MaxTokens:   int(prompt.Options.MaxTokens),
+			Model:       prompt.ModelOptions.Model,
+			Temperature: prompt.ModelOptions.Temperature,
+			MaxTokens:   int(prompt.ModelOptions.MaxTokens),
 			Messages:    messages,
 			N:           1,
 			User:        userId,
@@ -87,9 +81,9 @@ func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMe
 	completion := &pb.ChatMessage{
 		Id:           uuid.NewString(),
 		CollectionId: prompt.CollectionId,
-		Prompt:       prompt,
+		Prompt:       prompt.Prompt,
 		Text:         resp.Choices[0].Message.Content,
-		Documents:    bg.docs,
+		References:   chunkIds,
 	}
 
 	_ = service.storeChatMessage(ctx, chatMessage{
@@ -98,7 +92,95 @@ func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMe
 		collectionId: prompt.CollectionId,
 		prompt:       prompt.Prompt,
 		completion:   completion.Text,
-		references:   bg.pageIds,
+		references:   chunkIds,
+	})
+
+	return completion, nil
+}
+
+func (service *Service) ChatWithDocuments(ctx context.Context, prompt *pb.DocumentsPrompt) (*pb.ChatMessage, error) {
+	userId, err := service.auth.ValidateToken(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if prompt.ModelOptions == nil {
+		return nil, fmt.Errorf("options missing")
+	}
+
+	funding, err := service.account.HasFunding(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if !funding {
+		return nil, account.NoFundingError()
+	}
+
+	chunkIds, fragments, err := service.getDocumentsContext(ctx, userId, prompt)
+	if err != nil {
+		return nil, err
+	}
+
+	messages := []openai.ChatCompletionMessage{
+		{
+			Role:    openai.ChatMessageRoleSystem,
+			Content: "Answer in Markdown format without any code blocks",
+		},
+	}
+
+	for _, text := range fragments {
+		messages = append(messages, openai.ChatCompletionMessage{
+			Role:    openai.ChatMessageRoleUser,
+			Content: text,
+		})
+	}
+
+	messages = append(messages, openai.ChatCompletionMessage{
+		Role:    openai.ChatMessageRoleUser,
+		Content: prompt.Prompt,
+	})
+
+	resp, err := service.gpt.CreateChatCompletion(
+		ctx,
+		openai.ChatCompletionRequest{
+			Model:       prompt.ModelOptions.Model,
+			Temperature: prompt.ModelOptions.Temperature,
+			MaxTokens:   int(prompt.ModelOptions.MaxTokens),
+			Messages:    messages,
+			N:           1,
+			User:        userId,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = service.account.CreateUsage(ctx, account.Usage{
+		UserId: userId,
+		Model:  resp.Model,
+		Input:  uint32(resp.Usage.PromptTokens),
+		Output: uint32(resp.Usage.CompletionTokens),
+	})
+	if err != nil {
+		log.Printf("Chat: error %v", err)
+	}
+
+	completion := &pb.ChatMessage{
+		Id:           uuid.NewString(),
+		CollectionId: prompt.CollectionId,
+		Prompt:       prompt.Prompt,
+		Text:         resp.Choices[0].Message.Content,
+		References:   chunkIds,
+	}
+
+	_ = service.storeChatMessage(ctx, chatMessage{
+		id:           completion.Id,
+		userId:       userId,
+		collectionId: prompt.CollectionId,
+		prompt:       prompt.Prompt,
+		completion:   completion.Text,
+		references:   chunkIds,
 	})
 
 	return completion, nil
