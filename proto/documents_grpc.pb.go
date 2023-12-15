@@ -20,12 +20,12 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	DocumentService_List_FullMethodName      = "/endpoint.brainboost.documents.v1.DocumentService/List"
-	DocumentService_Index_FullMethodName     = "/endpoint.brainboost.documents.v1.DocumentService/Index"
-	DocumentService_Delete_FullMethodName    = "/endpoint.brainboost.documents.v1.DocumentService/Delete"
-	DocumentService_Update_FullMethodName    = "/endpoint.brainboost.documents.v1.DocumentService/Update"
-	DocumentService_Search_FullMethodName    = "/endpoint.brainboost.documents.v1.DocumentService/Search"
-	DocumentService_GetChunks_FullMethodName = "/endpoint.brainboost.documents.v1.DocumentService/GetChunks"
+	DocumentService_List_FullMethodName          = "/endpoint.brainboost.documents.v1.DocumentService/List"
+	DocumentService_Index_FullMethodName         = "/endpoint.brainboost.documents.v1.DocumentService/Index"
+	DocumentService_Delete_FullMethodName        = "/endpoint.brainboost.documents.v1.DocumentService/Delete"
+	DocumentService_Update_FullMethodName        = "/endpoint.brainboost.documents.v1.DocumentService/Update"
+	DocumentService_Search_FullMethodName        = "/endpoint.brainboost.documents.v1.DocumentService/Search"
+	DocumentService_GetReferences_FullMethodName = "/endpoint.brainboost.documents.v1.DocumentService/GetReferences"
 )
 
 // DocumentServiceClient is the client API for DocumentService service.
@@ -37,7 +37,7 @@ type DocumentServiceClient interface {
 	Delete(ctx context.Context, in *Document, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Update(ctx context.Context, in *Document, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Search(ctx context.Context, in *SearchQuery, opts ...grpc.CallOption) (*SearchResults, error)
-	GetChunks(ctx context.Context, in *ChunkIDs, opts ...grpc.CallOption) (*Chunks, error)
+	GetReferences(ctx context.Context, in *ReferenceIDs, opts ...grpc.CallOption) (*References, error)
 }
 
 type documentServiceClient struct {
@@ -116,9 +116,9 @@ func (c *documentServiceClient) Search(ctx context.Context, in *SearchQuery, opt
 	return out, nil
 }
 
-func (c *documentServiceClient) GetChunks(ctx context.Context, in *ChunkIDs, opts ...grpc.CallOption) (*Chunks, error) {
-	out := new(Chunks)
-	err := c.cc.Invoke(ctx, DocumentService_GetChunks_FullMethodName, in, out, opts...)
+func (c *documentServiceClient) GetReferences(ctx context.Context, in *ReferenceIDs, opts ...grpc.CallOption) (*References, error) {
+	out := new(References)
+	err := c.cc.Invoke(ctx, DocumentService_GetReferences_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -134,7 +134,7 @@ type DocumentServiceServer interface {
 	Delete(context.Context, *Document) (*emptypb.Empty, error)
 	Update(context.Context, *Document) (*emptypb.Empty, error)
 	Search(context.Context, *SearchQuery) (*SearchResults, error)
-	GetChunks(context.Context, *ChunkIDs) (*Chunks, error)
+	GetReferences(context.Context, *ReferenceIDs) (*References, error)
 	mustEmbedUnimplementedDocumentServiceServer()
 }
 
@@ -157,8 +157,8 @@ func (UnimplementedDocumentServiceServer) Update(context.Context, *Document) (*e
 func (UnimplementedDocumentServiceServer) Search(context.Context, *SearchQuery) (*SearchResults, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Search not implemented")
 }
-func (UnimplementedDocumentServiceServer) GetChunks(context.Context, *ChunkIDs) (*Chunks, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetChunks not implemented")
+func (UnimplementedDocumentServiceServer) GetReferences(context.Context, *ReferenceIDs) (*References, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetReferences not implemented")
 }
 func (UnimplementedDocumentServiceServer) mustEmbedUnimplementedDocumentServiceServer() {}
 
@@ -266,20 +266,20 @@ func _DocumentService_Search_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
-func _DocumentService_GetChunks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ChunkIDs)
+func _DocumentService_GetReferences_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReferenceIDs)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(DocumentServiceServer).GetChunks(ctx, in)
+		return srv.(DocumentServiceServer).GetReferences(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: DocumentService_GetChunks_FullMethodName,
+		FullMethod: DocumentService_GetReferences_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DocumentServiceServer).GetChunks(ctx, req.(*ChunkIDs))
+		return srv.(DocumentServiceServer).GetReferences(ctx, req.(*ReferenceIDs))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -308,8 +308,8 @@ var DocumentService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _DocumentService_Search_Handler,
 		},
 		{
-			MethodName: "GetChunks",
-			Handler:    _DocumentService_GetChunks_Handler,
+			MethodName: "GetReferences",
+			Handler:    _DocumentService_GetReferences_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
