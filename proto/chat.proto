@@ -10,23 +10,8 @@ import "collections.proto";
 
 service ChatService {
   rpc Chat(Prompt) returns (ChatMessage);
-  rpc ChatWithDocuments(DocumentsPrompt) returns (ChatMessage);
   rpc GetChatMessages(collections.v1.Collection) returns (ChatMessages);
   rpc GetChatMessage(MessageID) returns (ChatMessage);
-}
-
-message DocumentsPrompt {
-  string prompt = 1;
-  string collection_id = 2;
-  ModelOptions model_options = 3;
-
-  message Document {
-    string id = 1;
-    string filename = 2;
-    repeated uint32 pages = 3;
-  }
-
-  repeated Document documents = 4;
 }
 
 message Prompt {
@@ -35,8 +20,15 @@ message Prompt {
   ModelOptions model_options = 3;
 
   // Search options
-  float threshold = 6;
-  uint32 limit = 7;
+  float threshold = 4;
+  uint32 limit = 5;
+
+  message Document {
+    string id = 1;
+    repeated uint32 pages = 2;
+  }
+
+  repeated Document documents = 6;
 }
 
 message ModelOptions {
