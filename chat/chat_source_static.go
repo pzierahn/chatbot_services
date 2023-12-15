@@ -58,9 +58,9 @@ func (service *Service) getDocumentChunks(ctx context.Context, query documentPag
 	return chunks, nil
 }
 
-func (service *Service) getDocumentsContext(ctx context.Context, userId string, prompt *pb.DocumentsPrompt) ([]string, []string, error) {
+func (service *Service) getDocumentsContext(ctx context.Context, userId string, prompt *pb.Prompt) ([]string, []string, error) {
 	sort.Slice(prompt.Documents, func(i, j int) bool {
-		return prompt.Documents[i].Filename < prompt.Documents[j].Filename
+		return prompt.Documents[i].Id < prompt.Documents[j].Id
 	})
 
 	for _, doc := range prompt.Documents {
