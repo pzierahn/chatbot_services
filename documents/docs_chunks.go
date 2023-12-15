@@ -30,12 +30,12 @@ func (service *Service) getChunkIds(ctx context.Context, documentId string) ([]s
 	return ids, nil
 }
 
-func (service *Service) GetChunks(ctx context.Context, req *pb.ChunkIDs) (*pb.Chunks, error) {
+func (service *Service) GetReferences(ctx context.Context, req *pb.ReferenceIDs) (*pb.References, error) {
 
-	var chunks pb.Chunks
+	var chunks pb.References
 
 	for _, id := range req.Items {
-		var chunk pb.Chunk
+		var chunk pb.Reference
 
 		err := service.db.QueryRow(ctx,
 			`SELECT doc.filename, chunk.id, chunk.document_id, chunk.page
