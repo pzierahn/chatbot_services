@@ -2,6 +2,7 @@ package documents
 
 import (
 	"context"
+	pb "github.com/pzierahn/brainboost/proto"
 )
 
 func (service *Service) getChunkIds(ctx context.Context, documentId string) ([]string, error) {
@@ -27,4 +28,31 @@ func (service *Service) getChunkIds(ctx context.Context, documentId string) ([]s
 	}
 
 	return ids, nil
+}
+
+func (service *Service) GetReferences(ctx context.Context, req *pb.ReferenceIDs) (*pb.References, error) {
+
+	var chunks pb.References
+
+	for _, id := range req.Items {
+		var chunk pb.Reference
+
+		err := service.db.QueryRow(ctx,
+			`SELECT doc.filename, chunk.id, chunk.document_id, chunk.page
+				FROM document_chunks as chunk, documents as doc
+				WHERE chunk.id = $1 AND chunk.document_id = doc.id LIMIT 1`,
+			id).Scan(
+			&chunk.Filename,
+			&chunk.Id,
+			&chunk.DocumentId,
+			&chunk.Page,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		chunks.Items = append(chunks.Items, &chunk)
+	}
+
+	return &chunks, nil
 }

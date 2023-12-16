@@ -15,7 +15,7 @@ type chatMessage struct {
 	collectionId string
 	prompt       string
 	completion   string
-	references   []uuid.UUID
+	references   []string
 }
 
 func (service *Service) storeChatMessage(ctx context.Context, message chatMessage) error {
@@ -86,61 +86,29 @@ func (service *Service) GetChatMessages(ctx context.Context, collection *pb.Coll
 	return messages, nil
 }
 
-func (service *Service) getChatMessageDocuments(ctx context.Context, userId string, message *pb.ChatMessage) ([]*pb.ChatMessage_Document, error) {
+func (service *Service) getChatMessageReferences(ctx context.Context, messageId string) ([]string, error) {
 	rows, err := service.db.Query(ctx,
-		`SELECT de.id, doc.id, doc.filename, de.page
-			FROM chat_messages AS cm,
-				 chat_message_references AS cms,
-				 documents AS doc,
-				 document_chunks as de
-			WHERE cm.id = cms.chat_message_id AND
-			      cms.document_chunk_id = de.id AND
-			      doc.id = de.document_id AND
-			      cm.id = $1 AND
-			      cm.user_id = $2 AND
-			      doc.collection_id = $3
-			ORDER BY de.page`,
-		message.Id, userId, message.CollectionId)
+		`SELECT document_chunk_id
+			FROM chat_message_references
+			WHERE chat_message_id = $1`,
+		messageId)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var (
-		docIDs = make(map[uuid.UUID]string)
-		pages  = make(map[uuid.UUID][]uint32)
-	)
-
+	var references []string
 	for rows.Next() {
-		var (
-			id       uuid.UUID
-			docID    uuid.UUID
-			filename string
-			page     uint32
-		)
+		var id string
 
-		if err = rows.Scan(
-			&id,
-			&docID,
-			&filename,
-			&page); err != nil {
+		if err = rows.Scan(&id); err != nil {
 			return nil, err
 		}
 
-		docIDs[id] = filename
-		pages[id] = append(pages[id], page)
+		references = append(references, id)
 	}
 
-	var docs []*pb.ChatMessage_Document
-	for docID := range docIDs {
-		docs = append(docs, &pb.ChatMessage_Document{
-			Id:       docID.String(),
-			Filename: docIDs[docID],
-			Pages:    pages[docID],
-		})
-	}
-
-	return docs, nil
+	return references, nil
 }
 
 func (service *Service) GetChatMessage(ctx context.Context, id *pb.MessageID) (*pb.ChatMessage, error) {
@@ -151,7 +119,6 @@ func (service *Service) GetChatMessage(ctx context.Context, id *pb.MessageID) (*
 
 	var message pb.ChatMessage
 
-	var pompt string
 	var createdAt time.Time
 
 	err = service.db.QueryRow(ctx,
@@ -163,19 +130,15 @@ func (service *Service) GetChatMessage(ctx context.Context, id *pb.MessageID) (*
 		&message.Id,
 		&message.CollectionId,
 		&createdAt,
-		&pompt,
+		&message.Prompt,
 		&message.Text)
 	if err != nil {
 		return nil, err
 	}
 
-	message.Prompt = &pb.Prompt{
-		Prompt:       pompt,
-		CollectionId: message.CollectionId,
-	}
 	message.Timestamp = timestamppb.New(createdAt)
 
-	message.Documents, err = service.getChatMessageDocuments(ctx, userId, &message)
+	message.References, err = service.getChatMessageReferences(ctx, message.Id)
 	if err != nil {
 		return nil, err
 	}

@@ -12,6 +12,22 @@ service DocumentService {
   rpc Delete(Document) returns (google.protobuf.Empty);
   rpc Update(Document) returns (google.protobuf.Empty);
   rpc Search(SearchQuery) returns (SearchResults);
+  rpc GetReferences(ReferenceIDs) returns (References);
+}
+
+message ReferenceIDs {
+  repeated string items = 1;
+}
+
+message Reference {
+  string id = 1;
+  string document_id = 2;
+  string filename = 3;
+  uint32 page = 4;
+}
+
+message References {
+  repeated Reference items = 1;
 }
 
 message SearchQuery {

@@ -2,22 +2,25 @@ package chat
 
 import (
 	"context"
-	"github.com/google/uuid"
 	pb "github.com/pzierahn/brainboost/proto"
 	"sort"
 	"strings"
 )
 
-func (service *Service) getSourceFromDB(ctx context.Context, prompt *pb.Prompt) (*chatContext, error) {
+type chunks struct {
+	ids    []string
+	texts  []string
+	scores []float32
+}
 
-	query := &pb.SearchQuery{
+func (service *Service) searchForContext(ctx context.Context, prompt *pb.Prompt) (*chunks, error) {
+
+	results, err := service.docs.Search(ctx, &pb.SearchQuery{
 		CollectionId: prompt.CollectionId,
 		Query:        prompt.Prompt,
-		Limit:        prompt.Options.Limit,
-		Threshold:    prompt.Options.Threshold,
-	}
-
-	results, err := service.docs.Search(ctx, query)
+		Limit:        prompt.Limit,
+		Threshold:    prompt.Threshold,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -26,34 +29,27 @@ func (service *Service) getSourceFromDB(ctx context.Context, prompt *pb.Prompt) 
 		return results.Items[i].Page > results.Items[j].Page
 	})
 
-	bg := chatContext{}
+	data := &chunks{
+		ids:    make([]string, len(results.Items)),
+		scores: make([]float32, len(results.Items)),
+	}
 
-	filename := make(map[string]string)
-	pageIds := make(map[string][]uuid.UUID)
-	pages := make(map[string][]uint32)
-	scores := make(map[string][]float32)
+	// Map documentIds to Content
 	text := make(map[string][]string)
 
-	for _, doc := range results.Items {
-		docId := doc.DocumentId
-
-		filename[docId] = doc.Filename
-		pages[docId] = append(pages[docId], doc.Page)
-		scores[docId] = append(scores[docId], doc.Score)
-		text[docId] = append(text[docId], doc.Content)
-		pageIds[docId] = append(pageIds[docId], uuid.MustParse(doc.Id))
+	for inx, chunk := range results.Items {
+		docId := chunk.DocumentId
+		text[docId] = append(text[docId], chunk.Content)
+		data.ids[inx] = chunk.Id
+		data.scores[inx] = chunk.Score
 	}
 
-	for docId := range filename {
-		bg.fragments = append(bg.fragments, strings.Join(text[docId], "\n"))
-		bg.docs = append(bg.docs, &pb.ChatMessage_Document{
-			Id:       docId,
-			Filename: filename[docId],
-			Pages:    pages[docId],
-			Scores:   scores[docId],
-		})
-		bg.pageIds = pageIds[docId]
+	data.texts = make([]string, len(text))
+	var inx int
+	for _, docId := range text {
+		data.texts[inx] = strings.Join(docId, "\n")
+		inx++
 	}
 
-	return &bg, nil
+	return data, nil
 }

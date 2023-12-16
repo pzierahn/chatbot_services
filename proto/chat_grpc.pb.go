@@ -19,10 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	ChatService_Chat_FullMethodName              = "/endpoint.brainboost.chat.v2.ChatService/Chat"
-	ChatService_ChatWithDocuments_FullMethodName = "/endpoint.brainboost.chat.v2.ChatService/ChatWithDocuments"
-	ChatService_GetChatMessages_FullMethodName   = "/endpoint.brainboost.chat.v2.ChatService/GetChatMessages"
-	ChatService_GetChatMessage_FullMethodName    = "/endpoint.brainboost.chat.v2.ChatService/GetChatMessage"
+	ChatService_Chat_FullMethodName            = "/endpoint.brainboost.chat.v2.ChatService/Chat"
+	ChatService_GetChatMessages_FullMethodName = "/endpoint.brainboost.chat.v2.ChatService/GetChatMessages"
+	ChatService_GetChatMessage_FullMethodName  = "/endpoint.brainboost.chat.v2.ChatService/GetChatMessage"
 )
 
 // ChatServiceClient is the client API for ChatService service.
@@ -30,7 +29,6 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ChatServiceClient interface {
 	Chat(ctx context.Context, in *Prompt, opts ...grpc.CallOption) (*ChatMessage, error)
-	ChatWithDocuments(ctx context.Context, in *DocumentsPrompt, opts ...grpc.CallOption) (*ChatMessage, error)
 	GetChatMessages(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*ChatMessages, error)
 	GetChatMessage(ctx context.Context, in *MessageID, opts ...grpc.CallOption) (*ChatMessage, error)
 }
@@ -46,15 +44,6 @@ func NewChatServiceClient(cc grpc.ClientConnInterface) ChatServiceClient {
 func (c *chatServiceClient) Chat(ctx context.Context, in *Prompt, opts ...grpc.CallOption) (*ChatMessage, error) {
 	out := new(ChatMessage)
 	err := c.cc.Invoke(ctx, ChatService_Chat_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *chatServiceClient) ChatWithDocuments(ctx context.Context, in *DocumentsPrompt, opts ...grpc.CallOption) (*ChatMessage, error) {
-	out := new(ChatMessage)
-	err := c.cc.Invoke(ctx, ChatService_ChatWithDocuments_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +73,6 @@ func (c *chatServiceClient) GetChatMessage(ctx context.Context, in *MessageID, o
 // for forward compatibility
 type ChatServiceServer interface {
 	Chat(context.Context, *Prompt) (*ChatMessage, error)
-	ChatWithDocuments(context.Context, *DocumentsPrompt) (*ChatMessage, error)
 	GetChatMessages(context.Context, *Collection) (*ChatMessages, error)
 	GetChatMessage(context.Context, *MessageID) (*ChatMessage, error)
 	mustEmbedUnimplementedChatServiceServer()
@@ -96,9 +84,6 @@ type UnimplementedChatServiceServer struct {
 
 func (UnimplementedChatServiceServer) Chat(context.Context, *Prompt) (*ChatMessage, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Chat not implemented")
-}
-func (UnimplementedChatServiceServer) ChatWithDocuments(context.Context, *DocumentsPrompt) (*ChatMessage, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ChatWithDocuments not implemented")
 }
 func (UnimplementedChatServiceServer) GetChatMessages(context.Context, *Collection) (*ChatMessages, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetChatMessages not implemented")
@@ -133,24 +118,6 @@ func _ChatService_Chat_Handler(srv interface{}, ctx context.Context, dec func(in
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ChatServiceServer).Chat(ctx, req.(*Prompt))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ChatService_ChatWithDocuments_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DocumentsPrompt)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ChatServiceServer).ChatWithDocuments(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ChatService_ChatWithDocuments_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ChatServiceServer).ChatWithDocuments(ctx, req.(*DocumentsPrompt))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -201,10 +168,6 @@ var ChatService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Chat",
 			Handler:    _ChatService_Chat_Handler,
-		},
-		{
-			MethodName: "ChatWithDocuments",
-			Handler:    _ChatService_ChatWithDocuments_Handler,
 		},
 		{
 			MethodName: "GetChatMessages",
