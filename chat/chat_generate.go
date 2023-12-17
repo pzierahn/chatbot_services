@@ -7,6 +7,7 @@ import (
 	"github.com/pzierahn/brainboost/account"
 	pb "github.com/pzierahn/brainboost/proto"
 	"github.com/sashabaranov/go-openai"
+	"log"
 )
 
 func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMessage, error) {
@@ -70,6 +71,7 @@ func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMe
 		},
 	)
 	if err != nil {
+		log.Printf("error: %v", err)
 		return nil, err
 	}
 
