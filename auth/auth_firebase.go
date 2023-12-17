@@ -13,8 +13,6 @@ type firebaseService struct {
 	client *auth.Client
 }
 
-const credentials = "serviceAccount.json"
-
 func WithFirebase(ctx context.Context, app *firebase.App) (service Service, err error) {
 	client, err := app.Auth(ctx)
 	if err != nil {
