@@ -17,7 +17,10 @@ type Client struct {
 	genaiClient      *genai.Client
 }
 
-func New(ctx context.Context, projectID, location string) (*Client, error) {
+func New(ctx context.Context) (*Client, error) {
+	projectID := "brainboost-399710"
+	location := "us-central1"
+
 	apiEndpoint := fmt.Sprintf("%s-aiplatform.googleapis.com:443", location)
 
 	predictionClient, err := aiplatform.NewPredictionClient(

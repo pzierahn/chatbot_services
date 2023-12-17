@@ -13,7 +13,7 @@ func main() {
 
 	ctx := context.Background()
 
-	client, err := vertex.New(ctx, "brainboost-399710", "us-central1")
+	client, err := vertex.New(ctx)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
