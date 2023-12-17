@@ -48,6 +48,8 @@ cloud.google.com/go/storage v1.36.0 h1:P0mOkAcaJxhCTvAkMhxMfrTKiNcub4YmmPBtlhAyT
 cloud.google.com/go/storage v1.36.0/go.mod h1:M6M/3V/D3KpzMTJyPOR/HU6n2Si5QdaXYEsng2xgOs8=
 cloud.google.com/go/vertexai v0.5.2 h1:OFAMCKZEA9FkWPEKeVMC421RcoHkJe2zbvNOi3+oI8o=
 cloud.google.com/go/vertexai v0.5.2/go.mod h1:rYaqgBlVQ8dga2AcIemjOcZqB/BZukMRHSzJ5FSGBjo=
+cloud.google.com/go/vertexai v0.6.0 h1:f/2hvwTI/MsVKz1IwMBJpPNTgRv9RZFIXF1tDEGyww8=
+cloud.google.com/go/vertexai v0.6.0/go.mod h1:aX7eXETSezwz1aSIXc0kljpOfJ420YJBNIXV72HHsqA=
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
 firebase.google.com/go v3.13.0+incompatible h1:3TdYC3DDi6aHn20qoRkxwGqNgdjtblwVAyRLQwGn/+4=
 firebase.google.com/go v3.13.0+incompatible/go.mod h1:xlah6XbEyW6tbfSklcfe5FHJIwjt8toICdV5Wh9ptHs=

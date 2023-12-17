@@ -5,7 +5,7 @@ go 1.21
 require (
 	cloud.google.com/go/aiplatform v1.58.0
 	cloud.google.com/go/storage v1.36.0
-	cloud.google.com/go/vertexai v0.5.2
+	cloud.google.com/go/vertexai v0.6.0
 	firebase.google.com/go v3.13.0+incompatible
 	github.com/google/uuid v1.5.0
 	github.com/jackc/pgx/v5 v5.5.1
