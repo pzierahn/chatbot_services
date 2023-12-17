@@ -7,7 +7,6 @@ import (
 	"github.com/pzierahn/brainboost/account"
 	pb "github.com/pzierahn/brainboost/proto"
 	"github.com/sashabaranov/go-openai"
-	"log"
 )
 
 func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMessage, error) {
@@ -74,15 +73,12 @@ func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMe
 		return nil, err
 	}
 
-	_, err = service.account.CreateUsage(ctx, account.Usage{
+	_, _ = service.account.CreateUsage(ctx, account.Usage{
 		UserId: userId,
 		Model:  resp.Model,
 		Input:  uint32(resp.Usage.PromptTokens),
 		Output: uint32(resp.Usage.CompletionTokens),
 	})
-	if err != nil {
-		log.Printf("Chat: error %v", err)
-	}
 
 	completion := &pb.ChatMessage{
 		Id:           uuid.NewString(),
