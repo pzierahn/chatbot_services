@@ -12,7 +12,6 @@ type Client struct {
 	ProjectID        string
 	Location         string
 	EmbeddingModel   string
-	GenerationModel  string
 	predictionClient *aiplatform.PredictionClient
 	genaiClient      *genai.Client
 }

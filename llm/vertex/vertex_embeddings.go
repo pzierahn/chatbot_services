@@ -4,32 +4,26 @@ import (
 	"cloud.google.com/go/aiplatform/apiv1beta1/aiplatformpb"
 	"context"
 	"fmt"
+	"github.com/pzierahn/brainboost/llm"
 	"google.golang.org/protobuf/types/known/structpb"
 )
 
-// GenerateEmbeddings generates embeddings for a prompt
-func (client *Client) GenerateEmbeddings(ctx context.Context, prompt string) ([]float32, error) {
-	// PredictRequest requires an endpoint, instances, and parameters
-	// Endpoint
+// CreateEmbeddings generates embeddings for a text
+func (client *Client) CreateEmbeddings(ctx context.Context, req *llm.EmbeddingRequest) (*llm.EmbeddingResponse, error) {
 	base := fmt.Sprintf("projects/%s/locations/%s/publishers/google/models", client.ProjectID, client.Location)
 	url := fmt.Sprintf("%s/%s", base, client.EmbeddingModel)
 
-	// Instances: the prompt
 	promptValue, err := structpb.NewValue(map[string]interface{}{
-		"content": prompt,
+		"content": req.Input,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	// PredictRequest: create the model prediction request
-	req := &aiplatformpb.PredictRequest{
+	resp, err := client.predictionClient.Predict(ctx, &aiplatformpb.PredictRequest{
 		Endpoint:  url,
 		Instances: []*structpb.Value{promptValue},
-	}
-
-	// PredictResponse: receive the response from the model
-	resp, err := client.predictionClient.Predict(ctx, req)
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -54,5 +48,14 @@ func (client *Client) GenerateEmbeddings(ctx context.Context, prompt string) ([]
 		embedding[i] = float32(v.(float64))
 	}
 
-	return embedding, nil
+	meta := resp.Metadata.GetStructValue().AsMap()
+	charCount, ok := meta["billableCharacterCount"].(float64)
+	if !ok {
+		return nil, fmt.Errorf("billableCharacterCount not found")
+	}
+
+	return &llm.EmbeddingResponse{
+		Data:   embedding,
+		Tokens: int(charCount),
+	}, nil
 }
