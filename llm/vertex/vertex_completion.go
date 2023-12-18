@@ -42,6 +42,15 @@ func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateR
 	if gen.UsageMetadata != nil {
 		resp.InputTokens = int(gen.UsageMetadata.PromptTokenCount)
 		resp.OutputTokens = int(gen.UsageMetadata.CandidatesTokenCount)
+	} else {
+		for _, part := range parts {
+			partText, ok := part.(genai.Text)
+			if !ok {
+				continue
+			}
+			resp.InputTokens += len(string(partText))
+		}
+		resp.OutputTokens = len(resp.Text)
 	}
 
 	return resp, nil
