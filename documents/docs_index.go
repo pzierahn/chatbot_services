@@ -6,10 +6,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/pzierahn/brainboost/account"
+	"github.com/pzierahn/brainboost/llm"
 	"github.com/pzierahn/brainboost/pdf"
 	pb "github.com/pzierahn/brainboost/proto"
 	"github.com/pzierahn/brainboost/vectordb"
-	"github.com/sashabaranov/go-openai"
 	"io"
 	"strings"
 	"sync"
@@ -82,19 +82,15 @@ func (service *Service) processEmbeddings(ctx context.Context, batch *embeddings
 				return
 			}
 
-			resp, err := service.gpt.CreateEmbeddings(
-				ctx,
-				openai.EmbeddingRequestStrings{
-					Model: embeddingsModel,
-					Input: []string{page},
-					User:  batch.userId,
-				},
-			)
+			resp, err := service.embeddings.CreateEmbeddings(ctx, &llm.EmbeddingRequest{
+				Input:  page,
+				UserId: batch.userId,
+			})
 
 			mu.Lock()
 			defer mu.Unlock()
 
-			inputTokens += uint32(resp.Usage.PromptTokens)
+			inputTokens += uint32(resp.Tokens)
 
 			if err != nil {
 				errs = append(errs, err)
@@ -104,7 +100,7 @@ func (service *Service) processEmbeddings(ctx context.Context, batch *embeddings
 			embeddings = append(embeddings, &embedding{
 				Page:      uint32(inx),
 				Text:      page,
-				Embedding: resp.Data[0].Embedding,
+				Embedding: resp.Data,
 			})
 
 			_ = batch.stream.Send(&pb.IndexProgress{

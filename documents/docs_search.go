@@ -4,9 +4,9 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"github.com/pzierahn/brainboost/account"
+	"github.com/pzierahn/brainboost/llm"
 	pb "github.com/pzierahn/brainboost/proto"
 	"github.com/pzierahn/brainboost/vectordb"
-	"github.com/sashabaranov/go-openai"
 )
 
 type SearchQuery struct {
@@ -33,30 +33,24 @@ func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.
 		return nil, account.NoFundingError()
 	}
 
-	resp, err := service.gpt.CreateEmbeddings(
-		ctx,
-		openai.EmbeddingRequestStrings{
-			Model: embeddingsModel,
-			Input: []string{query.Query},
-			User:  userId,
-		},
-	)
+	resp, err := service.embeddings.CreateEmbeddings(ctx, &llm.EmbeddingRequest{
+		Input:  query.Query,
+		UserId: userId,
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	promptEmbedding := resp.Data[0].Embedding
 	_, _ = service.account.CreateUsage(ctx, account.Usage{
 		UserId: userId,
 		Model:  embeddingsModel.String(),
-		Input:  uint32(resp.Usage.PromptTokens),
-		Output: uint32(resp.Usage.CompletionTokens),
+		Input:  uint32(resp.Tokens),
 	})
 
 	results, err := service.vectorDB.Search(vectordb.SearchQuery{
 		UserId:       userId,
 		CollectionId: query.CollectionId,
-		Vector:       promptEmbedding,
+		Vector:       resp.Data,
 		Limit:        int(query.Limit),
 		Threshold:    query.Threshold,
 	})

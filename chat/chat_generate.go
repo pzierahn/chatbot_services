@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/pzierahn/brainboost/account"
+	"github.com/pzierahn/brainboost/llm"
 	pb "github.com/pzierahn/brainboost/proto"
-	"github.com/sashabaranov/go-openai"
 	"log"
 )
 
@@ -40,36 +40,14 @@ func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMe
 		return nil, err
 	}
 
-	messages := []openai.ChatCompletionMessage{
-		{
-			Role:    openai.ChatMessageRoleSystem,
-			Content: "Answer in Markdown format without any code blocks",
-		},
-	}
-
-	for _, text := range chunkData.texts {
-		messages = append(messages, openai.ChatCompletionMessage{
-			Role:    openai.ChatMessageRoleUser,
-			Content: text,
-		})
-	}
-
-	messages = append(messages, openai.ChatCompletionMessage{
-		Role:    openai.ChatMessageRoleUser,
-		Content: prompt.Prompt,
+	resp, err := service.completion.GenerateCompletion(ctx, &llm.GenerateRequest{
+		Prompt:      prompt.Prompt,
+		Documents:   chunkData.texts,
+		Model:       prompt.ModelOptions.Model,
+		MaxTokens:   int(prompt.ModelOptions.MaxTokens),
+		Temperature: prompt.ModelOptions.Temperature,
+		UserId:      userId,
 	})
-
-	resp, err := service.gpt.CreateChatCompletion(
-		ctx,
-		openai.ChatCompletionRequest{
-			Model:       prompt.ModelOptions.Model,
-			Temperature: prompt.ModelOptions.Temperature,
-			MaxTokens:   int(prompt.ModelOptions.MaxTokens),
-			Messages:    messages,
-			N:           1,
-			User:        userId,
-		},
-	)
 	if err != nil {
 		log.Printf("error: %v", err)
 		return nil, err
@@ -77,16 +55,16 @@ func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMe
 
 	_, _ = service.account.CreateUsage(ctx, account.Usage{
 		UserId: userId,
-		Model:  resp.Model,
-		Input:  uint32(resp.Usage.PromptTokens),
-		Output: uint32(resp.Usage.CompletionTokens),
+		Model:  prompt.ModelOptions.Model,
+		Input:  uint32(resp.InputTokens),
+		Output: uint32(resp.OutputTokens),
 	})
 
 	completion := &pb.ChatMessage{
 		Id:           uuid.NewString(),
 		CollectionId: prompt.CollectionId,
 		Prompt:       prompt.Prompt,
-		Text:         resp.Choices[0].Message.Content,
+		Text:         resp.Text,
 		References:   chunkData.ids,
 		Scores:       chunkData.scores,
 	}
