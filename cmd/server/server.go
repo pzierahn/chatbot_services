@@ -93,7 +93,6 @@ func main() {
 		Account:    accountService,
 		DB:         db,
 		Embeddings: embeddingService,
-		Completion: completionService,
 		Storage:    bucket,
 		VectorDB:   vecDB,
 	})
@@ -101,7 +100,7 @@ func main() {
 
 	chatServer := chat.FromConfig(&chat.Config{
 		DB:              db,
-		Completion:      embeddingService,
+		Completion:      completionService,
 		DocumentService: docsService,
 		AccountService:  accountService,
 		AuthService:     authService,
