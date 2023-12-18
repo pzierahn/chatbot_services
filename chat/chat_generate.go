@@ -40,7 +40,12 @@ func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMe
 		return nil, err
 	}
 
-	resp, err := service.completion.GenerateCompletion(ctx, &llm.GenerateRequest{
+	model, err := service.getModel(prompt.ModelOptions.Model)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := model.GenerateCompletion(ctx, &llm.GenerateRequest{
 		Prompt:      prompt.Prompt,
 		Documents:   chunkData.texts,
 		Model:       prompt.ModelOptions.Model,

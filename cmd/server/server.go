@@ -10,6 +10,7 @@ import (
 	"github.com/pzierahn/brainboost/collections"
 	"github.com/pzierahn/brainboost/documents"
 	"github.com/pzierahn/brainboost/llm/openai"
+	"github.com/pzierahn/brainboost/llm/vertex"
 	pb "github.com/pzierahn/brainboost/proto"
 	"github.com/pzierahn/brainboost/setup"
 	"github.com/pzierahn/brainboost/vectordb"
@@ -64,8 +65,11 @@ func main() {
 		log.Fatalf("failed to setup tables: %v", err)
 	}
 
-	embeddingService := openai.New()
-	completionService := embeddingService
+	openaiService := openai.New()
+	vertexService, err := vertex.New(ctx)
+	if err != nil {
+		log.Fatalf("failed to create vertex service: %v", err)
+	}
 
 	authService, err := auth.WithFirebase(ctx, app)
 	if err != nil {
@@ -92,7 +96,7 @@ func main() {
 		Auth:       authService,
 		Account:    accountService,
 		DB:         db,
-		Embeddings: embeddingService,
+		Embeddings: openaiService,
 		Storage:    bucket,
 		VectorDB:   vecDB,
 	})
@@ -100,7 +104,8 @@ func main() {
 
 	chatServer := chat.FromConfig(&chat.Config{
 		DB:              db,
-		Completion:      completionService,
+		Openai:          openaiService,
+		Vertex:          vertexService,
 		DocumentService: docsService,
 		AccountService:  accountService,
 		AuthService:     authService,

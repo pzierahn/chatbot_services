@@ -11,16 +11,18 @@ import (
 
 type Service struct {
 	pb.UnimplementedChatServiceServer
-	db         *pgxpool.Pool
-	completion llm.Completion
-	docs       *documents.Service
-	account    account.Service
-	auth       auth.Service
+	db      *pgxpool.Pool
+	openai  llm.Completion
+	vertex  llm.Completion
+	docs    *documents.Service
+	account account.Service
+	auth    auth.Service
 }
 
 type Config struct {
 	DB              *pgxpool.Pool
-	Completion      llm.Completion
+	Openai          llm.Completion
+	Vertex          llm.Completion
 	DocumentService *documents.Service
 	AccountService  *account.Service
 	AuthService     auth.Service
@@ -28,10 +30,11 @@ type Config struct {
 
 func FromConfig(config *Config) *Service {
 	return &Service{
-		completion: config.Completion,
-		db:         config.DB,
-		docs:       config.DocumentService,
-		account:    *config.AccountService,
-		auth:       config.AuthService,
+		openai:  config.Openai,
+		vertex:  config.Vertex,
+		db:      config.DB,
+		docs:    config.DocumentService,
+		account: *config.AccountService,
+		auth:    config.AuthService,
 	}
 }
