@@ -28,7 +28,10 @@ type EmbeddingResponse struct {
 	Tokens int
 }
 
-type LLM interface {
+type Embedding interface {
 	CreateEmbeddings(ctx context.Context, req *EmbeddingRequest) (*EmbeddingResponse, error)
-	Generate(ctx context.Context, req *GenerateRequest) (*GenerateResponse, error)
+}
+
+type Completion interface {
+	GenerateCompletion(ctx context.Context, req *GenerateRequest) (*GenerateResponse, error)
 }

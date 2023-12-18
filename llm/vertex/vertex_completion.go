@@ -6,7 +6,7 @@ import (
 	"github.com/pzierahn/brainboost/llm"
 )
 
-func (client *Client) Generate(ctx context.Context, req *llm.GenerateRequest) (*llm.GenerateResponse, error) {
+func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateRequest) (*llm.GenerateResponse, error) {
 	modelName := req.Model
 	if req.Model == "" {
 		modelName = "gemini-pro"
