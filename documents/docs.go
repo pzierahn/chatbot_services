@@ -22,7 +22,6 @@ type Service struct {
 	account    *account.Service
 	db         *pgxpool.Pool
 	embeddings llm.Embedding
-	completion llm.Completion
 	storage    *storage.BucketHandle
 	vectorDB   *vectordb.DB
 }
@@ -32,7 +31,6 @@ type Config struct {
 	Account    *account.Service
 	DB         *pgxpool.Pool
 	Embeddings llm.Embedding
-	Completion llm.Completion
 	Storage    *storage.BucketHandle
 	VectorDB   *vectordb.DB
 }
@@ -42,7 +40,6 @@ func FromConfig(config *Config) *Service {
 		auth:       config.Auth,
 		db:         config.DB,
 		embeddings: config.Embeddings,
-		completion: config.Completion,
 		storage:    config.Storage,
 		account:    config.Account,
 		vectorDB:   config.VectorDB,
