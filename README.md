@@ -84,7 +84,7 @@ After a new tag is pushed, the new release will be automatically build and deplo
 
 Prepare a new release by following these steps:
 
-1. `git tag -a envoy/vX -m "Release envoy/vX"`
-2. `git push origin envoy/vX`
+1. `git tag gateway/vX`
+2. `git push origin gateway/vX`
 
 After a new tag is pushed, the new release will be automatically build and deployed by using Google Cloud Run.
