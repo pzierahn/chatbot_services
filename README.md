@@ -77,7 +77,17 @@ Prepare a new release by following these steps:
 5. Create a new git tag:
     1. `git tag -a vX.X.X -m "Release vX.X.X"`
     2. `git push origin vX.X.X`
-6. Merge `main` branch into `stable` branch
 
-After the release is merged into the `stable` branch, the new release will be automatically deployed by using Google
-Cloud Run.
+After a new tag is pushed, the new release will be automatically build and deployed by using Google Cloud Run.
+
+## Deploy a new release
+
+Prepare a new release by following these steps:
+
+1. Commit changes `git commit -am "Release vX.X.X"`
+2. Push changes `git push`
+3. Create a new git tag:
+    1. `git tag -a envoy/vX -m "Release envoy/vX"`
+    2. `git push origin envoy/vX`
+
+After a new tag is pushed, the new release will be automatically build and deployed by using Google Cloud Run.
