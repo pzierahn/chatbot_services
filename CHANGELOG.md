@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Rename package to github.com/pzierahn/chatbot_services
 
+### Fixed
+
+- Fix none existing local credentials bug
+
 ## [4.1.0] - 2023-12-19
 
 ### Added
