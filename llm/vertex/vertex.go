@@ -17,7 +17,7 @@ type Client struct {
 	genaiClient      *genai.Client
 }
 
-const localCredentialsFile = "brainboost-399710-d789c5991083.json"
+const localCredentialsFile = "service_account.json"
 
 func New(ctx context.Context) (*Client, error) {
 	projectID := "brainboost-399710"
