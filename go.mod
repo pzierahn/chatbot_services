@@ -12,7 +12,7 @@ require (
 	github.com/pinecone-io/go-pinecone v0.3.0
 	github.com/sashabaranov/go-openai v1.17.9
 	google.golang.org/api v0.154.0
-	google.golang.org/grpc v1.60.0
+	google.golang.org/grpc v1.60.1
 	google.golang.org/protobuf v1.31.0
 )
 
