@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"github.com/pzierahn/chatbot_services/llm"
-	"github.com/pzierahn/chatbot_services/llm/openai"
+	"github.com/pzierahn/chatbot_services/llm/vertex"
 	"log"
 )
 
@@ -14,13 +14,13 @@ func main() {
 
 	ctx := context.Background()
 
-	//client, err := vertex.New(ctx)
-	//if err != nil {
-	//	log.Fatalf("%v", err)
-	//}
+	client, err := vertex.New(ctx)
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
 
 	// 717
-	client := openai.New()
+	//client := openai.New()
 
 	//embedding, err := client.CreateEmbeddings(ctx, &llm.EmbeddingRequest{
 	//	Input: text,
@@ -32,12 +32,13 @@ func main() {
 	//log.Printf("embedding: %v", len(embedding.Data))
 	//log.Printf("tokens: %v", embedding.Tokens)
 
-	resp, err := client.Generate(ctx, &llm.GenerateRequest{
+	resp, err := client.GenerateCompletion(ctx, &llm.GenerateRequest{
 		Prompt:    text,
 		Documents: []string{text},
 	})
 	if err != nil {
 		log.Printf("%v", err)
+		return
 	}
 
 	log.Printf("resp: %v", resp.Text)
