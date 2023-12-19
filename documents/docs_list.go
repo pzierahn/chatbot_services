@@ -35,10 +35,14 @@ func (service *Service) List(ctx context.Context, req *pb.DocumentFilter) (*pb.D
 		err = rows.Scan(
 			&source.Id,
 			&source.Filename,
-			&source.Pages)
+			&source.Pages,
+		)
 		if err != nil {
 			return nil, err
 		}
+
+		// Max + 1 is the number of pages
+		source.Pages++
 
 		documents.Items = append(documents.Items, &source)
 	}
