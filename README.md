@@ -66,7 +66,7 @@ docker run --rm \
    ```
 4. Run the test script: `go run cmd/test/test.go`
 
-## Deploy a new release
+## Deploy a new service release
 
 Prepare a new release by following these steps:
 
@@ -80,14 +80,11 @@ Prepare a new release by following these steps:
 
 After a new tag is pushed, the new release will be automatically build and deployed by using Google Cloud Run.
 
-## Deploy a new release
+## Deploy a new gateway release
 
 Prepare a new release by following these steps:
 
-1. Commit changes `git commit -am "Release vX.X.X"`
-2. Push changes `git push`
-3. Create a new git tag:
-    1. `git tag -a envoy/vX -m "Release envoy/vX"`
-    2. `git push origin envoy/vX`
+1. `git tag -a envoy/vX -m "Release envoy/vX"`
+2. `git push origin envoy/vX`
 
 After a new tag is pushed, the new release will be automatically build and deployed by using Google Cloud Run.
