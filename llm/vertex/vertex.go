@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"google.golang.org/api/option"
+	"os"
 )
 
 type Client struct {
@@ -16,16 +17,22 @@ type Client struct {
 	genaiClient      *genai.Client
 }
 
+const localCredentialsFile = "brainboost-399710-d789c5991083.json"
+
 func New(ctx context.Context) (*Client, error) {
 	projectID := "brainboost-399710"
 	location := "us-central1"
 
-	apiEndpoint := fmt.Sprintf("%s-aiplatform.googleapis.com:443", location)
+	var authOption []option.ClientOption
+	if _, err := os.Stat(localCredentialsFile); err == nil {
+		localCredentials := option.WithCredentialsFile(localCredentialsFile)
+		authOption = append(authOption, localCredentials)
+	}
 
+	apiEndpoint := fmt.Sprintf("%s-aiplatform.googleapis.com:443", location)
 	predictionClient, err := aiplatform.NewPredictionClient(
 		ctx,
-		option.WithEndpoint(apiEndpoint),
-		option.WithCredentialsFile("brainboost-399710-d789c5991083.json"),
+		append(authOption, option.WithEndpoint(apiEndpoint))...,
 	)
 	if err != nil {
 		return nil, err
@@ -35,7 +42,7 @@ func New(ctx context.Context) (*Client, error) {
 		ctx,
 		projectID,
 		location,
-		option.WithCredentialsFile("brainboost-399710-d789c5991083.json"),
+		authOption...,
 	)
 	if err != nil {
 		return nil, err
