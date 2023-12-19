@@ -51,21 +51,6 @@ docker run --rm \
     -it brainboost
 ```
 
-### Run tests
-
-1. Download Supabase: `git clone https://github.com/supabase/supabase`
-2. Run Supabase: `cd supabase/docker; docker-compose up`
-3. Set environment variables for the test script (copy vars from supabase/docker/.env):
-   ```shell
-   export TEST_API_EXTERNAL_URL="XXX"
-   export TEST_SERVICE_ROLE_KEY="XXX"
-   export TEST_POSTGRES_URL="XXX"
-   export TEST_POSTGRES_DB="XXX"
-   export TEST_POSTGRES_PASSWORD="XXX"
-   export TEST_JWT_SECRET="XXX"
-   ```
-4. Run the test script: `go run cmd/test/test.go`
-
 ## Deploy a new service release
 
 Prepare a new release by following these steps:
