@@ -1,4 +1,4 @@
-module github.com/pzierahn/brainboost
+module github.com/pzierahn/chatbot_services
 
 go 1.21
 

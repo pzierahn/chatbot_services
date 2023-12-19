@@ -2,7 +2,7 @@ package chat
 
 import (
 	"context"
-	pb "github.com/pzierahn/brainboost/proto"
+	pb "github.com/pzierahn/chatbot_services/proto"
 	"sort"
 	"strings"
 )

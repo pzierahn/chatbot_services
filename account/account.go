@@ -2,8 +2,8 @@ package account
 
 import (
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/pzierahn/brainboost/auth"
-	pb "github.com/pzierahn/brainboost/proto"
+	"github.com/pzierahn/chatbot_services/auth"
+	pb "github.com/pzierahn/chatbot_services/proto"
 	"google.golang.org/grpc/status"
 )
 

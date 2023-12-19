@@ -3,7 +3,7 @@ package vectordb
 import (
 	"context"
 	"github.com/pinecone-io/go-pinecone/pinecone_grpc"
-	pb "github.com/pzierahn/brainboost/proto"
+	pb "github.com/pzierahn/chatbot_services/proto"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/structpb"
 	"os"

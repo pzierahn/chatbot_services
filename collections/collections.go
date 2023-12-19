@@ -3,9 +3,9 @@ package collections
 import (
 	"cloud.google.com/go/storage"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/pzierahn/brainboost/auth"
-	pb "github.com/pzierahn/brainboost/proto"
-	"github.com/pzierahn/brainboost/vectordb"
+	"github.com/pzierahn/chatbot_services/auth"
+	pb "github.com/pzierahn/chatbot_services/proto"
+	"github.com/pzierahn/chatbot_services/vectordb"
 )
 
 const (

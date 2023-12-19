@@ -3,7 +3,7 @@ package vertex
 import (
 	"cloud.google.com/go/vertexai/genai"
 	"context"
-	"github.com/pzierahn/brainboost/llm"
+	"github.com/pzierahn/chatbot_services/llm"
 )
 
 func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateRequest) (*llm.GenerateResponse, error) {

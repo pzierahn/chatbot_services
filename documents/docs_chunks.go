@@ -2,7 +2,7 @@ package documents
 
 import (
 	"context"
-	pb "github.com/pzierahn/brainboost/proto"
+	pb "github.com/pzierahn/chatbot_services/proto"
 )
 
 func (service *Service) getChunkIds(ctx context.Context, documentId string) ([]string, error) {

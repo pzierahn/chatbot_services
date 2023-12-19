@@ -2,7 +2,7 @@ package openai
 
 import (
 	"context"
-	"github.com/pzierahn/brainboost/llm"
+	"github.com/pzierahn/chatbot_services/llm"
 	"github.com/sashabaranov/go-openai"
 )
 

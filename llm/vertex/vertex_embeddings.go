@@ -4,7 +4,7 @@ import (
 	"cloud.google.com/go/aiplatform/apiv1beta1/aiplatformpb"
 	"context"
 	"fmt"
-	"github.com/pzierahn/brainboost/llm"
+	"github.com/pzierahn/chatbot_services/llm"
 	"google.golang.org/protobuf/types/known/structpb"
 )
 

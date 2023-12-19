@@ -2,11 +2,11 @@ package chat
 
 import (
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/pzierahn/brainboost/account"
-	"github.com/pzierahn/brainboost/auth"
-	"github.com/pzierahn/brainboost/documents"
-	"github.com/pzierahn/brainboost/llm"
-	pb "github.com/pzierahn/brainboost/proto"
+	"github.com/pzierahn/chatbot_services/account"
+	"github.com/pzierahn/chatbot_services/auth"
+	"github.com/pzierahn/chatbot_services/documents"
+	"github.com/pzierahn/chatbot_services/llm"
+	pb "github.com/pzierahn/chatbot_services/proto"
 )
 
 type Service struct {

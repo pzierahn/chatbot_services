@@ -3,10 +3,10 @@ package documents
 import (
 	"context"
 	"github.com/google/uuid"
-	"github.com/pzierahn/brainboost/account"
-	"github.com/pzierahn/brainboost/llm"
-	pb "github.com/pzierahn/brainboost/proto"
-	"github.com/pzierahn/brainboost/vectordb"
+	"github.com/pzierahn/chatbot_services/account"
+	"github.com/pzierahn/chatbot_services/llm"
+	pb "github.com/pzierahn/chatbot_services/proto"
+	"github.com/pzierahn/chatbot_services/vectordb"
 )
 
 type SearchQuery struct {

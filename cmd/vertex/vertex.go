@@ -2,7 +2,8 @@ package main
 
 import (
 	"context"
-	"github.com/pzierahn/brainboost/vertex"
+	"github.com/pzierahn/chatbot_services/llm"
+	"github.com/pzierahn/chatbot_services/llm/openai"
 	"log"
 )
 
@@ -13,22 +14,33 @@ func main() {
 
 	ctx := context.Background()
 
-	client, err := vertex.New(ctx)
-	if err != nil {
-		log.Fatalf("%v", err)
-	}
+	//client, err := vertex.New(ctx)
+	//if err != nil {
+	//	log.Fatalf("%v", err)
+	//}
 
-	embedding, err := client.GenerateEmbeddings(ctx, text)
-	if err != nil {
-		log.Fatalf("%v", err)
-	}
+	// 717
+	client := openai.New()
 
-	log.Printf("embedding: %v", len(embedding))
+	//embedding, err := client.CreateEmbeddings(ctx, &llm.EmbeddingRequest{
+	//	Input: text,
+	//})
+	//if err != nil {
+	//	log.Fatalf("%v", err)
+	//}
+	//
+	//log.Printf("embedding: %v", len(embedding.Data))
+	//log.Printf("tokens: %v", embedding.Tokens)
 
-	resp, err := client.Generate(ctx, "Sum this up", text)
+	resp, err := client.Generate(ctx, &llm.GenerateRequest{
+		Prompt:    text,
+		Documents: []string{text},
+	})
 	if err != nil {
 		log.Printf("%v", err)
 	}
 
-	log.Printf("resp: %v", resp)
+	log.Printf("resp: %v", resp.Text)
+	log.Printf("InputTokens: %v", resp.InputTokens)
+	log.Printf("OutputTokens: %v", resp.OutputTokens)
 }
