@@ -47,13 +47,27 @@ func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.
 		Input:  uint32(resp.Tokens),
 	})
 
-	results, err := service.vectorDB.Search(vectordb.SearchQuery{
+	vectors, err := service.vectorDB.Search(vectordb.SearchQuery{
 		UserId:       userId,
 		CollectionId: query.CollectionId,
 		Vector:       resp.Data,
 		Limit:        int(query.Limit),
 		Threshold:    query.Threshold,
 	})
+
+	results := &pb.SearchResults{
+		Items: make([]*pb.SearchResults_Document, len(vectors)),
+	}
+	for _, vector := range vectors {
+		results.Items = append(results.Items, &pb.SearchResults_Document{
+			Id:         vector.Id,
+			DocumentId: vector.DocumentId,
+			Filename:   vector.Filename,
+			Content:    vector.Text,
+			Page:       vector.Page,
+			Score:      vector.Score,
+		})
+	}
 
 	return results, err
 }
