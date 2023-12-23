@@ -53,8 +53,7 @@ func main() {
 		log.Fatalf("did not get bucket: %v", err)
 	}
 
-	//addr := os.Getenv("BRAINBOOST_COCKROACH_DB")
-	addr := "postgresql://root@127.0.0.1:26257/defaultdb?sslmode=disable"
+	addr := os.Getenv("BRAINBOOST_COCKROACH_DB")
 	db, err := pgxpool.New(ctx, addr)
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
