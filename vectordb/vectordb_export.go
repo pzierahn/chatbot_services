@@ -15,33 +15,33 @@ func (db *DB) Export(ids []string) ([]*Vector, error) {
 	ctx := context.Background()
 	ctx = metadata.AppendToOutgoingContext(ctx, "api-key", db.apiKey)
 
-	queryResult, err := db.client.Fetch(ctx, &pinecone_grpc.FetchRequest{
-		Ids:       ids,
-		Namespace: "documents",
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	if len(queryResult.Vectors) == 0 {
-		return nil, nil
-	}
-
 	var results []*Vector
 
-	for _, item := range queryResult.Vectors {
-		result := &Vector{
-			Id:           item.Id,
-			UserId:       item.Metadata.Fields["userId"].GetStringValue(),
-			DocumentId:   item.Metadata.Fields["documentId"].GetStringValue(),
-			CollectionId: item.Metadata.Fields["collectionId"].GetStringValue(),
-			Filename:     item.Metadata.Fields["filename"].GetStringValue(),
-			Page:         uint32(item.Metadata.Fields["page"].GetNumberValue()),
-			Text:         item.Metadata.Fields["text"].GetStringValue(),
-			Vector:       item.Values,
+	for start := 0; start < len(ids); start += 100 {
+		end := min(start+100, len(ids))
+
+		queryResult, err := db.client.Fetch(ctx, &pinecone_grpc.FetchRequest{
+			Ids:       ids[start:end],
+			Namespace: "documents",
+		})
+		if err != nil {
+			return nil, err
 		}
 
-		results = append(results, result)
+		for _, item := range queryResult.Vectors {
+			result := &Vector{
+				Id:           item.Id,
+				UserId:       item.Metadata.Fields["userId"].GetStringValue(),
+				DocumentId:   item.Metadata.Fields["documentId"].GetStringValue(),
+				CollectionId: item.Metadata.Fields["collectionId"].GetStringValue(),
+				Filename:     item.Metadata.Fields["filename"].GetStringValue(),
+				Page:         uint32(item.Metadata.Fields["page"].GetNumberValue()),
+				Text:         item.Metadata.Fields["text"].GetStringValue(),
+				Vector:       item.Values,
+			}
+
+			results = append(results, result)
+		}
 	}
 
 	return results, nil
