@@ -19,9 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	ChatService_Chat_FullMethodName            = "/endpoint.brainboost.chat.v2.ChatService/Chat"
-	ChatService_GetChatMessages_FullMethodName = "/endpoint.brainboost.chat.v2.ChatService/GetChatMessages"
-	ChatService_GetChatMessage_FullMethodName  = "/endpoint.brainboost.chat.v2.ChatService/GetChatMessage"
+	ChatService_Chat_FullMethodName              = "/endpoint.brainboost.chat.v2.ChatService/Chat"
+	ChatService_GetChatMessages_FullMethodName   = "/endpoint.brainboost.chat.v2.ChatService/GetChatMessages"
+	ChatService_GetChatMessage_FullMethodName    = "/endpoint.brainboost.chat.v2.ChatService/GetChatMessage"
+	ChatService_DeleteChatMessage_FullMethodName = "/endpoint.brainboost.chat.v2.ChatService/DeleteChatMessage"
 )
 
 // ChatServiceClient is the client API for ChatService service.
@@ -31,6 +32,7 @@ type ChatServiceClient interface {
 	Chat(ctx context.Context, in *Prompt, opts ...grpc.CallOption) (*ChatMessage, error)
 	GetChatMessages(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*ChatMessages, error)
 	GetChatMessage(ctx context.Context, in *MessageID, opts ...grpc.CallOption) (*ChatMessage, error)
+	DeleteChatMessage(ctx context.Context, in *MessageID, opts ...grpc.CallOption) (*MessageID, error)
 }
 
 type chatServiceClient struct {
@@ -68,6 +70,15 @@ func (c *chatServiceClient) GetChatMessage(ctx context.Context, in *MessageID, o
 	return out, nil
 }
 
+func (c *chatServiceClient) DeleteChatMessage(ctx context.Context, in *MessageID, opts ...grpc.CallOption) (*MessageID, error) {
+	out := new(MessageID)
+	err := c.cc.Invoke(ctx, ChatService_DeleteChatMessage_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ChatServiceServer is the server API for ChatService service.
 // All implementations must embed UnimplementedChatServiceServer
 // for forward compatibility
@@ -75,6 +86,7 @@ type ChatServiceServer interface {
 	Chat(context.Context, *Prompt) (*ChatMessage, error)
 	GetChatMessages(context.Context, *Collection) (*ChatMessages, error)
 	GetChatMessage(context.Context, *MessageID) (*ChatMessage, error)
+	DeleteChatMessage(context.Context, *MessageID) (*MessageID, error)
 	mustEmbedUnimplementedChatServiceServer()
 }
 
@@ -90,6 +102,9 @@ func (UnimplementedChatServiceServer) GetChatMessages(context.Context, *Collecti
 }
 func (UnimplementedChatServiceServer) GetChatMessage(context.Context, *MessageID) (*ChatMessage, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetChatMessage not implemented")
+}
+func (UnimplementedChatServiceServer) DeleteChatMessage(context.Context, *MessageID) (*MessageID, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteChatMessage not implemented")
 }
 func (UnimplementedChatServiceServer) mustEmbedUnimplementedChatServiceServer() {}
 
@@ -158,6 +173,24 @@ func _ChatService_GetChatMessage_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ChatService_DeleteChatMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MessageID)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChatServiceServer).DeleteChatMessage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ChatService_DeleteChatMessage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChatServiceServer).DeleteChatMessage(ctx, req.(*MessageID))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ChatService_ServiceDesc is the grpc.ServiceDesc for ChatService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -176,6 +209,10 @@ var ChatService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetChatMessage",
 			Handler:    _ChatService_GetChatMessage_Handler,
+		},
+		{
+			MethodName: "DeleteChatMessage",
+			Handler:    _ChatService_DeleteChatMessage_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -12,6 +12,7 @@ service ChatService {
   rpc Chat(Prompt) returns (ChatMessage);
   rpc GetChatMessages(collections.v1.Collection) returns (ChatMessages);
   rpc GetChatMessage(MessageID) returns (ChatMessage);
+  rpc DeleteChatMessage(MessageID) returns (MessageID);
 }
 
 message Prompt {
