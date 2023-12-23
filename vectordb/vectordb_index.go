@@ -16,6 +16,7 @@ type Vector struct {
 	Text         string
 	Page         uint32
 	Vector       []float32
+	Score        float32
 }
 
 func (db *DB) Upsert(items []*Vector) error {
