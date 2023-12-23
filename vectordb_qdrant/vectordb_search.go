@@ -29,6 +29,7 @@ func (db *DB) Search(query SearchQuery) ([]*Vector, error) {
 		},
 		ScoreThreshold: &query.Threshold,
 		Vector:         query.Vector,
+		Limit:          uint64(query.Limit),
 		Filter: &qdrant.Filter{
 			Must: []*qdrant.Condition{
 				{
@@ -69,14 +70,6 @@ func (db *DB) Search(query SearchQuery) ([]*Vector, error) {
 	var results []*Vector
 
 	for _, item := range queryResult.Result {
-		if item.Score < query.Threshold {
-			break
-		}
-
-		if len(results) >= query.Limit {
-			break
-		}
-
 		doc := &Vector{
 			Id:         item.Id.GetUuid(),
 			DocumentId: item.Payload["documentId"].GetStringValue(),
