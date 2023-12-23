@@ -1,8 +1,9 @@
-package vectordb
+package vectordb_qdrant
 
 import (
 	"context"
 	"crypto/tls"
+	qdrant "github.com/qdrant/go-client/qdrant"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/metadata"
@@ -11,12 +12,46 @@ import (
 )
 
 type DB struct {
-	conn   *grpc.ClientConn
-	apiKey string
+	conn      *grpc.ClientConn
+	apiKey    string
+	namespace string
+	dimension int
 }
 
 func (db *DB) Close() error {
 	return db.conn.Close()
+}
+
+func (db *DB) Init() error {
+	collectionClient := qdrant.NewCollectionsClient(db.conn)
+
+	ctx := context.Background()
+	ctx = metadata.AppendToOutgoingContext(ctx, "api-key", db.apiKey)
+
+	list, err := collectionClient.List(ctx, &qdrant.ListCollectionsRequest{})
+	if err != nil {
+		return err
+	}
+
+	for _, collection := range list.Collections {
+		if collection.Name == db.namespace {
+			return nil
+		}
+	}
+
+	_, err = collectionClient.Create(ctx, &qdrant.CreateCollection{
+		CollectionName: db.namespace,
+		VectorsConfig: &qdrant.VectorsConfig{
+			Config: &qdrant.VectorsConfig_Params{
+				Params: &qdrant.VectorParams{
+					Size:     uint64(db.dimension),
+					Distance: qdrant.Distance_Cosine,
+				},
+			},
+		},
+	})
+
+	return err
 }
 
 func New() (*DB, error) {
@@ -28,7 +63,7 @@ func New() (*DB, error) {
 
 	target := os.Getenv("QDRANT_URL")
 
-	log.Printf("connecting to %v", target)
+	log.Printf("connecting to qdrant")
 
 	conn, err := grpc.DialContext(
 		ctx,
@@ -39,8 +74,16 @@ func New() (*DB, error) {
 		return nil, err
 	}
 
-	return &DB{
-		conn:   conn,
-		apiKey: apiKey,
-	}, nil
+	client := &DB{
+		conn:      conn,
+		apiKey:    apiKey,
+		namespace: "documents",
+		dimension: 1536,
+	}
+	err = client.Init()
+	if err != nil {
+		return nil, err
+	}
+
+	return client, nil
 }

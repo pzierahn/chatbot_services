@@ -1,4 +1,4 @@
-package vectordb
+package vectordb_qdrant
 
 import (
 	"context"
@@ -81,7 +81,7 @@ func (db *DB) Upsert(items []*Vector) error {
 		end := min(start+50, len(vectors))
 
 		_, err := points.Upsert(ctx, &qdrant.UpsertPoints{
-			CollectionName: "documents",
+			CollectionName: db.namespace,
 			Points:         vectors[start:end],
 		})
 		if err != nil {

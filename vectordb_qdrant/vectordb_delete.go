@@ -1,4 +1,4 @@
-package vectordb
+package vectordb_qdrant
 
 import (
 	"context"
@@ -34,7 +34,7 @@ func (db *DB) Delete(ids []string) error {
 				},
 			},
 		},
-		CollectionName: "documents",
+		CollectionName: db.namespace,
 	})
 
 	return err

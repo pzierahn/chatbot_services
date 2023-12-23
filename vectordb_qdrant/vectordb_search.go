@@ -1,11 +1,23 @@
-package vectordb
+package vectordb_qdrant
 
 import (
 	"context"
-	pb "github.com/pzierahn/chatbot_services/proto"
 	qdrant "github.com/qdrant/go-client/qdrant"
 	"google.golang.org/grpc/metadata"
 )
+
+type SearchResults struct {
+	Items []*Document
+}
+
+type Document struct {
+	Id         string
+	DocumentId string
+	Filename   string
+	Page       uint32
+	Content    string
+	Score      float32
+}
 
 type SearchQuery struct {
 	UserId       string
@@ -15,14 +27,14 @@ type SearchQuery struct {
 	Threshold    float32
 }
 
-func (db *DB) Search(query SearchQuery) (*pb.SearchResults, error) {
+func (db *DB) Search(query SearchQuery) (*SearchResults, error) {
 
 	ctx := context.Background()
 	ctx = metadata.AppendToOutgoingContext(ctx, "api-key", db.apiKey)
 
 	points := qdrant.NewPointsClient(db.conn)
 	queryResult, err := points.Search(ctx, &qdrant.SearchPoints{
-		CollectionName: "documents",
+		CollectionName: db.namespace,
 		WithPayload: &qdrant.WithPayloadSelector{
 			SelectorOptions: &qdrant.WithPayloadSelector_Enable{
 				Enable: true,
@@ -64,10 +76,10 @@ func (db *DB) Search(query SearchQuery) (*pb.SearchResults, error) {
 	}
 
 	if len(queryResult.Result) == 0 {
-		return &pb.SearchResults{}, nil
+		return &SearchResults{}, nil
 	}
 
-	results := &pb.SearchResults{}
+	results := &SearchResults{}
 
 	for _, item := range queryResult.Result {
 		if item.Score < query.Threshold {
@@ -78,7 +90,7 @@ func (db *DB) Search(query SearchQuery) (*pb.SearchResults, error) {
 			break
 		}
 
-		doc := &pb.SearchResults_Document{
+		doc := &Document{
 			Id:         item.Id.GetUuid(),
 			DocumentId: item.Payload["documentId"].GetStringValue(),
 			Filename:   item.Payload["filename"].GetStringValue(),
