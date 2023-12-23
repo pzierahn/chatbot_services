@@ -6,19 +6,6 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-type SearchResults struct {
-	Items []*Document
-}
-
-type Document struct {
-	Id         string
-	DocumentId string
-	Filename   string
-	Page       uint32
-	Content    string
-	Score      float32
-}
-
 type SearchQuery struct {
 	UserId       string
 	CollectionId string
@@ -27,7 +14,7 @@ type SearchQuery struct {
 	Threshold    float32
 }
 
-func (db *DB) Search(query SearchQuery) (*SearchResults, error) {
+func (db *DB) Search(query SearchQuery) ([]*Vector, error) {
 
 	ctx := context.Background()
 	ctx = metadata.AppendToOutgoingContext(ctx, "api-key", db.apiKey)
@@ -76,30 +63,30 @@ func (db *DB) Search(query SearchQuery) (*SearchResults, error) {
 	}
 
 	if len(queryResult.Result) == 0 {
-		return &SearchResults{}, nil
+		return nil, nil
 	}
 
-	results := &SearchResults{}
+	var results []*Vector
 
 	for _, item := range queryResult.Result {
 		if item.Score < query.Threshold {
 			break
 		}
 
-		if len(results.Items) >= query.Limit {
+		if len(results) >= query.Limit {
 			break
 		}
 
-		doc := &Document{
+		doc := &Vector{
 			Id:         item.Id.GetUuid(),
 			DocumentId: item.Payload["documentId"].GetStringValue(),
 			Filename:   item.Payload["filename"].GetStringValue(),
 			Page:       uint32(item.Payload["page"].GetIntegerValue()),
-			Content:    item.Payload["text"].GetStringValue(),
+			Text:       item.Payload["text"].GetStringValue(),
 			Score:      item.Score,
 		}
 
-		results.Items = append(results.Items, doc)
+		results = append(results, doc)
 	}
 
 	return results, nil
