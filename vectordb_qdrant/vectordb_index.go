@@ -32,7 +32,7 @@ func (db *DB) Upsert(items []*Vector) error {
 			Vectors: &qdrant.Vectors{
 				VectorsOptions: &qdrant.Vectors_Vector{
 					Vector: &qdrant.Vector{
-						Data: []float32{1, 2, 3},
+						Data: item.Vector,
 					},
 				},
 			},
