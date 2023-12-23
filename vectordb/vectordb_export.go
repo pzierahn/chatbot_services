@@ -4,13 +4,12 @@ import (
 	"context"
 	"github.com/pinecone-io/go-pinecone/pinecone_grpc"
 	"google.golang.org/grpc/metadata"
-	"os"
 )
 
 func (db *DB) Export(ids []string) ([]*Vector, error) {
 
 	ctx := context.Background()
-	ctx = metadata.AppendToOutgoingContext(ctx, "api-key", os.Getenv("PINECONE_KEY"))
+	ctx = metadata.AppendToOutgoingContext(ctx, "api-key", db.apiKey)
 
 	queryResult, err := db.client.Fetch(ctx, &pinecone_grpc.FetchRequest{
 		Ids:       ids,
