@@ -8,6 +8,10 @@ import (
 
 func (db *DB) Export(ids []string) ([]*Vector, error) {
 
+	if len(ids) == 0 {
+		return nil, nil
+	}
+
 	ctx := context.Background()
 	ctx = metadata.AppendToOutgoingContext(ctx, "api-key", db.apiKey)
 
