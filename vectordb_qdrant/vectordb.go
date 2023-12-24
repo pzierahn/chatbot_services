@@ -39,6 +39,7 @@ func (db *DB) Init() error {
 		}
 	}
 
+	onDisk := true
 	_, err = collectionClient.Create(ctx, &qdrant.CreateCollection{
 		CollectionName: db.namespace,
 		VectorsConfig: &qdrant.VectorsConfig{
@@ -46,6 +47,7 @@ func (db *DB) Init() error {
 				Params: &qdrant.VectorParams{
 					Size:     uint64(db.dimension),
 					Distance: qdrant.Distance_Cosine,
+					OnDisk:   &onDisk,
 				},
 			},
 		},
