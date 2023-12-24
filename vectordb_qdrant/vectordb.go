@@ -51,6 +51,9 @@ func (db *DB) Init() error {
 				},
 			},
 		},
+		HnswConfig: &qdrant.HnswConfigDiff{
+			OnDisk: &onDisk,
+		},
 	})
 
 	return err
