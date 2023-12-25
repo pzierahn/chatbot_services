@@ -3,8 +3,9 @@ package main
 import (
 	"context"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/pzierahn/chatbot_services/vectordb"
 	"github.com/pzierahn/chatbot_services/vectordb/pinecone"
-	vectordb_qdrant2 "github.com/pzierahn/chatbot_services/vectordb/qdrant"
+	"github.com/pzierahn/chatbot_services/vectordb/qdrant"
 	"log"
 	"os"
 )
@@ -67,7 +68,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	qdrant, err := vectordb_qdrant2.New()
+	client, err := qdrant.New()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -82,7 +83,7 @@ func main() {
 		}
 
 		for _, chunk := range export {
-			err = qdrant.Upsert([]*vectordb_qdrant2.Vector{{
+			err = client.Upsert([]*vectordb.Vector{{
 				Id:           chunk.Id,
 				DocumentId:   chunk.DocumentId,
 				UserId:       chunk.UserId,
