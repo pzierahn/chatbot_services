@@ -1,23 +1,15 @@
-package vectordb
+package pinecone
 
 import (
 	"context"
 	"github.com/pinecone-io/go-pinecone/pinecone_grpc"
-	pb "github.com/pzierahn/chatbot_services/proto"
+	"github.com/pzierahn/chatbot_services/vectordb"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/structpb"
 	"os"
 )
 
-type SearchQuery struct {
-	UserId       string
-	CollectionId string
-	Vector       []float32
-	Limit        int
-	Threshold    float32
-}
-
-func (db *DB) Search(query SearchQuery) (*pb.SearchResults, error) {
+func (db *DB) Search(query vectordb.SearchQuery) ([]*vectordb.Vector, error) {
 
 	ctx := context.Background()
 	ctx = metadata.AppendToOutgoingContext(ctx, "api-key", os.Getenv("PINECONE_KEY"))
@@ -68,30 +60,30 @@ func (db *DB) Search(query SearchQuery) (*pb.SearchResults, error) {
 	}
 
 	if len(queryResult.Results) == 0 {
-		return &pb.SearchResults{}, nil
+		return nil, nil
 	}
 
-	results := &pb.SearchResults{}
+	var results []*vectordb.Vector
 
 	for _, item := range queryResult.Results[0].Matches {
 		if item.Score < query.Threshold {
 			break
 		}
 
-		if len(results.Items) >= query.Limit {
+		if len(results) >= query.Limit {
 			break
 		}
 
-		doc := &pb.SearchResults_Document{
+		doc := &vectordb.Vector{
 			Id:         item.Id,
 			DocumentId: item.Metadata.Fields["documentId"].GetStringValue(),
 			Filename:   item.Metadata.Fields["filename"].GetStringValue(),
 			Page:       uint32(item.Metadata.Fields["page"].GetNumberValue()),
-			Content:    item.Metadata.Fields["text"].GetStringValue(),
+			Text:       item.Metadata.Fields["text"].GetStringValue(),
 			Score:      item.Score,
 		}
 
-		results.Items = append(results.Items, doc)
+		results = append(results, doc)
 	}
 
 	return results, nil

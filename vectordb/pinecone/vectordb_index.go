@@ -1,24 +1,14 @@
-package vectordb
+package pinecone
 
 import (
 	"context"
 	"github.com/pinecone-io/go-pinecone/pinecone_grpc"
+	"github.com/pzierahn/chatbot_services/vectordb"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/structpb"
 )
 
-type Vector struct {
-	Id           string
-	DocumentId   string
-	UserId       string
-	CollectionId string
-	Filename     string
-	Text         string
-	Page         uint32
-	Vector       []float32
-}
-
-func (db *DB) Upsert(items []*Vector) error {
+func (db *DB) Upsert(items []*vectordb.Vector) error {
 
 	var vectors []*pinecone_grpc.Vector
 

@@ -17,10 +17,10 @@ type Service struct {
 	auth     auth.Service
 	db       *pgxpool.Pool
 	storage  *storage.BucketHandle
-	vectorDB *vectordb.DB
+	vectorDB vectordb.DB
 }
 
-func NewServer(auth auth.Service, db *pgxpool.Pool, storage *storage.BucketHandle, vectorDB *vectordb.DB) *Service {
+func NewServer(auth auth.Service, db *pgxpool.Pool, storage *storage.BucketHandle, vectorDB vectordb.DB) *Service {
 	return &Service{
 		db:       db,
 		storage:  storage,

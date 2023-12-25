@@ -23,7 +23,7 @@ type Service struct {
 	db         *pgxpool.Pool
 	embeddings llm.Embedding
 	storage    *storage.BucketHandle
-	vectorDB   *vectordb.DB
+	vectorDB   vectordb.DB
 }
 
 type Config struct {
@@ -32,7 +32,7 @@ type Config struct {
 	DB         *pgxpool.Pool
 	Embeddings llm.Embedding
 	Storage    *storage.BucketHandle
-	VectorDB   *vectordb.DB
+	VectorDB   vectordb.DB
 }
 
 func FromConfig(config *Config) *Service {
