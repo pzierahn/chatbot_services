@@ -6,6 +6,8 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
+const chunkSize = 30
+
 func (db *DB) Export(ids []string) ([]*Vector, error) {
 
 	if len(ids) == 0 {
@@ -17,8 +19,8 @@ func (db *DB) Export(ids []string) ([]*Vector, error) {
 
 	var results []*Vector
 
-	for start := 0; start < len(ids); start += 100 {
-		end := min(start+100, len(ids))
+	for start := 0; start < len(ids); start += chunkSize {
+		end := min(start+chunkSize, len(ids))
 
 		queryResult, err := db.client.Fetch(ctx, &pinecone_grpc.FetchRequest{
 			Ids:       ids[start:end],
