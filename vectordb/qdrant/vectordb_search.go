@@ -1,20 +1,13 @@
-package vectordb_qdrant
+package qdrant
 
 import (
 	"context"
+	"github.com/pzierahn/chatbot_services/vectordb"
 	qdrant "github.com/qdrant/go-client/qdrant"
 	"google.golang.org/grpc/metadata"
 )
 
-type SearchQuery struct {
-	UserId       string
-	CollectionId string
-	Vector       []float32
-	Limit        int
-	Threshold    float32
-}
-
-func (db *DB) Search(query SearchQuery) ([]*Vector, error) {
+func (db *DB) Search(query vectordb.SearchQuery) ([]*vectordb.Vector, error) {
 
 	ctx := context.Background()
 	ctx = metadata.AppendToOutgoingContext(ctx, "api-key", db.apiKey)
@@ -67,10 +60,10 @@ func (db *DB) Search(query SearchQuery) ([]*Vector, error) {
 		return nil, nil
 	}
 
-	var results []*Vector
+	var results []*vectordb.Vector
 
 	for _, item := range queryResult.Result {
-		doc := &Vector{
+		doc := &vectordb.Vector{
 			Id:         item.Id.GetUuid(),
 			DocumentId: item.Payload["documentId"].GetStringValue(),
 			Filename:   item.Payload["filename"].GetStringValue(),

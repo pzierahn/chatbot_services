@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/pzierahn/chatbot_services/vectordb_pinecone"
-	"github.com/pzierahn/chatbot_services/vectordb_qdrant"
+	"github.com/pzierahn/chatbot_services/vectordb/pinecone"
+	vectordb_qdrant2 "github.com/pzierahn/chatbot_services/vectordb/qdrant"
 	"log"
 	"os"
 )
@@ -62,12 +62,12 @@ func main() {
 	docs := getDocs(ctx, db)
 	log.Printf("Found %d documents", len(docs))
 
-	pine, err := vectordb_pinecone.New()
+	pine, err := pinecone.New()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	qdrant, err := vectordb_qdrant.New()
+	qdrant, err := vectordb_qdrant2.New()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -82,7 +82,7 @@ func main() {
 		}
 
 		for _, chunk := range export {
-			err = qdrant.Upsert([]*vectordb_qdrant.Vector{{
+			err = qdrant.Upsert([]*vectordb_qdrant2.Vector{{
 				Id:           chunk.Id,
 				DocumentId:   chunk.DocumentId,
 				UserId:       chunk.UserId,

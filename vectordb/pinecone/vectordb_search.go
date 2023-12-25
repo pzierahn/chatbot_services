@@ -1,22 +1,15 @@
-package vectordb_pinecone
+package pinecone
 
 import (
 	"context"
 	"github.com/pinecone-io/go-pinecone/pinecone_grpc"
+	"github.com/pzierahn/chatbot_services/vectordb"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/structpb"
 	"os"
 )
 
-type SearchQuery struct {
-	UserId       string
-	CollectionId string
-	Vector       []float32
-	Limit        int
-	Threshold    float32
-}
-
-func (db *DB) Search(query SearchQuery) ([]*Vector, error) {
+func (db *DB) Search(query vectordb.SearchQuery) ([]*vectordb.Vector, error) {
 
 	ctx := context.Background()
 	ctx = metadata.AppendToOutgoingContext(ctx, "api-key", os.Getenv("PINECONE_KEY"))
@@ -70,7 +63,7 @@ func (db *DB) Search(query SearchQuery) ([]*Vector, error) {
 		return nil, nil
 	}
 
-	var results []*Vector
+	var results []*vectordb.Vector
 
 	for _, item := range queryResult.Results[0].Matches {
 		if item.Score < query.Threshold {
@@ -81,7 +74,7 @@ func (db *DB) Search(query SearchQuery) ([]*Vector, error) {
 			break
 		}
 
-		doc := &Vector{
+		doc := &vectordb.Vector{
 			Id:         item.Id,
 			DocumentId: item.Metadata.Fields["documentId"].GetStringValue(),
 			Filename:   item.Metadata.Fields["filename"].GetStringValue(),

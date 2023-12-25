@@ -5,7 +5,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pzierahn/chatbot_services/auth"
 	pb "github.com/pzierahn/chatbot_services/proto"
-	"github.com/pzierahn/chatbot_services/vectordb_pinecone"
+	"github.com/pzierahn/chatbot_services/vectordb"
 )
 
 const (
@@ -17,10 +17,10 @@ type Service struct {
 	auth     auth.Service
 	db       *pgxpool.Pool
 	storage  *storage.BucketHandle
-	vectorDB *vectordb_pinecone.DB
+	vectorDB vectordb.DB
 }
 
-func NewServer(auth auth.Service, db *pgxpool.Pool, storage *storage.BucketHandle, vectorDB *vectordb_pinecone.DB) *Service {
+func NewServer(auth auth.Service, db *pgxpool.Pool, storage *storage.BucketHandle, vectorDB vectordb.DB) *Service {
 	return &Service{
 		db:       db,
 		storage:  storage,

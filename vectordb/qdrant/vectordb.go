@@ -1,4 +1,4 @@
-package vectordb_qdrant
+package qdrant
 
 import (
 	"context"

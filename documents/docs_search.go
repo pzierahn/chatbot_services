@@ -6,7 +6,7 @@ import (
 	"github.com/pzierahn/chatbot_services/account"
 	"github.com/pzierahn/chatbot_services/llm"
 	pb "github.com/pzierahn/chatbot_services/proto"
-	"github.com/pzierahn/chatbot_services/vectordb_pinecone"
+	"github.com/pzierahn/chatbot_services/vectordb"
 )
 
 type SearchQuery struct {
@@ -47,7 +47,7 @@ func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.
 		Input:  uint32(resp.Tokens),
 	})
 
-	vectors, err := service.vectorDB.Search(vectordb_pinecone.SearchQuery{
+	vectors, err := service.vectorDB.Search(vectordb.SearchQuery{
 		UserId:       userId,
 		CollectionId: query.CollectionId,
 		Vector:       resp.Data,

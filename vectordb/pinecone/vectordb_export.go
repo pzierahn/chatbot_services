@@ -1,14 +1,15 @@
-package vectordb_pinecone
+package pinecone
 
 import (
 	"context"
 	"github.com/pinecone-io/go-pinecone/pinecone_grpc"
+	"github.com/pzierahn/chatbot_services/vectordb"
 	"google.golang.org/grpc/metadata"
 )
 
 const chunkSize = 30
 
-func (db *DB) Export(ids []string) ([]*Vector, error) {
+func (db *DB) Export(ids []string) ([]*vectordb.Vector, error) {
 
 	if len(ids) == 0 {
 		return nil, nil
@@ -17,7 +18,7 @@ func (db *DB) Export(ids []string) ([]*Vector, error) {
 	ctx := context.Background()
 	ctx = metadata.AppendToOutgoingContext(ctx, "api-key", db.apiKey)
 
-	var results []*Vector
+	var results []*vectordb.Vector
 
 	for start := 0; start < len(ids); start += chunkSize {
 		end := min(start+chunkSize, len(ids))
@@ -31,7 +32,7 @@ func (db *DB) Export(ids []string) ([]*Vector, error) {
 		}
 
 		for _, item := range queryResult.Vectors {
-			result := &Vector{
+			result := &vectordb.Vector{
 				Id:           item.Id,
 				UserId:       item.Metadata.Fields["userId"].GetStringValue(),
 				DocumentId:   item.Metadata.Fields["documentId"].GetStringValue(),

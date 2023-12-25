@@ -7,7 +7,7 @@ import (
 	"github.com/pzierahn/chatbot_services/auth"
 	"github.com/pzierahn/chatbot_services/llm"
 	pb "github.com/pzierahn/chatbot_services/proto"
-	"github.com/pzierahn/chatbot_services/vectordb_pinecone"
+	"github.com/pzierahn/chatbot_services/vectordb"
 	"github.com/sashabaranov/go-openai"
 )
 
@@ -23,7 +23,7 @@ type Service struct {
 	db         *pgxpool.Pool
 	embeddings llm.Embedding
 	storage    *storage.BucketHandle
-	vectorDB   *vectordb_pinecone.DB
+	vectorDB   vectordb.DB
 }
 
 type Config struct {
@@ -32,7 +32,7 @@ type Config struct {
 	DB         *pgxpool.Pool
 	Embeddings llm.Embedding
 	Storage    *storage.BucketHandle
-	VectorDB   *vectordb_pinecone.DB
+	VectorDB   vectordb.DB
 }
 
 func FromConfig(config *Config) *Service {
