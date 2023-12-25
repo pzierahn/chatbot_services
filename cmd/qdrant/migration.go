@@ -97,7 +97,7 @@ func main() {
 			}
 		}
 
-		if inx > 25 {
+		if inx > 600 {
 			break
 		}
 	}

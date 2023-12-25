@@ -6,7 +6,7 @@ package endpoint.brainboost.chat.v2;
 
 import "google/protobuf/timestamp.proto";
 
-import "collections.proto";
+import "collection_service.proto";
 
 service ChatService {
   rpc Chat(Prompt) returns (ChatMessage);
