@@ -9,7 +9,7 @@ import (
 	"github.com/pzierahn/chatbot_services/llm"
 	"github.com/pzierahn/chatbot_services/pdf"
 	pb "github.com/pzierahn/chatbot_services/proto"
-	"github.com/pzierahn/chatbot_services/vectordb"
+	"github.com/pzierahn/chatbot_services/vectordb_pinecone"
 	"io"
 	"strings"
 	"sync"
@@ -135,7 +135,7 @@ func (service *Service) insertEmbeddings(ctx context.Context, doc *document) err
 		return err
 	}
 
-	var vectors []*vectordb.Vector
+	var vectors []*vectordb_pinecone.Vector
 
 	for _, fragment := range doc.embeddings {
 		chunkId := uuid.NewString()
@@ -152,7 +152,7 @@ func (service *Service) insertEmbeddings(ctx context.Context, doc *document) err
 			return err
 		}
 
-		vectors = append(vectors, &vectordb.Vector{
+		vectors = append(vectors, &vectordb_pinecone.Vector{
 			Id:           chunkId,
 			DocumentId:   doc.id,
 			CollectionId: doc.collectionId,

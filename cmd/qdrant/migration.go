@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/pzierahn/chatbot_services/vectordb"
+	"github.com/pzierahn/chatbot_services/vectordb_pinecone"
 	"github.com/pzierahn/chatbot_services/vectordb_qdrant"
 	"log"
 	"os"
@@ -62,7 +62,7 @@ func main() {
 	docs := getDocs(ctx, db)
 	log.Printf("Found %d documents", len(docs))
 
-	pine, err := vectordb.New()
+	pine, err := vectordb_pinecone.New()
 	if err != nil {
 		log.Fatal(err)
 	}

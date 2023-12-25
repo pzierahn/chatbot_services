@@ -1,4 +1,4 @@
-package vectordb
+package vectordb_pinecone
 
 import (
 	"context"
