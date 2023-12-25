@@ -61,15 +61,15 @@ func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.
 	results := &pb.SearchResults{
 		Items: make([]*pb.SearchResults_Document, len(vectors)),
 	}
-	for _, vector := range vectors {
-		results.Items = append(results.Items, &pb.SearchResults_Document{
+	for inx, vector := range vectors {
+		results.Items[inx] = &pb.SearchResults_Document{
 			Id:         vector.Id,
 			DocumentId: vector.DocumentId,
 			Filename:   vector.Filename,
 			Content:    vector.Text,
 			Page:       vector.Page,
 			Score:      vector.Score,
-		})
+		}
 	}
 
 	return results, nil
