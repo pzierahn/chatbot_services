@@ -54,6 +54,9 @@ func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.
 		Limit:        int(query.Limit),
 		Threshold:    query.Threshold,
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	results := &pb.SearchResults{
 		Items: make([]*pb.SearchResults_Document, len(vectors)),
@@ -69,5 +72,5 @@ func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.
 		})
 	}
 
-	return results, err
+	return results, nil
 }
