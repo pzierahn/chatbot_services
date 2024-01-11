@@ -13,7 +13,7 @@ import (
 	"github.com/pzierahn/chatbot_services/llm/vertex"
 	pb "github.com/pzierahn/chatbot_services/proto"
 	"github.com/pzierahn/chatbot_services/setup"
-	"github.com/pzierahn/chatbot_services/vectordb/qdrant"
+	"github.com/pzierahn/chatbot_services/vectordb/pinecone"
 	"google.golang.org/api/option"
 	"google.golang.org/grpc"
 	"log"
@@ -76,7 +76,8 @@ func main() {
 		log.Fatalf("failed to create auth service: %v", err)
 	}
 
-	vecDB, err := qdrant.New()
+	vecDB, err := pinecone.New()
+	//vecDB, err := qdrant.New()
 	if err != nil {
 		log.Fatalf("failed to create vector db: %v", err)
 	}
