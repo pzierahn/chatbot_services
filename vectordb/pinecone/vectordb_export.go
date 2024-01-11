@@ -7,7 +7,7 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-const chunkSize = 30
+const chunkSize = 100
 
 func (db *DB) Export(ids []string) ([]*vectordb.Vector, error) {
 
