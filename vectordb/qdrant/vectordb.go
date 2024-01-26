@@ -83,7 +83,7 @@ func New() (*DB, error) {
 		conn:      conn,
 		apiKey:    apiKey,
 		namespace: "documents",
-		dimension: 1536,
+		dimension: 3072,
 	}
 	err = client.Init()
 	if err != nil {

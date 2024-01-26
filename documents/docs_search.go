@@ -43,7 +43,7 @@ func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.
 
 	_, _ = service.account.CreateUsage(ctx, account.Usage{
 		UserId: userId,
-		Model:  embeddingsModel.String(),
+		Model:  string(embeddingsModel),
 		Input:  uint32(resp.Tokens),
 	})
 

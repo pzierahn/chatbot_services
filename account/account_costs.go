@@ -23,7 +23,7 @@ var inputCosts = map[string]float32{
 	openai.GPT4VisionPreview: 0.01,
 
 	// Embeddings
-	openai.AdaEmbeddingV2.String(): 0.0001,
+	string(openai.AdaEmbeddingV2): 0.0001,
 }
 
 var outputCosts = map[string]float32{

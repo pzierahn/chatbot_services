@@ -8,12 +8,12 @@ import (
 	"github.com/pzierahn/chatbot_services/llm"
 	pb "github.com/pzierahn/chatbot_services/proto"
 	"github.com/pzierahn/chatbot_services/vectordb"
-	"github.com/sashabaranov/go-openai"
 )
 
+// TODO: Remove this constants
 const (
 	bucket          = "documents"
-	embeddingsModel = openai.AdaEmbeddingV2
+	embeddingsModel = "text-embedding-3-large"
 )
 
 type Service struct {
