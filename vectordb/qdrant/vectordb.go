@@ -6,8 +6,8 @@ import (
 	qdrant "github.com/qdrant/go-client/qdrant"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
-	"log"
 	"os"
 )
 
@@ -68,13 +68,15 @@ func New() (*DB, error) {
 
 	target := os.Getenv("QDRANT_URL")
 
-	log.Printf("connecting to qdrant")
+	var opts []grpc.DialOption
 
-	conn, err := grpc.DialContext(
-		ctx,
-		target,
-		grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{})),
-	)
+	if os.Getenv("QDRANT_INSECURE") == "true" {
+		opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	} else {
+		opts = append(opts, grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{})))
+	}
+
+	conn, err := grpc.DialContext(ctx, target, opts...)
 	if err != nil {
 		return nil, err
 	}
