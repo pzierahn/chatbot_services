@@ -1,15 +1,50 @@
+version: "3.8"
+
 services:
-  service:
+  # Qdrant is a vector search engine
+  vectordb:
+    image: qdrant/qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+
+  # CockroachDB is a distributed postgres SQL database
+  database:
+    image: cockroachdb/cockroach
+    command:
+      - start-single-node
+      - --insecure
+    ports:
+      - "26257:26257"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/health?ready=1" ]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+
+  # Backend is the service that handles requests from the frontend
+  backend:
     build: .
     ports:
       - "9055:9055"
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - BRAINBOOST_COCKROACH_DB=${BRAINBOOST_COCKROACH_DB}
-      - PINECONE_KEY=${PINECONE_KEY}
-      - PINECONE_URL=${PINECONE_URL}
+      - BRAINBOOST_COCKROACH_DB=postgresql://root@database:26257/defaultdb?sslmode=disable
+      - QDRANT_URL=vectordb:6334
+      - QDRANT_INSECURE=true
+    volumes:
+      - ./service_account.json:/service_account.json
+    depends_on:
+      database:
+        condition: service_healthy
+      vectordb:
+        condition: service_started
+
+  # Envoy is a proxy that translates gRPC-web requests to gRPC
   gateway:
     build:
       context: ./envoy
     ports:
       - "8080:8080"
+    depends_on:
+      - backend
