@@ -10,7 +10,7 @@ func (client *Client) CreateEmbeddings(ctx context.Context, req *llm.EmbeddingRe
 	resp, err := client.client.CreateEmbeddings(
 		ctx,
 		openai.EmbeddingRequestStrings{
-			Model: "text-embedding-3-large",
+			Model: openai.LargeEmbedding3,
 			Input: []string{req.Input},
 			User:  req.UserId,
 		},
