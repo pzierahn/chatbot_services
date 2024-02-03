@@ -2,7 +2,6 @@ package documents
 
 import (
 	"context"
-	"errors"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/pzierahn/chatbot_services/account"
@@ -12,8 +11,7 @@ import (
 	"github.com/pzierahn/chatbot_services/vectordb"
 	"io"
 	"strings"
-	"sync"
-	"sync/atomic"
+	"time"
 )
 
 type embeddingsBatch struct {
@@ -35,6 +33,8 @@ type embedding struct {
 	Page      uint32
 	Text      string
 	Embedding []float32
+	Tokens    uint32
+	Error     error
 }
 
 func (service *Service) getDocPages(ctx context.Context, path string) ([]string, error) {
@@ -64,55 +64,96 @@ func (service *Service) processEmbeddings(ctx context.Context, batch *embeddings
 
 	var inputTokens uint32
 
-	var wg sync.WaitGroup
-	wg.Add(totalPages)
-
-	var mu sync.Mutex
 	var embeddings []*embedding
-	var errs []error
 	var processed uint32
 
-	for inx, page := range batch.pages {
-		go func(inx int, page string) {
-			defer wg.Done()
-			defer atomic.AddUint32(&processed, 1)
+	results := make(chan *embedding, 1)
+	defer close(results)
 
-			page = strings.TrimSpace(page)
-			if len(page) == 0 {
-				return
+	queue := make(chan int, totalPages)
+	for page := 0; page < totalPages; page++ {
+		queue <- page
+	}
+	defer close(queue)
+
+	for agent := 0; agent < 50; agent++ {
+		go func(agent int) {
+			for {
+				select {
+				case page, ok := <-queue:
+					if !ok {
+						return
+					}
+
+					text := strings.TrimSpace(batch.pages[page])
+					if len(text) <= 0 {
+						results <- &embedding{
+							Page:  uint32(page),
+							Error: nil,
+						}
+						continue
+					}
+
+					ctx, cnl := context.WithTimeout(ctx, time.Second*5)
+					resp, err := service.embeddings.CreateEmbeddings(ctx, &llm.EmbeddingRequest{
+						Input:  text,
+						UserId: batch.userId,
+					})
+					cnl()
+
+					if err != nil {
+						results <- &embedding{
+							Page:  uint32(page),
+							Error: err,
+						}
+
+						break
+					} else {
+						results <- &embedding{
+							Page:      uint32(page),
+							Text:      text,
+							Embedding: resp.Data,
+							Tokens:    uint32(resp.Tokens),
+							Error:     err,
+						}
+					}
+
+				case <-ctx.Done():
+					return
+				}
 			}
-
-			resp, err := service.embeddings.CreateEmbeddings(ctx, &llm.EmbeddingRequest{
-				Input:  page,
-				UserId: batch.userId,
-			})
-
-			mu.Lock()
-			defer mu.Unlock()
-
-			if err != nil {
-				errs = append(errs, err)
-				return
-			}
-
-			inputTokens += uint32(resp.Tokens)
-
-			embeddings = append(embeddings, &embedding{
-				Page:      uint32(inx),
-				Text:      page,
-				Embedding: resp.Data,
-			})
-
-			_ = batch.stream.Send(&pb.IndexProgress{
-				TotalPages:     uint32(totalPages),
-				ProcessedPages: processed + 1,
-			})
-		}(inx, page)
+		}(agent)
 	}
 
-	wg.Wait()
+	var errorCount int
+	for result := range results {
+		if result.Error != nil {
+			if errorCount > 100 {
+				return nil, 0, result.Error
+			} else {
+				queue <- int(result.Page)
+				errorCount++
+				continue
+			}
+		}
 
-	return embeddings, inputTokens, errors.Join(errs...)
+		if result.Embedding != nil {
+			inputTokens += result.Tokens
+			embeddings = append(embeddings, result)
+		}
+
+		_ = batch.stream.Send(&pb.IndexProgress{
+			TotalPages:     uint32(totalPages),
+			ProcessedPages: processed + 1,
+		})
+		processed++
+
+		if processed >= uint32(totalPages) {
+			break
+		}
+	}
+
+	return embeddings, inputTokens, nil
 }
 
 func (service *Service) insertEmbeddings(ctx context.Context, doc *document) error {
