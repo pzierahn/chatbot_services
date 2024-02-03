@@ -90,12 +90,12 @@ func (service *Service) processEmbeddings(ctx context.Context, batch *embeddings
 			mu.Lock()
 			defer mu.Unlock()
 
-			inputTokens += uint32(resp.Tokens)
-
 			if err != nil {
 				errs = append(errs, err)
 				return
 			}
+
+			inputTokens += uint32(resp.Tokens)
 
 			embeddings = append(embeddings, &embedding{
 				Page:      uint32(inx),
