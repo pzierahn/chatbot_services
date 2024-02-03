@@ -121,8 +121,7 @@ func (service *Service) insertEmbeddings(ctx context.Context, doc *document) err
 		return err
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
-
-	_, err = service.db.Exec(
+	_, err = tx.Exec(
 		ctx,
 		`insert into documents (id, user_id, filename, path, collection_id)
 			values ($1, $2, $3, $4, $5)`,
