@@ -15,11 +15,9 @@ func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateR
 	model := client.genaiClient.GenerativeModel(modelName)
 
 	var parts []genai.Part
-	for _, part := range req.Documents {
-		parts = append(parts, genai.Text(part))
+	for _, msg := range req.Messages {
+		parts = append(parts, genai.Text(msg.Text))
 	}
-
-	parts = append(parts, genai.Text(req.Prompt))
 
 	gen, err := model.GenerateContent(ctx, parts...)
 	if err != nil {

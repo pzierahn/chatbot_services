@@ -14,17 +14,19 @@ func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateR
 		},
 	}
 
-	for _, text := range req.Documents {
+	for _, text := range req.Messages {
+		var role string
+		if text.Type == llm.MessageTypeBot {
+			role = openai.ChatMessageRoleAssistant
+		} else {
+			role = openai.ChatMessageRoleUser
+		}
+
 		messages = append(messages, openai.ChatCompletionMessage{
-			Role:    openai.ChatMessageRoleUser,
-			Content: text,
+			Role:    role,
+			Content: text.Text,
 		})
 	}
-
-	messages = append(messages, openai.ChatCompletionMessage{
-		Role:    openai.ChatMessageRoleUser,
-		Content: req.Prompt,
-	})
 
 	var model string
 	if req.Model != "" {

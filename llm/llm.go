@@ -2,9 +2,18 @@ package llm
 
 import "context"
 
+const (
+	MessageTypeUser = iota
+	MessageTypeBot
+)
+
+type Message struct {
+	Type int
+	Text string
+}
+
 type GenerateRequest struct {
-	Prompt      string
-	Documents   []string
+	Messages    []Message
 	Model       string
 	MaxTokens   int
 	TopP        float32
