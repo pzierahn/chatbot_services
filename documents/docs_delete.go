@@ -8,7 +8,7 @@ import (
 )
 
 func (service *Service) Delete(ctx context.Context, req *pb.Document) (*emptypb.Empty, error) {
-	userId, err := service.auth.ValidateToken(ctx)
+	userId, err := service.auth.Verify(ctx)
 	if err != nil {
 		return nil, err
 	}

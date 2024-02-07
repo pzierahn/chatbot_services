@@ -16,7 +16,7 @@ type Usage struct {
 }
 
 func (service *Service) GetCosts(ctx context.Context, _ *emptypb.Empty) (*pb.Costs, error) {
-	userID, err := service.auth.ValidateToken(ctx)
+	userID, err := service.auth.Verify(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -54,8 +54,8 @@ func (service *Service) GetCosts(ctx context.Context, _ *emptypb.Empty) (*pb.Cos
 
 // CreateUsage inserts a new usage record into the openai_usage table
 func (service *Service) CreateUsage(ctx context.Context, usage Usage) (uuid.UUID, error) {
-	// Validate the token
-	userID, err := service.auth.ValidateToken(ctx)
+	// Verify the token
+	userID, err := service.auth.Verify(ctx)
 	if err != nil {
 		return uuid.Nil, err
 	}

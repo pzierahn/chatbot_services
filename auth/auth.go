@@ -5,5 +5,5 @@ import (
 )
 
 type Service interface {
-	ValidateToken(ctx context.Context) (uid string, err error)
+	Verify(ctx context.Context) (uid string, err error)
 }

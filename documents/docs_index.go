@@ -215,7 +215,7 @@ func (service *Service) insertEmbeddings(ctx context.Context, doc *document) err
 func (service *Service) Index(doc *pb.Document, stream pb.DocumentService_IndexServer) error {
 
 	ctx := stream.Context()
-	userId, err := service.auth.ValidateToken(ctx)
+	userId, err := service.auth.Verify(ctx)
 	if err != nil {
 		return err
 	}

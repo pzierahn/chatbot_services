@@ -9,7 +9,7 @@ import (
 )
 
 func (service *Service) GetPayments(ctx context.Context, _ *emptypb.Empty) (*pb.Payments, error) {
-	userId, err := service.auth.ValidateToken(ctx)
+	userId, err := service.auth.Verify(ctx)
 	if err != nil {
 		return nil, err
 	}

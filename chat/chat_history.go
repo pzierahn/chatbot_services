@@ -57,7 +57,7 @@ func (service *Service) storeChatMessage(ctx context.Context, message chatMessag
 }
 
 func (service *Service) GetChatMessages(ctx context.Context, collection *pb.Collection) (*pb.ChatMessages, error) {
-	uid, err := service.auth.ValidateToken(ctx)
+	uid, err := service.auth.Verify(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +112,7 @@ func (service *Service) getChatMessageReferences(ctx context.Context, messageId 
 }
 
 func (service *Service) GetChatMessage(ctx context.Context, id *pb.MessageID) (*pb.ChatMessage, error) {
-	userId, err := service.auth.ValidateToken(ctx)
+	userId, err := service.auth.Verify(ctx)
 	if err != nil {
 		return nil, err
 	}

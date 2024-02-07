@@ -19,7 +19,7 @@ type SearchQuery struct {
 
 func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.SearchResults, error) {
 
-	userId, err := service.auth.ValidateToken(ctx)
+	userId, err := service.auth.Verify(ctx)
 	if err != nil {
 		return nil, err
 	}

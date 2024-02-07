@@ -8,7 +8,7 @@ import (
 
 func (service *Service) List(ctx context.Context, req *pb.DocumentFilter) (*pb.Documents, error) {
 
-	userId, err := service.auth.ValidateToken(ctx)
+	userId, err := service.auth.Verify(ctx)
 	if err != nil {
 		return nil, err
 	}
