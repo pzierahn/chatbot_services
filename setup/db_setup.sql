@@ -37,9 +37,7 @@ create table if not exists threads
     id            uuid primary key     default gen_random_uuid(),
     user_id       VARCHAR(36) not null,
     created_at    timestamp   not null default now(),
-    collection_id uuid        not null references collections (id) ON DELETE CASCADE,
-    prompt        text        not null,
-    completion    text        not null
+    collection_id uuid        not null references collections (id) ON DELETE CASCADE
 );
 
 create table if not exists thread_messages
