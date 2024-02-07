@@ -63,10 +63,10 @@ func New() (*DB, error) {
 
 	ctx := context.Background()
 
-	apiKey := os.Getenv("QDRANT_KEY")
+	apiKey := os.Getenv("CHATBOT_QDRANT_KEY")
 	ctx = metadata.AppendToOutgoingContext(ctx, "api-key", apiKey)
 
-	target := os.Getenv("QDRANT_URL")
+	target := os.Getenv("CHATBOT_QDRANT_URL")
 
 	var opts []grpc.DialOption
 

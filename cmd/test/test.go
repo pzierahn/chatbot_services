@@ -48,7 +48,7 @@ func signInWithCustomToken(token string) (string, error) {
 		return "", err
 	}
 
-	resp, err := postRequest(fmt.Sprintf(verifyCustomTokenURL, os.Getenv("TESTING_API_KEY")), req)
+	resp, err := postRequest(fmt.Sprintf(verifyCustomTokenURL, os.Getenv("CHATBOT_API_KEY")), req)
 	if err != nil {
 		return "", err
 	}
