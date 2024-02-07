@@ -3,9 +3,10 @@ package chat
 import (
 	"context"
 	pb "github.com/pzierahn/chatbot_services/proto"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-func (service *Service) DeleteThread(ctx context.Context, req *pb.ThreadID) (*pb.ThreadID, error) {
+func (service *Service) DeleteThread(ctx context.Context, req *pb.ThreadID) (*emptypb.Empty, error) {
 	userId, err := service.auth.Verify(ctx)
 	if err != nil {
 		return nil, err
@@ -20,5 +21,5 @@ func (service *Service) DeleteThread(ctx context.Context, req *pb.ThreadID) (*pb
 		return nil, err
 	}
 
-	return req, nil
+	return &emptypb.Empty{}, nil
 }

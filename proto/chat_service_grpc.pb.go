@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -35,8 +36,8 @@ type ChatServiceClient interface {
 	PostMessage(ctx context.Context, in *Prompt, opts ...grpc.CallOption) (*Message, error)
 	GetThread(ctx context.Context, in *ThreadID, opts ...grpc.CallOption) (*Thread, error)
 	GetThreads(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*ThreadIDs, error)
-	DeleteThread(ctx context.Context, in *ThreadID, opts ...grpc.CallOption) (*ThreadID, error)
-	DeleteMessageFromThread(ctx context.Context, in *MessageID, opts ...grpc.CallOption) (*MessageID, error)
+	DeleteThread(ctx context.Context, in *ThreadID, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	DeleteMessageFromThread(ctx context.Context, in *MessageID, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type chatServiceClient struct {
@@ -83,8 +84,8 @@ func (c *chatServiceClient) GetThreads(ctx context.Context, in *Collection, opts
 	return out, nil
 }
 
-func (c *chatServiceClient) DeleteThread(ctx context.Context, in *ThreadID, opts ...grpc.CallOption) (*ThreadID, error) {
-	out := new(ThreadID)
+func (c *chatServiceClient) DeleteThread(ctx context.Context, in *ThreadID, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, ChatService_DeleteThread_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -92,8 +93,8 @@ func (c *chatServiceClient) DeleteThread(ctx context.Context, in *ThreadID, opts
 	return out, nil
 }
 
-func (c *chatServiceClient) DeleteMessageFromThread(ctx context.Context, in *MessageID, opts ...grpc.CallOption) (*MessageID, error) {
-	out := new(MessageID)
+func (c *chatServiceClient) DeleteMessageFromThread(ctx context.Context, in *MessageID, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, ChatService_DeleteMessageFromThread_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -109,8 +110,8 @@ type ChatServiceServer interface {
 	PostMessage(context.Context, *Prompt) (*Message, error)
 	GetThread(context.Context, *ThreadID) (*Thread, error)
 	GetThreads(context.Context, *Collection) (*ThreadIDs, error)
-	DeleteThread(context.Context, *ThreadID) (*ThreadID, error)
-	DeleteMessageFromThread(context.Context, *MessageID) (*MessageID, error)
+	DeleteThread(context.Context, *ThreadID) (*emptypb.Empty, error)
+	DeleteMessageFromThread(context.Context, *MessageID) (*emptypb.Empty, error)
 	mustEmbedUnimplementedChatServiceServer()
 }
 
@@ -130,10 +131,10 @@ func (UnimplementedChatServiceServer) GetThread(context.Context, *ThreadID) (*Th
 func (UnimplementedChatServiceServer) GetThreads(context.Context, *Collection) (*ThreadIDs, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetThreads not implemented")
 }
-func (UnimplementedChatServiceServer) DeleteThread(context.Context, *ThreadID) (*ThreadID, error) {
+func (UnimplementedChatServiceServer) DeleteThread(context.Context, *ThreadID) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteThread not implemented")
 }
-func (UnimplementedChatServiceServer) DeleteMessageFromThread(context.Context, *MessageID) (*MessageID, error) {
+func (UnimplementedChatServiceServer) DeleteMessageFromThread(context.Context, *MessageID) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteMessageFromThread not implemented")
 }
 func (UnimplementedChatServiceServer) mustEmbedUnimplementedChatServiceServer() {}

@@ -5,6 +5,7 @@ option go_package = "./proto";
 package endpoint.brainboost.chat.v3;
 
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
 
 import "collection_service.proto";
 
@@ -13,8 +14,8 @@ service ChatService {
   rpc PostMessage(Prompt) returns (Message);
   rpc GetThread(ThreadID) returns (Thread);
   rpc GetThreads(collections.v1.Collection) returns (ThreadIDs);
-  rpc DeleteThread(ThreadID) returns (ThreadID);
-  rpc DeleteMessageFromThread(MessageID) returns (MessageID);
+  rpc DeleteThread(ThreadID) returns (google.protobuf.Empty);
+  rpc DeleteMessageFromThread(MessageID) returns (google.protobuf.Empty);
 }
 
 message Prompt {
