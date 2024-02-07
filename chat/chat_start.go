@@ -10,7 +10,7 @@ import (
 	"log"
 )
 
-func (service *Service) StartThread(ctx context.Context, prompt *pb.Prompt) (*pb.Thread, error) {
+func (service *Service) StartThread(ctx context.Context, prompt *pb.ThreadPrompt) (*pb.Thread, error) {
 	userId, err := service.Verify(ctx)
 	if err != nil {
 		return nil, err

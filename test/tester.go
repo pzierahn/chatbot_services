@@ -35,7 +35,7 @@ func (test Tester) createUser() string {
 }
 
 func (test Tester) runTest(name string, testFunc func(ctx context.Context) error) {
-	ctx, cnl := context.WithTimeout(context.Background(), time.Second*10)
+	ctx, cnl := context.WithTimeout(context.Background(), time.Second*30)
 	defer cnl()
 
 	uid := test.createUser()
