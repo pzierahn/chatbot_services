@@ -50,25 +50,20 @@ message Message {
   string id = 1;
   string prompt = 2;
   string completion = 3;
-  ModelOptions model_options = 4;
-  google.protobuf.Timestamp timestamp = 5;
+  google.protobuf.Timestamp timestamp = 4;
 }
 
 message Thread {
   string id = 1;
   string collection_id = 2;
-  string prompt = 3;
-  string completion = 4;
-  ModelOptions model_options = 5;
-  google.protobuf.Timestamp timestamp = 6;
+  repeated Message messages = 3;
+  google.protobuf.Timestamp timestamp = 4;
 
   // Chunk ids
-  repeated string references = 7;
+  repeated string references = 5;
 
   // Chunk id --> score
-  repeated float scores = 8;
-
-  repeated Message messages = 9;
+  repeated float scores = 6;
 }
 
 message ThreadID {

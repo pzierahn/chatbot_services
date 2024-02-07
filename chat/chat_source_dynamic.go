@@ -15,6 +15,10 @@ type chunks struct {
 
 func (service *Service) searchForContext(ctx context.Context, prompt *pb.ThreadPrompt) (*chunks, error) {
 
+	if prompt.Limit == 0 {
+		return &chunks{}, nil
+	}
+
 	results, err := service.docs.Search(ctx, &pb.SearchQuery{
 		CollectionId: prompt.CollectionId,
 		Query:        prompt.Prompt,

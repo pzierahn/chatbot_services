@@ -13,7 +13,7 @@ type Message struct {
 }
 
 type GenerateRequest struct {
-	Messages    []Message
+	Messages    []*Message
 	Model       string
 	MaxTokens   int
 	TopP        float32

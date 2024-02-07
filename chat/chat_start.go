@@ -7,6 +7,7 @@ import (
 	"github.com/pzierahn/chatbot_services/account"
 	"github.com/pzierahn/chatbot_services/llm"
 	pb "github.com/pzierahn/chatbot_services/proto"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"log"
 )
 
@@ -21,7 +22,6 @@ func (service *Service) StartThread(ctx context.Context, prompt *pb.ThreadPrompt
 	}
 
 	var chunkData *chunks
-
 	if len(prompt.Documents) == 0 {
 		chunkData, err = service.searchForContext(ctx, prompt)
 	} else {
@@ -31,14 +31,27 @@ func (service *Service) StartThread(ctx context.Context, prompt *pb.ThreadPrompt
 		return nil, err
 	}
 
+	var messages []*llm.Message
+	for _, doc := range chunkData.texts {
+		messages = append(messages, &llm.Message{
+			Type: llm.MessageTypeUser,
+			Text: doc,
+		})
+	}
+
+	// Add the prompt to the messages
+	messages = append(messages, &llm.Message{
+		Type: llm.MessageTypeUser,
+		Text: prompt.Prompt,
+	})
+
 	model, err := service.getModel(prompt.ModelOptions.Model)
 	if err != nil {
 		return nil, err
 	}
 
 	resp, err := model.GenerateCompletion(ctx, &llm.GenerateRequest{
-		Prompt:      prompt.Prompt,
-		Documents:   chunkData.texts,
+		Messages:    messages,
 		Model:       prompt.ModelOptions.Model,
 		MaxTokens:   int(prompt.ModelOptions.MaxTokens),
 		Temperature: prompt.ModelOptions.Temperature,
@@ -59,20 +72,23 @@ func (service *Service) StartThread(ctx context.Context, prompt *pb.ThreadPrompt
 	completion := &pb.Thread{
 		Id:           uuid.NewString(),
 		CollectionId: prompt.CollectionId,
-		Prompt:       prompt.Prompt,
-		Completion:   resp.Text,
 		References:   chunkData.ids,
 		Scores:       chunkData.scores,
+		Timestamp:    timestamppb.Now(),
+		Messages: []*pb.Message{
+			{
+				Id:         uuid.NewString(),
+				Prompt:     prompt.Prompt,
+				Completion: resp.Text,
+				Timestamp:  timestamppb.Now(),
+			},
+		},
 	}
 
-	_ = service.storeThread(ctx, chatMessage{
-		id:           completion.Id,
-		userId:       userId,
-		collectionId: prompt.CollectionId,
-		prompt:       prompt.Prompt,
-		completion:   completion.Completion,
-		references:   chunkData.ids,
-	})
+	err = service.storeThread(ctx, userId, completion)
+	if err != nil {
+		return nil, err
+	}
 
 	return completion, nil
 }

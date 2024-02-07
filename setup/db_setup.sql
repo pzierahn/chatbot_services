@@ -53,8 +53,9 @@ create table if not exists thread_messages
 create table if not exists thread_references
 (
     id                uuid primary key default gen_random_uuid(),
-    thread_id         uuid not null references threads (id) ON DELETE CASCADE,
-    document_chunk_id uuid not null references document_chunks (id) ON DELETE CASCADE
+    user_id           VARCHAR(36) not null,
+    thread_id         uuid        not null references threads (id) ON DELETE CASCADE,
+    document_chunk_id uuid        not null references document_chunks (id) ON DELETE CASCADE
 );
 
 create table if not exists payments

@@ -21,8 +21,6 @@ type Tester struct {
 func (test Tester) createUser() string {
 	uid := uuid.NewString()
 
-	log.Printf("Creating user: %v", uid)
-
 	_, err := test.db.Exec(context.Background(),
 		`INSERT INTO payments (user_id, amount)
 			VALUES ($1, 1000)`, uid)

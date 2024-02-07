@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	pb "github.com/pzierahn/chatbot_services/proto"
-	"log"
+	"strings"
 )
 
 func (test Tester) TestThreads() {
@@ -29,8 +29,12 @@ func (test Tester) TestThreads() {
 			return err
 		}
 
-		if thread.Completion == "" {
-			return fmt.Errorf("completion missing")
+		if thread.Id == "" {
+			return fmt.Errorf("thread id missing")
+		}
+
+		if thread.Messages[0].Prompt != "Say Hello" {
+			return fmt.Errorf("unexpected prompt: %v", thread.Messages[0].Prompt)
 		}
 
 		return nil
@@ -45,21 +49,20 @@ func (test Tester) TestThreads() {
 		}
 
 		thread, err := test.chat.StartThread(ctx, &pb.ThreadPrompt{
-			Prompt:       "I have a little green object in a yellow box",
+			Prompt:       "I have a little green rectangular object in a yellow box",
 			CollectionId: collection.Id,
 			ModelOptions: &pb.ModelOptions{
 				Model: "gemini-pro",
 			},
 			Threshold: 0.2,
-			Limit:     1,
+			Limit:     0,
 		})
 		if err != nil {
 			return err
 		}
 
-		log.Printf("Thread: %+v", thread)
 		message, err := test.chat.PostMessage(ctx, &pb.Prompt{
-			Prompt:   "What color is the object?",
+			Prompt:   "What is the color of the rectangular object in the yellow box?",
 			ThreadID: thread.Id,
 			ModelOptions: &pb.ModelOptions{
 				Model: "gemini-pro",
@@ -69,7 +72,10 @@ func (test Tester) TestThreads() {
 			return err
 		}
 
-		log.Printf("Message: %+v", message)
+		completion := strings.ToLower(message.Completion)
+		if !strings.Contains(completion, "green") {
+			return fmt.Errorf("unexpected completion: %v", completion)
+		}
 
 		return nil
 	})
