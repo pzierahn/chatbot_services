@@ -5,17 +5,17 @@ import (
 	pb "github.com/pzierahn/chatbot_services/proto"
 )
 
-func (service *Service) DeleteChatMessage(ctx context.Context, req *pb.MessageID) (*pb.MessageID, error) {
+func (service *Service) DeleteThread(ctx context.Context, req *pb.ThreadID) (*pb.ThreadID, error) {
 	userId, err := service.auth.Verify(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = service.db.Exec(ctx, `
-		DELETE FROM chat_messages
-		WHERE user_id = $1
-		  AND id = $2
-	`, userId, req.Id)
+	_, err = service.db.Exec(ctx,
+		`DELETE FROM threads
+			WHERE user_id = $1 AND
+			      id = $2`,
+		userId, req.Id)
 	if err != nil {
 		return nil, err
 	}

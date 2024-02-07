@@ -10,23 +10,14 @@ import (
 	"log"
 )
 
-func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMessage, error) {
-	userId, err := service.auth.Verify(ctx)
+func (service *Service) StartThread(ctx context.Context, prompt *pb.Prompt) (*pb.Thread, error) {
+	userId, err := service.Verify(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	if prompt.ModelOptions == nil {
 		return nil, fmt.Errorf("options missing")
-	}
-
-	funding, err := service.account.HasFunding(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	if !funding {
-		return nil, account.NoFundingError()
 	}
 
 	var chunkData *chunks
@@ -65,21 +56,21 @@ func (service *Service) Chat(ctx context.Context, prompt *pb.Prompt) (*pb.ChatMe
 		Output: uint32(resp.OutputTokens),
 	})
 
-	completion := &pb.ChatMessage{
+	completion := &pb.Thread{
 		Id:           uuid.NewString(),
 		CollectionId: prompt.CollectionId,
 		Prompt:       prompt.Prompt,
-		Text:         resp.Text,
+		Completion:   resp.Text,
 		References:   chunkData.ids,
 		Scores:       chunkData.scores,
 	}
 
-	_ = service.storeChatMessage(ctx, chatMessage{
+	_ = service.storeThread(ctx, chatMessage{
 		id:           completion.Id,
 		userId:       userId,
 		collectionId: prompt.CollectionId,
 		prompt:       prompt.Prompt,
-		completion:   completion.Text,
+		completion:   completion.Completion,
 		references:   chunkData.ids,
 	})
 

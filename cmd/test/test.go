@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	pb "github.com/pzierahn/chatbot_services/proto"
 	"github.com/pzierahn/chatbot_services/test"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -26,8 +25,6 @@ func main() {
 	}
 	defer func() { _ = conn.Close() }()
 
-	service := pb.NewChatServiceClient(conn)
-
-	tester := test.NewTester(service)
+	tester := test.NewTester(conn)
 	tester.TestThreads()
 }
