@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	ChatService_StartThread_FullMethodName             = "/endpoint.brainboost.chat.v3.ChatService/StartThread"
+	ChatService_PostMessage_FullMethodName             = "/endpoint.brainboost.chat.v3.ChatService/PostMessage"
 	ChatService_GetThread_FullMethodName               = "/endpoint.brainboost.chat.v3.ChatService/GetThread"
 	ChatService_GetThreads_FullMethodName              = "/endpoint.brainboost.chat.v3.ChatService/GetThreads"
 	ChatService_DeleteThread_FullMethodName            = "/endpoint.brainboost.chat.v3.ChatService/DeleteThread"
@@ -30,7 +31,8 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ChatServiceClient interface {
-	StartThread(ctx context.Context, in *Prompt, opts ...grpc.CallOption) (*Thread, error)
+	StartThread(ctx context.Context, in *ThreadPrompt, opts ...grpc.CallOption) (*Thread, error)
+	PostMessage(ctx context.Context, in *Prompt, opts ...grpc.CallOption) (*Message, error)
 	GetThread(ctx context.Context, in *ThreadID, opts ...grpc.CallOption) (*Thread, error)
 	GetThreads(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*ThreadIDs, error)
 	DeleteThread(ctx context.Context, in *ThreadID, opts ...grpc.CallOption) (*ThreadID, error)
@@ -45,9 +47,18 @@ func NewChatServiceClient(cc grpc.ClientConnInterface) ChatServiceClient {
 	return &chatServiceClient{cc}
 }
 
-func (c *chatServiceClient) StartThread(ctx context.Context, in *Prompt, opts ...grpc.CallOption) (*Thread, error) {
+func (c *chatServiceClient) StartThread(ctx context.Context, in *ThreadPrompt, opts ...grpc.CallOption) (*Thread, error) {
 	out := new(Thread)
 	err := c.cc.Invoke(ctx, ChatService_StartThread_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *chatServiceClient) PostMessage(ctx context.Context, in *Prompt, opts ...grpc.CallOption) (*Message, error) {
+	out := new(Message)
+	err := c.cc.Invoke(ctx, ChatService_PostMessage_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +105,8 @@ func (c *chatServiceClient) DeleteMessageFromThread(ctx context.Context, in *Mes
 // All implementations must embed UnimplementedChatServiceServer
 // for forward compatibility
 type ChatServiceServer interface {
-	StartThread(context.Context, *Prompt) (*Thread, error)
+	StartThread(context.Context, *ThreadPrompt) (*Thread, error)
+	PostMessage(context.Context, *Prompt) (*Message, error)
 	GetThread(context.Context, *ThreadID) (*Thread, error)
 	GetThreads(context.Context, *Collection) (*ThreadIDs, error)
 	DeleteThread(context.Context, *ThreadID) (*ThreadID, error)
@@ -106,8 +118,11 @@ type ChatServiceServer interface {
 type UnimplementedChatServiceServer struct {
 }
 
-func (UnimplementedChatServiceServer) StartThread(context.Context, *Prompt) (*Thread, error) {
+func (UnimplementedChatServiceServer) StartThread(context.Context, *ThreadPrompt) (*Thread, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartThread not implemented")
+}
+func (UnimplementedChatServiceServer) PostMessage(context.Context, *Prompt) (*Message, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PostMessage not implemented")
 }
 func (UnimplementedChatServiceServer) GetThread(context.Context, *ThreadID) (*Thread, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetThread not implemented")
@@ -135,7 +150,7 @@ func RegisterChatServiceServer(s grpc.ServiceRegistrar, srv ChatServiceServer) {
 }
 
 func _ChatService_StartThread_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Prompt)
+	in := new(ThreadPrompt)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -147,7 +162,25 @@ func _ChatService_StartThread_Handler(srv interface{}, ctx context.Context, dec 
 		FullMethod: ChatService_StartThread_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ChatServiceServer).StartThread(ctx, req.(*Prompt))
+		return srv.(ChatServiceServer).StartThread(ctx, req.(*ThreadPrompt))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ChatService_PostMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Prompt)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChatServiceServer).PostMessage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ChatService_PostMessage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChatServiceServer).PostMessage(ctx, req.(*Prompt))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -234,6 +267,10 @@ var ChatService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "StartThread",
 			Handler:    _ChatService_StartThread_Handler,
+		},
+		{
+			MethodName: "PostMessage",
+			Handler:    _ChatService_PostMessage_Handler,
 		},
 		{
 			MethodName: "GetThread",

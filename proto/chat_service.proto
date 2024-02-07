@@ -9,7 +9,8 @@ import "google/protobuf/timestamp.proto";
 import "collection_service.proto";
 
 service ChatService {
-  rpc StartThread(Prompt) returns (Thread);
+  rpc StartThread(ThreadPrompt) returns (Thread);
+  rpc PostMessage(Prompt) returns (Message);
   rpc GetThread(ThreadID) returns (Thread);
   rpc GetThreads(collections.v1.Collection) returns (ThreadIDs);
   rpc DeleteThread(ThreadID) returns (ThreadID);
@@ -17,6 +18,12 @@ service ChatService {
 }
 
 message Prompt {
+  string threadID = 1;
+  string prompt = 2;
+  ModelOptions model_options = 3;
+}
+
+message ThreadPrompt {
   string prompt = 1;
   string collection_id = 2;
   ModelOptions model_options = 3;
