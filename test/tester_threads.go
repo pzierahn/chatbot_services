@@ -22,8 +22,6 @@ func (test Tester) TestThreads() {
 			ModelOptions: &pb.ModelOptions{
 				Model: "gemini-pro",
 			},
-			Threshold: 0.2,
-			Limit:     1,
 		})
 		if err != nil {
 			return err
@@ -54,8 +52,6 @@ func (test Tester) TestThreads() {
 			ModelOptions: &pb.ModelOptions{
 				Model: "gemini-pro",
 			},
-			Threshold: 0.2,
-			Limit:     0,
 		})
 		if err != nil {
 			return err
