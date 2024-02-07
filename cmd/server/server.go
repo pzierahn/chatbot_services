@@ -53,7 +53,7 @@ func main() {
 		log.Fatalf("did not get bucket: %v", err)
 	}
 
-	addr := os.Getenv("BRAINBOOST_COCKROACH_DB")
+	addr := os.Getenv("CHATBOT_DB")
 	db, err := pgxpool.New(ctx, addr)
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
