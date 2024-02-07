@@ -8,80 +8,7 @@ import (
 	"github.com/pzierahn/chatbot_services/utils"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"log"
-	"strings"
 )
-
-func (service *Service) getThreadMessages(ctx context.Context, uid, threadId string) ([]*llm.Message, error) {
-	rows, err := service.db.Query(
-		ctx,
-		`SELECT prompt, completion
-			FROM thread_messages
-			WHERE user_id = $1 AND thread_id = $2
-			ORDER BY created_at`,
-		uid, threadId)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var messages []*llm.Message
-
-	for rows.Next() {
-		var prompt, completion string
-		err = rows.Scan(&prompt, &completion)
-		if err != nil {
-			return nil, err
-		}
-
-		messages = append(messages, []*llm.Message{{
-			Type: llm.MessageTypeUser,
-			Text: prompt,
-		}, {
-			Type: llm.MessageTypeBot,
-			Text: completion,
-		}}...)
-	}
-
-	return messages, nil
-}
-
-func (service *Service) getReferences(ctx context.Context, uid, threadId string) ([]*llm.Message, error) {
-	rows, err := service.db.Query(
-		ctx,
-		`SELECT dc.id, text
-			FROM thread_references as tr, document_chunks as dc
-			WHERE user_id = $1 AND 
-			      thread_id = $2 AND
-			      tr.document_chunk_id = dc.id
-		  	ORDER BY dc.page`,
-		uid, threadId)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	// DocumentId --> pages
-	docRefs := make(map[string][]string)
-	for rows.Next() {
-		var docId, text string
-		err = rows.Scan(&text)
-		if err != nil {
-			return nil, err
-		}
-
-		docRefs[docId] = append(docRefs[docId], text)
-	}
-
-	var messages []*llm.Message
-	for _, pages := range docRefs {
-		messages = append(messages, &llm.Message{
-			Type: llm.MessageTypeUser,
-			Text: strings.Join(pages, "\n"),
-		})
-	}
-
-	return messages, nil
-}
 
 func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb.Message, error) {
 	userId, err := service.Verify(ctx)
@@ -93,21 +20,32 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 		return nil, fmt.Errorf("options missing")
 	}
 
-	var messages []*llm.Message
-
 	references, err := service.getReferences(ctx, userId, prompt.ThreadID)
 	if err != nil {
-		log.Printf("Error fetching references: %v", err)
 		return nil, err
 	}
-	messages = append(messages, references...)
 
-	chat, err := service.getThreadMessages(ctx, userId, prompt.ThreadID)
+	var messages []*llm.Message
+	for _, ref := range references {
+		messages = append(messages, &llm.Message{
+			Type: llm.MessageTypeUser,
+			Text: ref.Text,
+		})
+	}
+
+	chatMessages, err := service.getThreadMessages(ctx, userId, prompt.ThreadID)
 	if err != nil {
-		log.Printf("Error fetching thread messages: %v", err)
 		return nil, err
 	}
-	messages = append(messages, chat...)
+	for _, msg := range chatMessages {
+		messages = append(messages, []*llm.Message{{
+			Type: llm.MessageTypeUser,
+			Text: msg.Prompt,
+		}, {
+			Type: llm.MessageTypeBot,
+			Text: msg.Completion,
+		}}...)
+	}
 
 	messages = append(messages, &llm.Message{
 		Type: llm.MessageTypeUser,

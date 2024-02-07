@@ -55,15 +55,11 @@ message Message {
 
 message Thread {
   string id = 1;
-  string collection_id = 2;
-  repeated Message messages = 3;
-  google.protobuf.Timestamp timestamp = 4;
-
-  // Chunk ids
-  repeated string references = 5;
+  repeated Message messages = 2;
+  repeated string referenceIDs = 3;
 
   // Chunk id --> score
-  repeated float scores = 6;
+  repeated float scores = 4;
 }
 
 message ThreadID {

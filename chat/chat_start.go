@@ -71,10 +71,8 @@ func (service *Service) StartThread(ctx context.Context, prompt *pb.ThreadPrompt
 
 	completion := &pb.Thread{
 		Id:           uuid.NewString(),
-		CollectionId: prompt.CollectionId,
-		References:   chunkData.ids,
+		ReferenceIDs: chunkData.ids,
 		Scores:       chunkData.scores,
-		Timestamp:    timestamppb.Now(),
 		Messages: []*pb.Message{
 			{
 				Id:         uuid.NewString(),
@@ -85,7 +83,7 @@ func (service *Service) StartThread(ctx context.Context, prompt *pb.ThreadPrompt
 		},
 	}
 
-	err = service.storeThread(ctx, userId, completion)
+	err = service.storeThread(ctx, userId, prompt.CollectionId, completion)
 	if err != nil {
 		return nil, err
 	}

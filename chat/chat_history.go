@@ -7,16 +7,7 @@ import (
 	"github.com/pzierahn/chatbot_services/utils"
 )
 
-type chatMessage struct {
-	id           string
-	userId       string
-	collectionId string
-	prompt       string
-	completion   string
-	references   []string
-}
-
-func (service *Service) storeThread(ctx context.Context, userId string, thread *pb.Thread) error {
+func (service *Service) storeThread(ctx context.Context, userId, collectionId string, thread *pb.Thread) error {
 
 	tx, err := service.db.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
@@ -25,12 +16,11 @@ func (service *Service) storeThread(ctx context.Context, userId string, thread *
 	defer func() { _ = tx.Rollback(ctx) }()
 
 	_, err = tx.Exec(ctx,
-		`INSERT INTO threads (id, user_id, collection_id, created_at)
-			VALUES ($1, $2, $3, $4)`,
+		`INSERT INTO threads (id, user_id, collection_id)
+			VALUES ($1, $2, $3)`,
 		thread.Id,
 		userId,
-		thread.CollectionId,
-		utils.ProtoToTime(thread.Timestamp),
+		collectionId,
 	)
 	if err != nil {
 		return err
@@ -51,7 +41,7 @@ func (service *Service) storeThread(ctx context.Context, userId string, thread *
 		}
 	}
 
-	for _, source := range thread.References {
+	for _, source := range thread.ReferenceIDs {
 		_, err = tx.Exec(ctx,
 			`INSERT INTO thread_references (user_id, thread_id, document_chunk_id)
 			VALUES ($1, $2, $3)`,

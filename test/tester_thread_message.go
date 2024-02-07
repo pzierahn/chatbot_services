@@ -7,38 +7,8 @@ import (
 	"strings"
 )
 
-func (test Tester) TestThreads() {
-	test.runTest("TestThreads_start", func(ctx context.Context) error {
-		collection, err := test.collections.Create(ctx, &pb.Collection{
-			Name: "test",
-		})
-		if err != nil {
-			return err
-		}
-
-		thread, err := test.chat.StartThread(ctx, &pb.ThreadPrompt{
-			Prompt:       "Say Hello",
-			CollectionId: collection.Id,
-			ModelOptions: &pb.ModelOptions{
-				Model: "gemini-pro",
-			},
-		})
-		if err != nil {
-			return err
-		}
-
-		if thread.Id == "" {
-			return fmt.Errorf("thread id missing")
-		}
-
-		if thread.Messages[0].Prompt != "Say Hello" {
-			return fmt.Errorf("unexpected prompt: %v", thread.Messages[0].Prompt)
-		}
-
-		return nil
-	})
-
-	test.runTest("TestThreads_message", func(ctx context.Context) error {
+func (test Tester) TestThreadMessages() {
+	test.runTest("TestThread_messages", func(ctx context.Context) error {
 		collection, err := test.collections.Create(ctx, &pb.Collection{
 			Name: "Test",
 		})
