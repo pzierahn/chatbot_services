@@ -70,9 +70,9 @@ func (service *Service) StartThread(ctx context.Context, prompt *pb.ThreadPrompt
 	})
 
 	completion := &pb.Thread{
-		Id:           uuid.NewString(),
-		ReferenceIDs: chunkData.ids,
-		Scores:       chunkData.scores,
+		Id:              uuid.NewString(),
+		ReferenceIDs:    chunkData.ids,
+		ReferenceScores: chunkData.scores,
 		Messages: []*pb.Message{
 			{
 				Id:         uuid.NewString(),

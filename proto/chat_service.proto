@@ -58,9 +58,7 @@ message Thread {
   string id = 1;
   repeated Message messages = 2;
   repeated string referenceIDs = 3;
-
-  // Chunk id --> score
-  repeated float scores = 4;
+  repeated float reference_scores = 4;
 }
 
 message ThreadID {
