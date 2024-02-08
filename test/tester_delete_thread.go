@@ -38,7 +38,7 @@ func (test Tester) TestDeleteThread() {
 			return err
 		}
 
-		out, err := test.chat.GetThreads(ctx, &pb.Collection{Id: collection.Id})
+		out, err := test.chat.ListThreadIDs(ctx, &pb.Collection{Id: collection.Id})
 		if err != nil {
 			return err
 		}

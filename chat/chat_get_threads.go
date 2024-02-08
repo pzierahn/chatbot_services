@@ -5,7 +5,7 @@ import (
 	pb "github.com/pzierahn/chatbot_services/proto"
 )
 
-func (service *Service) GetThreads(ctx context.Context, collection *pb.Collection) (*pb.ThreadIDs, error) {
+func (service *Service) ListThreadIDs(ctx context.Context, collection *pb.Collection) (*pb.ThreadIDs, error) {
 	userId, err := service.Verify(ctx)
 	if err != nil {
 		return nil, err

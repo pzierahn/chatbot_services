@@ -26,7 +26,10 @@ func main() {
 	defer func() { _ = conn.Close() }()
 
 	tester := test.NewTester(conn)
-	tester.TestStartThread()
-	tester.TestThreadMessages()
-	tester.TestGetThread()
+	//tester.TestStartThread()
+	//tester.TestThreadMessages()
+	//tester.TestGetThread()
+	//tester.ListThreadIDs()
+	//tester.TestDeleteThread()
+	tester.TestDeleteThreadMessage()
 }

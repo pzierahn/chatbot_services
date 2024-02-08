@@ -6,8 +6,8 @@ import (
 	pb "github.com/pzierahn/chatbot_services/proto"
 )
 
-func (test Tester) TestGetThreads() {
-	test.runTest("TestGetThread", func(ctx context.Context) error {
+func (test Tester) TestListThreadIDs() {
+	test.runTest("TestListThreadIDs", func(ctx context.Context) error {
 		collection, err := test.collections.Create(ctx, &pb.Collection{
 			Name: "test",
 		})
@@ -33,7 +33,7 @@ func (test Tester) TestGetThreads() {
 			return err
 		}
 
-		out, err := test.chat.GetThreads(ctx, &pb.Collection{Id: collection.Id})
+		out, err := test.chat.ListThreadIDs(ctx, &pb.Collection{Id: collection.Id})
 		if err != nil {
 			return err
 		}
