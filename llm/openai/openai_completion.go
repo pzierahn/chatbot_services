@@ -9,8 +9,10 @@ import (
 func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateRequest) (*llm.GenerateResponse, error) {
 	messages := []openai.ChatCompletionMessage{
 		{
-			Role:    openai.ChatMessageRoleSystem,
-			Content: "Answer in Markdown format without any code blocks",
+			Role: openai.ChatMessageRoleSystem,
+			Content: "You are a helpful assistant. " +
+				"Answer in Markdown format without any code blocks." +
+				"Don't include any latex code",
 		},
 	}
 
