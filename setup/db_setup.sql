@@ -22,7 +22,7 @@ create table if not exists document_chunks
     text        text    not null
 );
 
-create table if not exists openai_usages
+create table if not exists model_usages
 (
     id            uuid primary key     default gen_random_uuid(),
     user_id       VARCHAR(36) not null,

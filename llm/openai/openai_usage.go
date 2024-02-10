@@ -13,7 +13,7 @@ func (client *Client) trackUsage(ctx context.Context, usage llm.ModelUsage) {
 
 	_, err := client.db.Exec(
 		ctx,
-		`INSERT INTO openai_usages (user_id, model, input_tokens, output_tokens) 
+		`INSERT INTO model_usages (user_id, model, input_tokens, output_tokens) 
 			VALUES ($1, $2, $3, $4)`,
 		usage.UserId,
 		usage.Model,
