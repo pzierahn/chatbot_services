@@ -30,7 +30,7 @@ func (db *DB) Delete(ids []string) error {
 		Points: &qdrant.PointsSelector{
 			PointsSelectorOneOf: &qdrant.PointsSelector_Points{
 				Points: &qdrant.PointsIdsList{
-					Ids: make([]*qdrant.PointId, 0),
+					Ids: pointsIds,
 				},
 			},
 		},
