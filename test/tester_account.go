@@ -6,11 +6,10 @@ import (
 	pb "github.com/pzierahn/chatbot_services/proto"
 	"github.com/sashabaranov/go-openai"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"log"
 )
 
-func (test Tester) TestAccount() {
-	test.runTest("TestAccount", func(ctx context.Context) error {
+func (test Tester) TestAccountCosts() {
+	test.runTest("TestAccount_costs", func(ctx context.Context) error {
 		collection, err := test.collections.Create(ctx, &pb.Collection{
 			Name: "test",
 		})
@@ -33,8 +32,6 @@ func (test Tester) TestAccount() {
 		if err != nil {
 			return err
 		}
-
-		log.Printf("Costs: %v", prettify(costs))
 
 		if len(costs.Models) != 1 {
 			return fmt.Errorf("expected 1 model, got %d", len(costs.Models))
