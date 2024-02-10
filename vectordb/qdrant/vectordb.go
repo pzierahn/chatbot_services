@@ -70,7 +70,7 @@ func New() (*DB, error) {
 
 	var opts []grpc.DialOption
 
-	if os.Getenv("QDRANT_INSECURE") == "true" {
+	if os.Getenv("CHATBOT_QDRANT_INSECURE") == "true" {
 		opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	} else {
 		opts = append(opts, grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{})))
