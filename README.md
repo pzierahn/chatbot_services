@@ -15,13 +15,13 @@ Before you can start the server, you need to set the following environment varia
 export OPENAI_API_KEY=""
 
 # QDRANT API key
-export QDRANT_KEY=""
+export CHATBOT_QDRANT_KEY=""
 
 # QDRANT API URL
-export QDRANT_URL=""
+export CHATBOT_QDRANT_URL=""
 
 # Postgres connection string
-export BRAINBOOST_COCKROACH_DB=""
+export CHATBOT_BRAINBOOST_COCKROACH_DB=""
 ```
 
 ### Start the server
