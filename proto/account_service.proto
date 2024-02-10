@@ -25,6 +25,7 @@ message ModelCosts {
   uint32 input = 2;
   uint32 output = 3;
   uint32 costs = 4;
+  uint32 requests = 5;
 }
 
 message Costs {

@@ -71,8 +71,8 @@ func main() {
 		log.Fatalf("failed to create vertex service: %v", err)
 	}
 
-	authService, err := auth.WithFirebase(ctx, app)
-	//authService, err := auth.WithInsecure()
+	//authService, err := auth.WithFirebase(ctx, app)
+	authService, err := auth.WithInsecure()
 	if err != nil {
 		log.Fatalf("failed to create auth service: %v", err)
 	}

@@ -22,7 +22,7 @@ func (service *Service) GetCosts(ctx context.Context, _ *emptypb.Empty) (*pb.Cos
 	}
 
 	rows, err := service.db.Query(ctx,
-		`SELECT model, SUM(input_tokens), SUM(output_tokens)
+		`SELECT model, COUNT(model), SUM(input_tokens), SUM(output_tokens)
 			FROM model_usages
 			WHERE user_id = $1
 			GROUP BY model`, userID)
@@ -36,6 +36,7 @@ func (service *Service) GetCosts(ctx context.Context, _ *emptypb.Empty) (*pb.Cos
 		var model pb.ModelCosts
 		err = rows.Scan(
 			&model.Model,
+			&model.Requests,
 			&model.Input,
 			&model.Output,
 		)
@@ -43,8 +44,8 @@ func (service *Service) GetCosts(ctx context.Context, _ *emptypb.Empty) (*pb.Cos
 			return nil, err
 		}
 
-		model.Costs += uint32(float32(model.Input)*inputCosts[model.Model]) / 10
-		model.Costs += uint32(float32(model.Output)*outputCosts[model.Model]) / 10
+		modelPrice := prices[model.Model]
+		model.Costs = modelPrice.cost(model.Input, model.Output)
 
 		costs.Models = append(costs.Models, &model)
 	}

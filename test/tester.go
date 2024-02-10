@@ -16,6 +16,7 @@ type Tester struct {
 	db          *pgxpool.Pool
 	chat        pb.ChatServiceClient
 	collections pb.CollectionServiceClient
+	account     pb.AccountServiceClient
 }
 
 func (test Tester) createUser() string {
@@ -81,5 +82,6 @@ func NewTester(conn *grpc.ClientConn) *Tester {
 		db:          db,
 		chat:        pb.NewChatServiceClient(conn),
 		collections: pb.NewCollectionServiceClient(conn),
+		account:     pb.NewAccountServiceClient(conn),
 	}
 }
