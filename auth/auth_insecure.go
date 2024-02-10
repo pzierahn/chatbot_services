@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"google.golang.org/grpc/metadata"
+	"log"
 )
 
 type insecureService struct{}
@@ -23,5 +24,9 @@ func (service insecureService) Verify(ctx context.Context) (uid string, err erro
 }
 
 func WithInsecure() (service Service, err error) {
+	// Ask for user input before returning the service, to prevent accidental use of insecure service
+	log.Printf("WARNING: Using insecure service. Press enter to continue.")
+	_, _ = fmt.Scanln()
+
 	return &insecureService{}, nil
 }
