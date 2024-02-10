@@ -53,5 +53,7 @@ func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateR
 		usage.CompletionTokens = len(resp.Text)
 	}
 
+	client.trackUsage(ctx, usage)
+
 	return resp, nil
 }
