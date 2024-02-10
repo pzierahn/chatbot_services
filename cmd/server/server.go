@@ -65,18 +65,18 @@ func main() {
 		log.Fatalf("failed to setup tables: %v", err)
 	}
 
-	openaiService := openai.New()
-	vertexService, err := vertex.New(ctx)
+	openaiService := openai.New(db)
+	vertexService, err := vertex.New(ctx, db)
 	if err != nil {
 		log.Fatalf("failed to create vertex service: %v", err)
 	}
 
 	authService, err := auth.WithFirebase(ctx, app)
+	//authService, err := auth.WithInsecure()
 	if err != nil {
 		log.Fatalf("failed to create auth service: %v", err)
 	}
 
-	//vecDB, err := pinecone.New()
 	vecDB, err := qdrant.New()
 	if err != nil {
 		log.Fatalf("failed to create vector db: %v", err)

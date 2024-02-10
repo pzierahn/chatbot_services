@@ -1,6 +1,7 @@
 package chat
 
 import (
+	"context"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pzierahn/chatbot_services/account"
 	"github.com/pzierahn/chatbot_services/auth"
@@ -26,6 +27,24 @@ type Config struct {
 	DocumentService *documents.Service
 	AccountService  *account.Service
 	AuthService     auth.Service
+}
+
+func (service *Service) Verify(ctx context.Context) (string, error) {
+	userId, err := service.auth.Verify(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	funding, err := service.account.HasFunding(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	if !funding {
+		return "", account.NoFundingError()
+	}
+
+	return userId, nil
 }
 
 func FromConfig(config *Config) *Service {

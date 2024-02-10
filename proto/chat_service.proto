@@ -2,20 +2,29 @@ syntax = "proto3";
 
 option go_package = "./proto";
 
-package endpoint.brainboost.chat.v2;
+package endpoint.brainboost.chat.v3;
 
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
 
 import "collection_service.proto";
 
 service ChatService {
-  rpc Chat(Prompt) returns (ChatMessage);
-  rpc GetChatMessages(collections.v1.Collection) returns (ChatMessages);
-  rpc GetChatMessage(MessageID) returns (ChatMessage);
-  rpc DeleteChatMessage(MessageID) returns (MessageID);
+  rpc StartThread(ThreadPrompt) returns (Thread);
+  rpc PostMessage(Prompt) returns (Message);
+  rpc GetThread(ThreadID) returns (Thread);
+  rpc ListThreadIDs(collections.v1.Collection) returns (ThreadIDs);
+  rpc DeleteThread(ThreadID) returns (google.protobuf.Empty);
+  rpc DeleteMessageFromThread(MessageID) returns (google.protobuf.Empty);
 }
 
 message Prompt {
+  string threadID = 1;
+  string prompt = 2;
+  ModelOptions model_options = 3;
+}
+
+message ThreadPrompt {
   string prompt = 1;
   string collection_id = 2;
   ModelOptions model_options = 3;
@@ -38,25 +47,29 @@ message ModelOptions {
   uint32 max_tokens = 6;
 }
 
-message ChatMessage {
+message Message {
   string id = 1;
-  string collection_id = 2;
-  string prompt = 3;
-  string text = 4;
-  ModelOptions model_options = 5;
-  optional google.protobuf.Timestamp timestamp = 6;
+  string prompt = 2;
+  string completion = 3;
+  google.protobuf.Timestamp timestamp = 4;
+}
 
-  // Chunk ids
-  repeated string references = 7;
+message Thread {
+  string id = 1;
+  repeated Message messages = 2;
+  repeated string referenceIDs = 3;
+  repeated float reference_scores = 4;
+}
 
-  // Chunk id --> score
-  repeated float scores = 8;
+message ThreadID {
+  string id = 1;
 }
 
 message MessageID {
   string id = 1;
+  string thread_id = 2;
 }
 
-message ChatMessages {
+message ThreadIDs {
   repeated string ids = 1;
 }

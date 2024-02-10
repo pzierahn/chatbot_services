@@ -2,9 +2,18 @@ package llm
 
 import "context"
 
+const (
+	MessageTypeUser = iota
+	MessageTypeBot
+)
+
+type Message struct {
+	Type int
+	Text string
+}
+
 type GenerateRequest struct {
-	Prompt      string
-	Documents   []string
+	Messages    []*Message
 	Model       string
 	MaxTokens   int
 	TopP        float32
@@ -13,9 +22,7 @@ type GenerateRequest struct {
 }
 
 type GenerateResponse struct {
-	Text         string
-	InputTokens  int
-	OutputTokens int
+	Text string
 }
 
 type EmbeddingRequest struct {
@@ -26,6 +33,13 @@ type EmbeddingRequest struct {
 type EmbeddingResponse struct {
 	Data   []float32
 	Tokens int
+}
+
+type ModelUsage struct {
+	Model            string
+	UserId           string
+	PromptTokens     int
+	CompletionTokens int
 }
 
 type Embedding interface {

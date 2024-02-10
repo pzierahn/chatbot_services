@@ -77,7 +77,7 @@ func main() {
 	}
 	defer db.Close()
 
-	gpt := openai.New()
+	gpt := openai.New(db)
 
 	docs := getDocs(ctx, db)
 	log.Printf("Found %d documents", len(docs))

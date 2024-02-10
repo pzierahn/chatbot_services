@@ -19,7 +19,7 @@ type SearchQuery struct {
 
 func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.SearchResults, error) {
 
-	userId, err := service.auth.ValidateToken(ctx)
+	userId, err := service.auth.Verify(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -40,12 +40,6 @@ func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.
 	if err != nil {
 		return nil, err
 	}
-
-	_, _ = service.account.CreateUsage(ctx, account.Usage{
-		UserId: userId,
-		Model:  string(embeddingsModel),
-		Input:  uint32(resp.Tokens),
-	})
 
 	vectors, err := service.vectorDB.Search(vectordb.SearchQuery{
 		UserId:       userId,

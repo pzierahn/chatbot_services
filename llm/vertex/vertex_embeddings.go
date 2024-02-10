@@ -54,6 +54,8 @@ func (client *Client) CreateEmbeddings(ctx context.Context, req *llm.EmbeddingRe
 		return nil, fmt.Errorf("billableCharacterCount not found")
 	}
 
+	// TODO: Add usage tracking
+
 	return &llm.EmbeddingResponse{
 		Data:   embedding,
 		Tokens: int(charCount),

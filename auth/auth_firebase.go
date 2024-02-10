@@ -22,7 +22,7 @@ func WithFirebase(ctx context.Context, app *firebase.App) (service Service, err 
 	return &firebaseService{client: client}, nil
 }
 
-func (auth *firebaseService) ValidateToken(ctx context.Context) (string, error) {
+func (auth *firebaseService) Verify(ctx context.Context) (string, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		return "", fmt.Errorf("metadata missing")

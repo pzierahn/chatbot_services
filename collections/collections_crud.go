@@ -10,7 +10,7 @@ import (
 )
 
 func (server *Service) Create(ctx context.Context, collection *pb.Collection) (*pb.Collection, error) {
-	uid, err := server.auth.ValidateToken(ctx)
+	uid, err := server.auth.Verify(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +31,7 @@ func (server *Service) Create(ctx context.Context, collection *pb.Collection) (*
 }
 
 func (server *Service) Update(ctx context.Context, collection *pb.Collection) (*pb.Collection, error) {
-	uid, err := server.auth.ValidateToken(ctx)
+	uid, err := server.auth.Verify(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +53,7 @@ func (server *Service) Update(ctx context.Context, collection *pb.Collection) (*
 }
 
 func (server *Service) Delete(ctx context.Context, collection *pb.Collection) (*emptypb.Empty, error) {
-	uid, err := server.auth.ValidateToken(ctx)
+	uid, err := server.auth.Verify(ctx)
 	if err != nil {
 		return nil, err
 	}

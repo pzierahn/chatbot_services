@@ -7,7 +7,7 @@ import (
 )
 
 func (server *Service) GetAll(ctx context.Context, _ *emptypb.Empty) (*pb.Collections, error) {
-	uid, err := server.auth.ValidateToken(ctx)
+	uid, err := server.auth.Verify(ctx)
 	if err != nil {
 		return nil, err
 	}

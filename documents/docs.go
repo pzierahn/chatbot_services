@@ -10,12 +10,6 @@ import (
 	"github.com/pzierahn/chatbot_services/vectordb"
 )
 
-// TODO: Remove this constants
-const (
-	bucket          = "documents"
-	embeddingsModel = "text-embedding-3-large"
-)
-
 type Service struct {
 	pb.UnimplementedDocumentServiceServer
 	auth       auth.Service

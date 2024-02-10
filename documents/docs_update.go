@@ -7,7 +7,7 @@ import (
 )
 
 func (service *Service) Update(ctx context.Context, req *pb.Document) (*emptypb.Empty, error) {
-	userID, err := service.auth.ValidateToken(ctx)
+	userID, err := service.auth.Verify(ctx)
 	if err != nil {
 		return nil, err
 	}
