@@ -54,15 +54,13 @@ func (service *Service) getDocPages(ctx context.Context, path string) ([]string,
 	return pdf.GetPagesFromBytes(ctx, raw)
 }
 
-func (service *Service) processEmbeddings(ctx context.Context, batch *embeddingsBatch) ([]*embedding, uint32, error) {
+func (service *Service) processEmbeddings(ctx context.Context, batch *embeddingsBatch) ([]*embedding, error) {
 	totalPages := len(batch.pages)
 
 	_ = batch.stream.Send(&pb.IndexProgress{
 		TotalPages:     uint32(totalPages),
 		ProcessedPages: 0,
 	})
-
-	var inputTokens uint32
 
 	var embeddings []*embedding
 	var processed uint32
@@ -129,7 +127,7 @@ func (service *Service) processEmbeddings(ctx context.Context, batch *embeddings
 	for result := range results {
 		if result.Error != nil {
 			if errorCount > 100 {
-				return nil, 0, result.Error
+				return nil, result.Error
 			} else {
 				queue <- int(result.Page)
 				errorCount++
@@ -138,7 +136,6 @@ func (service *Service) processEmbeddings(ctx context.Context, batch *embeddings
 		}
 
 		if result.Embedding != nil {
-			inputTokens += result.Tokens
 			embeddings = append(embeddings, result)
 		}
 
@@ -153,7 +150,7 @@ func (service *Service) processEmbeddings(ctx context.Context, batch *embeddings
 		}
 	}
 
-	return embeddings, inputTokens, nil
+	return embeddings, nil
 }
 
 func (service *Service) insertEmbeddings(ctx context.Context, doc *document) error {
@@ -236,7 +233,7 @@ func (service *Service) Index(doc *pb.Document, stream pb.DocumentService_IndexS
 
 	obj := service.storage.Object(doc.Path)
 
-	embeddings, inputTokens, err := service.processEmbeddings(ctx, &embeddingsBatch{
+	embeddings, err := service.processEmbeddings(ctx, &embeddingsBatch{
 		userId: userId,
 		pages:  pages,
 		stream: stream,
@@ -258,12 +255,6 @@ func (service *Service) Index(doc *pb.Document, stream pb.DocumentService_IndexS
 		_ = obj.Delete(ctx)
 		return err
 	}
-
-	_, _ = service.account.CreateUsage(ctx, account.Usage{
-		UserId: userId,
-		Model:  string(embeddingsModel),
-		Input:  inputTokens,
-	})
 
 	return err
 }

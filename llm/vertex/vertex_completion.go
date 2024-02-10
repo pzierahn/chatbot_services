@@ -8,7 +8,7 @@ import (
 
 func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateRequest) (*llm.GenerateResponse, error) {
 	modelName := req.Model
-	if req.Model == "" {
+	if modelName == "" {
 		modelName = "gemini-pro"
 	}
 
@@ -37,18 +37,20 @@ func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateR
 		Text: string(txt),
 	}
 
+	var usage llm.ModelUsage
+
 	if gen.UsageMetadata != nil {
-		resp.InputTokens = int(gen.UsageMetadata.PromptTokenCount)
-		resp.OutputTokens = int(gen.UsageMetadata.CandidatesTokenCount)
+		usage.PromptTokens = int(gen.UsageMetadata.PromptTokenCount)
+		usage.CompletionTokens = int(gen.UsageMetadata.CandidatesTokenCount)
 	} else {
 		for _, part := range parts {
 			partText, ok := part.(genai.Text)
 			if !ok {
 				continue
 			}
-			resp.InputTokens += len(string(partText))
+			usage.PromptTokens += len(string(partText))
 		}
-		resp.OutputTokens = len(resp.Text)
+		usage.CompletionTokens = len(resp.Text)
 	}
 
 	return resp, nil

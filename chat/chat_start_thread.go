@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/pzierahn/chatbot_services/account"
 	"github.com/pzierahn/chatbot_services/llm"
 	pb "github.com/pzierahn/chatbot_services/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -61,13 +60,6 @@ func (service *Service) StartThread(ctx context.Context, prompt *pb.ThreadPrompt
 		log.Printf("error: %v", err)
 		return nil, err
 	}
-
-	_, _ = service.account.CreateUsage(ctx, account.Usage{
-		UserId: userId,
-		Model:  prompt.ModelOptions.Model,
-		Input:  uint32(resp.InputTokens),
-		Output: uint32(resp.OutputTokens),
-	})
 
 	completion := &pb.Thread{
 		Id:              uuid.NewString(),

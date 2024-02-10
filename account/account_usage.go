@@ -51,22 +51,3 @@ func (service *Service) GetCosts(ctx context.Context, _ *emptypb.Empty) (*pb.Cos
 
 	return &costs, nil
 }
-
-// CreateUsage inserts a new usage record into the openai_usage table
-func (service *Service) CreateUsage(ctx context.Context, usage Usage) (uuid.UUID, error) {
-	// Verify the token
-	userID, err := service.auth.Verify(ctx)
-	if err != nil {
-		return uuid.Nil, err
-	}
-
-	var id uuid.UUID
-	err = service.db.QueryRow(ctx,
-		`INSERT INTO openai_usages (user_id, model, input_tokens, output_tokens)
-			VALUES ($1, $2, $3, $4)
-			RETURNING id`,
-		userID, usage.Model, usage.Input, usage.Output).
-		Scan(&id)
-
-	return id, err
-}

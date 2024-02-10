@@ -48,14 +48,18 @@ func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateR
 			User:        req.UserId,
 		},
 	)
-
 	if err != nil {
 		return nil, err
 	}
 
+	client.trackUsage(ctx, llm.ModelUsage{
+		UserId:           req.UserId,
+		Model:            resp.Model,
+		PromptTokens:     resp.Usage.PromptTokens,
+		CompletionTokens: resp.Usage.CompletionTokens,
+	})
+
 	return &llm.GenerateResponse{
-		Text:         resp.Choices[0].Message.Content,
-		InputTokens:  resp.Usage.PromptTokens,
-		OutputTokens: resp.Usage.CompletionTokens,
+		Text: resp.Choices[0].Message.Content,
 	}, nil
 }

@@ -5,6 +5,7 @@ import (
 	"cloud.google.com/go/vertexai/genai"
 	"context"
 	"fmt"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"google.golang.org/api/option"
 	"os"
 )
@@ -15,11 +16,12 @@ type Client struct {
 	EmbeddingModel   string
 	predictionClient *aiplatform.PredictionClient
 	genaiClient      *genai.Client
+	db               *pgxpool.Pool
 }
 
 const localCredentialsFile = "service_account.json"
 
-func New(ctx context.Context) (*Client, error) {
+func New(ctx context.Context, db *pgxpool.Pool) (*Client, error) {
 	projectID := "brainboost-399710"
 	location := "us-central1"
 
@@ -54,5 +56,6 @@ func New(ctx context.Context) (*Client, error) {
 		EmbeddingModel:   "textembedding-gecko-multilingual",
 		predictionClient: predictionClient,
 		genaiClient:      genaiClient,
+		db:               db,
 	}, nil
 }

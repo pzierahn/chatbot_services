@@ -41,12 +41,6 @@ func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.
 		return nil, err
 	}
 
-	_, _ = service.account.CreateUsage(ctx, account.Usage{
-		UserId: userId,
-		Model:  string(embeddingsModel),
-		Input:  uint32(resp.Tokens),
-	})
-
 	vectors, err := service.vectorDB.Search(vectordb.SearchQuery{
 		UserId:       userId,
 		CollectionId: query.CollectionId,
