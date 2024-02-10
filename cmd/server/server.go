@@ -71,8 +71,13 @@ func main() {
 		log.Fatalf("failed to create vertex service: %v", err)
 	}
 
-	//authService, err := auth.WithFirebase(ctx, app)
-	authService, err := auth.WithInsecure()
+	var authService auth.Service
+
+	if os.Getenv("CHATBOT_TEST") == "true" {
+		authService, err = auth.WithInsecure()
+	} else {
+		authService, err = auth.WithFirebase(ctx, app)
+	}
 	if err != nil {
 		log.Fatalf("failed to create auth service: %v", err)
 	}
