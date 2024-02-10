@@ -5,9 +5,11 @@ import "github.com/sashabaranov/go-openai"
 var inputCosts = map[string]float32{
 	// GPT-3.5 Turbo
 	openai.GPT3Dot5Turbo:        0.0015,
-	openai.GPT3Dot5Turbo0301:    0.0015,
+	openai.GPT3Dot5Turbo0125:    0.0015,
+	openai.GPT3Dot5Turbo1106:    0.0015,
 	openai.GPT3Dot5Turbo0613:    0.0015,
-	openai.GPT3Dot5Turbo16K:     0.003,
+	openai.GPT3Dot5Turbo0301:    0.0015,
+	openai.GPT3Dot5Turbo16K:     0.0015,
 	openai.GPT3Dot5Turbo16K0613: 0.003,
 
 	// GPT-4
@@ -20,6 +22,8 @@ var inputCosts = map[string]float32{
 
 	// GPT 4 Turbo
 	openai.GPT4TurboPreview:  0.01,
+	openai.GPT4Turbo1106:     0.01,
+	openai.GPT4Turbo0125:     0.01,
 	openai.GPT4VisionPreview: 0.01,
 
 	// Embeddings
