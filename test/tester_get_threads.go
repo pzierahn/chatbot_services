@@ -7,7 +7,27 @@ import (
 )
 
 func (test Tester) TestListThreadIDs() {
-	test.runTest("TestListThreadIDs", func(ctx context.Context) error {
+	test.runTest("TestListThreadIDs_empty", func(ctx context.Context) error {
+		collection, err := test.collections.Create(ctx, &pb.Collection{
+			Name: "test",
+		})
+		if err != nil {
+			return err
+		}
+
+		out, err := test.chat.ListThreadIDs(ctx, &pb.Collection{Id: collection.Id})
+		if err != nil {
+			return err
+		}
+
+		if len(out.Ids) != 0 {
+			return fmt.Errorf("unexpected thread count")
+		}
+
+		return nil
+	})
+
+	test.runTest("TestListThreadIDs_list", func(ctx context.Context) error {
 		collection, err := test.collections.Create(ctx, &pb.Collection{
 			Name: "test",
 		})
