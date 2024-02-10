@@ -37,7 +37,10 @@ func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateR
 		Text: string(txt),
 	}
 
-	var usage llm.ModelUsage
+	usage := llm.ModelUsage{
+		UserId: req.UserId,
+		Model:  modelName,
+	}
 
 	if gen.UsageMetadata != nil {
 		usage.PromptTokens = int(gen.UsageMetadata.PromptTokenCount)
