@@ -28,7 +28,7 @@ func (server *Service) GetAll(ctx context.Context, _ *emptypb.Empty) (*pb.Collec
 
 	var collections pb.Collections
 	for rows.Next() {
-		item := new(pb.Collections_Collection)
+		item := new(pb.Collection)
 
 		err = rows.Scan(
 			&item.Id,

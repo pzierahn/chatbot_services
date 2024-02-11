@@ -20,6 +20,7 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
+	CollectionService_Get_FullMethodName    = "/endpoint.brainboost.collections.v1.CollectionService/Get"
 	CollectionService_GetAll_FullMethodName = "/endpoint.brainboost.collections.v1.CollectionService/GetAll"
 	CollectionService_Create_FullMethodName = "/endpoint.brainboost.collections.v1.CollectionService/Create"
 	CollectionService_Update_FullMethodName = "/endpoint.brainboost.collections.v1.CollectionService/Update"
@@ -30,6 +31,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CollectionServiceClient interface {
+	Get(ctx context.Context, in *CollectionID, opts ...grpc.CallOption) (*Collection, error)
 	GetAll(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Collections, error)
 	Create(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*Collection, error)
 	Update(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*Collection, error)
@@ -42,6 +44,15 @@ type collectionServiceClient struct {
 
 func NewCollectionServiceClient(cc grpc.ClientConnInterface) CollectionServiceClient {
 	return &collectionServiceClient{cc}
+}
+
+func (c *collectionServiceClient) Get(ctx context.Context, in *CollectionID, opts ...grpc.CallOption) (*Collection, error) {
+	out := new(Collection)
+	err := c.cc.Invoke(ctx, CollectionService_Get_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *collectionServiceClient) GetAll(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Collections, error) {
@@ -84,6 +95,7 @@ func (c *collectionServiceClient) Delete(ctx context.Context, in *Collection, op
 // All implementations must embed UnimplementedCollectionServiceServer
 // for forward compatibility
 type CollectionServiceServer interface {
+	Get(context.Context, *CollectionID) (*Collection, error)
 	GetAll(context.Context, *emptypb.Empty) (*Collections, error)
 	Create(context.Context, *Collection) (*Collection, error)
 	Update(context.Context, *Collection) (*Collection, error)
@@ -95,6 +107,9 @@ type CollectionServiceServer interface {
 type UnimplementedCollectionServiceServer struct {
 }
 
+func (UnimplementedCollectionServiceServer) Get(context.Context, *CollectionID) (*Collection, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
+}
 func (UnimplementedCollectionServiceServer) GetAll(context.Context, *emptypb.Empty) (*Collections, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAll not implemented")
 }
@@ -118,6 +133,24 @@ type UnsafeCollectionServiceServer interface {
 
 func RegisterCollectionServiceServer(s grpc.ServiceRegistrar, srv CollectionServiceServer) {
 	s.RegisterService(&CollectionService_ServiceDesc, srv)
+}
+
+func _CollectionService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CollectionID)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CollectionServiceServer).Get(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CollectionService_Get_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CollectionServiceServer).Get(ctx, req.(*CollectionID))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _CollectionService_GetAll_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -199,6 +232,10 @@ var CollectionService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "endpoint.brainboost.collections.v1.CollectionService",
 	HandlerType: (*CollectionServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Get",
+			Handler:    _CollectionService_Get_Handler,
+		},
 		{
 			MethodName: "GetAll",
 			Handler:    _CollectionService_GetAll_Handler,
