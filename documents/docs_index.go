@@ -92,6 +92,7 @@ func (service *Service) processEmbeddings(ctx context.Context, batch *embeddings
 						continue
 					}
 
+					// TODO: Pool embeddings tracking
 					ctx, cnl := context.WithTimeout(ctx, time.Second*5)
 					resp, err := service.embeddings.CreateEmbeddings(ctx, &llm.EmbeddingRequest{
 						Input:  text,
