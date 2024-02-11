@@ -10,6 +10,7 @@ import (
 	pb "github.com/pzierahn/chatbot_services/proto"
 	"github.com/pzierahn/chatbot_services/vectordb"
 	"io"
+	"log"
 	"strings"
 	"time"
 )
@@ -92,11 +93,12 @@ func (service *Service) processEmbeddings(ctx context.Context, batch *embeddings
 						continue
 					}
 
-					// TODO: Pool embeddings tracking
 					ctx, cnl := context.WithTimeout(ctx, time.Second*5)
 					resp, err := service.embeddings.CreateEmbeddings(ctx, &llm.EmbeddingRequest{
 						Input:  text,
 						UserId: batch.userId,
+						// Skip tracking for here to track it later
+						SkipTracking: true,
 					})
 					cnl()
 
@@ -124,7 +126,9 @@ func (service *Service) processEmbeddings(ctx context.Context, batch *embeddings
 		}(agent)
 	}
 
+	var tokenCount int
 	var errorCount int
+
 	for result := range results {
 		if result.Error != nil {
 			if errorCount > 100 {
@@ -138,6 +142,7 @@ func (service *Service) processEmbeddings(ctx context.Context, batch *embeddings
 
 		if result.Embedding != nil {
 			embeddings = append(embeddings, result)
+			tokenCount += int(result.Tokens)
 		}
 
 		_ = batch.stream.Send(&pb.IndexProgress{
@@ -149,6 +154,20 @@ func (service *Service) processEmbeddings(ctx context.Context, batch *embeddings
 		if processed >= uint32(totalPages) {
 			break
 		}
+	}
+
+	// Pool embeddings tracking
+	_, err := service.db.Exec(
+		ctx,
+		`INSERT INTO model_usages (user_id, model, input_tokens, output_tokens) 
+			VALUES ($1, $2, $3, $4)`,
+		batch.userId,
+		service.embeddings.GetModelName(),
+		tokenCount,
+		0,
+	)
+	if err != nil {
+		log.Printf("Error tracking usage: %v", err)
 	}
 
 	return embeddings, nil

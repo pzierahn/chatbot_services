@@ -26,8 +26,9 @@ type GenerateResponse struct {
 }
 
 type EmbeddingRequest struct {
-	Input  string
-	UserId string
+	Input        string
+	UserId       string
+	SkipTracking bool
 }
 
 type EmbeddingResponse struct {
@@ -44,6 +45,7 @@ type ModelUsage struct {
 
 type Embedding interface {
 	CreateEmbeddings(ctx context.Context, req *EmbeddingRequest) (*EmbeddingResponse, error)
+	GetModelName() string
 }
 
 type Completion interface {
