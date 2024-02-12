@@ -20,7 +20,7 @@ func (test Tester) TestThreadMessages() {
 			Prompt:       "I have a little green rectangular object in a yellow box",
 			CollectionId: collection.Id,
 			ModelOptions: &pb.ModelOptions{
-				Model: "gemini-pro",
+				Model: testModel,
 			},
 		})
 		if err != nil {
@@ -31,7 +31,7 @@ func (test Tester) TestThreadMessages() {
 			Prompt:   "What is the color of the rectangular object in the yellow box?",
 			ThreadID: thread.Id,
 			ModelOptions: &pb.ModelOptions{
-				Model: "gemini-pro",
+				Model: testModel,
 			},
 		})
 		if err != nil {

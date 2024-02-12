@@ -4,7 +4,10 @@ import (
 	"context"
 	"fmt"
 	pb "github.com/pzierahn/chatbot_services/proto"
+	"log"
 )
+
+const testModel = "amazon.titan-text-express-v1"
 
 func (test Tester) TestStartThread() {
 	test.runTest("TestThread_start", func(ctx context.Context) error {
@@ -16,10 +19,10 @@ func (test Tester) TestStartThread() {
 		}
 
 		thread, err := test.chat.StartThread(ctx, &pb.ThreadPrompt{
-			Prompt:       "Say Hello",
+			Prompt:       "Say Hello!",
 			CollectionId: collection.Id,
 			ModelOptions: &pb.ModelOptions{
-				Model: "gemini-pro",
+				Model: testModel,
 			},
 		})
 		if err != nil {
@@ -30,9 +33,11 @@ func (test Tester) TestStartThread() {
 			return fmt.Errorf("thread id missing")
 		}
 
-		if thread.Messages[0].Prompt != "Say Hello" {
+		if thread.Messages[0].Prompt != "Say Hello!" {
 			return fmt.Errorf("unexpected prompt: %v", thread.Messages[0].Prompt)
 		}
+
+		log.Printf("Completion: %v", thread.Messages[0].Completion)
 
 		return nil
 	})
