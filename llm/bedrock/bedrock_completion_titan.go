@@ -36,7 +36,7 @@ func (client *Client) generateCompletionTitan(ctx context.Context, req *llm.Gene
 		if msg.Type == llm.MessageTypeUser {
 			parts = append(parts, "Human: "+msg.Text)
 		} else {
-			parts = append(parts, "Assistant: "+msg.Text)
+			parts = append(parts, "Bot: "+msg.Text)
 		}
 	}
 
