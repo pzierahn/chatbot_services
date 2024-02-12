@@ -20,7 +20,7 @@ func (test Tester) TestGetThread() {
 			Prompt:       "Say Hello",
 			CollectionId: collection.Id,
 			ModelOptions: &pb.ModelOptions{
-				Model: "gemini-pro",
+				Model: testModel,
 			},
 		})
 		if err != nil {

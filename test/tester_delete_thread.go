@@ -19,7 +19,7 @@ func (test Tester) TestDeleteThread() {
 			Prompt:       "Say Hello",
 			CollectionId: collection.Id,
 			ModelOptions: &pb.ModelOptions{
-				Model: "gemini-pro",
+				Model: testModel,
 			},
 		}
 

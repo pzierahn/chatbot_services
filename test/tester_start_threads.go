@@ -6,13 +6,15 @@ import (
 	pb "github.com/pzierahn/chatbot_services/proto"
 )
 
-const testModel = "openai.gpt-3.5-turbo-16k"
+const (
+	openaiGPT4TurboPreview = "openai.gpt-4-turbo-preview"
+	openaiGPT3_5Turbo16k   = "openai.gpt-3.5-turbo-16k"
+	amazonTitanTextExpress = "amazon.titan-text-express-v1"
+	anthropicClaudeV2      = "anthropic.claude-v2"
+	googleGeminiPro        = "google.gemini-pro"
+)
 
-// const testModel = "openai.gpt-4-turbo-preview"
-// const testModel = "amazon.titan-text-express-v1"
-// const testModel = "anthropic.claude-v2"
-// const testModel = "anthropic.claude-v2"
-// const testModel = "google.gemini-pro"
+const testModel = openaiGPT3_5Turbo16k
 
 func (test Tester) TestStartThread() {
 	test.runTest("TestThread_start", func(ctx context.Context) error {

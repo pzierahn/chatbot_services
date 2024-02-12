@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	pb "github.com/pzierahn/chatbot_services/proto"
-	"github.com/sashabaranov/go-openai"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -21,7 +20,7 @@ func (test Tester) TestAccountCosts() {
 			Prompt:       "Tell a long about a pinguin",
 			CollectionId: collection.Id,
 			ModelOptions: &pb.ModelOptions{
-				Model: openai.GPT4TurboPreview,
+				Model: testModel,
 			},
 		})
 		if err != nil {
