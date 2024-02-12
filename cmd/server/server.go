@@ -9,6 +9,7 @@ import (
 	"github.com/pzierahn/chatbot_services/chat"
 	"github.com/pzierahn/chatbot_services/collections"
 	"github.com/pzierahn/chatbot_services/documents"
+	"github.com/pzierahn/chatbot_services/llm"
 	"github.com/pzierahn/chatbot_services/llm/openai"
 	"github.com/pzierahn/chatbot_services/llm/vertex"
 	pb "github.com/pzierahn/chatbot_services/proto"
@@ -110,11 +111,13 @@ func main() {
 
 	chatServer := chat.FromConfig(&chat.Config{
 		DB:              db,
-		Openai:          openaiService,
-		Vertex:          vertexService,
 		DocumentService: docsService,
 		AccountService:  accountService,
 		AuthService:     authService,
+		Models: []llm.Completion{
+			openaiService,
+			vertexService,
+		},
 	})
 	pb.RegisterChatServiceServer(grpcServer, chatServer)
 

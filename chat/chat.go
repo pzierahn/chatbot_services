@@ -13,8 +13,7 @@ import (
 type Service struct {
 	pb.UnimplementedChatServiceServer
 	db      *pgxpool.Pool
-	openai  llm.Completion
-	vertex  llm.Completion
+	models  []llm.Completion
 	docs    *documents.Service
 	account account.Service
 	auth    auth.Service
@@ -22,8 +21,7 @@ type Service struct {
 
 type Config struct {
 	DB              *pgxpool.Pool
-	Openai          llm.Completion
-	Vertex          llm.Completion
+	Models          []llm.Completion
 	DocumentService *documents.Service
 	AccountService  *account.Service
 	AuthService     auth.Service
@@ -49,8 +47,7 @@ func (service *Service) Verify(ctx context.Context) (string, error) {
 
 func FromConfig(config *Config) *Service {
 	return &Service{
-		openai:  config.Openai,
-		vertex:  config.Vertex,
+		models:  config.Models,
 		db:      config.DB,
 		docs:    config.DocumentService,
 		account: *config.AccountService,
