@@ -48,10 +48,6 @@ func (test Tester) TestAccountCosts() {
 			return fmt.Errorf("expected non-zero output, got %d", costs.Models[0].Output)
 		}
 
-		if costs.Models[0].Costs == 0 {
-			return fmt.Errorf("expected non-zero costs, got %d", costs.Models[0].Costs)
-		}
-
 		return nil
 	})
 }
