@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/pzierahn/chatbot_services/llm"
 	"github.com/sashabaranov/go-openai"
+	"strings"
 )
 
 func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateRequest) (*llm.GenerateResponse, error) {
@@ -30,10 +31,8 @@ func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateR
 		})
 	}
 
-	var model string
-	if req.Model != "" {
-		model = req.Model
-	} else {
+	model, found := strings.CutPrefix(req.Model, modelPrefix)
+	if !found {
 		model = openai.GPT4TurboPreview
 	}
 

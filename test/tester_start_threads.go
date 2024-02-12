@@ -4,10 +4,15 @@ import (
 	"context"
 	"fmt"
 	pb "github.com/pzierahn/chatbot_services/proto"
-	"log"
 )
 
-const testModel = "amazon.titan-text-express-v1"
+const testModel = "openai.gpt-3.5-turbo-16k"
+
+// const testModel = "openai.gpt-4-turbo-preview"
+// const testModel = "amazon.titan-text-express-v1"
+// const testModel = "anthropic.claude-v2"
+// const testModel = "anthropic.claude-v2"
+// const testModel = "google.gemini-pro"
 
 func (test Tester) TestStartThread() {
 	test.runTest("TestThread_start", func(ctx context.Context) error {

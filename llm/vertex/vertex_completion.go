@@ -4,11 +4,12 @@ import (
 	"cloud.google.com/go/vertexai/genai"
 	"context"
 	"github.com/pzierahn/chatbot_services/llm"
+	"strings"
 )
 
 func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateRequest) (*llm.GenerateResponse, error) {
-	modelName := req.Model
-	if modelName == "" {
+	modelName, found := strings.CutPrefix(req.Model, modelPrefix)
+	if !found || modelName == "" {
 		modelName = "gemini-pro"
 	}
 
