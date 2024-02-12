@@ -14,8 +14,8 @@ services:
     command:
       - start-single-node
       - --insecure
-    ports:
-      - "26257:26257"
+    #    ports:
+    #      - "26257:26257"
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8080/health?ready=1" ]
       interval: 3s
@@ -32,6 +32,8 @@ services:
       - CHATBOT_DB=postgresql://root@database:26257/defaultdb?sslmode=disable
       - CHATBOT_QDRANT_URL=vectordb:6334
       - CHATBOT_QDRANT_INSECURE=true
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
     volumes:
       - ./service_account.json:/service_account.json
     depends_on:
