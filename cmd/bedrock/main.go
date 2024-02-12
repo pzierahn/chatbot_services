@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/bedrockruntime"
+	"github.com/pzierahn/chatbot_services/utils"
 	"log"
 )
 
@@ -29,7 +30,10 @@ func main() {
 
 	log.Printf("Using AWS region: %s\n", region)
 
-	sdkConfig, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(region))
+	sdkConfig, err := config.LoadDefaultConfig(
+		context.Background(),
+		config.WithRegion(region),
+		config.WithClientLogMode(aws.LogResponseWithBody))
 	if err != nil {
 		log.Println("Couldn't load default configuration. Have you set up your AWS account?")
 		log.Println(err)
@@ -38,15 +42,13 @@ func main() {
 
 	client := bedrockruntime.NewFromConfig(sdkConfig)
 
-	prompt := "Hello, how are you today?"
-	wrappedPrompt := "Human: " + prompt + "\n\nAssistant:"
 	request := ClaudeRequest{
-		Prompt:            wrappedPrompt,
-		MaxTokensToSample: 200,
-		Temperature:       0.5,
+		Prompt: "\n\nHuman: I have a little green rectangular object in a yellow box\n\n" +
+			"Assistant: ",
+		MaxTokensToSample: 100,
 	}
 
-	body, err := json.Marshal(request)
+	jsonBody, err := json.Marshal(request)
 	if err != nil {
 		log.Fatal("failed to marshal request", err)
 	}
@@ -54,24 +56,17 @@ func main() {
 	result, err := client.InvokeModel(context.Background(), &bedrockruntime.InvokeModelInput{
 		ModelId:     aws.String("anthropic.claude-v2"),
 		ContentType: aws.String("application/json"),
-		Body:        body,
+		Accept:      aws.String("application/json"),
+		Body:        jsonBody,
 	})
 	if err != nil {
 		log.Fatalf("failed to invoke model: %v", err)
 	}
 
-	// The metadata are not accessible in the results.
-	// The map keys are always {} and there is no way to iterate over the underlying values map.
-	log.Printf("result.ResultMetadata: %v\n", result.ResultMetadata)
-
-	log.Printf("result.Body: %s\n", result.Body)
-
 	var response ClaudeResponse
-
 	err = json.Unmarshal(result.Body, &response)
-
 	if err != nil {
 		log.Fatal("failed to unmarshal", err)
 	}
-	log.Println("Response from Anthropic Claude:", response.Completion)
+	log.Println("Response from bedrock:", utils.Prettify(response))
 }
