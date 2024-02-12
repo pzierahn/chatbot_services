@@ -31,10 +31,7 @@ func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateR
 		})
 	}
 
-	model, found := strings.CutPrefix(req.Model, modelPrefix)
-	if !found {
-		model = openai.GPT4TurboPreview
-	}
+	model, _ := strings.CutPrefix(req.Model, modelPrefix)
 
 	resp, err := client.client.CreateChatCompletion(
 		ctx,

@@ -10,6 +10,10 @@ func (client *Client) ProvideModel(name string) bool {
 		return true
 	case modelPrefix + openai.GPT3Dot5Turbo16K:
 		return true
+	case openai.GPT3Dot5Turbo16K:
+		return true
+	case openai.GPT4TurboPreview:
+		return true
 	default:
 		return false
 	}
