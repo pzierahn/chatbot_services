@@ -10,6 +10,7 @@ import (
 	"github.com/pzierahn/chatbot_services/collections"
 	"github.com/pzierahn/chatbot_services/documents"
 	"github.com/pzierahn/chatbot_services/llm"
+	"github.com/pzierahn/chatbot_services/llm/bedrock"
 	"github.com/pzierahn/chatbot_services/llm/openai"
 	"github.com/pzierahn/chatbot_services/llm/vertex"
 	pb "github.com/pzierahn/chatbot_services/proto"
@@ -72,6 +73,11 @@ func main() {
 		log.Fatalf("failed to create vertex service: %v", err)
 	}
 
+	bedrockService, err := bedrock.New()
+	if err != nil {
+		log.Printf("failed to create bedrock service: %v", err)
+	}
+
 	var authService auth.Service
 
 	if os.Getenv("CHATBOT_TEST") == "true" {
@@ -117,6 +123,7 @@ func main() {
 		Models: []llm.Completion{
 			openaiService,
 			vertexService,
+			bedrockService,
 		},
 	})
 	pb.RegisterChatServiceServer(grpcServer, chatServer)
