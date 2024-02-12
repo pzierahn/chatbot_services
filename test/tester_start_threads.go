@@ -37,8 +37,6 @@ func (test Tester) TestStartThread() {
 			return fmt.Errorf("unexpected prompt: %v", thread.Messages[0].Prompt)
 		}
 
-		log.Printf("Completion: %v", thread.Messages[0].Completion)
-
 		return nil
 	})
 }
