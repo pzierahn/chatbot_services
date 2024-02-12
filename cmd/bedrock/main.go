@@ -28,15 +28,12 @@ type ClaudeResponse struct {
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	log.Printf("Using AWS region: %s\n", region)
-
 	sdkConfig, err := config.LoadDefaultConfig(
 		context.Background(),
 		config.WithRegion(region),
 		config.WithClientLogMode(aws.LogResponseWithBody))
 	if err != nil {
-		log.Println("Couldn't load default configuration. Have you set up your AWS account?")
-		log.Println(err)
+		log.Printf("Couldn't load default configuration: %v\n", err)
 		return
 	}
 
