@@ -1,8 +1,8 @@
-package test
+package utils
 
 import "encoding/json"
 
-func prettify(obj interface{}) string {
+func Prettify(obj interface{}) string {
 	byt, _ := json.MarshalIndent(obj, "", "  ")
 	return string(byt)
 }
