@@ -1,6 +1,6 @@
 package bedrock
 
-func (client *Client) ProvideModel(name string) bool {
+func (client *Client) ProvidesModel(name string) bool {
 	switch name {
 	case "amazon.titan-text-express-v1":
 		return true

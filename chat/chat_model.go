@@ -7,7 +7,7 @@ import (
 
 func (service *Service) getModel(name string) (llm.Completion, error) {
 	for _, model := range service.models {
-		if model.ProvideModel(name) {
+		if model.ProvidesModel(name) {
 			return model, nil
 		}
 	}

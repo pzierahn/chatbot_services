@@ -50,5 +50,5 @@ type Embedding interface {
 
 type Completion interface {
 	GenerateCompletion(ctx context.Context, req *GenerateRequest) (*GenerateResponse, error)
-	ProvideModel(model string) bool
+	ProvidesModel(model string) bool
 }
