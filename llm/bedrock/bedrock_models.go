@@ -1,10 +1,12 @@
 package bedrock
 
+import "strings"
+
 func (client *Client) ProvidesModel(name string) bool {
-	switch name {
-	case "amazon.titan-text-express-v1":
+	switch {
+	case strings.HasPrefix(name, "anthropic."):
 		return true
-	case "anthropic.claude-v2":
+	case strings.HasPrefix(name, "amazon."):
 		return true
 	default:
 		return false
