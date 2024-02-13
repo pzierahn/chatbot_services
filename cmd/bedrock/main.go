@@ -6,6 +6,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/bedrockruntime"
+	"github.com/aws/smithy-go/middleware"
+	"github.com/aws/smithy-go/transport/http"
 	"github.com/pzierahn/chatbot_services/utils"
 	"log"
 )
@@ -37,7 +39,23 @@ func main() {
 		return
 	}
 
-	client := bedrockruntime.NewFromConfig(sdkConfig)
+	deserializeMiddleware := middleware.DeserializeMiddlewareFunc(
+		"myDeserializeMiddleware",
+		func(ctx context.Context, input middleware.DeserializeInput, next middleware.DeserializeHandler) (middleware.DeserializeOutput, middleware.Metadata, error) {
+			output, metadata, err := next.HandleDeserialize(ctx, input)
+			log.Printf("output.RawResponse: %v", output.RawResponse)
+
+			if resp, ok := output.RawResponse.(*http.Response); ok {
+				log.Printf("resp.Header: %v", resp.Header)
+			}
+			return output, metadata, err
+		})
+
+	client := bedrockruntime.NewFromConfig(sdkConfig, func(options *bedrockruntime.Options) {
+		options.APIOptions = append(options.APIOptions, func(stack *middleware.Stack) error {
+			return stack.Deserialize.Insert(deserializeMiddleware, "OperationDeserializer", middleware.After)
+		})
+	})
 
 	request := ClaudeRequest{
 		Prompt: "\n\nHuman: I have a little green rectangular object in a yellow box\n\n" +
@@ -45,7 +63,7 @@ func main() {
 		MaxTokensToSample: 100,
 	}
 
-	jsonBody, err := json.Marshal(request)
+	body, err := json.Marshal(request)
 	if err != nil {
 		log.Fatal("failed to marshal request", err)
 	}
@@ -54,7 +72,7 @@ func main() {
 		ModelId:     aws.String("anthropic.claude-v2"),
 		ContentType: aws.String("application/json"),
 		Accept:      aws.String("application/json"),
-		Body:        jsonBody,
+		Body:        body,
 	})
 	if err != nil {
 		log.Fatalf("failed to invoke model: %v", err)
