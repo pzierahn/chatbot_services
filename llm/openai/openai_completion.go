@@ -12,8 +12,7 @@ func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateR
 		{
 			Role: openai.ChatMessageRoleSystem,
 			Content: "You are a helpful assistant. " +
-				"Answer in Markdown format without any code blocks." +
-				"Don't include any latex code",
+				"Answer in Markdown format without any code blocks",
 		},
 	}
 
