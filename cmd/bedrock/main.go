@@ -69,7 +69,8 @@ func main() {
 	}
 
 	result, err := client.InvokeModel(context.Background(), &bedrockruntime.InvokeModelInput{
-		ModelId:     aws.String("anthropic.claude-v2"),
+		//ModelId:     aws.String("anthropic.claude-v2"),
+		ModelId:     aws.String("anthropic.claude-v2:1"),
 		ContentType: aws.String("application/json"),
 		Accept:      aws.String("application/json"),
 		Body:        body,
