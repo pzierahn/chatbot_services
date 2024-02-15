@@ -7,9 +7,10 @@ create table if not exists collections
 
 create table if not exists documents
 (
-    id            uuid primary key default gen_random_uuid(),
+    id            uuid primary key     default gen_random_uuid(),
     user_id       VARCHAR(36) not null,
     collection_id uuid references collections (id) ON DELETE CASCADE,
+    created_at    timestamp   not null default now(),
     metadata      jsonb       not null
 );
 
