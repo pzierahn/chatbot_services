@@ -25,7 +25,7 @@ func (service *Service) getReferences(ctx context.Context, userId string, req *p
 		var chunk pb.Chunk
 
 		err := service.db.QueryRow(ctx,
-			`SELECT document_id, chunks.id, chunks.metadata
+			`SELECT document_id, chunks.id, index
 				FROM document_chunks as chunks,
 				     documents as docs
 				WHERE chunks.id = $1 AND
@@ -34,7 +34,7 @@ func (service *Service) getReferences(ctx context.Context, userId string, req *p
 			id, userId).Scan(
 			&docId,
 			&chunk.Id,
-			&chunk.Metadata,
+			&chunk.Index,
 		)
 		if err != nil {
 			return nil, err

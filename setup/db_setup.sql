@@ -18,8 +18,8 @@ create table if not exists document_chunks
 (
     id          uuid primary key default gen_random_uuid(),
     document_id uuid references documents (id) ON DELETE CASCADE,
-    text        text  not null,
-    metadata    jsonb not null   default '{}'::jsonb
+    text        text not null,
+    index       int  not null
 );
 
 create table if not exists model_usages

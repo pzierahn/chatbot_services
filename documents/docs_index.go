@@ -5,10 +5,13 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/pzierahn/chatbot_services/account"
+	"github.com/pzierahn/chatbot_services/llm"
 	"github.com/pzierahn/chatbot_services/pdf"
 	pb "github.com/pzierahn/chatbot_services/proto"
 	"github.com/pzierahn/chatbot_services/web"
+	"github.com/sashabaranov/go-openai"
 	"io"
+	"strings"
 )
 
 func (service *Service) IndexDocument(req *pb.IndexJob, stream pb.DocumentService_IndexDocumentServer) error {
@@ -41,7 +44,7 @@ func (service *Service) IndexDocument(req *pb.IndexJob, stream pb.DocumentServic
 		})
 
 		meta := req.Document.GetWeb()
-		chunks, err = service.getWebChunks(ctx, meta)
+		chunks, err = service.getWebChunks(ctx, userId, meta)
 	case *pb.DocumentMetadata_File:
 		_ = stream.Send(&pb.IndexProgress{
 			Status: "Extracting PDF pages",
@@ -57,18 +60,32 @@ func (service *Service) IndexDocument(req *pb.IndexJob, stream pb.DocumentServic
 		return err
 	}
 
-	data := document{
-		userId:    userId,
-		document:  req,
-		chunkMeta: chunks,
+	data := &document{
+		userId:   userId,
+		document: req,
+		chunks:   chunks,
 	}
 
 	_ = stream.Send(&pb.IndexProgress{
-		Status:   "Inserting into database",
-		Progress: 0.77,
+		Status: "Generating embeddings",
 	})
+	embeddings, err := service.generateEmbeddings(ctx, userId, data)
+	if err != nil {
+		return err
+	}
 
+	_ = stream.Send(&pb.IndexProgress{
+		Status: "Inserting into database",
+	})
 	err = service.insertIntoDB(ctx, data)
+	if err != nil {
+		return err
+	}
+
+	_ = stream.Send(&pb.IndexProgress{
+		Status: "Inserting into vector database",
+	})
+	err = service.insertEmbeddings(data, embeddings)
 	if err != nil {
 		return err
 	}
@@ -76,19 +93,41 @@ func (service *Service) IndexDocument(req *pb.IndexJob, stream pb.DocumentServic
 	return nil
 }
 
-func (service *Service) getWebChunks(ctx context.Context, meta *pb.Webpage) ([]*pb.Chunk, error) {
+func (service *Service) getWebChunks(ctx context.Context, userId string, meta *pb.Webpage) ([]*pb.Chunk, error) {
 	text, err := web.Scrape(ctx, meta.Url)
 	if err != nil {
 		return nil, err
 	}
 
-	return []*pb.Chunk{
-		{
-			Id:       uuid.NewString(),
-			Text:     text,
-			Metadata: &pb.Chunk_Web{Web: &pb.WebpageChunkMetadata{}},
+	resp, err := service.LLM.GenerateCompletion(ctx, &llm.GenerateRequest{
+		Messages: []*llm.Message{
+			{
+				Type: llm.MessageTypeUser,
+				Text: text,
+			},
+			{
+				Type: llm.MessageTypeUser,
+				Text: "Split this text into chunks, operate each chunk by %%%%%%%%%%",
+			},
 		},
-	}, nil
+		Model:  openai.GPT4TurboPreview,
+		UserId: userId,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	var chunks []*pb.Chunk
+	for inx, chunk := range strings.Split(resp.Text, "%%%%%%%%%%") {
+		chunks = append(chunks, &pb.Chunk{
+			Id:    uuid.NewString(),
+			Text:  strings.TrimSpace(chunk),
+			Index: uint32(inx),
+		})
+
+	}
+
+	return chunks, nil
 }
 
 func (service *Service) getPDFChunks(ctx context.Context, meta *pb.File) ([]*pb.Chunk, error) {
@@ -113,13 +152,9 @@ func (service *Service) getPDFChunks(ctx context.Context, meta *pb.File) ([]*pb.
 	chunks := make([]*pb.Chunk, 0, len(pages))
 	for inx, page := range pages {
 		chunks[inx] = &pb.Chunk{
-			Id:   uuid.NewString(),
-			Text: page,
-			Metadata: &pb.Chunk_Doc{
-				Doc: &pb.FileChunkMetadata{
-					Page: uint32(inx),
-				},
-			},
+			Id:    uuid.NewString(),
+			Text:  page,
+			Index: uint32(inx),
 		}
 	}
 

@@ -6,12 +6,12 @@ import (
 )
 
 type document struct {
-	userId    string
-	document  *pb.IndexJob
-	chunkMeta []*pb.Chunk
+	userId   string
+	document *pb.IndexJob
+	chunks   []*pb.Chunk
 }
 
-func (service *Service) insertIntoDB(ctx context.Context, data document) error {
+func (service *Service) insertIntoDB(ctx context.Context, data *document) error {
 	tx, err := service.db.Begin(ctx)
 	if err != nil {
 		return err
@@ -26,12 +26,12 @@ func (service *Service) insertIntoDB(ctx context.Context, data document) error {
 		return err
 	}
 
-	for inx := 0; inx < len(data.chunkMeta); inx++ {
-		chunk := data.chunkMeta[inx]
+	for inx := 0; inx < len(data.chunks); inx++ {
+		chunk := data.chunks[inx]
 		_, err = tx.Exec(
 			ctx,
-			`INSERT INTO document_chunks (id, document_id, text, metadata) VALUES ($1, $2, $3, $4)`,
-			chunk.Id, data.document.Id, chunk.Text, chunk.Metadata)
+			`INSERT INTO document_chunks (id, document_id, text, index) VALUES ($1, $2, $3, $4)`,
+			chunk.Id, data.document.Id, chunk.Text, chunk.Index)
 		if err != nil {
 			return err
 		}

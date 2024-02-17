@@ -111,6 +111,7 @@ func main() {
 		Embeddings: openaiService,
 		Storage:    bucket,
 		VectorDB:   vecDB,
+		LLM:        openaiService,
 	})
 	pb.RegisterDocumentServiceServer(grpcServer, docsService)
 

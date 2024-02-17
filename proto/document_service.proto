@@ -29,21 +29,10 @@ message ReferenceIDs {
   repeated string items = 1;
 }
 
-message FileChunkMetadata {
-  uint32 page = 1;
-}
-
-message WebpageChunkMetadata {
-
-}
-
 message Chunk {
   string id = 1;
   string text = 2;
-  oneof metadata {
-    FileChunkMetadata doc = 3;
-    WebpageChunkMetadata web = 4;
-  }
+  uint32 index = 3;
 }
 
 message References {
