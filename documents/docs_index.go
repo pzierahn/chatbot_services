@@ -5,11 +5,9 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/pzierahn/chatbot_services/account"
-	"github.com/pzierahn/chatbot_services/llm"
 	"github.com/pzierahn/chatbot_services/pdf"
 	pb "github.com/pzierahn/chatbot_services/proto"
 	"github.com/pzierahn/chatbot_services/web"
-	"github.com/sashabaranov/go-openai"
 	"io"
 	"net/url"
 	"strings"
@@ -51,9 +49,9 @@ func (service *Service) IndexDocument(req *pb.IndexJob, stream pb.DocumentServic
 			return err
 		}
 
-		title = metaUrl.Host
+		title = metaUrl.Host + metaUrl.Path
 
-		chunks, err = service.getWebChunks(ctx, userId, meta)
+		chunks, err = service.getWebChunks(ctx, meta)
 	case *pb.DocumentMetadata_File:
 		_ = stream.Send(&pb.IndexProgress{
 			Status: "Extracting PDF pages",
@@ -105,38 +103,28 @@ func (service *Service) IndexDocument(req *pb.IndexJob, stream pb.DocumentServic
 	return nil
 }
 
-func (service *Service) getWebChunks(ctx context.Context, userId string, meta *pb.Webpage) ([]*pb.Chunk, error) {
+func (service *Service) getWebChunks(ctx context.Context, meta *pb.Webpage) ([]*pb.Chunk, error) {
 	text, err := web.Scrape(ctx, meta.Url)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := service.LLM.GenerateCompletion(ctx, &llm.GenerateRequest{
-		Messages: []*llm.Message{
-			{
-				Type: llm.MessageTypeUser,
-				Text: text,
-			},
-			{
-				Type: llm.MessageTypeUser,
-				Text: "Split this text into chunks of 600 words. Split at the end of a sentence. Use the delimiter: %%%%%%%%%%",
-			},
-		},
-		Model:  openai.GPT4TurboPreview,
-		UserId: userId,
-	})
-	if err != nil {
-		return nil, err
-	}
-
+	var inx uint32
 	var chunks []*pb.Chunk
-	for inx, chunk := range strings.Split(resp.Text, "%%%%%%%%%%") {
+
+	for chunk := 0; chunk < len(text)/3072; chunk++ {
+
+		start := max(chunk*3072-100, 0)
+		end := min((chunk+1)*3072+100, len(text))
+		fragment := text[start:end]
+
 		chunks = append(chunks, &pb.Chunk{
 			Id:    uuid.NewString(),
-			Text:  strings.TrimSpace(chunk),
-			Index: uint32(inx),
+			Text:  strings.TrimSpace(fragment),
+			Index: inx,
 		})
 
+		inx++
 	}
 
 	return chunks, nil
