@@ -4,6 +4,10 @@ import "github.com/sashabaranov/go-openai"
 
 const modelPrefix = "openai."
 
+const (
+	GPT4TurboPreview = modelPrefix + openai.GPT4TurboPreview
+)
+
 func (client *Client) ProvidesModel(name string) bool {
 	switch name {
 	case modelPrefix + openai.GPT4TurboPreview:
