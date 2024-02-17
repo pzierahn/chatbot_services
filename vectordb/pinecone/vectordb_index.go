@@ -18,9 +18,7 @@ func (db *DB) Upsert(items []*vectordb.Vector) error {
 				"documentId":   {Kind: &structpb.Value_StringValue{StringValue: item.DocumentId}},
 				"collectionId": {Kind: &structpb.Value_StringValue{StringValue: item.CollectionId}},
 				"userId":       {Kind: &structpb.Value_StringValue{StringValue: item.UserId}},
-				"filename":     {Kind: &structpb.Value_StringValue{StringValue: item.Filename}},
 				"text":         {Kind: &structpb.Value_StringValue{StringValue: item.Text}},
-				"page":         {Kind: &structpb.Value_NumberValue{NumberValue: float64(item.Page)}},
 			},
 		}
 

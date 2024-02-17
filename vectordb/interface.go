@@ -5,9 +5,7 @@ type Vector struct {
 	DocumentId   string
 	UserId       string
 	CollectionId string
-	Filename     string
 	Text         string
-	Page         uint32
 	Vector       []float32
 	Score        float32
 }

@@ -41,19 +41,9 @@ func (db *DB) Upsert(items []*vectordb.Vector) error {
 						StringValue: item.UserId,
 					},
 				},
-				"filename": {
-					Kind: &qdrant.Value_StringValue{
-						StringValue: item.Filename,
-					},
-				},
 				"text": {
 					Kind: &qdrant.Value_StringValue{
 						StringValue: item.Text,
-					},
-				},
-				"page": {
-					Kind: &qdrant.Value_IntegerValue{
-						IntegerValue: int64(item.Page),
 					},
 				},
 			},
