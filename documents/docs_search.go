@@ -58,6 +58,9 @@ func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.
 	}
 
 	chunks, err := service.getReferences(ctx, userId, refs)
+	if err != nil {
+		return nil, err
+	}
 
 	results := &pb.SearchResults{
 		Items:  chunks.Items,
