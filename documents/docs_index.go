@@ -107,7 +107,7 @@ func (service *Service) getWebChunks(ctx context.Context, userId string, meta *p
 			},
 			{
 				Type: llm.MessageTypeUser,
-				Text: "Split this text into chunks, operate each chunk by %%%%%%%%%%",
+				Text: "Split this text into chunks of 600 words. Split at the end of a sentence. Use the delimiter: %%%%%%%%%%",
 			},
 		},
 		Model:  openai.GPT4TurboPreview,
