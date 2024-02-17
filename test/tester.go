@@ -17,6 +17,7 @@ type Tester struct {
 	chat        pb.ChatServiceClient
 	collections pb.CollectionServiceClient
 	account     pb.AccountServiceClient
+	documents   pb.DocumentServiceClient
 }
 
 func (test Tester) createUser() string {
@@ -83,5 +84,6 @@ func NewTester(conn *grpc.ClientConn) *Tester {
 		chat:        pb.NewChatServiceClient(conn),
 		collections: pb.NewCollectionServiceClient(conn),
 		account:     pb.NewAccountServiceClient(conn),
+		documents:   pb.NewDocumentServiceClient(conn),
 	}
 }

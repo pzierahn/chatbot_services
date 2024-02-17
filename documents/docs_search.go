@@ -52,18 +52,19 @@ func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.
 		return nil, err
 	}
 
-	results := &pb.SearchResults{
-		Items: make([]*pb.SearchResults_Document, len(vectors)),
+	refs := &pb.ReferenceIDs{}
+	for _, vector := range vectors {
+		refs.Items = append(refs.Items, vector.Id)
 	}
-	for inx, vector := range vectors {
-		results.Items[inx] = &pb.SearchResults_Document{
-			Id:         vector.Id,
-			DocumentId: vector.DocumentId,
-			Filename:   vector.Filename,
-			Content:    vector.Text,
-			Page:       vector.Page,
-			Score:      vector.Score,
-		}
+
+	chunks, err := service.getReferences(ctx, userId, refs)
+
+	results := &pb.SearchResults{
+		Items:  chunks.Items,
+		Scores: make(map[string]float32),
+	}
+	for _, vector := range vectors {
+		results.Scores[vector.Id] = vector.Score
 	}
 
 	return results, nil

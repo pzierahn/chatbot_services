@@ -3,14 +3,12 @@ package chat
 import (
 	"context"
 	pb "github.com/pzierahn/chatbot_services/proto"
-	"sort"
-	"strings"
 )
 
 type chunks struct {
 	ids    []string
 	texts  []string
-	scores []float32
+	scores map[string]float32
 }
 
 func (service *Service) searchForContext(ctx context.Context, prompt *pb.ThreadPrompt) (*chunks, error) {
@@ -29,30 +27,19 @@ func (service *Service) searchForContext(ctx context.Context, prompt *pb.ThreadP
 		return nil, err
 	}
 
-	sort.Slice(results.Items, func(i, j int) bool {
-		return results.Items[i].Page > results.Items[j].Page
-	})
+	//sort.Slice(results.Items, func(i, j int) bool {
+	//	return results.Items[i].Page > results.Items[j].Page
+	//})
 
 	data := &chunks{
-		ids:    make([]string, len(results.Items)),
-		scores: make([]float32, len(results.Items)),
+		scores: results.Scores,
 	}
 
-	// Map documentIds to Content
-	text := make(map[string][]string)
-
-	for inx, chunk := range results.Items {
-		docId := chunk.DocumentId
-		text[docId] = append(text[docId], chunk.Content)
-		data.ids[inx] = chunk.Id
-		data.scores[inx] = chunk.Score
-	}
-
-	data.texts = make([]string, len(text))
-	var inx int
-	for _, docId := range text {
-		data.texts[inx] = strings.Join(docId, "\n")
-		inx++
+	for _, ref := range results.Items {
+		for _, chunk := range ref.Chunks {
+			data.ids = append(data.ids, chunk.Id)
+			data.texts = append(data.texts, chunk.Text)
+		}
 	}
 
 	return data, nil
