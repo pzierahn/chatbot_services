@@ -11,6 +11,7 @@ import (
 	"github.com/pzierahn/chatbot_services/web"
 	"github.com/sashabaranov/go-openai"
 	"io"
+	"net/url"
 	"strings"
 )
 
@@ -36,6 +37,7 @@ func (service *Service) IndexDocument(req *pb.IndexJob, stream pb.DocumentServic
 		req.Id = uuid.NewString()
 	}
 
+	var title string
 	var chunks []*pb.Chunk
 	switch req.Document.Data.(type) {
 	case *pb.DocumentMetadata_Web:
@@ -44,6 +46,13 @@ func (service *Service) IndexDocument(req *pb.IndexJob, stream pb.DocumentServic
 		})
 
 		meta := req.Document.GetWeb()
+		metaUrl, err := url.Parse(meta.Url)
+		if err != nil {
+			return err
+		}
+
+		title = metaUrl.Host
+
 		chunks, err = service.getWebChunks(ctx, userId, meta)
 	case *pb.DocumentMetadata_File:
 		_ = stream.Send(&pb.IndexProgress{
@@ -51,6 +60,8 @@ func (service *Service) IndexDocument(req *pb.IndexJob, stream pb.DocumentServic
 		})
 
 		meta := req.Document.GetFile()
+		title = meta.Filename
+
 		chunks, err = service.getPDFChunks(ctx, meta)
 	default:
 		return fmt.Errorf("unsupported metadata type")
@@ -62,6 +73,7 @@ func (service *Service) IndexDocument(req *pb.IndexJob, stream pb.DocumentServic
 
 	data := &document{
 		userId:   userId,
+		title:    title,
 		document: req,
 		chunks:   chunks,
 	}

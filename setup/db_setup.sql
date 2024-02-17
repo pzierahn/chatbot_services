@@ -11,6 +11,7 @@ create table if not exists documents
     user_id       VARCHAR(36) not null,
     collection_id uuid references collections (id) ON DELETE CASCADE,
     created_at    timestamp   not null default now(),
+    title         text        not null,
     metadata      jsonb       not null default '{}'::jsonb
 );
 

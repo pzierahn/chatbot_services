@@ -7,6 +7,7 @@ import (
 
 type document struct {
 	userId   string
+	title    string
 	document *pb.IndexJob
 	chunks   []*pb.Chunk
 }
@@ -20,8 +21,9 @@ func (service *Service) insertIntoDB(ctx context.Context, data *document) error 
 
 	_, err = tx.Exec(
 		ctx,
-		`INSERT INTO documents (id, user_id, collection_id, metadata) VALUES ($1, $2, $3, $4)`,
-		data.document.Id, data.userId, data.document.CollectionId, data.document.Document)
+		`INSERT INTO documents (id, user_id, collection_id, title, metadata) 
+			VALUES ($1, $2, $3, $4, $5)`,
+		data.document.Id, data.userId, data.document.CollectionId, data.title, data.document.Document)
 	if err != nil {
 		return err
 	}
