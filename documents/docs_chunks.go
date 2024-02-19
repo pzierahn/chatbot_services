@@ -68,9 +68,6 @@ func (service *Service) getReferences(ctx context.Context, userId string, req *p
 		doc := &pb.Document{
 			Id:     docId,
 			Chunks: chunks,
-			Metadata: &pb.DocumentMetadata{
-				Data: &pb.DocumentMetadata_Web{},
-			},
 		}
 		var timestamp time.Time
 		var meta []byte
