@@ -149,7 +149,7 @@ func (service *Service) getPDFChunks(ctx context.Context, meta *pb.File) ([]*pb.
 		return nil, err
 	}
 
-	chunks := make([]*pb.Chunk, 0, len(pages))
+	chunks := make([]*pb.Chunk, len(pages))
 	for inx, page := range pages {
 		chunks[inx] = &pb.Chunk{
 			Id:    uuid.NewString(),
