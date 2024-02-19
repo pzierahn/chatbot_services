@@ -2,6 +2,7 @@ package documents
 
 import (
 	"context"
+	"encoding/json"
 	pb "github.com/pzierahn/chatbot_services/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"time"
@@ -15,6 +16,24 @@ func (service *Service) GetReferences(ctx context.Context, req *pb.ReferenceIDs)
 	}
 
 	return service.getReferences(ctx, userId, req)
+}
+
+func parseDocumentMetadata(meta []byte) (*pb.DocumentMetadata, error) {
+	documentMetadata := pb.DocumentMetadata{}
+	documentMetadata.Data = &pb.DocumentMetadata_Web{}
+
+	err := json.Unmarshal(meta, &documentMetadata)
+	if err == nil {
+		return &documentMetadata, nil
+	}
+
+	documentMetadata.Data = &pb.DocumentMetadata_File{}
+	err = json.Unmarshal(meta, &documentMetadata)
+	if err == nil {
+		return &documentMetadata, nil
+	}
+
+	return nil, err
 }
 
 func (service *Service) getReferences(ctx context.Context, userId string, req *pb.ReferenceIDs) (*pb.References, error) {
@@ -49,8 +68,12 @@ func (service *Service) getReferences(ctx context.Context, userId string, req *p
 		doc := &pb.Document{
 			Id:     docId,
 			Chunks: chunks,
+			Metadata: &pb.DocumentMetadata{
+				Data: &pb.DocumentMetadata_Web{},
+			},
 		}
 		var timestamp time.Time
+		var meta []byte
 
 		err := service.db.QueryRow(ctx,
 			`SELECT collection_id, created_at, metadata
@@ -58,8 +81,13 @@ func (service *Service) getReferences(ctx context.Context, userId string, req *p
 				WHERE id = $1`, docId).Scan(
 			&doc.CollectionId,
 			&timestamp,
-			&doc.Metadata,
+			&meta,
 		)
+		if err != nil {
+			return nil, err
+		}
+
+		doc.Metadata, err = parseDocumentMetadata(meta)
 		if err != nil {
 			return nil, err
 		}
