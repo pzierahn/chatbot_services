@@ -80,10 +80,9 @@ message Webpage {
 message Document {
   string id = 1;
   string collection_id = 2;
-  string title = 3;
-  google.protobuf.Timestamp created_at = 4;
-  DocumentMetadata metadata = 5;
-  repeated Chunk chunks = 6;
+  google.protobuf.Timestamp created_at = 3;
+  DocumentMetadata metadata = 4;
+  repeated Chunk chunks = 5;
 }
 
 message IndexJob {
