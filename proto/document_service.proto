@@ -21,8 +21,8 @@ message DocumentID {
 }
 
 message DocumentList {
-  repeated string ids = 1;
-  repeated string name = 2;
+  // Id to filename
+  map<string, string> items = 1;
 }
 
 message ReferenceIDs {

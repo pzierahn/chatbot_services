@@ -25,7 +25,9 @@ func (service *Service) List(ctx context.Context, req *pb.DocumentFilter) (*pb.D
 	}
 	defer rows.Close()
 
-	documents := &pb.DocumentList{}
+	documents := &pb.DocumentList{
+		Items: make(map[string]string),
+	}
 
 	for rows.Next() {
 		var (
@@ -41,8 +43,7 @@ func (service *Service) List(ctx context.Context, req *pb.DocumentFilter) (*pb.D
 			return nil, err
 		}
 
-		documents.Ids = append(documents.Ids, docId)
-		documents.Name = append(documents.Name, title)
+		documents.Items[docId] = title
 	}
 
 	return documents, nil
