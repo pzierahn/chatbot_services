@@ -75,6 +75,7 @@ message File {
 
 message Webpage {
   string url = 1;
+  string title = 2;
 }
 
 message Document {
