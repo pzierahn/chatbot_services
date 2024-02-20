@@ -21,14 +21,14 @@ type documentChunk struct {
 
 func (service *Service) getDocumentChunks(ctx context.Context, query documentPages) ([]documentChunk, error) {
 	rows, err := service.db.Query(ctx,
-		`SELECT chunk.id, chunk.page, chunk.text
+		`SELECT chunk.id, chunk.index, chunk.text
 		FROM document_chunks as chunk, documents as doc
 		WHERE
 		    document_id = $1 AND
 		    doc.id = chunk.document_id AND
 		    doc.collection_id = $2 AND
 		    user_id = $3
-		ORDER BY page`,
+		ORDER BY index`,
 		query.id, query.collectionId, query.userId)
 	if err != nil {
 		return nil, err
@@ -36,7 +36,7 @@ func (service *Service) getDocumentChunks(ctx context.Context, query documentPag
 
 	defer rows.Close()
 
-	var chunks []documentChunk
+	var docChunks []documentChunk
 
 	for rows.Next() {
 		var chunk documentChunk
@@ -50,10 +50,10 @@ func (service *Service) getDocumentChunks(ctx context.Context, query documentPag
 			return nil, err
 		}
 
-		chunks = append(chunks, chunk)
+		docChunks = append(docChunks, chunk)
 	}
 
-	return chunks, nil
+	return docChunks, nil
 }
 
 func (service *Service) getDocumentsContext(ctx context.Context, userId string, prompt *pb.ThreadPrompt) (*chunks, error) {
