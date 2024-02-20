@@ -112,10 +112,10 @@ func (service *Service) getWebChunks(ctx context.Context, meta *pb.Webpage) ([]*
 	var inx uint32
 	var chunks []*pb.Chunk
 
-	for chunk := 0; chunk < len(text)/3072; chunk++ {
+	for chunk := 0; chunk < len(text)/6144; chunk++ {
 
-		start := max(chunk*3072-100, 0)
-		end := min((chunk+1)*3072+100, len(text))
+		start := max(chunk*6144-200, 0)
+		end := min((chunk+1)*6144+200, len(text))
 		fragment := text[start:end]
 
 		chunks = append(chunks, &pb.Chunk{
