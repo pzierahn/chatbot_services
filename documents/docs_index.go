@@ -67,7 +67,8 @@ func (service *Service) IndexDocument(req *pb.IndexJob, stream pb.DocumentServic
 	}
 
 	_ = stream.Send(&pb.IndexProgress{
-		Status: "Generating embeddings",
+		Status:   "Generating embeddings",
+		Progress: 1.0 / 4.0,
 	})
 	embeddings, err := service.generateEmbeddings(ctx, userId, data)
 	if err != nil {
@@ -75,7 +76,8 @@ func (service *Service) IndexDocument(req *pb.IndexJob, stream pb.DocumentServic
 	}
 
 	_ = stream.Send(&pb.IndexProgress{
-		Status: "Inserting into database",
+		Status:   "Inserting into database",
+		Progress: 2.0 / 4.0,
 	})
 	err = service.insertIntoDB(ctx, data)
 	if err != nil {
@@ -83,12 +85,18 @@ func (service *Service) IndexDocument(req *pb.IndexJob, stream pb.DocumentServic
 	}
 
 	_ = stream.Send(&pb.IndexProgress{
-		Status: "Inserting into vector database",
+		Status:   "Inserting into vector database",
+		Progress: 3.0 / 4.0,
 	})
 	err = service.insertEmbeddings(data, embeddings)
 	if err != nil {
 		return err
 	}
+
+	_ = stream.Send(&pb.IndexProgress{
+		Status:   "Success",
+		Progress: 1.0,
+	})
 
 	return nil
 }
