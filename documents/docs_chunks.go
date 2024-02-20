@@ -56,7 +56,7 @@ func (service *Service) getReferences(ctx context.Context, userId string, req *p
 		var timestamp time.Time
 		var meta DocumentMeta
 
-		err := service.db.QueryRow(ctx,
+		err = service.db.QueryRow(ctx,
 			`SELECT collection_id, created_at, metadata
 				FROM documents
 				WHERE id = $1`, docId).Scan(

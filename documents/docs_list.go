@@ -12,14 +12,14 @@ func (service *Service) List(ctx context.Context, req *pb.DocumentFilter) (*pb.D
 		return nil, err
 	}
 
+	// TODO: Add title matching
 	rows, err := service.db.Query(ctx,
-		`SELECT id, title
+		`SELECT id, metadata
 		FROM documents
 		WHERE
 		    user_id = $1 AND
-		    collection_id = $2::uuid AND
-		    title LIKE $3`,
-		userId, req.CollectionId, "%"+req.Query+"%")
+		    collection_id = $2::uuid`,
+		userId, req.CollectionId)
 	if err != nil {
 		return nil, err
 	}

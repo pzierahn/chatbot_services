@@ -21,8 +21,8 @@ func (test Tester) TestWebpageIndex() {
 			Document: &pb.DocumentMetadata{
 				Data: &pb.DocumentMetadata_Web{
 					Web: &pb.Webpage{
-						Url: "https://en.wikipedia.org/wiki/Penguin",
-						//Url: "https://fuks.org",
+						Title: "Wiki Penguin",
+						Url:   "https://en.wikipedia.org/wiki/Penguin",
 					},
 				},
 			},

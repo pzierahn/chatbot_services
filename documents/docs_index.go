@@ -9,7 +9,6 @@ import (
 	pb "github.com/pzierahn/chatbot_services/proto"
 	"github.com/pzierahn/chatbot_services/web"
 	"io"
-	"net/url"
 	"strings"
 )
 
@@ -35,7 +34,6 @@ func (service *Service) IndexDocument(req *pb.IndexJob, stream pb.DocumentServic
 		req.Id = uuid.NewString()
 	}
 
-	var title string
 	var chunks []*pb.Chunk
 	switch req.Document.Data.(type) {
 	case *pb.DocumentMetadata_Web:
@@ -44,12 +42,6 @@ func (service *Service) IndexDocument(req *pb.IndexJob, stream pb.DocumentServic
 		})
 
 		meta := req.Document.GetWeb()
-		metaUrl, err := url.Parse(meta.Url)
-		if err != nil {
-			return err
-		}
-
-		title = metaUrl.Host + metaUrl.Path
 
 		chunks, err = service.getWebChunks(ctx, meta)
 	case *pb.DocumentMetadata_File:
@@ -58,7 +50,6 @@ func (service *Service) IndexDocument(req *pb.IndexJob, stream pb.DocumentServic
 		})
 
 		meta := req.Document.GetFile()
-		title = meta.Filename
 
 		chunks, err = service.getPDFChunks(ctx, meta)
 	default:
@@ -71,7 +62,6 @@ func (service *Service) IndexDocument(req *pb.IndexJob, stream pb.DocumentServic
 
 	data := &document{
 		userId:   userId,
-		title:    title,
 		document: req,
 		chunks:   chunks,
 	}
