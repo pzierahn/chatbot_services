@@ -28,7 +28,7 @@ func (service *Service) searchForContext(ctx context.Context, prompt *pb.ThreadP
 	}
 
 	//sort.Slice(results.Items, func(i, j int) bool {
-	//	return results.Items[i].Page > results.Items[j].Page
+	//	return results.Items[i].Index > results.Items[j].Index
 	//})
 
 	data := &chunks{

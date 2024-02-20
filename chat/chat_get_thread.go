@@ -10,19 +10,19 @@ import (
 type reference struct {
 	Id         string
 	DocumentId string
-	Page       int32
+	Index      uint32
 	Text       string
 }
 
 func (service *Service) getReferences(ctx context.Context, uid, threadId string) ([]*reference, error) {
 	rows, err := service.db.Query(
 		ctx,
-		`SELECT dc.id, dc.document_id, dc.page, text
+		`SELECT dc.id, dc.document_id, dc.index, text
 			FROM thread_references as tr, document_chunks as dc
 			WHERE user_id = $1 AND 
 			      thread_id = $2 AND
 			      tr.document_chunk_id = dc.id
-		  	ORDER BY dc.document_id, dc.page`,
+		  	ORDER BY dc.document_id, dc.index`,
 		uid, threadId)
 	if err != nil {
 		return nil, err
@@ -33,7 +33,7 @@ func (service *Service) getReferences(ctx context.Context, uid, threadId string)
 	for rows.Next() {
 		var ref reference
 
-		err = rows.Scan(&ref.Id, &ref.DocumentId, &ref.Page, &ref.Text)
+		err = rows.Scan(&ref.Id, &ref.DocumentId, &ref.Index, &ref.Text)
 		if err != nil {
 			return nil, err
 		}
