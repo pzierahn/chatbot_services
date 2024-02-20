@@ -32,18 +32,26 @@ func (service *Service) List(ctx context.Context, req *pb.DocumentFilter) (*pb.D
 	for rows.Next() {
 		var (
 			docId string
-			title string
+			meta  DocumentMeta
 		)
 
 		err = rows.Scan(
 			&docId,
-			&title,
+			&meta,
 		)
 		if err != nil {
 			return nil, err
 		}
 
-		documents.Items[docId] = title
+		if meta.IsFile() {
+			documents.Items[docId] = meta.File.Filename
+			continue
+		}
+
+		if meta.IsWebpage() {
+			documents.Items[docId] = meta.Webpage.Title
+			continue
+		}
 	}
 
 	return documents, nil
