@@ -3,11 +3,13 @@ package documents
 import pb "github.com/pzierahn/chatbot_services/proto"
 
 type Webpage struct {
-	Url string `json:"url"`
+	Url   string `json:"url,omitempty"`
+	Title string `json:"title,omitempty"`
 }
 
 type File struct {
-	Path string `json:"path,omitempty"`
+	Path     string `json:"path,omitempty"`
+	Filename string `json:"filename,omitempty"`
 }
 
 type DocumentMeta struct {
@@ -32,7 +34,8 @@ func metaFromProto(meta *pb.DocumentMetadata) *DocumentMeta {
 	if meta.GetWeb() != nil {
 		return &DocumentMeta{
 			Webpage: &Webpage{
-				Url: meta.GetWeb().Url,
+				Url:   meta.GetWeb().Url,
+				Title: meta.GetWeb().Title,
 			},
 		}
 	}
@@ -40,7 +43,8 @@ func metaFromProto(meta *pb.DocumentMetadata) *DocumentMeta {
 	if meta.GetFile() != nil {
 		return &DocumentMeta{
 			File: &File{
-				Path: meta.GetFile().Path,
+				Path:     meta.GetFile().Path,
+				Filename: meta.GetFile().Filename,
 			},
 		}
 	}
@@ -54,7 +58,8 @@ func metaToProto(meta DocumentMeta) *pb.DocumentMetadata {
 		return &pb.DocumentMetadata{
 			Data: &pb.DocumentMetadata_Web{
 				Web: &pb.Webpage{
-					Url: meta.Webpage.Url,
+					Url:   meta.Webpage.Url,
+					Title: meta.Webpage.Title,
 				},
 			},
 		}
@@ -64,7 +69,8 @@ func metaToProto(meta DocumentMeta) *pb.DocumentMetadata {
 		return &pb.DocumentMetadata{
 			Data: &pb.DocumentMetadata_File{
 				File: &pb.File{
-					Path: meta.File.Path,
+					Path:     meta.File.Path,
+					Filename: meta.File.Filename,
 				},
 			},
 		}

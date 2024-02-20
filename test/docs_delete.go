@@ -23,7 +23,8 @@ func (test Tester) TestDocumentDelete() {
 			Document: &pb.DocumentMetadata{
 				Data: &pb.DocumentMetadata_Web{
 					Web: &pb.Webpage{
-						Url: "https://en.wikipedia.org/wiki/Penguin",
+						Title: "Wiki Penguin",
+						Url:   "https://en.wikipedia.org/wiki/Penguin",
 					},
 				},
 			},

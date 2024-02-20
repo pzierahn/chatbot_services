@@ -23,7 +23,8 @@ func (test Tester) TestDocumentGet() {
 			Document: &pb.DocumentMetadata{
 				Data: &pb.DocumentMetadata_Web{
 					Web: &pb.Webpage{
-						Url: "https://en.wikipedia.org/wiki/Penguin",
+						Title: "Wiki Penguin",
+						Url:   "https://en.wikipedia.org/wiki/Penguin",
 					},
 				},
 			},
@@ -64,6 +65,9 @@ func (test Tester) TestDocumentGet() {
 			web := doc.Metadata.GetWeb()
 			if web.Url != "https://en.wikipedia.org/wiki/Penguin" {
 				return fmt.Errorf("expected url %s, got %s", "https://en.wikipedia.org/wiki/Penguin", web.Url)
+			}
+			if web.Title != "Wiki Penguin" {
+				return fmt.Errorf("expected title %s, got %s", "Wiki Penguin", web.Title)
 			}
 		default:
 			return fmt.Errorf("expected web document, got %T", doc.Metadata.Data)
