@@ -7,8 +7,7 @@ type Webpage struct {
 }
 
 type File struct {
-	Filename string `json:"filename,omitempty"`
-	Path     string `json:"path,omitempty"`
+	Path string `json:"path,omitempty"`
 }
 
 type DocumentMeta struct {
@@ -41,8 +40,7 @@ func metaFromProto(meta *pb.DocumentMetadata) *DocumentMeta {
 	if meta.GetFile() != nil {
 		return &DocumentMeta{
 			File: &File{
-				Filename: meta.GetFile().Filename,
-				Path:     meta.GetFile().Path,
+				Path: meta.GetFile().Path,
 			},
 		}
 	}
@@ -66,8 +64,7 @@ func metaToProto(meta DocumentMeta) *pb.DocumentMetadata {
 		return &pb.DocumentMetadata{
 			Data: &pb.DocumentMetadata_File{
 				File: &pb.File{
-					Filename: meta.File.Filename,
-					Path:     meta.File.Path,
+					Path: meta.File.Path,
 				},
 			},
 		}
