@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func (service *Service) Get(ctx context.Context, req *pb.DocumentID) (*pb.Document, error) {
+func (service *Service) GetDocument(ctx context.Context, req *pb.DocumentID) (*pb.Document, error) {
 	userId, err := service.auth.Verify(ctx)
 	if err != nil {
 		return nil, err

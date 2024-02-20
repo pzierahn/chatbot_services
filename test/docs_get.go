@@ -45,7 +45,7 @@ func (test Tester) TestDocumentGet() {
 		}
 
 		// Get document
-		doc, err := test.documents.Get(ctx, &pb.DocumentID{
+		doc, err := test.documents.GetDocument(ctx, &pb.DocumentID{
 			Id: job.Id,
 		})
 		if err != nil {
