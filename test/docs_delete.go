@@ -30,7 +30,7 @@ func (test Tester) TestDocumentDelete() {
 			},
 		}
 
-		stream, err := test.documents.IndexDocument(ctx, job)
+		stream, err := test.documents.Index(ctx, job)
 		if err != nil {
 			return err
 		}

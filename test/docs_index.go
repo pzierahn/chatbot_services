@@ -28,7 +28,7 @@ func (test Tester) TestWebpageIndex() {
 			},
 		}
 
-		stream, err := test.documents.IndexDocument(ctx, doc)
+		stream, err := test.documents.Index(ctx, doc)
 		if err != nil {
 			return err
 		}

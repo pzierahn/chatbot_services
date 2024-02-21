@@ -30,7 +30,7 @@ func (test Tester) TestDocumentGet() {
 			},
 		}
 
-		stream, err := test.documents.IndexDocument(ctx, job)
+		stream, err := test.documents.Index(ctx, job)
 		if err != nil {
 			return err
 		}
@@ -45,7 +45,7 @@ func (test Tester) TestDocumentGet() {
 		}
 
 		// Get document
-		doc, err := test.documents.GetDocument(ctx, &pb.DocumentID{
+		doc, err := test.documents.Get(ctx, &pb.DocumentID{
 			Id: job.Id,
 		})
 		if err != nil {
