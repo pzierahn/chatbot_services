@@ -64,7 +64,7 @@ func (service *Service) Get(ctx context.Context, req *pb.DocumentID) (*pb.Docume
 		return nil, err
 	}
 
-	doc.Metadata = metaToProto(meta)
+	doc.Metadata = meta.toProto()
 	doc.CreatedAt = timestamppb.New(timestamp)
 
 	return doc, nil

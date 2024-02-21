@@ -52,7 +52,7 @@ func metaFromProto(meta *pb.DocumentMetadata) *DocumentMeta {
 	return nil
 }
 
-func metaToProto(meta DocumentMeta) *pb.DocumentMetadata {
+func (meta *DocumentMeta) toProto() *pb.DocumentMetadata {
 
 	if meta.IsWebpage() {
 		return &pb.DocumentMetadata{

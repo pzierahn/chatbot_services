@@ -68,7 +68,7 @@ func (service *Service) getReferences(ctx context.Context, userId string, req *p
 			return nil, err
 		}
 
-		doc.Metadata = metaToProto(meta)
+		doc.Metadata = meta.toProto()
 		doc.CreatedAt = timestamppb.New(timestamp)
 
 		references.Items = append(references.Items, doc)

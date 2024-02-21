@@ -43,7 +43,7 @@ func (service *Service) List(ctx context.Context, req *pb.DocumentFilter) (*pb.D
 			return nil, err
 		}
 
-		documents.Items[docId] = metaToProto(meta)
+		documents.Items[docId] = meta.toProto()
 	}
 
 	return documents, nil
