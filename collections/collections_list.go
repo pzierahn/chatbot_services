@@ -6,7 +6,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-func (server *Service) ListCollections(ctx context.Context, _ *emptypb.Empty) (*pb.Collections, error) {
+func (server *Service) List(ctx context.Context, _ *emptypb.Empty) (*pb.Collections, error) {
 	uid, err := server.auth.Verify(ctx)
 	if err != nil {
 		return nil, err

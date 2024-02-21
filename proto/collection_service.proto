@@ -7,8 +7,8 @@ package endpoint.brainboost.collections.v2;
 import "google/protobuf/empty.proto";
 
 service CollectionService {
-  rpc GetCollection(CollectionID) returns (Collection);
-  rpc ListCollections(google.protobuf.Empty) returns (Collections);
+  rpc Get(CollectionID) returns (Collection);
+  rpc List(google.protobuf.Empty) returns (Collections);
   rpc Create(Collection) returns (Collection);
   rpc Update(Collection) returns (Collection);
   rpc Delete(Collection) returns (google.protobuf.Empty);
