@@ -2,6 +2,7 @@ package test
 
 import (
 	"context"
+	"fmt"
 	"github.com/google/uuid"
 	pb "github.com/pzierahn/chatbot_services/proto"
 	"io"
@@ -16,16 +17,19 @@ func (test Tester) TestDocumentList() {
 			return err
 		}
 
+		meta := &pb.DocumentMetadata{
+			Data: &pb.DocumentMetadata_Web{
+				Web: &pb.Webpage{
+					Title: "Wiki Penguin",
+					Url:   "https://en.wikipedia.org/wiki/Penguin",
+				},
+			},
+		}
+
 		job := &pb.IndexJob{
 			Id:           uuid.NewString(),
 			CollectionId: collection.Id,
-			Document: &pb.DocumentMetadata{
-				Data: &pb.DocumentMetadata_Web{
-					Web: &pb.Webpage{
-						Url: "https://en.wikipedia.org/wiki/Penguin",
-					},
-				},
-			},
+			Document:     meta,
 		}
 
 		stream, err := test.documents.Index(ctx, job)
@@ -34,7 +38,7 @@ func (test Tester) TestDocumentList() {
 		}
 
 		for {
-			_, err := stream.Recv()
+			_, err = stream.Recv()
 			if err == io.EOF {
 				break
 			} else if err != nil {
@@ -49,8 +53,17 @@ func (test Tester) TestDocumentList() {
 			return err
 		}
 
-		if len(list.Items) != 1 {
-			return err
+		web, ok := list.Items[job.Id]
+		if !ok {
+			return fmt.Errorf("document not found %v", list.Items)
+		}
+
+		if web.GetWeb().Title != meta.GetWeb().Title {
+			return fmt.Errorf("title mismatch %v", web.GetWeb().Title)
+		}
+
+		if web.GetWeb().Url != meta.GetWeb().Url {
+			return fmt.Errorf("url mismatch %v", web.GetWeb().Url)
 		}
 
 		return nil
