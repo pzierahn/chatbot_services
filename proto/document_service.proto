@@ -69,8 +69,8 @@ message DocumentMetadata {
 }
 
 message File {
-  string filename = 1;
-  string path = 2;
+  string path = 1;
+  string filename = 2;
 }
 
 message Webpage {
