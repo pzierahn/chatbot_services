@@ -3,56 +3,76 @@ package documents
 import (
 	"context"
 	pb "github.com/pzierahn/chatbot_services/proto"
+	"google.golang.org/protobuf/types/known/timestamppb"
+	"time"
 )
 
-func (service *Service) getChunkIds(ctx context.Context, documentId string) ([]string, error) {
+func (service *Service) GetReferences(ctx context.Context, req *pb.ReferenceIDs) (*pb.References, error) {
+
+	userId, err := service.auth.Verify(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return service.getReferences(ctx, userId, req)
+}
+
+func (service *Service) getReferences(ctx context.Context, userId string, req *pb.ReferenceIDs) (*pb.References, error) {
 
 	rows, err := service.db.Query(ctx,
-		`SELECT id FROM document_chunks WHERE document_id = $1`, documentId)
+		`SELECT document_id, chunks.id, index
+				FROM document_chunks as chunks,
+				     documents as docs
+				WHERE chunks.id = ANY($1) AND
+				      chunks.document_id = docs.id AND
+				      docs.user_id = $2
+			  	ORDER BY index`,
+		req.Items, userId)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var ids []string
-
+	chunksMapping := make(map[string][]*pb.Chunk)
 	for rows.Next() {
-		var id string
+		var docId string
+		var chunk pb.Chunk
 
-		err = rows.Scan(&id)
+		err = rows.Scan(&docId, &chunk.Id, &chunk.Index)
 		if err != nil {
 			return nil, err
 		}
 
-		ids = append(ids, id)
+		chunksMapping[docId] = append(chunksMapping[docId], &chunk)
 	}
 
-	return ids, nil
-}
+	var references pb.References
 
-func (service *Service) GetReferences(ctx context.Context, req *pb.ReferenceIDs) (*pb.References, error) {
+	for docId, chunks := range chunksMapping {
+		doc := &pb.Document{
+			Id:     docId,
+			Chunks: chunks,
+		}
+		var timestamp time.Time
+		var meta DocumentMeta
 
-	var chunks pb.References
-
-	for _, id := range req.Items {
-		var chunk pb.Reference
-
-		err := service.db.QueryRow(ctx,
-			`SELECT doc.filename, chunk.id, chunk.document_id, chunk.page
-				FROM document_chunks as chunk, documents as doc
-				WHERE chunk.id = $1 AND chunk.document_id = doc.id LIMIT 1`,
-			id).Scan(
-			&chunk.Filename,
-			&chunk.Id,
-			&chunk.DocumentId,
-			&chunk.Page,
+		err = service.db.QueryRow(ctx,
+			`SELECT collection_id, created_at, metadata
+				FROM documents
+				WHERE id = $1`, docId).Scan(
+			&doc.CollectionId,
+			&timestamp,
+			&meta,
 		)
 		if err != nil {
 			return nil, err
 		}
 
-		chunks.Items = append(chunks.Items, &chunk)
+		doc.Metadata = meta.toProto()
+		doc.CreatedAt = timestamppb.New(timestamp)
+
+		references.Items = append(references.Items, doc)
 	}
 
-	return &chunks, nil
+	return &references, nil
 }

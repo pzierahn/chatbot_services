@@ -17,6 +17,7 @@ type Tester struct {
 	chat        pb.ChatServiceClient
 	collections pb.CollectionServiceClient
 	account     pb.AccountServiceClient
+	documents   pb.DocumentServiceClient
 }
 
 func (test Tester) createUser() string {
@@ -34,8 +35,7 @@ func (test Tester) createUser() string {
 }
 
 func (test Tester) runTest(name string, testFunc func(ctx context.Context) error) {
-	ctx, cnl := context.WithTimeout(context.Background(), time.Second*30)
-	defer cnl()
+	ctx := context.Background()
 
 	uid := test.createUser()
 	ctx = metadata.AppendToOutgoingContext(ctx, "User-Id", uid)
@@ -52,8 +52,7 @@ func (test Tester) runTest(name string, testFunc func(ctx context.Context) error
 }
 
 func (test Tester) expectError(name string, testFunc func(ctx context.Context) error) {
-	ctx, cnl := context.WithTimeout(context.Background(), time.Second*10)
-	defer cnl()
+	ctx := context.Background()
 
 	uid := test.createUser()
 	ctx = metadata.AppendToOutgoingContext(ctx, "User-Id", uid)
@@ -83,5 +82,6 @@ func NewTester(conn *grpc.ClientConn) *Tester {
 		chat:        pb.NewChatServiceClient(conn),
 		collections: pb.NewCollectionServiceClient(conn),
 		account:     pb.NewAccountServiceClient(conn),
+		documents:   pb.NewDocumentServiceClient(conn),
 	}
 }

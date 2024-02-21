@@ -14,8 +14,8 @@ services:
     command:
       - start-single-node
       - --insecure
-    #    ports:
-    #      - "26257:26257"
+    ports:
+      - "26257:26257"
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8080/health?ready=1" ]
       interval: 3s

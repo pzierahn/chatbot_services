@@ -4,36 +4,41 @@ import (
 	"context"
 	pb "github.com/pzierahn/chatbot_services/proto"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"log"
 )
 
-func (service *Service) Delete(ctx context.Context, req *pb.Document) (*emptypb.Empty, error) {
+func (service *Service) Delete(ctx context.Context, req *pb.DocumentID) (*emptypb.Empty, error) {
 	userId, err := service.auth.Verify(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	ids, err := service.getChunkIds(ctx, req.Id)
+	doc, err := service.Get(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
+	var meta DocumentMeta
 	err = service.db.QueryRow(ctx,
 		`DELETE FROM documents
        		  WHERE id = $1 AND
-					collection_id = $2 AND
-					user_id = $3
- 			  RETURNING path`,
-		req.Id, req.CollectionId, userId).Scan(&req.Path)
+					user_id = $2
+			  RETURNING metadata`,
+		doc.Id, userId).Scan(&meta)
 	if err != nil {
 		return nil, err
 	}
 
-	obj := service.storage.Object(req.Path)
-	err = obj.Delete(ctx)
-	if err != nil {
-		log.Printf("error: %v", err)
-		return nil, err
+	if meta.IsFile() {
+		obj := service.storage.Object(meta.File.Path)
+		err = obj.Delete(ctx)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	var ids []string
+	for _, chunk := range doc.Chunks {
+		ids = append(ids, chunk.Id)
 	}
 
 	err = service.vectorDB.Delete(ids)

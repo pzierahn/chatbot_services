@@ -2,7 +2,7 @@ syntax = "proto3";
 
 option go_package = "./proto";
 
-package endpoint.brainboost.chat.v3;
+package endpoint.brainboost.chat.v4;
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
@@ -13,7 +13,7 @@ service ChatService {
   rpc StartThread(ThreadPrompt) returns (Thread);
   rpc PostMessage(Prompt) returns (Message);
   rpc GetThread(ThreadID) returns (Thread);
-  rpc ListThreadIDs(collections.v1.Collection) returns (ThreadIDs);
+  rpc ListThreadIDs(collections.v2.Collection) returns (ThreadIDs);
   rpc DeleteThread(ThreadID) returns (google.protobuf.Empty);
   rpc DeleteMessageFromThread(MessageID) returns (google.protobuf.Empty);
 }
@@ -33,12 +33,7 @@ message ThreadPrompt {
   float threshold = 4;
   uint32 limit = 5;
 
-  message Document {
-    string id = 1;
-    repeated uint32 pages = 2;
-  }
-
-  repeated Document documents = 6;
+  repeated string document_ids = 6;
 }
 
 message ModelOptions {
@@ -58,7 +53,7 @@ message Thread {
   string id = 1;
   repeated Message messages = 2;
   repeated string referenceIDs = 3;
-  repeated float reference_scores = 4;
+  map<string, float> reference_scores = 4;
 }
 
 message ThreadID {

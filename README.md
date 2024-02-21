@@ -22,6 +22,12 @@ export CHATBOT_QDRANT_URL=""
 
 # Postgres connection string
 export CHATBOT_BRAINBOOST_COCKROACH_DB=""
+
+# QDRANT API URL
+export CHATBOT_QDRANT_KEY=""
+
+# QDRANT API URL
+export CHATBOT_QDRANT_URL=""
 ```
 
 ### Start the server
@@ -61,3 +67,17 @@ Prepare a new release by following these steps:
 2. `git push origin gateway/vX`
 
 After a new tag is pushed, the new release will be automatically build and deployed by using Google Cloud Run.
+
+## Local development
+
+To develop locally, you can use the following commands:
+
+```shell
+# Start the server
+CHATBOT_TEST=true \
+CHATBOT_QDRANT_INSECURE=true \
+PORT=8869 \
+CHATBOT_DB=postgresql://root@127.0.0.1:26257/defaultdb?sslmode=disable \
+CHATBOT_QDRANT_URL=localhost:6334 \
+go run cmd/server/server.go
+```

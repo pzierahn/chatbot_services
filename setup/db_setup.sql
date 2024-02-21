@@ -7,19 +7,19 @@ create table if not exists collections
 
 create table if not exists documents
 (
-    id            uuid primary key default gen_random_uuid(),
+    id            uuid primary key     default gen_random_uuid(),
     user_id       VARCHAR(36) not null,
-    filename      text        not null,
-    path          text        not null,
-    collection_id uuid references collections (id) ON DELETE CASCADE
+    collection_id uuid references collections (id) ON DELETE CASCADE,
+    created_at    timestamp   not null default now(),
+    metadata      jsonb       not null default '{}'::jsonb
 );
 
 create table if not exists document_chunks
 (
     id          uuid primary key default gen_random_uuid(),
     document_id uuid references documents (id) ON DELETE CASCADE,
-    page        integer not null,
-    text        text    not null
+    text        text not null,
+    index       int  not null
 );
 
 create table if not exists model_usages

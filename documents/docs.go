@@ -6,6 +6,7 @@ import (
 	"github.com/pzierahn/chatbot_services/account"
 	"github.com/pzierahn/chatbot_services/auth"
 	"github.com/pzierahn/chatbot_services/llm"
+	"github.com/pzierahn/chatbot_services/llm/openai"
 	pb "github.com/pzierahn/chatbot_services/proto"
 	"github.com/pzierahn/chatbot_services/vectordb"
 )
@@ -18,6 +19,7 @@ type Service struct {
 	embeddings llm.Embedding
 	storage    *storage.BucketHandle
 	vectorDB   vectordb.DB
+	LLM        *openai.Client
 }
 
 type Config struct {
@@ -27,6 +29,7 @@ type Config struct {
 	Embeddings llm.Embedding
 	Storage    *storage.BucketHandle
 	VectorDB   vectordb.DB
+	LLM        *openai.Client
 }
 
 func FromConfig(config *Config) *Service {
@@ -37,5 +40,6 @@ func FromConfig(config *Config) *Service {
 		storage:    config.Storage,
 		account:    config.Account,
 		vectorDB:   config.VectorDB,
+		LLM:        config.LLM,
 	}
 }

@@ -77,8 +77,6 @@ func (db *DB) Search(query vectordb.SearchQuery) ([]*vectordb.Vector, error) {
 		doc := &vectordb.Vector{
 			Id:         item.Id,
 			DocumentId: item.Metadata.Fields["documentId"].GetStringValue(),
-			Filename:   item.Metadata.Fields["filename"].GetStringValue(),
-			Page:       uint32(item.Metadata.Fields["page"].GetNumberValue()),
 			Text:       item.Metadata.Fields["text"].GetStringValue(),
 			Score:      item.Score,
 		}

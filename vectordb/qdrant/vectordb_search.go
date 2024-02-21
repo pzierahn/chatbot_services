@@ -66,8 +66,6 @@ func (db *DB) Search(query vectordb.SearchQuery) ([]*vectordb.Vector, error) {
 		doc := &vectordb.Vector{
 			Id:         item.Id.GetUuid(),
 			DocumentId: item.Payload["documentId"].GetStringValue(),
-			Filename:   item.Payload["filename"].GetStringValue(),
-			Page:       uint32(item.Payload["page"].GetIntegerValue()),
 			Text:       item.Payload["text"].GetStringValue(),
 			Score:      item.Score,
 		}

@@ -2,32 +2,50 @@ syntax = "proto3";
 
 option go_package = "./proto";
 
-package endpoint.brainboost.documents.v1;
+package endpoint.brainboost.documents.v2;
 
 import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
 
 service DocumentService {
-  rpc List(DocumentFilter) returns (Documents);
-  rpc Index(Document) returns (stream IndexProgress);
-  rpc Delete(Document) returns (google.protobuf.Empty);
-  rpc Update(Document) returns (google.protobuf.Empty);
+  rpc List(DocumentFilter) returns (DocumentList);
+  rpc Get(DocumentID) returns (Document);
+  rpc Rename(RenameDocument) returns (google.protobuf.Empty);
+  rpc Delete(DocumentID) returns (google.protobuf.Empty);
+  rpc Index(IndexJob) returns (stream IndexProgress);
   rpc Search(SearchQuery) returns (SearchResults);
   rpc GetReferences(ReferenceIDs) returns (References);
+}
+
+message RenameDocument {
+  string id = 1;
+  oneof rename_to {
+    string file_name = 2;
+    string webpage_title = 3;
+  }
+}
+
+message DocumentID {
+  string id = 1;
+}
+
+message DocumentList {
+  // Id to filename
+  map<string, DocumentMetadata> items = 1;
 }
 
 message ReferenceIDs {
   repeated string items = 1;
 }
 
-message Reference {
+message Chunk {
   string id = 1;
-  string document_id = 2;
-  string filename = 3;
-  uint32 page = 4;
+  string text = 2;
+  uint32 index = 3;
 }
 
 message References {
-  repeated Reference items = 1;
+  repeated Document items = 1;
 }
 
 message SearchQuery {
@@ -38,28 +56,13 @@ message SearchQuery {
 }
 
 message SearchResults {
-  message Document {
-    string id = 1;
-    string document_id = 2;
-    string filename = 3;
-    string content = 4;
-    uint32 page = 5;
-    float score = 6;
-  }
-
   repeated Document items = 1;
+  map<string, float> scores = 2;
 }
 
 message IndexProgress {
-  uint32 totalPages = 1;
-  uint32 processedPages = 2;
-}
-
-message Document {
-  string id = 1;
-  string collection_id = 2;
-  string filename = 3;
-  string path = 4;
+  string status = 1;
+  float progress = 2;
 }
 
 message DocumentFilter {
@@ -67,12 +70,33 @@ message DocumentFilter {
   string collection_id = 2;
 }
 
-message Documents {
-  message Document {
-    string id = 1;
-    string filename = 2;
-    uint32 pages = 3;
+message DocumentMetadata {
+  oneof data {
+    File file = 1;
+    Webpage web = 2;
   }
+}
 
-  repeated Document items = 1;
+message File {
+  string path = 1;
+  string filename = 2;
+}
+
+message Webpage {
+  string url = 1;
+  string title = 2;
+}
+
+message Document {
+  string id = 1;
+  string collection_id = 2;
+  google.protobuf.Timestamp created_at = 3;
+  DocumentMetadata metadata = 4;
+  repeated Chunk chunks = 5;
+}
+
+message IndexJob {
+  string id = 1;
+  string collection_id = 2;
+  DocumentMetadata document = 3;
 }

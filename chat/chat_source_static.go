@@ -11,7 +11,6 @@ type documentPages struct {
 	id           string
 	collectionId string
 	userId       string
-	pages        []uint32
 }
 
 type documentChunk struct {
@@ -22,23 +21,22 @@ type documentChunk struct {
 
 func (service *Service) getDocumentChunks(ctx context.Context, query documentPages) ([]documentChunk, error) {
 	rows, err := service.db.Query(ctx,
-		`SELECT chunk.id, chunk.page, chunk.text
+		`SELECT chunk.id, chunk.index, chunk.text
 		FROM document_chunks as chunk, documents as doc
 		WHERE
 		    document_id = $1 AND
 		    doc.id = chunk.document_id AND
 		    doc.collection_id = $2 AND
-		    user_id = $3 AND
-		    page = ANY($4)
-		ORDER BY page`,
-		query.id, query.collectionId, query.userId, query.pages)
+		    user_id = $3
+		ORDER BY index`,
+		query.id, query.collectionId, query.userId)
 	if err != nil {
 		return nil, err
 	}
 
 	defer rows.Close()
 
-	var chunks []documentChunk
+	var docChunks []documentChunk
 
 	for rows.Next() {
 		var chunk documentChunk
@@ -52,31 +50,24 @@ func (service *Service) getDocumentChunks(ctx context.Context, query documentPag
 			return nil, err
 		}
 
-		chunks = append(chunks, chunk)
+		docChunks = append(docChunks, chunk)
 	}
 
-	return chunks, nil
+	return docChunks, nil
 }
 
 func (service *Service) getDocumentsContext(ctx context.Context, userId string, prompt *pb.ThreadPrompt) (*chunks, error) {
-	sort.Slice(prompt.Documents, func(i, j int) bool {
-		return prompt.Documents[i].Id < prompt.Documents[j].Id
+	sort.Slice(prompt.DocumentIds, func(i, j int) bool {
+		return prompt.DocumentIds[i] < prompt.DocumentIds[j]
 	})
-
-	for _, doc := range prompt.Documents {
-		sort.Slice(doc.Pages, func(i, j int) bool {
-			return doc.Pages[i] < doc.Pages[j]
-		})
-	}
 
 	data := &chunks{}
 
-	for _, doc := range prompt.Documents {
+	for _, docId := range prompt.DocumentIds {
 		items, err := service.getDocumentChunks(ctx, documentPages{
-			id:           doc.Id,
+			id:           docId,
 			collectionId: prompt.CollectionId,
 			userId:       userId,
-			pages:        doc.Pages,
 		})
 		if err != nil {
 			return nil, err

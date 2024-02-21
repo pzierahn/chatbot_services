@@ -3,53 +3,48 @@ package documents
 import (
 	"context"
 	pb "github.com/pzierahn/chatbot_services/proto"
-	"sort"
 )
 
-func (service *Service) List(ctx context.Context, req *pb.DocumentFilter) (*pb.Documents, error) {
+func (service *Service) List(ctx context.Context, req *pb.DocumentFilter) (*pb.DocumentList, error) {
 
 	userId, err := service.auth.Verify(ctx)
 	if err != nil {
 		return nil, err
 	}
 
+	// TODO: Add title matching
 	rows, err := service.db.Query(ctx,
-		`SELECT document_id, filename, max(page)
-		FROM documents AS doc
-		    join document_chunks AS em on doc.id = em.document_id
+		`SELECT id, metadata
+		FROM documents
 		WHERE
-		    doc.user_id = $1 AND
-		    doc.collection_id = $2::uuid AND
-		    doc.filename LIKE $3
-		GROUP BY document_id, filename, collection_id`,
-		userId, req.CollectionId, "%"+req.Query+"%")
+		    user_id = $1 AND
+		    collection_id = $2::uuid`,
+		userId, req.CollectionId)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var documents pb.Documents
+	documents := &pb.DocumentList{
+		Items: make(map[string]*pb.DocumentMetadata),
+	}
+
 	for rows.Next() {
-		source := pb.Documents_Document{}
+		var (
+			docId string
+			meta  DocumentMeta
+		)
 
 		err = rows.Scan(
-			&source.Id,
-			&source.Filename,
-			&source.Pages,
+			&docId,
+			&meta,
 		)
 		if err != nil {
 			return nil, err
 		}
 
-		// Max + 1 is the number of pages
-		source.Pages++
-
-		documents.Items = append(documents.Items, &source)
+		documents.Items[docId] = meta.toProto()
 	}
 
-	sort.Slice(documents.Items, func(i, j int) bool {
-		return documents.Items[i].Filename < documents.Items[j].Filename
-	})
-
-	return &documents, nil
+	return documents, nil
 }

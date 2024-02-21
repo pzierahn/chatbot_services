@@ -21,7 +21,7 @@ func (service *Service) StartThread(ctx context.Context, prompt *pb.ThreadPrompt
 	}
 
 	var chunkData *chunks
-	if len(prompt.Documents) == 0 {
+	if len(prompt.DocumentIds) == 0 {
 		chunkData, err = service.searchForContext(ctx, prompt)
 	} else {
 		chunkData, err = service.getDocumentsContext(ctx, userId, prompt)

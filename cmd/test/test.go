@@ -20,6 +20,11 @@ func main() {
 	defer func() { _ = conn.Close() }()
 
 	tester := test.NewTester(conn)
+	tester.TestDocumentRename()
+	tester.TestDocumentList()
+	tester.TestDocumentDelete()
+	tester.TestDocumentGet()
+	tester.TestWebpageIndex()
 	tester.TestStartThread()
 	tester.TestThreadMessages()
 	tester.TestGetThread()

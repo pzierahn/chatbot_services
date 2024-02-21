@@ -34,7 +34,6 @@ func main() {
 	ctx := context.Background()
 
 	var opts []option.ClientOption
-
 	if _, err := os.Stat(credentialsFile); err == nil {
 		serviceAccount := option.WithCredentialsFile(credentialsFile)
 		opts = append(opts, serviceAccount)
@@ -112,6 +111,7 @@ func main() {
 		Embeddings: openaiService,
 		Storage:    bucket,
 		VectorDB:   vecDB,
+		LLM:        openaiService,
 	})
 	pb.RegisterDocumentServiceServer(grpcServer, docsService)
 
