@@ -10,10 +10,19 @@ import "google/protobuf/timestamp.proto";
 service DocumentService {
   rpc List(DocumentFilter) returns (DocumentList);
   rpc Get(DocumentID) returns (Document);
+  rpc Rename(RenameDocument) returns (google.protobuf.Empty);
   rpc Delete(DocumentID) returns (google.protobuf.Empty);
   rpc Index(IndexJob) returns (stream IndexProgress);
   rpc Search(SearchQuery) returns (SearchResults);
   rpc GetReferences(ReferenceIDs) returns (References);
+}
+
+message RenameDocument {
+  string id = 1;
+  oneof rename_to {
+    string file_name = 2;
+    string webpage_title = 3;
+  }
 }
 
 message DocumentID {
