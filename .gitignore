@@ -2,6 +2,8 @@
 
 .idea
 
+/backup
+
 *.env
 
 service_account.json
