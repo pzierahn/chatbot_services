@@ -12,7 +12,7 @@ func (service *Service) Delete(ctx context.Context, req *pb.DocumentID) (*emptyp
 		return nil, err
 	}
 
-	doc, err := service.GetDocument(ctx, req)
+	doc, err := service.Get(ctx, req)
 	if err != nil {
 		return nil, err
 	}
