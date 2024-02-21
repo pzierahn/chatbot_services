@@ -22,7 +22,7 @@ message DocumentID {
 
 message DocumentList {
   // Id to filename
-  map<string, string> items = 1;
+  map<string, DocumentMetadata> items = 1;
 }
 
 message ReferenceIDs {
