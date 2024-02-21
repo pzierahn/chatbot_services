@@ -2,13 +2,13 @@ syntax = "proto3";
 
 option go_package = "./proto";
 
-package endpoint.brainboost.collections.v1;
+package endpoint.brainboost.collections.v2;
 
 import "google/protobuf/empty.proto";
 
 service CollectionService {
-  rpc Get(CollectionID) returns (Collection);
-  rpc GetAll(google.protobuf.Empty) returns (Collections);
+  rpc GetCollection(CollectionID) returns (Collection);
+  rpc ListCollections(google.protobuf.Empty) returns (Collections);
   rpc Create(Collection) returns (Collection);
   rpc Update(Collection) returns (Collection);
   rpc Delete(Collection) returns (google.protobuf.Empty);

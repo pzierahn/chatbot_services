@@ -20,19 +20,19 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	CollectionService_Get_FullMethodName    = "/endpoint.brainboost.collections.v1.CollectionService/Get"
-	CollectionService_GetAll_FullMethodName = "/endpoint.brainboost.collections.v1.CollectionService/GetAll"
-	CollectionService_Create_FullMethodName = "/endpoint.brainboost.collections.v1.CollectionService/Create"
-	CollectionService_Update_FullMethodName = "/endpoint.brainboost.collections.v1.CollectionService/Update"
-	CollectionService_Delete_FullMethodName = "/endpoint.brainboost.collections.v1.CollectionService/Delete"
+	CollectionService_GetCollection_FullMethodName   = "/endpoint.brainboost.collections.v2.CollectionService/GetCollection"
+	CollectionService_ListCollections_FullMethodName = "/endpoint.brainboost.collections.v2.CollectionService/ListCollections"
+	CollectionService_Create_FullMethodName          = "/endpoint.brainboost.collections.v2.CollectionService/Create"
+	CollectionService_Update_FullMethodName          = "/endpoint.brainboost.collections.v2.CollectionService/Update"
+	CollectionService_Delete_FullMethodName          = "/endpoint.brainboost.collections.v2.CollectionService/Delete"
 )
 
 // CollectionServiceClient is the client API for CollectionService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CollectionServiceClient interface {
-	Get(ctx context.Context, in *CollectionID, opts ...grpc.CallOption) (*Collection, error)
-	GetAll(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Collections, error)
+	GetCollection(ctx context.Context, in *CollectionID, opts ...grpc.CallOption) (*Collection, error)
+	ListCollections(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Collections, error)
 	Create(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*Collection, error)
 	Update(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*Collection, error)
 	Delete(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -46,18 +46,18 @@ func NewCollectionServiceClient(cc grpc.ClientConnInterface) CollectionServiceCl
 	return &collectionServiceClient{cc}
 }
 
-func (c *collectionServiceClient) Get(ctx context.Context, in *CollectionID, opts ...grpc.CallOption) (*Collection, error) {
+func (c *collectionServiceClient) GetCollection(ctx context.Context, in *CollectionID, opts ...grpc.CallOption) (*Collection, error) {
 	out := new(Collection)
-	err := c.cc.Invoke(ctx, CollectionService_Get_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, CollectionService_GetCollection_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *collectionServiceClient) GetAll(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Collections, error) {
+func (c *collectionServiceClient) ListCollections(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Collections, error) {
 	out := new(Collections)
-	err := c.cc.Invoke(ctx, CollectionService_GetAll_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, CollectionService_ListCollections_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -95,8 +95,8 @@ func (c *collectionServiceClient) Delete(ctx context.Context, in *Collection, op
 // All implementations must embed UnimplementedCollectionServiceServer
 // for forward compatibility
 type CollectionServiceServer interface {
-	Get(context.Context, *CollectionID) (*Collection, error)
-	GetAll(context.Context, *emptypb.Empty) (*Collections, error)
+	GetCollection(context.Context, *CollectionID) (*Collection, error)
+	ListCollections(context.Context, *emptypb.Empty) (*Collections, error)
 	Create(context.Context, *Collection) (*Collection, error)
 	Update(context.Context, *Collection) (*Collection, error)
 	Delete(context.Context, *Collection) (*emptypb.Empty, error)
@@ -107,11 +107,11 @@ type CollectionServiceServer interface {
 type UnimplementedCollectionServiceServer struct {
 }
 
-func (UnimplementedCollectionServiceServer) Get(context.Context, *CollectionID) (*Collection, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
+func (UnimplementedCollectionServiceServer) GetCollection(context.Context, *CollectionID) (*Collection, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCollection not implemented")
 }
-func (UnimplementedCollectionServiceServer) GetAll(context.Context, *emptypb.Empty) (*Collections, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetAll not implemented")
+func (UnimplementedCollectionServiceServer) ListCollections(context.Context, *emptypb.Empty) (*Collections, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListCollections not implemented")
 }
 func (UnimplementedCollectionServiceServer) Create(context.Context, *Collection) (*Collection, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
@@ -135,38 +135,38 @@ func RegisterCollectionServiceServer(s grpc.ServiceRegistrar, srv CollectionServ
 	s.RegisterService(&CollectionService_ServiceDesc, srv)
 }
 
-func _CollectionService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _CollectionService_GetCollection_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CollectionID)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CollectionServiceServer).Get(ctx, in)
+		return srv.(CollectionServiceServer).GetCollection(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: CollectionService_Get_FullMethodName,
+		FullMethod: CollectionService_GetCollection_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CollectionServiceServer).Get(ctx, req.(*CollectionID))
+		return srv.(CollectionServiceServer).GetCollection(ctx, req.(*CollectionID))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _CollectionService_GetAll_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _CollectionService_ListCollections_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CollectionServiceServer).GetAll(ctx, in)
+		return srv.(CollectionServiceServer).ListCollections(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: CollectionService_GetAll_FullMethodName,
+		FullMethod: CollectionService_ListCollections_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CollectionServiceServer).GetAll(ctx, req.(*emptypb.Empty))
+		return srv.(CollectionServiceServer).ListCollections(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -229,16 +229,16 @@ func _CollectionService_Delete_Handler(srv interface{}, ctx context.Context, dec
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var CollectionService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "endpoint.brainboost.collections.v1.CollectionService",
+	ServiceName: "endpoint.brainboost.collections.v2.CollectionService",
 	HandlerType: (*CollectionServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Get",
-			Handler:    _CollectionService_Get_Handler,
+			MethodName: "GetCollection",
+			Handler:    _CollectionService_GetCollection_Handler,
 		},
 		{
-			MethodName: "GetAll",
-			Handler:    _CollectionService_GetAll_Handler,
+			MethodName: "ListCollections",
+			Handler:    _CollectionService_ListCollections_Handler,
 		},
 		{
 			MethodName: "Create",

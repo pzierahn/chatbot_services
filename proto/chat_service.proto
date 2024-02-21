@@ -13,7 +13,7 @@ service ChatService {
   rpc StartThread(ThreadPrompt) returns (Thread);
   rpc PostMessage(Prompt) returns (Message);
   rpc GetThread(ThreadID) returns (Thread);
-  rpc ListThreadIDs(collections.v1.Collection) returns (ThreadIDs);
+  rpc ListThreadIDs(collections.v2.Collection) returns (ThreadIDs);
   rpc DeleteThread(ThreadID) returns (google.protobuf.Empty);
   rpc DeleteMessageFromThread(MessageID) returns (google.protobuf.Empty);
 }
