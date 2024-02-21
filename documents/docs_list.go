@@ -26,7 +26,7 @@ func (service *Service) List(ctx context.Context, req *pb.DocumentFilter) (*pb.D
 	defer rows.Close()
 
 	documents := &pb.DocumentList{
-		Items: make(map[string]string),
+		Items: make(map[string]*pb.DocumentMetadata),
 	}
 
 	for rows.Next() {
@@ -43,15 +43,7 @@ func (service *Service) List(ctx context.Context, req *pb.DocumentFilter) (*pb.D
 			return nil, err
 		}
 
-		if meta.IsFile() {
-			documents.Items[docId] = meta.File.Filename
-			continue
-		}
-
-		if meta.IsWebpage() {
-			documents.Items[docId] = meta.Webpage.Title
-			continue
-		}
+		documents.Items[docId] = metaToProto(meta)
 	}
 
 	return documents, nil
