@@ -5,7 +5,7 @@ import (
 	pb "github.com/pzierahn/chatbot_services/proto"
 )
 
-func (server *Service) Get(ctx context.Context, col *pb.CollectionID) (*pb.Collection, error) {
+func (server *Service) GetCollection(ctx context.Context, col *pb.CollectionID) (*pb.Collection, error) {
 	uid, err := server.auth.Verify(ctx)
 	if err != nil {
 		return nil, err
