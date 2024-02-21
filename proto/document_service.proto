@@ -11,7 +11,7 @@ service DocumentService {
   rpc List(DocumentFilter) returns (DocumentList);
   rpc Get(DocumentID) returns (Document);
   rpc Delete(DocumentID) returns (google.protobuf.Empty);
-  rpc IndexDocument(IndexJob) returns (stream IndexProgress);
+  rpc Index(IndexJob) returns (stream IndexProgress);
   rpc Search(SearchQuery) returns (SearchResults);
   rpc GetReferences(ReferenceIDs) returns (References);
 }

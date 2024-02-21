@@ -23,7 +23,7 @@ const (
 	DocumentService_List_FullMethodName          = "/endpoint.brainboost.documents.v2.DocumentService/List"
 	DocumentService_Get_FullMethodName           = "/endpoint.brainboost.documents.v2.DocumentService/Get"
 	DocumentService_Delete_FullMethodName        = "/endpoint.brainboost.documents.v2.DocumentService/Delete"
-	DocumentService_IndexDocument_FullMethodName = "/endpoint.brainboost.documents.v2.DocumentService/IndexDocument"
+	DocumentService_Index_FullMethodName         = "/endpoint.brainboost.documents.v2.DocumentService/Index"
 	DocumentService_Search_FullMethodName        = "/endpoint.brainboost.documents.v2.DocumentService/Search"
 	DocumentService_GetReferences_FullMethodName = "/endpoint.brainboost.documents.v2.DocumentService/GetReferences"
 )
@@ -35,7 +35,7 @@ type DocumentServiceClient interface {
 	List(ctx context.Context, in *DocumentFilter, opts ...grpc.CallOption) (*DocumentList, error)
 	Get(ctx context.Context, in *DocumentID, opts ...grpc.CallOption) (*Document, error)
 	Delete(ctx context.Context, in *DocumentID, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	IndexDocument(ctx context.Context, in *IndexJob, opts ...grpc.CallOption) (DocumentService_IndexDocumentClient, error)
+	Index(ctx context.Context, in *IndexJob, opts ...grpc.CallOption) (DocumentService_IndexClient, error)
 	Search(ctx context.Context, in *SearchQuery, opts ...grpc.CallOption) (*SearchResults, error)
 	GetReferences(ctx context.Context, in *ReferenceIDs, opts ...grpc.CallOption) (*References, error)
 }
@@ -75,12 +75,12 @@ func (c *documentServiceClient) Delete(ctx context.Context, in *DocumentID, opts
 	return out, nil
 }
 
-func (c *documentServiceClient) IndexDocument(ctx context.Context, in *IndexJob, opts ...grpc.CallOption) (DocumentService_IndexDocumentClient, error) {
-	stream, err := c.cc.NewStream(ctx, &DocumentService_ServiceDesc.Streams[0], DocumentService_IndexDocument_FullMethodName, opts...)
+func (c *documentServiceClient) Index(ctx context.Context, in *IndexJob, opts ...grpc.CallOption) (DocumentService_IndexClient, error) {
+	stream, err := c.cc.NewStream(ctx, &DocumentService_ServiceDesc.Streams[0], DocumentService_Index_FullMethodName, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &documentServiceIndexDocumentClient{stream}
+	x := &documentServiceIndexClient{stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -90,16 +90,16 @@ func (c *documentServiceClient) IndexDocument(ctx context.Context, in *IndexJob,
 	return x, nil
 }
 
-type DocumentService_IndexDocumentClient interface {
+type DocumentService_IndexClient interface {
 	Recv() (*IndexProgress, error)
 	grpc.ClientStream
 }
 
-type documentServiceIndexDocumentClient struct {
+type documentServiceIndexClient struct {
 	grpc.ClientStream
 }
 
-func (x *documentServiceIndexDocumentClient) Recv() (*IndexProgress, error) {
+func (x *documentServiceIndexClient) Recv() (*IndexProgress, error) {
 	m := new(IndexProgress)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -132,7 +132,7 @@ type DocumentServiceServer interface {
 	List(context.Context, *DocumentFilter) (*DocumentList, error)
 	Get(context.Context, *DocumentID) (*Document, error)
 	Delete(context.Context, *DocumentID) (*emptypb.Empty, error)
-	IndexDocument(*IndexJob, DocumentService_IndexDocumentServer) error
+	Index(*IndexJob, DocumentService_IndexServer) error
 	Search(context.Context, *SearchQuery) (*SearchResults, error)
 	GetReferences(context.Context, *ReferenceIDs) (*References, error)
 	mustEmbedUnimplementedDocumentServiceServer()
@@ -151,8 +151,8 @@ func (UnimplementedDocumentServiceServer) Get(context.Context, *DocumentID) (*Do
 func (UnimplementedDocumentServiceServer) Delete(context.Context, *DocumentID) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
-func (UnimplementedDocumentServiceServer) IndexDocument(*IndexJob, DocumentService_IndexDocumentServer) error {
-	return status.Errorf(codes.Unimplemented, "method IndexDocument not implemented")
+func (UnimplementedDocumentServiceServer) Index(*IndexJob, DocumentService_IndexServer) error {
+	return status.Errorf(codes.Unimplemented, "method Index not implemented")
 }
 func (UnimplementedDocumentServiceServer) Search(context.Context, *SearchQuery) (*SearchResults, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Search not implemented")
@@ -227,24 +227,24 @@ func _DocumentService_Delete_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
-func _DocumentService_IndexDocument_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _DocumentService_Index_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(IndexJob)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(DocumentServiceServer).IndexDocument(m, &documentServiceIndexDocumentServer{stream})
+	return srv.(DocumentServiceServer).Index(m, &documentServiceIndexServer{stream})
 }
 
-type DocumentService_IndexDocumentServer interface {
+type DocumentService_IndexServer interface {
 	Send(*IndexProgress) error
 	grpc.ServerStream
 }
 
-type documentServiceIndexDocumentServer struct {
+type documentServiceIndexServer struct {
 	grpc.ServerStream
 }
 
-func (x *documentServiceIndexDocumentServer) Send(m *IndexProgress) error {
+func (x *documentServiceIndexServer) Send(m *IndexProgress) error {
 	return x.ServerStream.SendMsg(m)
 }
 
@@ -314,8 +314,8 @@ var DocumentService_ServiceDesc = grpc.ServiceDesc{
 	},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "IndexDocument",
-			Handler:       _DocumentService_IndexDocument_Handler,
+			StreamName:    "Index",
+			Handler:       _DocumentService_Index_Handler,
 			ServerStreams: true,
 		},
 	},
