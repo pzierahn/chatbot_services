@@ -8,28 +8,22 @@ import (
 )
 
 func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateRequest) (*llm.GenerateResponse, error) {
-	messages := []openai.ChatCompletionMessage{
-		{
-			Role: openai.ChatMessageRoleSystem,
-			//Content: "You are a helpful assistant. " +
-			//	"Answer in Markdown format without any code blocks. " +
-			//	"Give references to the source document if possible.",
-			Content: "When summarizing key points from the specified source, clearly indicate direct references by adding a reference right after the respective content. " +
-				"Only reference materials that are explicitly included in the context window. ",
-		},
-	}
+	var messages []openai.ChatCompletionMessage
 
-	for _, text := range req.Messages {
+	for _, msg := range req.Messages {
 		var role string
-		if text.Type == llm.MessageTypeBot {
-			role = openai.ChatMessageRoleAssistant
-		} else {
+		switch msg.Type {
+		case llm.MessageTypeSystem:
+			role = openai.ChatMessageRoleSystem
+		case llm.MessageTypeUser:
 			role = openai.ChatMessageRoleUser
+		case llm.MessageTypeBot:
+			role = openai.ChatMessageRoleAssistant
 		}
 
 		messages = append(messages, openai.ChatCompletionMessage{
 			Role:    role,
-			Content: text.Text,
+			Content: msg.Text,
 		})
 	}
 

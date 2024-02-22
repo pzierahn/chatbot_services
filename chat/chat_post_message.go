@@ -25,7 +25,13 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 		return nil, err
 	}
 
-	var messages []*llm.Message
+	messages := []*llm.Message{
+		{
+			Type: llm.MessageTypeSystem,
+			Text: systemPromptQuote,
+		},
+	}
+
 	for _, ref := range references {
 		messages = append(messages, &llm.Message{
 			Type: llm.MessageTypeUser,

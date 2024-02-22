@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/bedrockruntime"
 	"github.com/pzierahn/chatbot_services/llm"
+	"strings"
 )
 
 type ClaudeRequest struct {
@@ -25,14 +26,18 @@ func (client *Client) generateCompletionAnthropic(ctx context.Context, req *llm.
 	prompt := ""
 
 	for _, msg := range req.Messages {
-		if msg.Type == llm.MessageTypeUser {
+		switch msg.Type {
+		case llm.MessageTypeSystem:
+			prompt += "\n\nSystem: " + msg.Text
+		case llm.MessageTypeUser:
 			prompt += "\n\nHuman: " + msg.Text
-		} else {
+		case llm.MessageTypeBot:
 			prompt += "\n\nAssistant: " + msg.Text
 		}
 	}
 
 	prompt += "\n\nAssistant: "
+	prompt = strings.TrimSpace(prompt)
 
 	request := ClaudeRequest{
 		Prompt:            prompt,

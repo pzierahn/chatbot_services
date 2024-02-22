@@ -11,6 +11,11 @@ import (
 	"log"
 )
 
+const (
+	systemPromptQuote  = "When summarizing key points from the specified source, clearly indicate direct references by adding a reference right after the respective content. Only reference materials that are explicitly included in the context window."
+	systemPromptNormal = "You are a helpful assistant. Answer in Markdown format without any code blocks. Give references to the source document if possible."
+)
+
 func (service *Service) StartThread(ctx context.Context, prompt *pb.ThreadPrompt) (*pb.Thread, error) {
 	userId, err := service.Verify(ctx)
 	if err != nil {
@@ -31,7 +36,13 @@ func (service *Service) StartThread(ctx context.Context, prompt *pb.ThreadPrompt
 		return nil, err
 	}
 
-	var messages []*llm.Message
+	messages := []*llm.Message{
+		{
+			Type: llm.MessageTypeSystem,
+			Text: systemPromptQuote,
+		},
+	}
+
 	for inx, doc := range chunkData.texts {
 		messages = append(messages, &llm.Message{
 			Type: llm.MessageTypeUser,

@@ -3,7 +3,8 @@ package llm
 import "context"
 
 const (
-	MessageTypeUser = iota
+	MessageTypeSystem = iota
+	MessageTypeUser
 	MessageTypeBot
 )
 
