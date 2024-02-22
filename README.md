@@ -21,7 +21,7 @@ export CHATBOT_QDRANT_KEY=""
 export CHATBOT_QDRANT_URL=""
 
 # Postgres connection string
-export CHATBOT_BRAINBOOST_COCKROACH_DB=""
+export CHATBOT_DB=""
 
 # QDRANT API URL
 export CHATBOT_QDRANT_KEY=""
