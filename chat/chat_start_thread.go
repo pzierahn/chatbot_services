@@ -6,7 +6,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/pzierahn/chatbot_services/llm"
 	pb "github.com/pzierahn/chatbot_services/proto"
-	"github.com/pzierahn/chatbot_services/utils"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"log"
 )
@@ -60,8 +59,6 @@ func (service *Service) StartThread(ctx context.Context, prompt *pb.ThreadPrompt
 	if err != nil {
 		return nil, err
 	}
-
-	log.Printf("messages: %v", utils.Prettify(messages))
 
 	resp, err := model.GenerateCompletion(ctx, &llm.GenerateRequest{
 		Messages:    messages,
