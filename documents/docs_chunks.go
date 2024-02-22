@@ -20,7 +20,7 @@ func (service *Service) GetReferences(ctx context.Context, req *pb.ReferenceIDs)
 func (service *Service) getReferences(ctx context.Context, userId string, req *pb.ReferenceIDs) (*pb.References, error) {
 
 	rows, err := service.db.Query(ctx,
-		`SELECT document_id, chunks.id, index
+		`SELECT document_id, chunks.id, index, text
 				FROM document_chunks as chunks,
 				     documents as docs
 				WHERE chunks.id = ANY($1) AND
@@ -38,7 +38,7 @@ func (service *Service) getReferences(ctx context.Context, userId string, req *p
 		var docId string
 		var chunk pb.Chunk
 
-		err = rows.Scan(&docId, &chunk.Id, &chunk.Index)
+		err = rows.Scan(&docId, &chunk.Id, &chunk.Index, &chunk.Text)
 		if err != nil {
 			return nil, err
 		}
