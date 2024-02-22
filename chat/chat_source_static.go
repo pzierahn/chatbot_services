@@ -2,58 +2,48 @@ package chat
 
 import (
 	"context"
+	"fmt"
 	pb "github.com/pzierahn/chatbot_services/proto"
+	"github.com/pzierahn/chatbot_services/utils"
 	"sort"
-	"strings"
 )
 
 type documentPages struct {
-	id           string
+	documentIds  []string
 	collectionId string
 	userId       string
 }
 
-type documentChunk struct {
-	chunkId string
-	page    uint32
-	text    string
-}
-
-func (service *Service) getDocumentChunks(ctx context.Context, query documentPages) ([]documentChunk, error) {
+func (service *Service) getDocumentsChunkIds(ctx context.Context, query documentPages) (*pb.ReferenceIDs, error) {
 	rows, err := service.db.Query(ctx,
-		`SELECT chunk.id, chunk.index, chunk.text
+		`SELECT chunk.id
 		FROM document_chunks as chunk, documents as doc
 		WHERE
-		    document_id = $1 AND
+		    document_id = ANY($1) AND
 		    doc.id = chunk.document_id AND
 		    doc.collection_id = $2 AND
 		    user_id = $3
 		ORDER BY index`,
-		query.id, query.collectionId, query.userId)
+		query.documentIds, query.collectionId, query.userId)
 	if err != nil {
 		return nil, err
 	}
 
 	defer rows.Close()
 
-	var docChunks []documentChunk
-
+	ids := &pb.ReferenceIDs{}
 	for rows.Next() {
-		var chunk documentChunk
+		var id string
 
-		err = rows.Scan(
-			&chunk.chunkId,
-			&chunk.page,
-			&chunk.text,
-		)
+		err = rows.Scan(&id)
 		if err != nil {
 			return nil, err
 		}
 
-		docChunks = append(docChunks, chunk)
+		ids.Items = append(ids.Items, id)
 	}
 
-	return docChunks, nil
+	return ids, nil
 }
 
 func (service *Service) getDocumentsContext(ctx context.Context, userId string, prompt *pb.ThreadPrompt) (*chunks, error) {
@@ -61,25 +51,30 @@ func (service *Service) getDocumentsContext(ctx context.Context, userId string, 
 		return prompt.DocumentIds[i] < prompt.DocumentIds[j]
 	})
 
+	refIds, err := service.getDocumentsChunkIds(ctx, documentPages{
+		documentIds:  prompt.DocumentIds,
+		collectionId: prompt.CollectionId,
+		userId:       userId,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	refs, err := service.docs.GetReferences(ctx, refIds)
+	if err != nil {
+		return nil, err
+	}
+
 	data := &chunks{}
 
-	for _, docId := range prompt.DocumentIds {
-		items, err := service.getDocumentChunks(ctx, documentPages{
-			id:           docId,
-			collectionId: prompt.CollectionId,
-			userId:       userId,
-		})
-		if err != nil {
-			return nil, err
-		}
+	for _, ref := range refs.Items {
+		for _, chunk := range ref.Chunks {
+			data.ids = append(data.ids, chunk.Id)
+			data.texts = append(data.texts, chunk.Text)
 
-		var texts []string
-		for _, chunk := range items {
-			data.ids = append(data.ids, chunk.chunkId)
-			texts = append(texts, chunk.text)
+			source := fmt.Sprintf("%s p.%d", utils.GetDocumentTitle(ref.Metadata), chunk.Index+1)
+			data.source = append(data.source, source)
 		}
-
-		data.texts = append(data.texts, strings.Join(texts, "\n"))
 	}
 
 	return data, nil

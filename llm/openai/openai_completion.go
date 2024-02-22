@@ -11,8 +11,11 @@ func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateR
 	messages := []openai.ChatCompletionMessage{
 		{
 			Role: openai.ChatMessageRoleSystem,
-			Content: "You are a helpful assistant. " +
-				"Answer in Markdown format without any code blocks",
+			//Content: "You are a helpful assistant. " +
+			//	"Answer in Markdown format without any code blocks. " +
+			//	"Give references to the source document if possible.",
+			Content: "When summarizing key points from the specified source, clearly indicate direct references by adding a reference right after the respective content. " +
+				"Only reference materials that are explicitly included in the context window. ",
 		},
 	}
 
