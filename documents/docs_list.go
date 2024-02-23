@@ -14,7 +14,6 @@ func (service *Service) List(ctx context.Context, req *pb.DocumentFilter) (*pb.D
 		return nil, err
 	}
 
-	// TODO: Add title matching
 	rows, err := service.db.Query(ctx,
 		`SELECT id, metadata
 		FROM documents
@@ -46,9 +45,10 @@ func (service *Service) List(ctx context.Context, req *pb.DocumentFilter) (*pb.D
 		}
 
 		proto := meta.toProto()
-		title := utils.GetDocumentTitle(proto)
+		title := strings.ToLower(utils.GetDocumentTitle(proto))
+		query := strings.ToLower(req.Query)
 
-		if strings.Contains(title, req.Query) {
+		if strings.Contains(title, query) {
 			documents.Items[docId] = proto
 		}
 	}
