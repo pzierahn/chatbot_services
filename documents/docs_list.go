@@ -3,6 +3,8 @@ package documents
 import (
 	"context"
 	pb "github.com/pzierahn/chatbot_services/proto"
+	"github.com/pzierahn/chatbot_services/utils"
+	"strings"
 )
 
 func (service *Service) List(ctx context.Context, req *pb.DocumentFilter) (*pb.DocumentList, error) {
@@ -43,7 +45,12 @@ func (service *Service) List(ctx context.Context, req *pb.DocumentFilter) (*pb.D
 			return nil, err
 		}
 
-		documents.Items[docId] = meta.toProto()
+		proto := meta.toProto()
+		title := utils.GetDocumentTitle(proto)
+
+		if strings.Contains(title, req.Query) {
+			documents.Items[docId] = proto
+		}
 	}
 
 	return documents, nil
