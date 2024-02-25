@@ -4,9 +4,12 @@ This repository contains gRPC services for the Brainboost App
 
 ## Run locally
 
-### Set environment variables
+### Set up environment
 
-Before you can start the server, you need to set the following environment variables:
+A Google [Firebase](https://firebase.google.com/) Service account is needed for Authentication and Storage.
+Store the service account credentials in `./service_account.json` in the main folder.
+
+You also need to set the following environment variables:
 
 ```bash
 # OpenAI API key
