@@ -4,8 +4,6 @@ This repository contains gRPC services for the Brainboost App
 
 ## Run locally
 
-To kickstart your journey with these services, you can use the following commands:
-
 ### Set environment variables
 
 Before you can start the server, you need to set the following environment variables:
@@ -20,14 +18,12 @@ export CHATBOT_QDRANT_KEY=""
 # QDRANT API URL
 export CHATBOT_QDRANT_URL=""
 
-# Postgres connection string
+# Postgres database connection string
 export CHATBOT_DB=""
 
-# QDRANT API URL
-export CHATBOT_QDRANT_KEY=""
-
-# QDRANT API URL
-export CHATBOT_QDRANT_URL=""
+# AWS Bedrock Credentials
+export AWS_ACCESS_KEY_ID=""
+export AWS_SECRET_ACCESS_KEY=""
 ```
 
 ### Start the server
@@ -61,7 +57,9 @@ After a new tag is pushed, the new release will be automatically build and deplo
 
 ## Deploy a new gateway release
 
-Prepare a new release by following these steps:
+To use gRPC services in browser a gRPC-Web translator is needed. These Proxies are documented in `envoy/`.
+
+To prepare a new gateway release run the following steps:
 
 1. `git tag gateway/vX`
 2. `git push origin gateway/vX`
@@ -70,7 +68,7 @@ After a new tag is pushed, the new release will be automatically build and deplo
 
 ## Local development
 
-To develop locally, you can use the following commands:
+For local testing run the following command:
 
 ```shell
 # Start the server
