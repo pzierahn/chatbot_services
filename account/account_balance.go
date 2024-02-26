@@ -23,11 +23,11 @@ func (service *Service) GetBalanceSheet(ctx context.Context, req *emptypb.Empty)
 	}
 
 	for _, payment := range payments.Items {
-		balanceSheet.Balance += payment.Amount
+		balanceSheet.Balance += int32(payment.Amount)
 	}
 
 	for _, model := range costs.Models {
-		balanceSheet.Balance -= model.Costs
+		balanceSheet.Balance -= int32(model.Costs)
 	}
 
 	return balanceSheet, nil

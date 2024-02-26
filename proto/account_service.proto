@@ -17,7 +17,7 @@ message BalanceSheet {
   repeated Payment payments = 1;
   repeated ModelCosts costs = 2;
 
-  uint32 balance = 3;
+  int32 balance = 3;
 }
 
 message ModelCosts {
