@@ -12,6 +12,7 @@ import (
 	"github.com/pzierahn/chatbot_services/documents"
 	"github.com/pzierahn/chatbot_services/llm"
 	"github.com/pzierahn/chatbot_services/llm/bedrock"
+	"github.com/pzierahn/chatbot_services/llm/mistral"
 	"github.com/pzierahn/chatbot_services/llm/openai"
 	"github.com/pzierahn/chatbot_services/llm/vertex"
 	pb "github.com/pzierahn/chatbot_services/proto"
@@ -78,6 +79,11 @@ func main() {
 		log.Printf("failed to create bedrock service: %v", err)
 	}
 
+	mistralService, err := mistral.New(db)
+	if err != nil {
+		log.Printf("failed to create mistral service: %v", err)
+	}
+
 	var authService auth.Service
 
 	if os.Getenv("CHATBOT_TEST") == "true" {
@@ -112,7 +118,6 @@ func main() {
 		Embeddings: openaiService,
 		Storage:    bucket,
 		VectorDB:   vecDB,
-		LLM:        openaiService,
 	})
 	pb.RegisterDocumentServiceServer(grpcServer, docsService)
 
@@ -127,6 +132,7 @@ func main() {
 			openaiService,
 			vertexService,
 			bedrockService,
+			mistralService,
 		},
 	})
 	pb.RegisterChatServiceServer(grpcServer, chatServer)

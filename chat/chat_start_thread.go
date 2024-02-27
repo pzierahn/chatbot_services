@@ -65,6 +65,7 @@ func (service *Service) StartThread(ctx context.Context, prompt *pb.ThreadPrompt
 		Model:       prompt.ModelOptions.Model,
 		MaxTokens:   int(prompt.ModelOptions.MaxTokens),
 		Temperature: prompt.ModelOptions.Temperature,
+		TopP:        prompt.ModelOptions.TopP,
 		UserId:      userId,
 	})
 	if err != nil {

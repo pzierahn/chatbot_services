@@ -69,6 +69,7 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 		Model:       prompt.ModelOptions.Model,
 		MaxTokens:   1024,
 		Temperature: prompt.ModelOptions.Temperature,
+		TopP:        prompt.ModelOptions.TopP,
 		UserId:      userId,
 	})
 	if err != nil {
