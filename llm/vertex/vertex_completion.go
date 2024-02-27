@@ -38,26 +38,15 @@ func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateR
 		Text: string(txt),
 	}
 
-	usage := llm.ModelUsage{
-		UserId: req.UserId,
-		Model:  modelName,
-	}
-
 	if gen.UsageMetadata != nil {
-		usage.PromptTokens = int(gen.UsageMetadata.PromptTokenCount)
-		usage.CompletionTokens = int(gen.UsageMetadata.CandidatesTokenCount)
-	} else {
-		for _, part := range parts {
-			partText, ok := part.(genai.Text)
-			if !ok {
-				continue
-			}
-			usage.PromptTokens += len(string(partText))
+		usage := llm.ModelUsage{
+			UserId:           req.UserId,
+			Model:            modelName,
+			PromptTokens:     int(gen.UsageMetadata.PromptTokenCount),
+			CompletionTokens: int(gen.UsageMetadata.CandidatesTokenCount),
 		}
-		usage.CompletionTokens = len(resp.Text)
+		client.trackUsage(ctx, usage)
 	}
-
-	client.trackUsage(ctx, usage)
 
 	return resp, nil
 }
