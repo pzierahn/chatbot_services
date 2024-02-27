@@ -27,6 +27,9 @@ export CHATBOT_DB=""
 # AWS Bedrock Credentials
 export AWS_ACCESS_KEY_ID=""
 export AWS_SECRET_ACCESS_KEY=""
+
+# Mistral API key
+export MISTRAL_API_KEY=""
 ```
 
 ### Start the server
