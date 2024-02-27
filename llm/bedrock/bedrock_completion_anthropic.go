@@ -66,6 +66,6 @@ func (client *Client) generateCompletionAnthropic(ctx context.Context, req *llm.
 	}
 
 	return &llm.GenerateResponse{
-		Text: response.Completion,
+		Text: strings.TrimSpace(response.Completion),
 	}, nil
 }
