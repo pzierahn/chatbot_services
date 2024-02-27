@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+option go_package = "./proto";
+
+package endpoint.brainboost.crashlytics.v1;
+
+import "google/protobuf/empty.proto";
+
+service CrashlyticsService {
+  rpc RecordError(Error) returns (google.protobuf.Empty);
+}
+
+message Error {
+  string exception = 1;
+  string stack_trace = 2;
+}
