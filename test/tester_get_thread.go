@@ -19,9 +19,7 @@ func (test Tester) TestGetThread() {
 		ori, err := test.chat.StartThread(ctx, &pb.ThreadPrompt{
 			Prompt:       "Say Hello",
 			CollectionId: collection.Id,
-			ModelOptions: &pb.ModelOptions{
-				Model: testModel,
-			},
+			ModelOptions: testModelOptions,
 		})
 		if err != nil {
 			return err

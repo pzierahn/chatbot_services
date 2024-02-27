@@ -18,9 +18,7 @@ func (test Tester) TestDeleteThread() {
 		prompt := &pb.ThreadPrompt{
 			Prompt:       "Say Hello",
 			CollectionId: collection.Id,
-			ModelOptions: &pb.ModelOptions{
-				Model: testModel,
-			},
+			ModelOptions: testModelOptions,
 		}
 
 		thread1, err := test.chat.StartThread(ctx, prompt)

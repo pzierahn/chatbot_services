@@ -18,20 +18,16 @@ func (test Tester) TestDeleteThreadMessage() {
 		thread, err := test.chat.StartThread(ctx, &pb.ThreadPrompt{
 			Prompt:       "I have a little green rectangular object in a yellow box",
 			CollectionId: collection.Id,
-			ModelOptions: &pb.ModelOptions{
-				Model: testModel,
-			},
+			ModelOptions: testModelOptions,
 		})
 		if err != nil {
 			return err
 		}
 
 		msg, err := test.chat.PostMessage(ctx, &pb.Prompt{
-			Prompt:   "What is the color of the rectangular object in the yellow box?",
-			ThreadID: thread.Id,
-			ModelOptions: &pb.ModelOptions{
-				Model: testModel,
-			},
+			Prompt:       "What is the color of the rectangular object in the yellow box?",
+			ThreadID:     thread.Id,
+			ModelOptions: testModelOptions,
 		})
 		if err != nil {
 			return err

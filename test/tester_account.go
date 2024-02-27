@@ -19,9 +19,7 @@ func (test Tester) TestAccountCosts() {
 		_, err = test.chat.StartThread(ctx, &pb.ThreadPrompt{
 			Prompt:       "Tell a long about a pinguin",
 			CollectionId: collection.Id,
-			ModelOptions: &pb.ModelOptions{
-				Model: testModel,
-			},
+			ModelOptions: testModelOptions,
 		})
 		if err != nil {
 			return err

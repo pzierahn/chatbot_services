@@ -8,13 +8,17 @@ import (
 
 const (
 	openaiGPT4TurboPreview = "openai.gpt-4-turbo-preview"
-	openaiGPT3_5Turbo16k   = "openai.gpt-3.5-turbo-16k"
+	openaiGPT3DOT5Turbo16k = "openai.gpt-3.5-turbo-16k"
 	amazonTitanTextExpress = "amazon.titan-text-express-v1"
 	anthropicClaudeV2      = "anthropic.claude-v2"
 	googleGeminiPro        = "google.gemini-pro"
+	mistral                = "mistral.mistral-large-latest"
 )
 
-const testModel = openaiGPT3_5Turbo16k
+var testModelOptions = &pb.ModelOptions{
+	Model: googleGeminiPro,
+	TopP:  1.0,
+}
 
 func (test Tester) TestStartThread() {
 	test.runTest("TestThread_start", func(ctx context.Context) error {
@@ -28,9 +32,7 @@ func (test Tester) TestStartThread() {
 		thread, err := test.chat.StartThread(ctx, &pb.ThreadPrompt{
 			Prompt:       "Say Hello!",
 			CollectionId: collection.Id,
-			ModelOptions: &pb.ModelOptions{
-				Model: testModel,
-			},
+			ModelOptions: testModelOptions,
 		})
 		if err != nil {
 			return err
