@@ -8,6 +8,7 @@ import (
 	"github.com/pzierahn/chatbot_services/auth"
 	"github.com/pzierahn/chatbot_services/chat"
 	"github.com/pzierahn/chatbot_services/collections"
+	"github.com/pzierahn/chatbot_services/crashlytics"
 	"github.com/pzierahn/chatbot_services/documents"
 	"github.com/pzierahn/chatbot_services/llm"
 	"github.com/pzierahn/chatbot_services/llm/bedrock"
@@ -114,6 +115,8 @@ func main() {
 		LLM:        openaiService,
 	})
 	pb.RegisterDocumentServiceServer(grpcServer, docsService)
+
+	pb.RegisterCrashlyticsServiceServer(grpcServer, crashlytics.New(authService, db))
 
 	chatServer := chat.FromConfig(&chat.Config{
 		DB:              db,

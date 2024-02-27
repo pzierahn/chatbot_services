@@ -13,4 +13,5 @@ service CrashlyticsService {
 message Error {
   string exception = 1;
   string stack_trace = 2;
+  string app_version = 3;
 }

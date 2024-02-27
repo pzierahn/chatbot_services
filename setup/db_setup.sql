@@ -65,3 +65,13 @@ create table if not exists payments
     date    timestamp   not null default now(),
     amount  integer     not null
 );
+
+create table if not exists crashlytics
+(
+    id          uuid primary key     default gen_random_uuid(),
+    user_id     VARCHAR(36) not null,
+    timestamp   timestamp   not null default now(),
+    app_version text        not null,
+    exception   text        not null,
+    stack_trace text
+);
