@@ -44,6 +44,10 @@ type ModelUsage struct {
 	CompletionTokens int
 }
 
+type Usage interface {
+	Track(ctx context.Context, usage ModelUsage)
+}
+
 type Embedding interface {
 	CreateEmbeddings(ctx context.Context, req *EmbeddingRequest) (*EmbeddingResponse, error)
 	GetModelName() string

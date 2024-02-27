@@ -3,8 +3,10 @@ package account
 import (
 	"context"
 	"github.com/google/uuid"
+	"github.com/pzierahn/chatbot_services/llm"
 	pb "github.com/pzierahn/chatbot_services/proto"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"log"
 )
 
 type Usage struct {
@@ -13,6 +15,25 @@ type Usage struct {
 	Model  string
 	Input  uint32
 	Output uint32
+}
+
+func (service *Service) Track(ctx context.Context, usage llm.ModelUsage) {
+	if usage.UserId == "" || usage.PromptTokens == 0 {
+		return
+	}
+
+	_, err := service.db.Exec(
+		ctx,
+		`INSERT INTO model_usages (user_id, model, input_tokens, output_tokens) 
+			VALUES ($1, $2, $3, $4)`,
+		usage.UserId,
+		usage.Model,
+		usage.PromptTokens,
+		usage.CompletionTokens,
+	)
+	if err != nil {
+		log.Printf("failed to record usage: %v", err)
+	}
 }
 
 func (service *Service) GetCosts(ctx context.Context, _ *emptypb.Empty) (*pb.Costs, error) {

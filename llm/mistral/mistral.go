@@ -3,16 +3,16 @@ package mistral
 import (
 	"fmt"
 	"github.com/gage-technologies/mistral-go"
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/pzierahn/chatbot_services/llm"
 	"os"
 )
 
 type Client struct {
 	client *mistral.MistralClient
-	db     *pgxpool.Pool
+	usage  llm.Usage
 }
 
-func New(db *pgxpool.Pool) (*Client, error) {
+func New(usage llm.Usage) (*Client, error) {
 
 	apiKey := os.Getenv("MISTRAL_API_KEY")
 	if apiKey == "" {
@@ -21,6 +21,6 @@ func New(db *pgxpool.Pool) (*Client, error) {
 
 	return &Client{
 		client: mistral.NewMistralClientDefault(apiKey),
-		db:     db,
+		usage:  usage,
 	}, nil
 }

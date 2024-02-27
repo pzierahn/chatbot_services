@@ -1,20 +1,25 @@
 package openai
 
 import (
-	"github.com/jackc/pgx/v5/pgxpool"
+	"fmt"
+	"github.com/pzierahn/chatbot_services/llm"
 	"github.com/sashabaranov/go-openai"
 	"os"
 )
 
 type Client struct {
 	client *openai.Client
-	db     *pgxpool.Pool
+	usage  llm.Usage
 }
 
-func New(db *pgxpool.Pool) *Client {
+func New(usage llm.Usage) (*Client, error) {
 	token := os.Getenv("OPENAI_API_KEY")
+	if token == "" {
+		return nil, fmt.Errorf("missing OPENAI_API_KEY")
+	}
+
 	return &Client{
 		client: openai.NewClient(token),
-		db:     db,
-	}
+		usage:  usage,
+	}, nil
 }

@@ -35,6 +35,10 @@ func main() {
 
 	ctx := context.Background()
 
+	//
+	// Init Firebase
+	//
+
 	var opts []option.ClientOption
 	if _, err := os.Stat(credentialsFile); err == nil {
 		serviceAccount := option.WithCredentialsFile(credentialsFile)
@@ -56,6 +60,10 @@ func main() {
 		log.Fatalf("did not get bucket: %v", err)
 	}
 
+	//
+	// Init DB
+	//
+
 	addr := os.Getenv("CHATBOT_DB")
 	db, err := pgxpool.New(ctx, addr)
 	if err != nil {
@@ -68,24 +76,11 @@ func main() {
 		log.Fatalf("failed to setup tables: %v", err)
 	}
 
-	openaiService := openai.New(db)
-	vertexService, err := vertex.New(ctx, db)
-	if err != nil {
-		log.Fatalf("failed to create vertex service: %v", err)
-	}
-
-	bedrockService, err := bedrock.New()
-	if err != nil {
-		log.Printf("failed to create bedrock service: %v", err)
-	}
-
-	mistralService, err := mistral.New(db)
-	if err != nil {
-		log.Printf("failed to create mistral service: %v", err)
-	}
+	//
+	// Init Auth Service
+	//
 
 	var authService auth.Service
-
 	if os.Getenv("CHATBOT_TEST") == "true" {
 		authService, err = auth.WithInsecure()
 	} else {
@@ -95,11 +90,19 @@ func main() {
 		log.Fatalf("failed to create auth service: %v", err)
 	}
 
+	//
+	// Init VectorDB
+	//
+
 	vecDB, err := qdrant.New()
 	if err != nil {
 		log.Fatalf("failed to create vector db: %v", err)
 	}
 	defer func() { _ = vecDB.Close() }()
+
+	//
+	// Init gRPC server
+	//
 
 	grpcServer := grpc.NewServer()
 	collectionServer := collections.NewServer(authService, db, bucket, vecDB)
@@ -111,6 +114,30 @@ func main() {
 	})
 	pb.RegisterAccountServiceServer(grpcServer, accountService)
 
+	//
+	// Init LLM models
+	//
+
+	openaiService, err := openai.New(accountService)
+	if err != nil {
+		log.Fatalf("failed to create openai service: %v", err)
+	}
+
+	vertexService, err := vertex.New(ctx, accountService)
+	if err != nil {
+		log.Fatalf("failed to create vertex service: %v", err)
+	}
+
+	bedrockService, err := bedrock.New()
+	if err != nil {
+		log.Printf("failed to create bedrock service: %v", err)
+	}
+
+	mistralService, err := mistral.New(accountService)
+	if err != nil {
+		log.Printf("failed to create mistral service: %v", err)
+	}
+
 	docsService := documents.FromConfig(&documents.Config{
 		Auth:       authService,
 		Account:    accountService,
@@ -121,9 +148,10 @@ func main() {
 	})
 	pb.RegisterDocumentServiceServer(grpcServer, docsService)
 
-	pb.RegisterCrashlyticsServiceServer(grpcServer, crashlytics.New(authService, db))
+	crashlyticsService := crashlytics.New(authService, db)
+	pb.RegisterCrashlyticsServiceServer(grpcServer, crashlyticsService)
 
-	chatServer := chat.FromConfig(&chat.Config{
+	chatService := chat.FromConfig(&chat.Config{
 		DB:              db,
 		DocumentService: docsService,
 		AccountService:  accountService,
@@ -135,7 +163,7 @@ func main() {
 			mistralService,
 		},
 	})
-	pb.RegisterChatServiceServer(grpcServer, chatServer)
+	pb.RegisterChatServiceServer(grpcServer, chatService)
 
 	port := os.Getenv("PORT")
 	if port == "" {

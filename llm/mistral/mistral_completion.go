@@ -42,7 +42,7 @@ func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateR
 
 	response := resp.Choices[0].Message.Content
 
-	client.trackUsage(ctx, llm.ModelUsage{
+	client.usage.Track(ctx, llm.ModelUsage{
 		UserId:           req.UserId,
 		Model:            resp.Model,
 		PromptTokens:     resp.Usage.PromptTokens,

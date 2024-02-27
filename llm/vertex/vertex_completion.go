@@ -13,7 +13,7 @@ func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateR
 		modelName = "gemini-pro"
 	}
 
-	model := client.genaiClient.GenerativeModel(modelName)
+	model := client.client.GenerativeModel(modelName)
 
 	var parts []genai.Part
 	for _, msg := range req.Messages {
@@ -39,13 +39,12 @@ func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateR
 	}
 
 	if gen.UsageMetadata != nil {
-		usage := llm.ModelUsage{
+		client.usage.Track(ctx, llm.ModelUsage{
 			UserId:           req.UserId,
 			Model:            modelName,
 			PromptTokens:     int(gen.UsageMetadata.PromptTokenCount),
 			CompletionTokens: int(gen.UsageMetadata.CandidatesTokenCount),
-		}
-		client.trackUsage(ctx, usage)
+		})
 	}
 
 	return resp, nil
