@@ -1,6 +1,9 @@
 package account
 
-import "github.com/sashabaranov/go-openai"
+import (
+	"github.com/pzierahn/chatbot_services/llm/mistral"
+	"github.com/sashabaranov/go-openai"
+)
 
 type price struct {
 	input  float32
@@ -86,5 +89,20 @@ var prices = map[string]price{
 	string(openai.LargeEmbedding3): {
 		input:  0.00013,
 		output: 0.0,
+	},
+	//
+	// Mistral AI
+	//
+	mistral.Large: {
+		input:  8.0 / 1_000_000.0,
+		output: 24.0 / 1_000_000.0,
+	},
+	mistral.Medium: {
+		input:  2.7 / 1_000_000.0,
+		output: 8.1 / 1_000_000.0,
+	},
+	mistral.Small: {
+		input:  2.0 / 1_000_000.0,
+		output: 6.0 / 1_000_000.0,
 	},
 }
