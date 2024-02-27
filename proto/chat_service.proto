@@ -37,9 +37,10 @@ message ThreadPrompt {
 }
 
 message ModelOptions {
-  string model = 4;
-  float temperature = 5;
-  uint32 max_tokens = 6;
+  string model = 1;
+  float temperature = 2;
+  uint32 max_tokens = 3;
+  float top_p = 4;
 }
 
 message Message {
