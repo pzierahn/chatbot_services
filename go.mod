@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	cloud.google.com/go/aiplatform v1.62.0
-	cloud.google.com/go/storage v1.38.0
+	cloud.google.com/go/storage v1.39.0
 	cloud.google.com/go/vertexai v0.7.1
 	firebase.google.com/go v3.13.0+incompatible
 	github.com/aws/aws-sdk-go-v2 v1.25.2
@@ -15,7 +15,7 @@ require (
 	github.com/jackc/pgx/v5 v5.5.3
 	github.com/pinecone-io/go-pinecone v0.3.0
 	github.com/qdrant/go-client v1.7.0
-	github.com/sashabaranov/go-openai v1.20.1
+	github.com/sashabaranov/go-openai v1.20.2
 	google.golang.org/api v0.167.0
 	google.golang.org/grpc v1.62.0
 	google.golang.org/protobuf v1.32.0
@@ -71,7 +71,7 @@ require (
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
-	google.golang.org/genproto v0.0.0-20240221002015-b0ce06bbee7c // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20240221002015-b0ce06bbee7c // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240221002015-b0ce06bbee7c // indirect
+	google.golang.org/genproto v0.0.0-20240228224816-df926f6c8641 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20240228224816-df926f6c8641 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240228224816-df926f6c8641 // indirect
 )
