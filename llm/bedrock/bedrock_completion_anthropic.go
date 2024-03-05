@@ -57,10 +57,14 @@ func (client *Client) generateCompletionAnthropic(ctx context.Context, req *llm.
 			role = "assistant"
 		}
 
-		messages = append(messages, ClaudeMessage{
-			Role:    role,
-			Content: msg.Text,
-		})
+		if len(messages) > 0 && messages[len(messages)-1].Role == role {
+			messages[len(messages)-1].Content += "\n" + msg.Text
+		} else {
+			messages = append(messages, ClaudeMessage{
+				Role:    role,
+				Content: msg.Text,
+			})
+		}
 	}
 
 	request := ClaudeRequest{
