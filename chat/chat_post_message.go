@@ -25,13 +25,7 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 		return nil, err
 	}
 
-	messages := []*llm.Message{
-		{
-			Type: llm.MessageTypeSystem,
-			Text: systemPromptQuote,
-		},
-	}
-
+	var messages []*llm.Message
 	for _, ref := range references {
 		messages = append(messages, &llm.Message{
 			Type: llm.MessageTypeUser,
@@ -65,12 +59,13 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 	}
 
 	completion, err := model.GenerateCompletion(ctx, &llm.GenerateRequest{
-		Messages:    messages,
-		Model:       prompt.ModelOptions.Model,
-		MaxTokens:   1024,
-		Temperature: prompt.ModelOptions.Temperature,
-		TopP:        prompt.ModelOptions.TopP,
-		UserId:      userId,
+		SystemPrompt: systemPromptQuote,
+		Messages:     messages,
+		Model:        prompt.ModelOptions.Model,
+		MaxTokens:    1024,
+		Temperature:  prompt.ModelOptions.Temperature,
+		TopP:         prompt.ModelOptions.TopP,
+		UserId:       userId,
 	})
 	if err != nil {
 		log.Printf("Error generating completion: %v", err)

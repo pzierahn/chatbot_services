@@ -35,12 +35,7 @@ func (service *Service) StartThread(ctx context.Context, prompt *pb.ThreadPrompt
 		return nil, err
 	}
 
-	messages := []*llm.Message{
-		{
-			Type: llm.MessageTypeSystem,
-			Text: systemPromptQuote,
-		},
-	}
+	var messages []*llm.Message
 
 	for inx, doc := range chunkData.texts {
 		messages = append(messages, &llm.Message{
@@ -61,12 +56,13 @@ func (service *Service) StartThread(ctx context.Context, prompt *pb.ThreadPrompt
 	}
 
 	resp, err := model.GenerateCompletion(ctx, &llm.GenerateRequest{
-		Messages:    messages,
-		Model:       prompt.ModelOptions.Model,
-		MaxTokens:   int(prompt.ModelOptions.MaxTokens),
-		Temperature: prompt.ModelOptions.Temperature,
-		TopP:        prompt.ModelOptions.TopP,
-		UserId:      userId,
+		SystemPrompt: systemPromptQuote,
+		Messages:     messages,
+		Model:        prompt.ModelOptions.Model,
+		MaxTokens:    int(prompt.ModelOptions.MaxTokens),
+		Temperature:  prompt.ModelOptions.Temperature,
+		TopP:         prompt.ModelOptions.TopP,
+		UserId:       userId,
 	})
 	if err != nil {
 		log.Printf("error: %v", err)
