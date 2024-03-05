@@ -1,6 +1,7 @@
 package account
 
 import (
+	"github.com/pzierahn/chatbot_services/llm/bedrock"
 	"github.com/pzierahn/chatbot_services/llm/mistral"
 	"github.com/sashabaranov/go-openai"
 )
@@ -104,5 +105,12 @@ var prices = map[string]price{
 	mistral.Small: {
 		input:  2.0 / 1_000_000.0,
 		output: 6.0 / 1_000_000.0,
+	},
+	//
+	// Anthropic
+	//
+	bedrock.ClaudeV3: {
+		input:  0.00300,
+		output: 0.01500,
 	},
 }
