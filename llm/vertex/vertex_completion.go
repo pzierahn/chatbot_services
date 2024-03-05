@@ -39,12 +39,14 @@ func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateR
 	}
 
 	if gen.UsageMetadata != nil {
-		client.usage.Track(ctx, llm.ModelUsage{
-			UserId:           req.UserId,
-			Model:            modelName,
-			PromptTokens:     int(gen.UsageMetadata.PromptTokenCount),
-			CompletionTokens: int(gen.UsageMetadata.CandidatesTokenCount),
-		})
+		resp.Usage = llm.ModelUsage{
+			UserId:       req.UserId,
+			Model:        modelName,
+			InputTokens:  int(gen.UsageMetadata.PromptTokenCount),
+			OutputTokens: int(gen.UsageMetadata.CandidatesTokenCount),
+		}
+
+		client.usage.Track(ctx, resp.Usage)
 	}
 
 	return resp, nil

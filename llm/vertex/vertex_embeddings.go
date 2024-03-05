@@ -55,9 +55,9 @@ func (client *Client) CreateEmbeddings(ctx context.Context, req *llm.EmbeddingRe
 	}
 
 	client.usage.Track(ctx, llm.ModelUsage{
-		Model:        client.EmbeddingModel,
-		UserId:       req.UserId,
-		PromptTokens: int(charCount),
+		Model:       client.EmbeddingModel,
+		UserId:      req.UserId,
+		InputTokens: int(charCount),
 	})
 
 	return &llm.EmbeddingResponse{

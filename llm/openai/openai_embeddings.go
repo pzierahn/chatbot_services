@@ -23,10 +23,10 @@ func (client *Client) CreateEmbeddings(ctx context.Context, req *llm.EmbeddingRe
 
 	if !req.SkipTracking {
 		client.usage.Track(ctx, llm.ModelUsage{
-			UserId:           req.UserId,
-			Model:            string(resp.Model),
-			PromptTokens:     resp.Usage.PromptTokens,
-			CompletionTokens: resp.Usage.CompletionTokens,
+			UserId:       req.UserId,
+			Model:        string(resp.Model),
+			InputTokens:  resp.Usage.PromptTokens,
+			OutputTokens: resp.Usage.CompletionTokens,
 		})
 	}
 

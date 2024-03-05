@@ -18,7 +18,7 @@ type Usage struct {
 }
 
 func (service *Service) Track(ctx context.Context, usage llm.ModelUsage) {
-	if usage.UserId == "" || usage.PromptTokens == 0 {
+	if usage.UserId == "" || usage.InputTokens == 0 {
 		return
 	}
 
@@ -28,8 +28,8 @@ func (service *Service) Track(ctx context.Context, usage llm.ModelUsage) {
 			VALUES ($1, $2, $3, $4)`,
 		usage.UserId,
 		usage.Model,
-		usage.PromptTokens,
-		usage.CompletionTokens,
+		usage.InputTokens,
+		usage.OutputTokens,
 	)
 	if err != nil {
 		log.Printf("failed to record usage: %v", err)

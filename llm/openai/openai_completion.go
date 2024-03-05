@@ -10,11 +10,16 @@ import (
 func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateRequest) (*llm.GenerateResponse, error) {
 	var messages []openai.ChatCompletionMessage
 
+	if req.SystemPrompt != "" {
+		messages = append(messages, openai.ChatCompletionMessage{
+			Role:    openai.ChatMessageRoleSystem,
+			Content: req.SystemPrompt,
+		})
+	}
+
 	for _, msg := range req.Messages {
 		var role string
 		switch msg.Type {
-		case llm.MessageTypeSystem:
-			role = openai.ChatMessageRoleSystem
 		case llm.MessageTypeUser:
 			role = openai.ChatMessageRoleUser
 		case llm.MessageTypeBot:
@@ -44,14 +49,17 @@ func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateR
 		return nil, err
 	}
 
-	client.usage.Track(ctx, llm.ModelUsage{
-		UserId:           req.UserId,
-		Model:            resp.Model,
-		PromptTokens:     resp.Usage.PromptTokens,
-		CompletionTokens: resp.Usage.CompletionTokens,
-	})
+	usage := llm.ModelUsage{
+		UserId:       req.UserId,
+		Model:        resp.Model,
+		InputTokens:  resp.Usage.PromptTokens,
+		OutputTokens: resp.Usage.CompletionTokens,
+	}
+
+	client.usage.Track(ctx, usage)
 
 	return &llm.GenerateResponse{
-		Text: resp.Choices[0].Message.Content,
+		Text:  resp.Choices[0].Message.Content,
+		Usage: usage,
 	}, nil
 }

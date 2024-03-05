@@ -10,13 +10,15 @@ import (
 func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateRequest) (*llm.GenerateResponse, error) {
 	var messages []mistral.ChatMessage
 
+	if req.SystemPrompt != "" {
+		messages = append(messages, mistral.ChatMessage{
+			Content: req.SystemPrompt,
+			Role:    mistral.RoleSystem,
+		})
+	}
+
 	for _, msg := range req.Messages {
 		switch msg.Type {
-		case llm.MessageTypeSystem:
-			messages = append(messages, mistral.ChatMessage{
-				Content: msg.Text,
-				Role:    mistral.RoleSystem,
-			})
 		case llm.MessageTypeUser:
 			messages = append(messages, mistral.ChatMessage{
 				Content: msg.Text,
@@ -42,14 +44,17 @@ func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateR
 
 	response := resp.Choices[0].Message.Content
 
-	client.usage.Track(ctx, llm.ModelUsage{
-		UserId:           req.UserId,
-		Model:            resp.Model,
-		PromptTokens:     resp.Usage.PromptTokens,
-		CompletionTokens: resp.Usage.CompletionTokens,
-	})
+	usage := llm.ModelUsage{
+		UserId:       req.UserId,
+		Model:        resp.Model,
+		InputTokens:  resp.Usage.PromptTokens,
+		OutputTokens: resp.Usage.CompletionTokens,
+	}
+
+	client.usage.Track(ctx, usage)
 
 	return &llm.GenerateResponse{
-		Text: response,
+		Text:  response,
+		Usage: usage,
 	}, nil
 }

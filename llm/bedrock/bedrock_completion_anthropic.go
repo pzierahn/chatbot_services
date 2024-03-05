@@ -47,14 +47,10 @@ type ClaudeResponse struct {
 func (client *Client) generateCompletionAnthropic(ctx context.Context, req *llm.GenerateRequest) (*llm.GenerateResponse, error) {
 
 	var messages []ClaudeMessage
-	var system string
 
 	for _, msg := range req.Messages {
 		var role string
 		switch msg.Type {
-		case llm.MessageTypeSystem:
-			system = msg.Text
-			continue
 		case llm.MessageTypeUser:
 			role = "user"
 		case llm.MessageTypeBot:
@@ -70,7 +66,7 @@ func (client *Client) generateCompletionAnthropic(ctx context.Context, req *llm.
 	request := ClaudeRequest{
 		AnthropicVersion: "bedrock-2023-05-31",
 		Messages:         messages,
-		System:           system,
+		System:           req.SystemPrompt,
 		MaxTokens:        1024,
 	}
 
@@ -95,12 +91,17 @@ func (client *Client) generateCompletionAnthropic(ctx context.Context, req *llm.
 		return nil, err
 	}
 
+	usage := llm.ModelUsage{
+		UserId:       req.UserId,
+		Model:        response.Model,
+		InputTokens:  response.Usage.InputTokens,
+		OutputTokens: response.Usage.OutputTokens,
+	}
+
+	client.usage.Track(ctx, usage)
+
 	return &llm.GenerateResponse{
-		Text: strings.TrimSpace(response.Content[0].Text),
-		Usage: llm.ModelUsage{
-			Model:            response.Model,
-			PromptTokens:     response.Usage.InputTokens,
-			CompletionTokens: response.Usage.OutputTokens,
-		},
+		Text:  strings.TrimSpace(response.Content[0].Text),
+		Usage: usage,
 	}, nil
 }

@@ -3,8 +3,7 @@ package llm
 import "context"
 
 const (
-	MessageTypeSystem = iota
-	MessageTypeUser
+	MessageTypeUser = iota
 	MessageTypeBot
 )
 
@@ -14,12 +13,13 @@ type Message struct {
 }
 
 type GenerateRequest struct {
-	Messages    []*Message
-	Model       string
-	MaxTokens   int
-	TopP        float32
-	Temperature float32
-	UserId      string
+	SystemPrompt string
+	Messages     []*Message
+	Model        string
+	MaxTokens    int
+	TopP         float32
+	Temperature  float32
+	UserId       string
 }
 
 type GenerateResponse struct {
@@ -39,10 +39,10 @@ type EmbeddingResponse struct {
 }
 
 type ModelUsage struct {
-	Model            string
-	UserId           string
-	PromptTokens     int
-	CompletionTokens int
+	Model        string `json:"model,omitempty"`
+	UserId       string `json:"user_id,omitempty"`
+	InputTokens  int    `json:"prompt_tokens,omitempty"`
+	OutputTokens int    `json:"completion_tokens,omitempty"`
 }
 
 type Usage interface {
