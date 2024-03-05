@@ -1,7 +1,6 @@
 package account
 
 import (
-	"github.com/pzierahn/chatbot_services/llm/bedrock"
 	"github.com/pzierahn/chatbot_services/llm/mistral"
 	"github.com/sashabaranov/go-openai"
 )
@@ -109,8 +108,12 @@ var prices = map[string]price{
 	//
 	// Anthropic
 	//
-	bedrock.ClaudeV3: {
+	"claude-3-sonnet-28k-20240229": {
 		input:  0.00300,
 		output: 0.01500,
+	},
+	"claude-2.1": {
+		input:  0.00800,
+		output: 0.02400,
 	},
 }
