@@ -3,8 +3,8 @@ package bedrock
 import "strings"
 
 const (
-	ClaudeV2     = "anthropic.claude-v2"
 	ClaudeV2Dot1 = "anthropic.claude-v2:1"
+	ClaudeV3     = "anthropic.claude-3-sonnet-20240229-v1:0"
 )
 
 func (client *Client) ProvidesModel(name string) bool {

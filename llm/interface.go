@@ -23,7 +23,8 @@ type GenerateRequest struct {
 }
 
 type GenerateResponse struct {
-	Text string
+	Text  string
+	Usage ModelUsage
 }
 
 type EmbeddingRequest struct {

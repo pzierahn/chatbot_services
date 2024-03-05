@@ -9,39 +9,69 @@ import (
 	"strings"
 )
 
+type ClaudeMessage struct {
+	Role    string `json:"role,omitempty"`
+	Content string `json:"content,omitempty"`
+}
+
 type ClaudeRequest struct {
-	Prompt            string   `json:"prompt"`
-	MaxTokensToSample int      `json:"max_tokens_to_sample"`
-	Temperature       float64  `json:"temperature,omitempty"`
-	TopP              float64  `json:"top_p,omitempty"`
-	TopK              int      `json:"top_k,omitempty"`
-	StopSequences     []string `json:"stop_sequences,omitempty"`
+	AnthropicVersion string          `json:"anthropic_version,omitempty"`
+	System           string          `json:"system,omitempty"`
+	MaxTokens        int             `json:"max_tokens,omitempty"`
+	Temperature      float64         `json:"temperature,omitempty"`
+	TopP             float64         `json:"top_p,omitempty"`
+	TopK             int             `json:"top_k,omitempty"`
+	Messages         []ClaudeMessage `json:"messages,omitempty"`
+}
+
+type ResponseMessage struct {
+	Type string `json:"type,omitempty"`
+	Text string `json:"text,omitempty"`
+}
+
+type ClaudeUsage struct {
+	InputTokens  int `json:"input_tokens,omitempty"`
+	OutputTokens int `json:"output_tokens,omitempty"`
 }
 
 type ClaudeResponse struct {
-	Completion string `json:"completion"`
+	Id         string            `json:"id,omitempty"`
+	Model      string            `json:"model,omitempty"`
+	Content    []ResponseMessage `json:"content,omitempty"`
+	Role       string            `json:"role,omitempty"`
+	StopReason string            `json:"stop_reason,omitempty"`
+	Type       string            `json:"type,omitempty"`
+	Usage      ClaudeUsage       `json:"usage,omitempty"`
 }
 
 func (client *Client) generateCompletionAnthropic(ctx context.Context, req *llm.GenerateRequest) (*llm.GenerateResponse, error) {
-	prompt := ""
+
+	var messages []ClaudeMessage
+	var system string
 
 	for _, msg := range req.Messages {
+		var role string
 		switch msg.Type {
 		case llm.MessageTypeSystem:
-			prompt += "\n\nSystem: " + msg.Text
+			system = msg.Text
+			continue
 		case llm.MessageTypeUser:
-			prompt += "\n\nHuman: " + msg.Text
+			role = "user"
 		case llm.MessageTypeBot:
-			prompt += "\n\nAssistant: " + msg.Text
+			role = "assistant"
 		}
+
+		messages = append(messages, ClaudeMessage{
+			Role:    role,
+			Content: msg.Text,
+		})
 	}
 
-	prompt += "\n\nAssistant: "
-	prompt = strings.TrimSpace(prompt)
-
 	request := ClaudeRequest{
-		Prompt:            prompt,
-		MaxTokensToSample: 1024,
+		AnthropicVersion: "bedrock-2023-05-31",
+		Messages:         messages,
+		System:           system,
+		MaxTokens:        1024,
 	}
 
 	body, err := json.Marshal(request)
@@ -66,6 +96,11 @@ func (client *Client) generateCompletionAnthropic(ctx context.Context, req *llm.
 	}
 
 	return &llm.GenerateResponse{
-		Text: strings.TrimSpace(response.Completion),
+		Text: strings.TrimSpace(response.Content[0].Text),
+		Usage: llm.ModelUsage{
+			Model:            response.Model,
+			PromptTokens:     response.Usage.InputTokens,
+			CompletionTokens: response.Usage.OutputTokens,
+		},
 	}, nil
 }
