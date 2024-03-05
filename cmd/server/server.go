@@ -128,7 +128,7 @@ func main() {
 		log.Fatalf("failed to create vertex service: %v", err)
 	}
 
-	bedrockService, err := bedrock.New()
+	bedrockService, err := bedrock.New(accountService)
 	if err != nil {
 		log.Printf("failed to create bedrock service: %v", err)
 	}
