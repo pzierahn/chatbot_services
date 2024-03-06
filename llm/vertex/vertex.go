@@ -55,7 +55,7 @@ func New(ctx context.Context, usage llm.Usage) (*Client, error) {
 	return &Client{
 		ProjectID:        projectID,
 		Location:         location,
-		EmbeddingModel:   "textembedding-gecko-multilingual",
+		EmbeddingModel:   "multimodalembedding@001",
 		predictionClient: predictionClient,
 		client:           client,
 		usage:            usage,

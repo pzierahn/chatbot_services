@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/pzierahn/chatbot_services/llm"
 	"google.golang.org/protobuf/types/known/structpb"
+	"log"
 )
 
 // CreateEmbeddings generates embeddings for a text
@@ -14,9 +15,13 @@ func (client *Client) CreateEmbeddings(ctx context.Context, req *llm.EmbeddingRe
 	url := fmt.Sprintf("%s/%s", base, client.EmbeddingModel)
 
 	promptValue, err := structpb.NewValue(map[string]interface{}{
-		"content": req.Input,
+		//"text": req.Input,
+		"image": map[string]interface{}{
+			"bytesBase64Encoded": req.Input,
+		},
 	})
 	if err != nil {
+		log.Printf("Error: %v", err)
 		return nil, err
 	}
 
@@ -25,6 +30,7 @@ func (client *Client) CreateEmbeddings(ctx context.Context, req *llm.EmbeddingRe
 		Instances: []*structpb.Value{promptValue},
 	})
 	if err != nil {
+		log.Printf("Error: %v", err)
 		return nil, err
 	}
 
@@ -32,41 +38,37 @@ func (client *Client) CreateEmbeddings(ctx context.Context, req *llm.EmbeddingRe
 		return nil, fmt.Errorf("no predictions")
 	}
 
-	pred := resp.Predictions[0].GetStructValue().AsMap()
-	embeddings, ok := pred["embeddings"].(map[string]interface{})
-	if !ok {
-		return nil, fmt.Errorf("embeddings not found")
+	embeddings := resp.Predictions[0].GetStructValue().AsMap()
+
+	var embedding []float32
+	textEmbedding, ok := embeddings["textEmbedding"].([]interface{})
+	if ok {
+		embedding = make([]float32, len(textEmbedding))
+		for inx, value := range textEmbedding {
+			embedding[inx] = float32(value.(float64))
+		}
 	}
 
-	values, ok := embeddings["values"].([]interface{})
-	if !ok {
+	imageEmbedding, ok := embeddings["imageEmbedding"].([]interface{})
+	if ok {
+		embedding = make([]float32, len(imageEmbedding))
+		for inx, value := range imageEmbedding {
+			embedding[inx] = float32(value.(float64))
+		}
+	}
+
+	if len(embedding) == 0 {
 		return nil, fmt.Errorf("values not found")
 	}
 
-	embedding := make([]float32, len(values))
-	for i, v := range values {
-		embedding[i] = float32(v.(float64))
-	}
-
-	meta := resp.Metadata.GetStructValue().AsMap()
-	charCount, ok := meta["billableCharacterCount"].(float64)
-	if !ok {
-		return nil, fmt.Errorf("billableCharacterCount not found")
-	}
-
-	client.usage.Track(ctx, llm.ModelUsage{
-		Model:       client.EmbeddingModel,
-		UserId:      req.UserId,
-		InputTokens: int(charCount),
-	})
+	// TODO: Count tokens
 
 	return &llm.EmbeddingResponse{
-		Data:   embedding,
-		Tokens: int(charCount),
+		Data: embedding,
 	}, nil
 }
 
-// GetModelName returns the name of the model
+// GetEmbeddingModelName GetModelName returns the name of the model
 func (client *Client) GetEmbeddingModelName() string {
 	return client.EmbeddingModel
 }
