@@ -51,7 +51,7 @@ type Usage interface {
 
 type Embedding interface {
 	CreateEmbeddings(ctx context.Context, req *EmbeddingRequest) (*EmbeddingResponse, error)
-	GetModelName() string
+	GetEmbeddingModelName() string
 }
 
 type Completion interface {

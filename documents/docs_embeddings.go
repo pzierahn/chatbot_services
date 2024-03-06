@@ -126,7 +126,7 @@ func (service *Service) generateEmbeddings(ctx context.Context, userId string, d
 		`INSERT INTO model_usages (user_id, model, input_tokens, output_tokens) 
 			VALUES ($1, $2, $3, $4)`,
 		userId,
-		service.embeddings.GetModelName(),
+		service.embeddings.GetEmbeddingModelName(),
 		tokenCount,
 		0,
 	)

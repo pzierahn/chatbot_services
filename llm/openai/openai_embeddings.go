@@ -36,6 +36,6 @@ func (client *Client) CreateEmbeddings(ctx context.Context, req *llm.EmbeddingRe
 	}, nil
 }
 
-func (client *Client) GetModelName() string {
+func (client *Client) GetEmbeddingModelName() string {
 	return string(embeddingModel)
 }

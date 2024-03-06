@@ -67,6 +67,6 @@ func (client *Client) CreateEmbeddings(ctx context.Context, req *llm.EmbeddingRe
 }
 
 // GetModelName returns the name of the model
-func (client *Client) GetModelName() string {
+func (client *Client) GetEmbeddingModelName() string {
 	return client.EmbeddingModel
 }
