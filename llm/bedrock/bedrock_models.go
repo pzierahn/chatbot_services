@@ -9,7 +9,9 @@ const (
 
 func (client *Client) ProvidesModel(name string) bool {
 	switch {
-	case strings.HasPrefix(name, "anthropic."):
+	case name == ClaudeV2Dot1:
+		return true
+	case name == ClaudeV3:
 		return true
 	case strings.HasPrefix(name, "amazon."):
 		return true
