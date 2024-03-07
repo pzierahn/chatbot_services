@@ -82,7 +82,7 @@ func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateR
 		Model:     model,
 		Messages:  messages,
 		System:    req.SystemPrompt,
-		MaxTokens: 100,
+		MaxTokens: req.MaxTokens,
 		Metadata: RequestMeta{
 			UserId: req.UserId,
 		},
