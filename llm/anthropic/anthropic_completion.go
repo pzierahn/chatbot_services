@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/pzierahn/chatbot_services/llm"
+	"io"
 	"log"
 	"net/http"
 	"strings"
@@ -69,10 +70,14 @@ func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateR
 			role = RoleAssistant
 		}
 
-		messages = append(messages, Message{
-			Content: req.SystemPrompt,
-			Role:    role,
-		})
+		if len(messages) > 0 && messages[len(messages)-1].Role == role {
+			messages[len(messages)-1].Content += "\n" + msg.Text
+		} else {
+			messages = append(messages, Message{
+				Role:    role,
+				Content: msg.Text,
+			})
+		}
 	}
 
 	model := strings.TrimPrefix(req.Model, prefix)
@@ -116,12 +121,10 @@ func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateR
 	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
-		//byt, err := io.ReadAll(resp.Body)
-		//if err != nil {
-		//	log.Fatal(err)
-		//}
-		//
-		//log.Printf("Response: %v", string(byt))
+		byt, err := io.ReadAll(resp.Body)
+		if err == nil {
+			log.Printf("Response: %v", string(byt))
+		}
 
 		return nil, fmt.Errorf("unexpected status code: %v", resp.Status)
 	}
