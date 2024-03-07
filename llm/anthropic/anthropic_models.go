@@ -10,7 +10,7 @@ func (client *Client) ProvidesModel(name string) bool {
 	switch {
 	case name == OPUS:
 		return true
-	case prefix+name == OPUS:
+	case prefix+OPUS == name:
 		return true
 	default:
 		return false
