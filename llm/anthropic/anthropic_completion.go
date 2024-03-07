@@ -79,11 +79,8 @@ func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateR
 
 	// Create a new request
 	complete := &Request{
-		Model: model,
-		Messages: []Message{{
-			Role:    "user",
-			Content: "Say something.",
-		}},
+		Model:     model,
+		Messages:  messages,
 		System:    req.SystemPrompt,
 		MaxTokens: 100,
 		Metadata: RequestMeta{
