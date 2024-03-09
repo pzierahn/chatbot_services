@@ -2,7 +2,7 @@ syntax = "proto3";
 
 option go_package = "./proto";
 
-package endpoint.brainboost.collections.v2;
+package chatbot.collections.v2;
 
 import "google/protobuf/empty.proto";
 

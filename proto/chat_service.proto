@@ -2,7 +2,7 @@ syntax = "proto3";
 
 option go_package = "./proto";
 
-package endpoint.brainboost.chat.v4;
+package chatbot.chat.v4;
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";

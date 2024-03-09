@@ -20,11 +20,11 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	CollectionService_Get_FullMethodName    = "/endpoint.brainboost.collections.v2.CollectionService/Get"
-	CollectionService_List_FullMethodName   = "/endpoint.brainboost.collections.v2.CollectionService/List"
-	CollectionService_Create_FullMethodName = "/endpoint.brainboost.collections.v2.CollectionService/Create"
-	CollectionService_Update_FullMethodName = "/endpoint.brainboost.collections.v2.CollectionService/Update"
-	CollectionService_Delete_FullMethodName = "/endpoint.brainboost.collections.v2.CollectionService/Delete"
+	CollectionService_Get_FullMethodName    = "/chatbot.collections.v2.CollectionService/Get"
+	CollectionService_List_FullMethodName   = "/chatbot.collections.v2.CollectionService/List"
+	CollectionService_Create_FullMethodName = "/chatbot.collections.v2.CollectionService/Create"
+	CollectionService_Update_FullMethodName = "/chatbot.collections.v2.CollectionService/Update"
+	CollectionService_Delete_FullMethodName = "/chatbot.collections.v2.CollectionService/Delete"
 )
 
 // CollectionServiceClient is the client API for CollectionService service.
@@ -229,7 +229,7 @@ func _CollectionService_Delete_Handler(srv interface{}, ctx context.Context, dec
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var CollectionService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "endpoint.brainboost.collections.v2.CollectionService",
+	ServiceName: "chatbot.collections.v2.CollectionService",
 	HandlerType: (*CollectionServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

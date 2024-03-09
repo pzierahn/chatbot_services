@@ -20,13 +20,13 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	DocumentService_List_FullMethodName          = "/endpoint.brainboost.documents.v2.DocumentService/List"
-	DocumentService_Get_FullMethodName           = "/endpoint.brainboost.documents.v2.DocumentService/Get"
-	DocumentService_Rename_FullMethodName        = "/endpoint.brainboost.documents.v2.DocumentService/Rename"
-	DocumentService_Delete_FullMethodName        = "/endpoint.brainboost.documents.v2.DocumentService/Delete"
-	DocumentService_Index_FullMethodName         = "/endpoint.brainboost.documents.v2.DocumentService/Index"
-	DocumentService_Search_FullMethodName        = "/endpoint.brainboost.documents.v2.DocumentService/Search"
-	DocumentService_GetReferences_FullMethodName = "/endpoint.brainboost.documents.v2.DocumentService/GetReferences"
+	DocumentService_List_FullMethodName          = "/chatbot.documents.v2.DocumentService/List"
+	DocumentService_Get_FullMethodName           = "/chatbot.documents.v2.DocumentService/Get"
+	DocumentService_Rename_FullMethodName        = "/chatbot.documents.v2.DocumentService/Rename"
+	DocumentService_Delete_FullMethodName        = "/chatbot.documents.v2.DocumentService/Delete"
+	DocumentService_Index_FullMethodName         = "/chatbot.documents.v2.DocumentService/Index"
+	DocumentService_Search_FullMethodName        = "/chatbot.documents.v2.DocumentService/Search"
+	DocumentService_GetReferences_FullMethodName = "/chatbot.documents.v2.DocumentService/GetReferences"
 )
 
 // DocumentServiceClient is the client API for DocumentService service.
@@ -321,7 +321,7 @@ func _DocumentService_GetReferences_Handler(srv interface{}, ctx context.Context
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var DocumentService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "endpoint.brainboost.documents.v2.DocumentService",
+	ServiceName: "chatbot.documents.v2.DocumentService",
 	HandlerType: (*DocumentServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

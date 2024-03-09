@@ -20,7 +20,7 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	CrashlyticsService_RecordError_FullMethodName = "/endpoint.brainboost.crashlytics.v1.CrashlyticsService/RecordError"
+	CrashlyticsService_RecordError_FullMethodName = "/crashlytics.v1.CrashlyticsService/RecordError"
 )
 
 // CrashlyticsServiceClient is the client API for CrashlyticsService service.
@@ -97,7 +97,7 @@ func _CrashlyticsService_RecordError_Handler(srv interface{}, ctx context.Contex
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var CrashlyticsService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "endpoint.brainboost.crashlytics.v1.CrashlyticsService",
+	ServiceName: "crashlytics.v1.CrashlyticsService",
 	HandlerType: (*CrashlyticsServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

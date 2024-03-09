@@ -20,9 +20,9 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	AccountService_GetCosts_FullMethodName        = "/endpoint.brainboost.account.v1.AccountService/GetCosts"
-	AccountService_GetPayments_FullMethodName     = "/endpoint.brainboost.account.v1.AccountService/GetPayments"
-	AccountService_GetBalanceSheet_FullMethodName = "/endpoint.brainboost.account.v1.AccountService/GetBalanceSheet"
+	AccountService_GetCosts_FullMethodName        = "/chatbot.account.v1.AccountService/GetCosts"
+	AccountService_GetPayments_FullMethodName     = "/chatbot.account.v1.AccountService/GetPayments"
+	AccountService_GetBalanceSheet_FullMethodName = "/chatbot.account.v1.AccountService/GetBalanceSheet"
 )
 
 // AccountServiceClient is the client API for AccountService service.
@@ -163,7 +163,7 @@ func _AccountService_GetBalanceSheet_Handler(srv interface{}, ctx context.Contex
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var AccountService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "endpoint.brainboost.account.v1.AccountService",
+	ServiceName: "chatbot.account.v1.AccountService",
 	HandlerType: (*AccountServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

@@ -20,12 +20,12 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	ChatService_StartThread_FullMethodName             = "/endpoint.brainboost.chat.v4.ChatService/StartThread"
-	ChatService_PostMessage_FullMethodName             = "/endpoint.brainboost.chat.v4.ChatService/PostMessage"
-	ChatService_GetThread_FullMethodName               = "/endpoint.brainboost.chat.v4.ChatService/GetThread"
-	ChatService_ListThreadIDs_FullMethodName           = "/endpoint.brainboost.chat.v4.ChatService/ListThreadIDs"
-	ChatService_DeleteThread_FullMethodName            = "/endpoint.brainboost.chat.v4.ChatService/DeleteThread"
-	ChatService_DeleteMessageFromThread_FullMethodName = "/endpoint.brainboost.chat.v4.ChatService/DeleteMessageFromThread"
+	ChatService_StartThread_FullMethodName             = "/chatbot.chat.v4.ChatService/StartThread"
+	ChatService_PostMessage_FullMethodName             = "/chatbot.chat.v4.ChatService/PostMessage"
+	ChatService_GetThread_FullMethodName               = "/chatbot.chat.v4.ChatService/GetThread"
+	ChatService_ListThreadIDs_FullMethodName           = "/chatbot.chat.v4.ChatService/ListThreadIDs"
+	ChatService_DeleteThread_FullMethodName            = "/chatbot.chat.v4.ChatService/DeleteThread"
+	ChatService_DeleteMessageFromThread_FullMethodName = "/chatbot.chat.v4.ChatService/DeleteMessageFromThread"
 )
 
 // ChatServiceClient is the client API for ChatService service.
@@ -262,7 +262,7 @@ func _ChatService_DeleteMessageFromThread_Handler(srv interface{}, ctx context.C
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var ChatService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "endpoint.brainboost.chat.v4.ChatService",
+	ServiceName: "chatbot.chat.v4.ChatService",
 	HandlerType: (*ChatServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
