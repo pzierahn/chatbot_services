@@ -18,6 +18,7 @@ import (
 	"github.com/pzierahn/chatbot_services/llm/vertex"
 	pb "github.com/pzierahn/chatbot_services/proto"
 	"github.com/pzierahn/chatbot_services/setup"
+	"github.com/pzierahn/chatbot_services/table"
 	"github.com/pzierahn/chatbot_services/vectordb/qdrant"
 	"google.golang.org/api/option"
 	"google.golang.org/grpc"
@@ -171,6 +172,9 @@ func main() {
 		},
 	})
 	pb.RegisterChatServiceServer(grpcServer, chatService)
+
+	tableService := table.New(db, authService, docsService, bedrockService)
+	pb.RegisterTableServiceServer(grpcServer, tableService)
 
 	port := os.Getenv("PORT")
 	if port == "" {

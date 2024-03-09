@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+option go_package = "./proto";
+
+package chatbot.table.v1;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+service TableService {
+  rpc CreateTable(NewTable) returns (TableId);
+}
+
+message NewTable {
+  string id = 1;
+  string name = 2;
+  repeated string document_ids = 3;
+  repeated string columns = 4;
+}
+
+message TableId {
+  string id = 1;
+}

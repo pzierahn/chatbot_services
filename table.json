@@ -1,0 +1,126 @@
+{
+  "id": "",
+  "name": "Test Table",
+  "created_at": "2024-03-10T00:44:15.24608+01:00",
+  "columns": [
+    {
+      "id": "fa5c0063-c2fe-47fd-9975-6749ea0e604b",
+      "prompt": "Extract the title and return only the title text, without any additional words or explanation",
+      "name": "title_text"
+    },
+    {
+      "id": "66c7cd5f-e6e6-4f5b-adea-c8c86f367aaf",
+      "prompt": "Extract the first author and return only the author's name",
+      "name": "first_author_name"
+    },
+    {
+      "id": "10687065-ac3e-4ba2-9ec2-7d5879035baf",
+      "prompt": "Extract the second author and return only the author's name",
+      "name": "second_author_name"
+    },
+    {
+      "id": "01368902-0195-4b98-898b-cda30cec77b8",
+      "prompt": "Extract the year of publication and return only the year",
+      "name": "year_of_publication"
+    },
+    {
+      "id": "40688109-6206-43ec-8c6c-bbde7ba5519d",
+      "prompt": "Extract a list of relevant keywords and return the keywords as a list, without any additional words or explanation",
+      "name": "relevant_keywords"
+    },
+    {
+      "id": "c656dddd-4df7-44e7-bae7-ccbe1675e227",
+      "prompt": "Check if the document contains math formulas and return true or false",
+      "name": "contains_math_formulas"
+    }
+  ],
+  "rows": [
+    {
+      "id": "55c547e7-a14c-4495-bf29-f81e018d9838",
+      "cells": [
+        {
+          "id": "fa5c0063-c2fe-47fd-9975-6749ea0e604b",
+          "value": "Kademlia: A Peer-to-Peer Information System Based on the XOR Metric"
+        },
+        {
+          "id": "66c7cd5f-e6e6-4f5b-adea-c8c86f367aaf",
+          "value": "Petar Maymounkov"
+        },
+        {
+          "id": "10687065-ac3e-4ba2-9ec2-7d5879035baf",
+          "value": "David Mazières"
+        },
+        {
+          "id": "01368902-0195-4b98-898b-cda30cec77b8",
+          "value": "2002"
+        },
+        {
+          "id": "40688109-6206-43ec-8c6c-bbde7ba5519d",
+          "value": "[Kademlia, peer-to-peer, distributed hash table, XOR metric, routing table, k-bucket, node lookup, key value pair]"
+        },
+        {
+          "id": "c656dddd-4df7-44e7-bae7-ccbe1675e227",
+          "value": "There are no math formulas in the given text."
+        }
+      ]
+    },
+    {
+      "id": "e2496095-7fdd-46c1-aeba-650780d2b8bb",
+      "cells": [
+        {
+          "id": "fa5c0063-c2fe-47fd-9975-6749ea0e604b",
+          "value": "Shallow Binding in Lisp 1.5"
+        },
+        {
+          "id": "66c7cd5f-e6e6-4f5b-adea-c8c86f367aaf",
+          "value": "Henry G. Baker, Jr."
+        },
+        {
+          "id": "10687065-ac3e-4ba2-9ec2-7d5879035baf",
+          "value": "R. Stockton Gaines"
+        },
+        {
+          "id": "01368902-0195-4b98-898b-cda30cec77b8",
+          "value": "The year of publication is 1978."
+        },
+        {
+          "id": "40688109-6206-43ec-8c6c-bbde7ba5519d",
+          "value": "Here are the relevant keywords extracted as a list:\n\nLisp 1.5, environment trees, FUNARG'S, shallow binding, deep binding, multiprogramming, Algol display"
+        },
+        {
+          "id": "c656dddd-4df7-44e7-bae7-ccbe1675e227",
+          "value": "The document does contain math formulas. Here are a few examples:\n\n1) ω/(1 - κ) ≤ ε\n2) dCi(t)/dt ≈ 1\n3) Ci(t + μ) - Cj(t) \u003e 0\n4) ε/(1 - κ) ≤ μ\n\nSo the output is true, the document contains math formulas."
+        }
+      ]
+    },
+    {
+      "id": "ff6b436a-e13c-4d84-94a9-1a905631d253",
+      "cells": [
+        {
+          "id": "fa5c0063-c2fe-47fd-9975-6749ea0e604b",
+          "value": "Efficient Byzantine Fault-Tolerance"
+        },
+        {
+          "id": "66c7cd5f-e6e6-4f5b-adea-c8c86f367aaf",
+          "value": "Giuliana Santos Veronese"
+        },
+        {
+          "id": "10687065-ac3e-4ba2-9ec2-7d5879035baf",
+          "value": "Miguel Correia"
+        },
+        {
+          "id": "01368902-0195-4b98-898b-cda30cec77b8",
+          "value": "The year of publication for this article is 2013."
+        },
+        {
+          "id": "40688109-6206-43ec-8c6c-bbde7ba5519d",
+          "value": "Here is a list of relevant keywords extracted from the paper:\n\nByzantine fault-tolerance, state machine replication, intrusion tolerance, trusted component, unique sequential identifier generator, USIG, monotonic counter, TPM, 2f+1 replicas, efficient, fault model, hybrid, latency, throughput, cryptography."
+        },
+        {
+          "id": "c656dddd-4df7-44e7-bae7-ccbe1675e227",
+          "value": "To check if a document contains math formulas, I will need access to the actual document file(s). I don't have any specific document files provided in this conversation. If you can share the document file(s) you want me to analyze, I can then process the content and let you know if it contains math formulas or not."
+        }
+      ]
+    }
+  ]
+}

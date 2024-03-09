@@ -75,3 +75,12 @@ create table if not exists crashlytics
     exception   text        not null,
     stack_trace text
 );
+
+create table if not exists user_tables
+(
+    id         uuid primary key     default gen_random_uuid(),
+    user_id    VARCHAR(36) not null,
+    name       text        not null,
+    created_at timestamp   not null default now(),
+    data       jsonb       not null default '{}'::jsonb
+);
