@@ -137,6 +137,7 @@ func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateR
 
 	usage := llm.ModelUsage{
 		Model:        response.Model,
+		UserId:       req.UserId,
 		InputTokens:  response.Usage.InputTokens,
 		OutputTokens: response.Usage.OutputTokens,
 	}
