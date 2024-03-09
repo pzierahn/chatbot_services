@@ -1,6 +1,7 @@
 package account
 
 import (
+	"github.com/pzierahn/chatbot_services/llm/anthropic"
 	"github.com/pzierahn/chatbot_services/llm/mistral"
 	"github.com/sashabaranov/go-openai"
 )
@@ -94,26 +95,30 @@ var prices = map[string]price{
 	// Mistral AI
 	//
 	mistral.Large: {
-		input:  8.0 / 1_000_000.0,
-		output: 24.0 / 1_000_000.0,
+		input:  8.0 / 1_000.0,
+		output: 24.0 / 1_000.0,
 	},
 	mistral.Medium: {
-		input:  2.7 / 1_000_000.0,
-		output: 8.1 / 1_000_000.0,
+		input:  2.7 / 1_000.0,
+		output: 8.1 / 1_000.0,
 	},
 	mistral.Small: {
-		input:  2.0 / 1_000_000.0,
-		output: 6.0 / 1_000_000.0,
+		input:  2.0 / 1_000.0,
+		output: 6.0 / 1_000.0,
 	},
 	//
 	// Anthropic
 	//
 	"claude-3-sonnet-28k-20240229": {
-		input:  0.00300,
-		output: 0.01500,
+		input:  0.003,
+		output: 0.015,
 	},
 	"claude-2.1": {
-		input:  0.00800,
-		output: 0.02400,
+		input:  0.008,
+		output: 0.024,
+	},
+	anthropic.OPUS: {
+		input:  0.015,
+		output: 0.075,
 	},
 }
