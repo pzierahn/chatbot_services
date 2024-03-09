@@ -1,12 +1,86 @@
 package openai
 
-import "github.com/sashabaranov/go-openai"
+import (
+	"github.com/pzierahn/chatbot_services/llm"
+	"github.com/sashabaranov/go-openai"
+)
 
 const modelPrefix = "openai."
 
-const (
-	GPT4TurboPreview = modelPrefix + openai.GPT4TurboPreview
-)
+var ModelCosts = map[string]llm.PricePer1000Tokens{
+	//
+	// GPT-4 Turbo
+	//
+	openai.GPT4Turbo0125: {
+		Input:  0.01,
+		Output: 0.03,
+	},
+	openai.GPT4Turbo1106: {
+		Input:  0.01,
+		Output: 0.03,
+	},
+	"gpt-4-1106-vision-preview": {
+		Input:  0.01,
+		Output: 0.03,
+	},
+	openai.GPT4VisionPreview: {
+		Input:  0.01,
+		Output: 0.03,
+	},
+	//
+	// GPT-4
+	//
+	openai.GPT4: {
+		Input:  0.03,
+		Output: 0.06,
+	},
+	openai.GPT40613: {
+		Input:  0.03,
+		Output: 0.06,
+	},
+	openai.GPT432K: {
+		Input:  0.06,
+		Output: 0.12,
+	},
+	//
+	// GPT-3.5 Turbo
+	//
+	openai.GPT3Dot5Turbo0125: {
+		Input:  0.0005,
+		Output: 0.0015,
+	},
+	openai.GPT3Dot5Turbo1106: {
+		Input:  0.0010,
+		Output: 0.0020,
+	},
+	openai.GPT3Dot5Turbo0613: {
+		Input:  0.0015,
+		Output: 0.0020,
+	},
+	openai.GPT3Dot5Turbo16K: {
+		Input:  0.0030,
+		Output: 0.0040,
+	},
+	openai.GPT3Dot5Turbo16K0613: {
+		Input:  0.0030,
+		Output: 0.0040,
+	},
+	openai.GPT3Dot5Turbo0301: {
+		Input:  0.0015,
+		Output: 0.0020,
+	},
+	//
+	// Embedding models
+	//
+	string(openai.AdaEmbeddingV2): {
+		Input:  0.00002,
+		Output: 0.0,
+	},
+	string(openai.LargeEmbedding3): {
+		Input:  0.00013,
+		Output: 0.0,
+	},
+}
 
 func (client *Client) ProvidesModel(name string) bool {
 	switch name {

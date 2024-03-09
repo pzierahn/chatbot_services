@@ -66,7 +66,7 @@ func (service *Service) GetCosts(ctx context.Context, _ *emptypb.Empty) (*pb.Cos
 		}
 
 		modelPrice := prices[model.Model]
-		model.Costs = modelPrice.cost(model.Input, model.Output)
+		model.Costs = modelPrice.Cost(model.Input, model.Output)
 
 		costs.Models = append(costs.Models, &model)
 	}
