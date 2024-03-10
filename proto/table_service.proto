@@ -44,8 +44,9 @@ message Column {
 }
 
 message Cell {
-  string column_id = 1;
-  string value = 2;
+  string id = 1;
+  string column_id = 2;
+  string value = 3;
 }
 
 message Row {
