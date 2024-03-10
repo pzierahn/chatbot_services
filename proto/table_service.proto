@@ -4,11 +4,59 @@ option go_package = "./proto";
 
 package chatbot.table.v1;
 
-import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
+import "document_service.proto";
 
 service TableService {
-  rpc CreateTable(NewTable) returns (TableId);
+  rpc ListTables(TableFilter) returns (TableList);
+  rpc CreateTable(NewTable) returns (TableID);
+  rpc DeleteTable(TableID) returns (google.protobuf.Empty);
+  rpc GetTable(TableID) returns (Table);
+
+  rpc AddColumnToTable(NewColumn) returns (Column);
+  rpc DeleteColumnFromTable(ColumnID) returns (google.protobuf.Empty);
+
+  rpc AddDocumentsToTable(documents.v2.ReferenceIDs) returns (google.protobuf.Empty);
+}
+
+message TableFilter {}
+
+message TableList {
+  repeated string table_ids = 1;
+  repeated string table_names = 2;
+}
+
+message Table {
+  string id = 1;
+  string name = 2;
+  repeated Column columns = 3;
+  repeated Row rows = 4;
+}
+
+message Column {
+  string id = 1;
+  string generation_prompt = 2;
+  string name = 3;
+}
+
+message Cell {
+  string column_id = 1;
+  string value = 2;
+}
+
+message Row {
+  string document_id = 1;
+  repeated Cell cells = 2;
+}
+
+message ColumnID {
+  string id = 1;
+}
+
+message NewColumn {
+  string id = 1;
+  string table_id = 2;
+  string generation_prompt = 3;
 }
 
 message NewTable {
@@ -18,6 +66,6 @@ message NewTable {
   repeated string columns = 4;
 }
 
-message TableId {
+message TableID {
   string id = 1;
 }

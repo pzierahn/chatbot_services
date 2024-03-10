@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -19,14 +20,26 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	TableService_CreateTable_FullMethodName = "/chatbot.table.v1.TableService/CreateTable"
+	TableService_ListTables_FullMethodName            = "/chatbot.table.v1.TableService/ListTables"
+	TableService_CreateTable_FullMethodName           = "/chatbot.table.v1.TableService/CreateTable"
+	TableService_DeleteTable_FullMethodName           = "/chatbot.table.v1.TableService/DeleteTable"
+	TableService_GetTable_FullMethodName              = "/chatbot.table.v1.TableService/GetTable"
+	TableService_AddColumnToTable_FullMethodName      = "/chatbot.table.v1.TableService/AddColumnToTable"
+	TableService_DeleteColumnFromTable_FullMethodName = "/chatbot.table.v1.TableService/DeleteColumnFromTable"
+	TableService_AddDocumentsToTable_FullMethodName   = "/chatbot.table.v1.TableService/AddDocumentsToTable"
 )
 
 // TableServiceClient is the client API for TableService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TableServiceClient interface {
-	CreateTable(ctx context.Context, in *NewTable, opts ...grpc.CallOption) (*TableId, error)
+	ListTables(ctx context.Context, in *TableFilter, opts ...grpc.CallOption) (*TableList, error)
+	CreateTable(ctx context.Context, in *NewTable, opts ...grpc.CallOption) (*TableID, error)
+	DeleteTable(ctx context.Context, in *TableID, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetTable(ctx context.Context, in *TableID, opts ...grpc.CallOption) (*Table, error)
+	AddColumnToTable(ctx context.Context, in *NewColumn, opts ...grpc.CallOption) (*Column, error)
+	DeleteColumnFromTable(ctx context.Context, in *ColumnID, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	AddDocumentsToTable(ctx context.Context, in *ReferenceIDs, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type tableServiceClient struct {
@@ -37,9 +50,63 @@ func NewTableServiceClient(cc grpc.ClientConnInterface) TableServiceClient {
 	return &tableServiceClient{cc}
 }
 
-func (c *tableServiceClient) CreateTable(ctx context.Context, in *NewTable, opts ...grpc.CallOption) (*TableId, error) {
-	out := new(TableId)
+func (c *tableServiceClient) ListTables(ctx context.Context, in *TableFilter, opts ...grpc.CallOption) (*TableList, error) {
+	out := new(TableList)
+	err := c.cc.Invoke(ctx, TableService_ListTables_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tableServiceClient) CreateTable(ctx context.Context, in *NewTable, opts ...grpc.CallOption) (*TableID, error) {
+	out := new(TableID)
 	err := c.cc.Invoke(ctx, TableService_CreateTable_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tableServiceClient) DeleteTable(ctx context.Context, in *TableID, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, TableService_DeleteTable_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tableServiceClient) GetTable(ctx context.Context, in *TableID, opts ...grpc.CallOption) (*Table, error) {
+	out := new(Table)
+	err := c.cc.Invoke(ctx, TableService_GetTable_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tableServiceClient) AddColumnToTable(ctx context.Context, in *NewColumn, opts ...grpc.CallOption) (*Column, error) {
+	out := new(Column)
+	err := c.cc.Invoke(ctx, TableService_AddColumnToTable_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tableServiceClient) DeleteColumnFromTable(ctx context.Context, in *ColumnID, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, TableService_DeleteColumnFromTable_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tableServiceClient) AddDocumentsToTable(ctx context.Context, in *ReferenceIDs, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, TableService_AddDocumentsToTable_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +117,13 @@ func (c *tableServiceClient) CreateTable(ctx context.Context, in *NewTable, opts
 // All implementations must embed UnimplementedTableServiceServer
 // for forward compatibility
 type TableServiceServer interface {
-	CreateTable(context.Context, *NewTable) (*TableId, error)
+	ListTables(context.Context, *TableFilter) (*TableList, error)
+	CreateTable(context.Context, *NewTable) (*TableID, error)
+	DeleteTable(context.Context, *TableID) (*emptypb.Empty, error)
+	GetTable(context.Context, *TableID) (*Table, error)
+	AddColumnToTable(context.Context, *NewColumn) (*Column, error)
+	DeleteColumnFromTable(context.Context, *ColumnID) (*emptypb.Empty, error)
+	AddDocumentsToTable(context.Context, *ReferenceIDs) (*emptypb.Empty, error)
 	mustEmbedUnimplementedTableServiceServer()
 }
 
@@ -58,8 +131,26 @@ type TableServiceServer interface {
 type UnimplementedTableServiceServer struct {
 }
 
-func (UnimplementedTableServiceServer) CreateTable(context.Context, *NewTable) (*TableId, error) {
+func (UnimplementedTableServiceServer) ListTables(context.Context, *TableFilter) (*TableList, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListTables not implemented")
+}
+func (UnimplementedTableServiceServer) CreateTable(context.Context, *NewTable) (*TableID, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateTable not implemented")
+}
+func (UnimplementedTableServiceServer) DeleteTable(context.Context, *TableID) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteTable not implemented")
+}
+func (UnimplementedTableServiceServer) GetTable(context.Context, *TableID) (*Table, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTable not implemented")
+}
+func (UnimplementedTableServiceServer) AddColumnToTable(context.Context, *NewColumn) (*Column, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddColumnToTable not implemented")
+}
+func (UnimplementedTableServiceServer) DeleteColumnFromTable(context.Context, *ColumnID) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteColumnFromTable not implemented")
+}
+func (UnimplementedTableServiceServer) AddDocumentsToTable(context.Context, *ReferenceIDs) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddDocumentsToTable not implemented")
 }
 func (UnimplementedTableServiceServer) mustEmbedUnimplementedTableServiceServer() {}
 
@@ -72,6 +163,24 @@ type UnsafeTableServiceServer interface {
 
 func RegisterTableServiceServer(s grpc.ServiceRegistrar, srv TableServiceServer) {
 	s.RegisterService(&TableService_ServiceDesc, srv)
+}
+
+func _TableService_ListTables_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TableFilter)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TableServiceServer).ListTables(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TableService_ListTables_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TableServiceServer).ListTables(ctx, req.(*TableFilter))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _TableService_CreateTable_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -92,6 +201,96 @@ func _TableService_CreateTable_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TableService_DeleteTable_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TableID)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TableServiceServer).DeleteTable(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TableService_DeleteTable_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TableServiceServer).DeleteTable(ctx, req.(*TableID))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TableService_GetTable_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TableID)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TableServiceServer).GetTable(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TableService_GetTable_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TableServiceServer).GetTable(ctx, req.(*TableID))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TableService_AddColumnToTable_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(NewColumn)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TableServiceServer).AddColumnToTable(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TableService_AddColumnToTable_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TableServiceServer).AddColumnToTable(ctx, req.(*NewColumn))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TableService_DeleteColumnFromTable_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ColumnID)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TableServiceServer).DeleteColumnFromTable(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TableService_DeleteColumnFromTable_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TableServiceServer).DeleteColumnFromTable(ctx, req.(*ColumnID))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TableService_AddDocumentsToTable_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReferenceIDs)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TableServiceServer).AddDocumentsToTable(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TableService_AddDocumentsToTable_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TableServiceServer).AddDocumentsToTable(ctx, req.(*ReferenceIDs))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TableService_ServiceDesc is the grpc.ServiceDesc for TableService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -100,8 +299,32 @@ var TableService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*TableServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "ListTables",
+			Handler:    _TableService_ListTables_Handler,
+		},
+		{
 			MethodName: "CreateTable",
 			Handler:    _TableService_CreateTable_Handler,
+		},
+		{
+			MethodName: "DeleteTable",
+			Handler:    _TableService_DeleteTable_Handler,
+		},
+		{
+			MethodName: "GetTable",
+			Handler:    _TableService_GetTable_Handler,
+		},
+		{
+			MethodName: "AddColumnToTable",
+			Handler:    _TableService_AddColumnToTable_Handler,
+		},
+		{
+			MethodName: "DeleteColumnFromTable",
+			Handler:    _TableService_DeleteColumnFromTable_Handler,
+		},
+		{
+			MethodName: "AddDocumentsToTable",
+			Handler:    _TableService_AddDocumentsToTable_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
