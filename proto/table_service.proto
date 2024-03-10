@@ -62,8 +62,6 @@ message NewColumn {
 message NewTable {
   string id = 1;
   string name = 2;
-  repeated string document_ids = 3;
-  repeated string columns = 4;
 }
 
 message TableID {
