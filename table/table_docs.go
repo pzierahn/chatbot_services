@@ -6,7 +6,6 @@ import (
 	"github.com/pzierahn/chatbot_services/llm/bedrock"
 	pb "github.com/pzierahn/chatbot_services/proto"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"log"
 )
 
 func docToText(doc *pb.Document) string {
@@ -71,7 +70,6 @@ func (service *Service) AddDocumentsToTable(ctx context.Context, req *pb.Documen
 		}
 
 		for _, col := range columns {
-			log.Printf("Generating completion for column %s", col.Id)
 			resp, err := service.agent.GenerateCompletion(ctx, &llm.GenerateRequest{
 				SystemPrompt: "Return only the requested information, without any additional words or explanation. " +
 					"Don't use introductory words. " +
