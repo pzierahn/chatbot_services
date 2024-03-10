@@ -5,7 +5,6 @@ option go_package = "./proto";
 package chatbot.table.v1;
 
 import "google/protobuf/empty.proto";
-import "document_service.proto";
 
 service TableService {
   rpc ListTables(TableFilter) returns (TableList);
@@ -16,7 +15,12 @@ service TableService {
   rpc AddColumnToTable(NewColumn) returns (Column);
   rpc DeleteColumnFromTable(ColumnID) returns (google.protobuf.Empty);
 
-  rpc AddDocumentsToTable(documents.v2.ReferenceIDs) returns (google.protobuf.Empty);
+  rpc AddDocumentsToTable(DocumentsToTable) returns (google.protobuf.Empty);
+}
+
+message DocumentsToTable {
+  string table_id = 1;
+  repeated string document_ids = 2;
 }
 
 message TableFilter {}

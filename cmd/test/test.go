@@ -70,6 +70,14 @@ func main() {
 	}
 	log.Printf("Column ID: %s", utils.Prettify(column1))
 
+	log.Printf("Adding documents to table...")
+	_, err = tables.AddDocumentsToTable(ctx, &pb.DocumentsToTable{
+		TableId: tableID.Id,
+		DocumentIds: []string{
+			"bcd64239-16cf-4f38-80d2-1ff6ea3ccda5",
+		},
+	})
+
 	table, err := tables.GetTable(ctx, &pb.TableID{
 		Id: tableID.Id,
 	})

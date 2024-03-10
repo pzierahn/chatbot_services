@@ -39,7 +39,7 @@ type TableServiceClient interface {
 	GetTable(ctx context.Context, in *TableID, opts ...grpc.CallOption) (*Table, error)
 	AddColumnToTable(ctx context.Context, in *NewColumn, opts ...grpc.CallOption) (*Column, error)
 	DeleteColumnFromTable(ctx context.Context, in *ColumnID, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	AddDocumentsToTable(ctx context.Context, in *ReferenceIDs, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	AddDocumentsToTable(ctx context.Context, in *DocumentsToTable, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type tableServiceClient struct {
@@ -104,7 +104,7 @@ func (c *tableServiceClient) DeleteColumnFromTable(ctx context.Context, in *Colu
 	return out, nil
 }
 
-func (c *tableServiceClient) AddDocumentsToTable(ctx context.Context, in *ReferenceIDs, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *tableServiceClient) AddDocumentsToTable(ctx context.Context, in *DocumentsToTable, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, TableService_AddDocumentsToTable_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -123,7 +123,7 @@ type TableServiceServer interface {
 	GetTable(context.Context, *TableID) (*Table, error)
 	AddColumnToTable(context.Context, *NewColumn) (*Column, error)
 	DeleteColumnFromTable(context.Context, *ColumnID) (*emptypb.Empty, error)
-	AddDocumentsToTable(context.Context, *ReferenceIDs) (*emptypb.Empty, error)
+	AddDocumentsToTable(context.Context, *DocumentsToTable) (*emptypb.Empty, error)
 	mustEmbedUnimplementedTableServiceServer()
 }
 
@@ -149,7 +149,7 @@ func (UnimplementedTableServiceServer) AddColumnToTable(context.Context, *NewCol
 func (UnimplementedTableServiceServer) DeleteColumnFromTable(context.Context, *ColumnID) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteColumnFromTable not implemented")
 }
-func (UnimplementedTableServiceServer) AddDocumentsToTable(context.Context, *ReferenceIDs) (*emptypb.Empty, error) {
+func (UnimplementedTableServiceServer) AddDocumentsToTable(context.Context, *DocumentsToTable) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddDocumentsToTable not implemented")
 }
 func (UnimplementedTableServiceServer) mustEmbedUnimplementedTableServiceServer() {}
@@ -274,7 +274,7 @@ func _TableService_DeleteColumnFromTable_Handler(srv interface{}, ctx context.Co
 }
 
 func _TableService_AddDocumentsToTable_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ReferenceIDs)
+	in := new(DocumentsToTable)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -286,7 +286,7 @@ func _TableService_AddDocumentsToTable_Handler(srv interface{}, ctx context.Cont
 		FullMethod: TableService_AddDocumentsToTable_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TableServiceServer).AddDocumentsToTable(ctx, req.(*ReferenceIDs))
+		return srv.(TableServiceServer).AddDocumentsToTable(ctx, req.(*DocumentsToTable))
 	}
 	return interceptor(ctx, in, info, handler)
 }

@@ -74,7 +74,8 @@ func (service *Service) getRows(ctx context.Context, userId, tableId string) ([]
 
 	defer rows.Close()
 
-	data := make(map[string]*pb.Row)
+	data := make(map[string][]*pb.Cell)
+
 	for rows.Next() {
 		var columnId, rowId, value string
 		err = rows.Scan(&columnId, &rowId, &value)
@@ -87,18 +88,18 @@ func (service *Service) getRows(ctx context.Context, userId, tableId string) ([]
 			continue
 		}
 
-		data[rowId] = &pb.Row{
-			DocumentId: docId,
-			Cells: append(data[rowId].Cells, &pb.Cell{
-				ColumnId: columnId,
-				Value:    value,
-			}),
-		}
+		data[docId] = append(data[rowId], &pb.Cell{
+			ColumnId: columnId,
+			Value:    value,
+		})
 	}
 
-	dataRows := make([]*pb.Row, len(data))
-	for _, row := range data {
-		dataRows = append(dataRows, row)
+	var dataRows []*pb.Row
+	for docId, cells := range data {
+		dataRows = append(dataRows, &pb.Row{
+			DocumentId: docId,
+			Cells:      cells,
+		})
 	}
 
 	sort.Slice(dataRows, func(i, j int) bool {
