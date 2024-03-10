@@ -81,6 +81,32 @@ create table if not exists user_tables
     id         uuid primary key     default gen_random_uuid(),
     user_id    VARCHAR(36) not null,
     name       text        not null,
-    created_at timestamp   not null default now(),
-    data       jsonb       not null default '{}'::jsonb
+    created_at timestamp   not null default now()
+);
+
+create table if not exists user_table_columns
+(
+    id                uuid primary key default gen_random_uuid(),
+    user_id           VARCHAR(36) not null,
+    table_id          uuid        not null references user_tables (id) ON DELETE CASCADE,
+    name              text        not null,
+    generation_prompt text        not null
+);
+
+create table if not exists user_table_rows
+(
+    id          uuid primary key default gen_random_uuid(),
+    user_id     VARCHAR(36) not null,
+    table_id    uuid        not null references user_tables (id) ON DELETE CASCADE,
+    document_id uuid        not null references documents (id) ON DELETE CASCADE
+);
+
+create table if not exists user_table_cells
+(
+    id        uuid primary key default gen_random_uuid(),
+    user_id   VARCHAR(36) not null,
+    table_id  uuid        not null references user_tables (id) ON DELETE CASCADE,
+    row_id    uuid        not null references user_table_rows (id) ON DELETE CASCADE,
+    column_id uuid        not null references user_table_columns (id) ON DELETE CASCADE,
+    value     text        not null
 );
