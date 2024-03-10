@@ -88,7 +88,7 @@ func (service *Service) getRows(ctx context.Context, userId, tableId string) ([]
 			continue
 		}
 
-		data[docId] = append(data[rowId], &pb.Cell{
+		data[docId] = append(data[docId], &pb.Cell{
 			ColumnId: columnId,
 			Value:    value,
 		})
