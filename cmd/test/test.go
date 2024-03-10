@@ -31,6 +31,15 @@ func main() {
 	ctx := context.Background()
 	ctx = metadata.NewOutgoingContext(ctx, meta)
 
+	columns := []string{
+		"Extract the title and return only the title text, without any additional words or explanation",
+		"Extract the first author and return only the author's name",
+		"Extract the second author and return only the author's name",
+		"Extract the year of publication and return only the year",
+		"Check if the document contains math formulas. Only return 'yes' or 'no' as an answer",
+		"Check if it contains mathematical proves. Only return 'yes' or 'no' as an answer",
+	}
+
 	//table := &pb.NewTable{
 	//	Name: "Test Table",
 	//	//DocumentIds: []string{
@@ -47,7 +56,7 @@ func main() {
 	//	//	"Extract the second author and return only the author's name",
 	//	//	"Extract the year of publication and return only the year",
 	//	//	"Extract a list of relevant keywords and return the keywords as a list, without any additional words or explanation",
-	//	//	"Check if the document contains math formulas and return true or false",
+	//	//	"Check if the document contains math formulas. Only return 'yes' or 'no' as an answer",
 	//	//},
 	//}
 
@@ -61,20 +70,24 @@ func main() {
 
 	log.Printf("Table ID: %s", tableID.Id)
 
-	column1, err := tables.AddColumnToTable(ctx, &pb.NewColumn{
-		TableId:          tableID.Id,
-		GenerationPrompt: "Extract the title",
-	})
-	if err != nil {
-		log.Fatalf("did not create column: %v", err)
+	log.Printf("Adding columns to table...")
+	for _, column := range columns {
+		_, err = tables.AddColumnToTable(ctx, &pb.NewColumn{
+			TableId:          tableID.Id,
+			GenerationPrompt: column,
+		})
+		if err != nil {
+			log.Fatalf("did not create column: %v", err)
+		}
 	}
-	log.Printf("Column ID: %s", utils.Prettify(column1))
 
 	log.Printf("Adding documents to table...")
 	_, err = tables.AddDocumentsToTable(ctx, &pb.DocumentsToTable{
 		TableId: tableID.Id,
 		DocumentIds: []string{
-			"bcd64239-16cf-4f38-80d2-1ff6ea3ccda5",
+			//"bcd64239-16cf-4f38-80d2-1ff6ea3ccda5",
+			"4fdf696c-c4c6-482b-880b-00b6147a69a3",
+			//"6436db5c-44e9-4468-b716-bbb701739d18",
 		},
 	})
 
