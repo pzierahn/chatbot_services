@@ -29,6 +29,10 @@ func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateR
 		return nil, nil
 	}
 
+	if len(gen.Candidates[0].Content.Parts) == 0 {
+		return nil, nil
+	}
+
 	txt, ok := gen.Candidates[0].Content.Parts[0].(genai.Text)
 	if !ok {
 		return nil, nil
