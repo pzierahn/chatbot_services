@@ -11,7 +11,7 @@ func Prettify(obj interface{}) string {
 	return string(byt)
 }
 
-func WriteJson(obj interface{}, path string) {
+func WriteJson(path string, obj interface{}) {
 	byt, err := json.MarshalIndent(obj, "", "  ")
 	if err != nil {
 		log.Fatalln(err)
