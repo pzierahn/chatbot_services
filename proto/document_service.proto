@@ -10,6 +10,7 @@ import "google/protobuf/timestamp.proto";
 service DocumentService {
   rpc List(DocumentFilter) returns (DocumentList);
   rpc Get(DocumentID) returns (Document);
+  rpc GetHeader(DocumentID) returns (DocumentHeader);
   rpc Rename(RenameDocument) returns (google.protobuf.Empty);
   rpc Delete(DocumentID) returns (google.protobuf.Empty);
   rpc Index(IndexJob) returns (stream IndexProgress);
@@ -93,6 +94,13 @@ message Document {
   google.protobuf.Timestamp created_at = 3;
   DocumentMetadata metadata = 4;
   repeated Chunk chunks = 5;
+}
+
+message DocumentHeader {
+  string id = 1;
+  string collection_id = 2;
+  google.protobuf.Timestamp created_at = 3;
+  DocumentMetadata metadata = 4;
 }
 
 message IndexJob {

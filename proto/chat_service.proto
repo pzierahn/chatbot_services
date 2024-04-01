@@ -16,8 +16,30 @@ service ChatService {
   rpc ListThreadIDs(collections.v2.Collection) returns (ThreadIDs);
   rpc DeleteThread(ThreadID) returns (google.protobuf.Empty);
   rpc DeleteMessageFromThread(MessageID) returns (google.protobuf.Empty);
+
+  rpc BatchChat(BatchRequest) returns (BatchResponse);
 }
 
+message BatchRequest {
+  repeated string document_ids = 1;
+  repeated string prompts = 2;
+  ModelOptions model_options = 3;
+}
+
+message BatchResponse {
+  repeated string document_ids = 1;
+  repeated string prompts = 2;
+  repeated string prompt_title = 3;
+
+  message Completion {
+    uint32 document_id = 1;
+    string document_title = 2;
+    uint32 prompt = 3;
+    string completion = 4;
+  }
+
+  repeated Completion items = 4;
+}
 message Prompt {
   string threadID = 1;
   string prompt = 2;
