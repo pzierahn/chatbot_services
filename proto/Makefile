@@ -1,6 +1,6 @@
 ## Shipping package
 ## Assumes user is on MacOS, if other OS, please change PROTO_ROOT_DIR to the path of protobuf installation
-PROTO_ROOT_DIR = $(shell brew --prefix)/Cellar/protobuf/25.3/include
+PROTO_ROOT_DIR = $(shell brew --prefix)/Cellar/protobuf/25.3_1/include
 APP_DIR = /Users/patrick/Code/brainboost_app/lib/generated
 
 ## Dart requires you to manually ship all google provided proto files too.
