@@ -34,7 +34,6 @@ services:
       - CHATBOT_QDRANT_INSECURE=true
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      - MISTRAL_API_KEY=${MISTRAL_API_KEY}
     volumes:
       - ./service_account.json:/service_account.json
     depends_on:
