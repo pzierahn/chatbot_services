@@ -69,7 +69,7 @@ To prepare a new gateway release run the following steps:
 
 After a new tag is pushed, the new release will be automatically build and deployed by using Google Cloud Run.
 
-## Local development
+## Run tests
 
 For local testing run the following command:
 
@@ -81,4 +81,7 @@ PORT=8869 \
 CHATBOT_DB=postgresql://root@127.0.0.1:26257/defaultdb?sslmode=disable \
 CHATBOT_QDRANT_URL=localhost:6334 \
 go run cmd/server/server.go
+
+# Run tests
+go run cmd/test/test.go
 ```
