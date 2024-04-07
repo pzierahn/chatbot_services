@@ -46,7 +46,8 @@ func (service *Service) GetCosts(ctx context.Context, _ *emptypb.Empty) (*pb.Cos
 		`SELECT model, COUNT(model), SUM(input_tokens), SUM(output_tokens)
 			FROM model_usages
 			WHERE user_id = $1
-			GROUP BY model`, userID)
+			GROUP BY model
+			ORDER BY model`, userID)
 	if err != nil {
 		return nil, err
 	}
