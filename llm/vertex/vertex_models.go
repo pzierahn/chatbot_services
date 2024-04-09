@@ -5,7 +5,8 @@ import "github.com/pzierahn/chatbot_services/llm"
 const modelPrefix = "google."
 
 const (
-	GeminiPro = "gemini-pro"
+	GeminiPro   = "gemini-1.0-pro"
+	GeminiPro15 = "gemini-1.5-pro-preview-0409"
 )
 
 var ModelCosts = map[string]llm.PricePer1000Tokens{

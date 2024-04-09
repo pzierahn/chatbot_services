@@ -8,12 +8,14 @@ import (
 )
 
 func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateRequest) (*llm.GenerateResponse, error) {
-	modelName, found := strings.CutPrefix(req.Model, modelPrefix)
-	if !found || modelName == "" {
-		modelName = "gemini-pro"
-	}
+	modelName, _ := strings.CutPrefix(req.Model, modelPrefix)
+
+	outputTokens := int32(req.MaxTokens)
 
 	model := client.client.GenerativeModel(modelName)
+	model.TopP = &req.TopP
+	model.Temperature = &req.Temperature
+	model.MaxOutputTokens = &outputTokens
 
 	var parts []genai.Part
 	for _, msg := range req.Messages {
