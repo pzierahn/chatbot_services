@@ -5,7 +5,7 @@ go 1.21.3
 toolchain go1.22.1
 
 require (
-	cloud.google.com/go/aiplatform v1.66.0
+	cloud.google.com/go/aiplatform v1.67.0
 	cloud.google.com/go/storage v1.40.0
 	cloud.google.com/go/vertexai v0.7.1
 	firebase.google.com/go v3.13.0+incompatible
@@ -17,7 +17,7 @@ require (
 	github.com/qdrant/go-client v1.8.0
 	github.com/sashabaranov/go-openai v1.20.5
 	google.golang.org/api v0.172.0
-	google.golang.org/grpc v1.63.0
+	google.golang.org/grpc v1.63.2
 	google.golang.org/protobuf v1.33.0
 	jaytaylor.com/html2text v0.0.0-20230321000545-74c2419ad056
 )
