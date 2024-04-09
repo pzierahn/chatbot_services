@@ -14,8 +14,12 @@ const (
 
 var ModelCosts = map[string]llm.PricePer1000Tokens{
 	GeminiPro: {
-		Input:  0.000125,
-		Output: 0.000375,
+		Input:  0.50 / 1_000_000,
+		Output: 1.50 / 1_000_000,
+	},
+	GeminiPro15: {
+		Input:  7 / 1_000_000,
+		Output: 21 / 1_000_000,
 	},
 }
 
