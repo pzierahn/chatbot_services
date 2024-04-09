@@ -70,3 +70,9 @@ type Completion interface {
 	GenerateCompletion(ctx context.Context, req *GenerateRequest) (*GenerateResponse, error)
 	ProvidesModel(model string) bool
 }
+
+type DummyTracker struct {
+}
+
+func (dummy DummyTracker) Track(ctx context.Context, usage ModelUsage) {
+}
