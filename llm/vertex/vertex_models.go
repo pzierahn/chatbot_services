@@ -1,6 +1,9 @@
 package vertex
 
-import "github.com/pzierahn/chatbot_services/llm"
+import (
+	"github.com/pzierahn/chatbot_services/llm"
+	"strings"
+)
 
 const modelPrefix = "google."
 
@@ -17,8 +20,12 @@ var ModelCosts = map[string]llm.PricePer1000Tokens{
 }
 
 func (client *Client) ProvidesModel(name string) bool {
-	switch name {
-	case modelPrefix + "gemini-pro":
+	switch {
+	case strings.HasPrefix(name, modelPrefix):
+		return true
+	case name == GeminiPro:
+		return true
+	case name == GeminiPro15:
 		return true
 	default:
 		return false
