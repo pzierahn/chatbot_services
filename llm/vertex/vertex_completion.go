@@ -27,7 +27,7 @@ func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateR
 		return nil, err
 	}
 
-	if len(gen.Candidates) == 0 {
+	if len(gen.Candidates) == 0 || len(gen.Candidates[0].Content.Parts) == 0 {
 		return nil, nil
 	}
 
