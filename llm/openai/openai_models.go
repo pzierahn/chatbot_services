@@ -3,6 +3,7 @@ package openai
 import (
 	"github.com/pzierahn/chatbot_services/llm"
 	"github.com/sashabaranov/go-openai"
+	"strings"
 )
 
 const modelPrefix = "openai."
@@ -26,6 +27,14 @@ var ModelCosts = map[string]llm.PricePer1000Tokens{
 	openai.GPT4VisionPreview: {
 		Input:  0.01,
 		Output: 0.03,
+	},
+	"gpt-4-turbo": {
+		Input:  10.00 / 1_000,
+		Output: 30.00 / 1_000,
+	},
+	"gpt-4-turbo-2024-04-09": {
+		Input:  10.00 / 1_000,
+		Output: 30.00 / 1_000,
 	},
 	//
 	// GPT-4
@@ -83,14 +92,12 @@ var ModelCosts = map[string]llm.PricePer1000Tokens{
 }
 
 func (client *Client) ProvidesModel(name string) bool {
-	switch name {
-	case modelPrefix + openai.GPT4TurboPreview:
+	_, ok := ModelCosts[name]
+
+	switch {
+	case strings.HasPrefix(name, modelPrefix):
 		return true
-	case modelPrefix + openai.GPT3Dot5Turbo16K:
-		return true
-	case openai.GPT3Dot5Turbo16K:
-		return true
-	case openai.GPT4TurboPreview:
+	case ok:
 		return true
 	default:
 		return false
