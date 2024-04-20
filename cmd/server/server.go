@@ -11,7 +11,6 @@ import (
 	"github.com/pzierahn/chatbot_services/crashlytics"
 	"github.com/pzierahn/chatbot_services/documents"
 	"github.com/pzierahn/chatbot_services/llm"
-	"github.com/pzierahn/chatbot_services/llm/anthropic"
 	"github.com/pzierahn/chatbot_services/llm/bedrock"
 	"github.com/pzierahn/chatbot_services/llm/openai"
 	"github.com/pzierahn/chatbot_services/llm/vertex"
@@ -133,11 +132,6 @@ func main() {
 		log.Printf("failed to create bedrock service: %v", err)
 	}
 
-	anthropicClient, err := anthropic.New(accountService)
-	if err != nil {
-		log.Fatalf("failed to create anthropic service: %v", err)
-	}
-
 	docsService := documents.FromConfig(&documents.Config{
 		Auth:       authService,
 		Account:    accountService,
@@ -160,7 +154,6 @@ func main() {
 			openaiService,
 			vertexService,
 			bedrockService,
-			anthropicClient,
 		},
 	})
 	pb.RegisterChatServiceServer(grpcServer, chatService)
