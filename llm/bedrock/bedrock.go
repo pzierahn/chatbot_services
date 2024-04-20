@@ -12,7 +12,7 @@ type Client struct {
 	usage   llm.Usage
 }
 
-const region = "us-east-1"
+const region = "us-west-2"
 
 func New(usage llm.Usage) (*Client, error) {
 	sdkConfig, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(region))
