@@ -270,12 +270,9 @@ func main() {
 
 	nameIds, idsName := findDocumentIDs(documentList)
 
-	records := readCSV()
 	var docIDs []string
-
-	for _, record := range records[1:] {
-		name := record[0]
-		docID, ok := nameIds[name+".pdf"]
+	for docName := range pageIDs {
+		docID, ok := nameIds[docName+".pdf"]
 		if !ok {
 			continue
 		}
@@ -283,7 +280,7 @@ func main() {
 		docIDs = append(docIDs, docID)
 	}
 
-	log.Printf("Batch query execution")
+	log.Printf("Batch query execution on %d documents", len(docIDs))
 
 	resp, err := chatService.BatchChat(ctxx, &pb.BatchRequest{
 		DocumentIds: docIDs,
@@ -291,10 +288,11 @@ func main() {
 			//"List the used Datasets, use only the abbreviation. Be concise and keep the answer short",
 			//"Create list of used algorithms. Be concise and keep the answer short",
 			//"Does the paper mention a GitHub repository? Just answer Yes or No",
-			//"Extract the MAE, RMAE and Pearson Correlation Coefficient. " +
+			//"Extract the MAE, RMAE, RMSE, MSE and Pearson Correlation Coefficient. " +
 			//	"Be concise and keep the answer short",
-			"Classify how the ROI is selected: Automatically, Manually, None",
-			//"Classify if the paper predicts ",
+			//"Classify how the ROI is selected: Automatically, Manually, None",
+			//"Extract all GitHubs urls. If no exist return \"-\"",
+			"Is the proposed respiratory extraction method based on PPG or motion?",
 		},
 		ModelOptions: &pb.ModelOptions{
 			Model:       bedrock.ClaudeHaiku,
@@ -311,7 +309,7 @@ func main() {
 	// Store the results on notion
 	//
 
-	log.Printf("Store results in Notion")
+	log.Printf("Store results in Notion: %d", len(resp.Items))
 
 	for _, completion := range resp.Items {
 		docID := resp.DocumentIds[completion.DocumentId]
@@ -322,7 +320,7 @@ func main() {
 
 		_, err := client.Page.Update(ctx, pageID, &notionapi.PageUpdateRequest{
 			Properties: map[string]notionapi.Property{
-				"ROI-Selection": notionapi.RichTextProperty{
+				"Motion/rPPG": notionapi.RichTextProperty{
 					Type: notionapi.PropertyTypeRichText,
 					RichText: []notionapi.RichText{
 						{
