@@ -4,11 +4,18 @@ import (
 	"context"
 	"encoding/csv"
 	"github.com/jomei/notionapi"
+	"github.com/pzierahn/chatbot_services/llm/bedrock"
 	pb "github.com/pzierahn/chatbot_services/proto"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
 	"log"
 	"os"
 	"strconv"
+	"strings"
 )
+
+const databaseID = notionapi.DatabaseID("a119acf2234f49479fa10f6cea95ec8f")
 
 func readCSV() [][]string {
 	// os.Open() opens specific file in
@@ -45,63 +52,21 @@ func readCSV() [][]string {
 	return records
 }
 
-func findDocumentIDs(list *pb.DocumentList) map[string]string {
+func findDocumentIDs(list *pb.DocumentList) (map[string]string, map[string]string) {
 	// Map document names to document IDs
-	matches := make(map[string]string)
+	nameIds := make(map[string]string)
+	idsName := make(map[string]string)
 
 	for docID, document := range list.Items {
 		file := document.GetFile()
-		matches[file.Filename] = docID
+		nameIds[file.Filename] = docID
+		idsName[docID] = file.Filename
 	}
 
-	return matches
+	return nameIds, idsName
 }
 
-func connect() {
-	//conn, err := grpc.Dial(
-	//	"localhost:8869",
-	//	grpc.WithTransportCredentials(insecure.NewCredentials()),
-	//)
-	//if err != nil {
-	//	log.Fatalf("did not connect: %v", err)
-	//}
-	//defer func() { _ = conn.Close() }()
-	//
-	//documentService := pb.NewDocumentServiceClient(conn)
-	//chatService := pb.NewChatServiceClient(conn)
-	//
-	//ctx := context.Background()
-	//ctx = metadata.AppendToOutgoingContext(ctx, "User-Id", "j7jjxLD9rla2DrZoeUu3Tnft4812")
-	//
-	//documentList, err := documentService.List(ctx, &pb.DocumentFilter{
-	//	CollectionId: "59698763-c0ff-48c4-a69d-3d6ad62a7d50",
-	//})
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//
-	////log.Print(documentList)
-	//
-	//docIDs := findDocumentIDs(documentList)
-}
-
-func main() {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-
-	ctx := context.Background()
-	databaseID := notionapi.DatabaseID("")
-	token := os.Getenv("NOTION_API_KEY")
-	client := notionapi.NewClient(notionapi.Token(token))
-
-	//db, err := client.Database.Update(ctx, databaseID, &notionapi.DatabaseUpdateRequest{
-	//	Properties: notionapi.PropertyConfigs{},
-	//})
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//
-	//log.Println()
-
+func importCSV(client notionapi.Client) {
 	records := readCSV()
 	for _, record := range records[1:] {
 		var (
@@ -132,6 +97,7 @@ func main() {
 		// Parse year to a float
 		yearFloat, _ := strconv.ParseFloat(year, 32)
 
+		ctx := context.Background()
 		_, err := client.Page.Create(ctx, &notionapi.PageCreateRequest{
 			Parent: notionapi.Parent{
 				DatabaseID: databaseID,
@@ -238,5 +204,129 @@ func main() {
 		}
 
 		//break
+	}
+}
+
+func main() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
+	token := os.Getenv("NOTION_API_KEY")
+	client := notionapi.NewClient(notionapi.Token(token))
+
+	ctx := context.Background()
+	dbEntries, err := client.Database.Query(ctx, databaseID, &notionapi.DatabaseQueryRequest{
+		Sorts: []notionapi.SortObject{
+			{
+				Property:  "Name",
+				Direction: "ascending",
+			},
+		},
+		PageSize: 999,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Printf("Collect Notion page-ids")
+
+	// Document Name --> Notion PageID
+	pageIDs := make(map[string]notionapi.PageID)
+	for _, result := range dbEntries.Results {
+		props := result.Properties
+		//log.Println(props["Name"])
+
+		rich, ok := props["Name"].(*notionapi.TitleProperty)
+		if !ok {
+			continue
+		}
+
+		pageIDs[rich.Title[0].PlainText] = notionapi.PageID(result.ID)
+	}
+
+	conn, err := grpc.Dial(
+		"localhost:8869",
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	if err != nil {
+		log.Fatalf("did not connect: %v", err)
+	}
+	defer func() { _ = conn.Close() }()
+
+	documentService := pb.NewDocumentServiceClient(conn)
+	chatService := pb.NewChatServiceClient(conn)
+
+	ctxx := metadata.AppendToOutgoingContext(ctx, "User-Id", "j7jjxLD9rla2DrZoeUu3Tnft4812")
+
+	log.Printf("List collection documents")
+	documentList, err := documentService.List(ctxx, &pb.DocumentFilter{
+		CollectionId: "59698763-c0ff-48c4-a69d-3d6ad62a7d50",
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	nameIds, idsName := findDocumentIDs(documentList)
+
+	records := readCSV()
+	var docIDs []string
+
+	for _, record := range records[1:] {
+		name := record[0]
+		docID, ok := nameIds[name+".pdf"]
+		if !ok {
+			continue
+		}
+
+		docIDs = append(docIDs, docID)
+	}
+
+	log.Printf("Batch query execution")
+
+	resp, err := chatService.BatchChat(ctxx, &pb.BatchRequest{
+		DocumentIds: docIDs[10:],
+		Prompts: []string{
+			"List the used Datasets, use only the abbreviation",
+		},
+		ModelOptions: &pb.ModelOptions{
+			Model:       bedrock.ClaudeHaiku,
+			Temperature: 1,
+			MaxTokens:   128,
+			TopP:        1,
+		},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	//
+	// Store the results on notion
+	//
+
+	log.Printf("Store results in Notion")
+
+	for _, completion := range resp.Items {
+		docID := resp.DocumentIds[completion.DocumentId]
+		docName := idsName[docID]
+		pageID := pageIDs[strings.TrimSuffix(docName, ".pdf")]
+
+		log.Println(docID, docName, pageID)
+
+		_, err := client.Page.Update(ctx, pageID, &notionapi.PageUpdateRequest{
+			Properties: map[string]notionapi.Property{
+				"Dataset": notionapi.RichTextProperty{
+					Type: notionapi.PropertyTypeRichText,
+					RichText: []notionapi.RichText{
+						{
+							Text: &notionapi.Text{
+								Content: completion.Completion,
+							},
+						},
+					},
+				},
+			},
+		})
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
