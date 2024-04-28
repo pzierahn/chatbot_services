@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/pzierahn/chatbot_services/llm"
 	pb "github.com/pzierahn/chatbot_services/proto"
+	"log"
 )
 
 type batchJob struct {
@@ -109,7 +110,7 @@ func (service *Service) BatchChat(ctx context.Context, req *pb.BatchRequest) (*p
 	resultsQueue := make(chan batchResults, 4)
 	defer close(resultsQueue)
 
-	for worker := 0; worker < 4; worker++ {
+	for worker := 0; worker < 10; worker++ {
 		go func() {
 			for job := range jobQueue {
 				completion, cerr := model.GenerateCompletion(ctx, &llm.GenerateRequest{
@@ -128,6 +129,8 @@ func (service *Service) BatchChat(ctx context.Context, req *pb.BatchRequest) (*p
 						err:   cerr,
 						retry: job.retry + 1,
 					}
+
+					log.Println(cerr)
 				} else {
 					resultsQueue <- batchResults{
 						job:        job,
