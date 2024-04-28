@@ -15,7 +15,7 @@ import (
 	"strings"
 )
 
-const databaseID = notionapi.DatabaseID("a119acf2234f49479fa10f6cea95ec8f")
+const databaseID = notionapi.DatabaseID("8b9304529d664d2997834734345236f6")
 
 func readCSV() [][]string {
 	// os.Open() opens specific file in
@@ -217,7 +217,7 @@ func main() {
 	dbEntries, err := client.Database.Query(ctx, databaseID, &notionapi.DatabaseQueryRequest{
 		Sorts: []notionapi.SortObject{
 			{
-				Property:  "Name",
+				Property:  "Title",
 				Direction: "ascending",
 			},
 		},
@@ -233,10 +233,13 @@ func main() {
 	pageIDs := make(map[string]notionapi.PageID)
 	for _, result := range dbEntries.Results {
 		props := result.Properties
-		//log.Println(props["Name"])
 
-		rich, ok := props["Name"].(*notionapi.TitleProperty)
+		rich, ok := props["ID"].(*notionapi.TitleProperty)
 		if !ok {
+			continue
+		}
+
+		if len(rich.Title) <= 0 {
 			continue
 		}
 
@@ -283,14 +286,20 @@ func main() {
 	log.Printf("Batch query execution")
 
 	resp, err := chatService.BatchChat(ctxx, &pb.BatchRequest{
-		DocumentIds: docIDs[10:],
+		DocumentIds: docIDs,
 		Prompts: []string{
-			"List the used Datasets, use only the abbreviation",
+			//"List the used Datasets, use only the abbreviation. Be concise and keep the answer short",
+			//"Create list of used algorithms. Be concise and keep the answer short",
+			//"Does the paper mention a GitHub repository? Just answer Yes or No",
+			//"Extract the MAE, RMAE and Pearson Correlation Coefficient. " +
+			//	"Be concise and keep the answer short",
+			"Classify how the ROI is selected: Automatically, Manually, None",
+			//"Classify if the paper predicts ",
 		},
 		ModelOptions: &pb.ModelOptions{
 			Model:       bedrock.ClaudeHaiku,
 			Temperature: 1,
-			MaxTokens:   128,
+			MaxTokens:   256,
 			TopP:        1,
 		},
 	})
@@ -313,7 +322,7 @@ func main() {
 
 		_, err := client.Page.Update(ctx, pageID, &notionapi.PageUpdateRequest{
 			Properties: map[string]notionapi.Property{
-				"Dataset": notionapi.RichTextProperty{
+				"ROI-Selection": notionapi.RichTextProperty{
 					Type: notionapi.PropertyTypeRichText,
 					RichText: []notionapi.RichText{
 						{
@@ -326,7 +335,7 @@ func main() {
 			},
 		})
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
 	}
 }
