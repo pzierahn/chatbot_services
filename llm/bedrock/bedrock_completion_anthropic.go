@@ -71,7 +71,7 @@ func (client *Client) generateCompletionAnthropic(ctx context.Context, req *llm.
 		AnthropicVersion: "bedrock-2023-05-31",
 		Messages:         messages,
 		System:           req.SystemPrompt,
-		MaxTokens:        1024,
+		MaxTokens:        req.MaxTokens,
 	}
 
 	body, err := json.Marshal(request)
