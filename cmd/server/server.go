@@ -14,6 +14,7 @@ import (
 	"github.com/pzierahn/chatbot_services/llm/bedrock"
 	"github.com/pzierahn/chatbot_services/llm/openai"
 	"github.com/pzierahn/chatbot_services/llm/vertex"
+	notion2 "github.com/pzierahn/chatbot_services/notion"
 	pb "github.com/pzierahn/chatbot_services/proto"
 	"github.com/pzierahn/chatbot_services/setup"
 	"github.com/pzierahn/chatbot_services/vectordb/qdrant"
@@ -157,6 +158,12 @@ func main() {
 		},
 	})
 	pb.RegisterChatServiceServer(grpcServer, chatService)
+
+	notion, err := notion2.New(chatService, docsService)
+	if err != nil {
+		log.Fatalf("failed to create notion service: %v", err)
+	}
+	pb.RegisterNotionServer(grpcServer, notion)
 
 	port := os.Getenv("PORT")
 	if port == "" {

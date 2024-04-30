@@ -7,7 +7,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-const fileColumn = "File"
+const fileColumn = "ID"
 
 // ListDatabases retrieves all databases in the workspace.
 func (client *Client) ListDatabases(ctx context.Context, _ *emptypb.Empty) (*pb.Databases, error) {
