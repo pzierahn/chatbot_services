@@ -3,10 +3,12 @@ package notion
 import (
 	"context"
 	"github.com/jomei/notionapi"
+	pb "github.com/pzierahn/chatbot_services/proto"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 // ListDatabases retrieves all databases in the workspace.
-func (client *Client) ListDatabases(ctx context.Context) ([]*notionapi.Database, error) {
+func (client *Client) ListDatabases(ctx context.Context, _ *emptypb.Empty) (*pb.Databases, error) {
 	resp, err := client.api.Search.Do(ctx, &notionapi.SearchRequest{
 		Filter: notionapi.SearchFilter{
 			Value:    "database",
@@ -18,12 +20,16 @@ func (client *Client) ListDatabases(ctx context.Context) ([]*notionapi.Database,
 		return nil, err
 	}
 
-	databases := make([]*notionapi.Database, 0)
+	databases := &pb.Databases{}
+
 	for _, result := range resp.Results {
 		switch result.GetObject() {
 		case "database":
 			database := result.(*notionapi.Database)
-			databases = append(databases, database)
+			databases.Items = append(databases.Items, &pb.Databases_Item{
+				Id:   database.ID.String(),
+				Name: database.Title[0].PlainText,
+			})
 		}
 	}
 
@@ -108,7 +114,7 @@ func (client *Client) AddColumn(ctx context.Context, databaseID, title string) e
 	return err
 }
 
-func (client *Client) UpdatePage(ctx context.Context, pageID, column, text string) error {
+func (client *Client) UpdateRow(ctx context.Context, pageID, column, text string) error {
 	_, err := client.api.Page.Update(
 		ctx,
 		notionapi.PageID(pageID),

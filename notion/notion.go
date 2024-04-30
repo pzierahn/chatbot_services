@@ -3,10 +3,12 @@ package notion
 import (
 	"fmt"
 	"github.com/jomei/notionapi"
+	pb "github.com/pzierahn/chatbot_services/proto"
 	"os"
 )
 
 type Client struct {
+	pb.UnimplementedNotionServer
 	api *notionapi.Client
 }
 
