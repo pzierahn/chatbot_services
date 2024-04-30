@@ -13,9 +13,6 @@ import (
 	"sync"
 )
 
-// const databaseID = "8b9304529d664d2997834734345236f6"
-const databaseID = "2705037dfb084e97b5ce578a497a5c34"
-
 func findDocumentIDs(list *pb.DocumentList) (map[string]string, map[string]string) {
 	// Map document names to document IDs
 	nameIds := make(map[string]string)
@@ -40,8 +37,9 @@ func main() {
 
 	ctx := context.Background()
 
-	column := "eval"
-	prompt := "Give a list of evaluation metrics mentioned in the document."
+	databaseID := "8b9304529d664d2997834734345236f6"
+	column := "loss_function_2"
+	prompt := "Give a list of evaluation metrics used in the training of a machine learning model."
 
 	err = notion.AddColumn(ctx, databaseID, column)
 	if err != nil {
