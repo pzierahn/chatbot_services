@@ -8,6 +8,16 @@ import (
 	"log"
 )
 
+func getDocumentText(doc *pb.Document) string {
+	var text string
+
+	for _, chunk := range doc.Chunks {
+		text += chunk.Text
+	}
+
+	return text
+}
+
 func (service *Service) Completion(ctx context.Context, prompt *pb.CompletionRequest) (*pb.CompletionResponse, error) {
 	userId, err := service.Verify(ctx)
 	if err != nil {
@@ -23,8 +33,6 @@ func (service *Service) Completion(ctx context.Context, prompt *pb.CompletionReq
 		return nil, err
 	}
 
-	text := getDocumentText(doc)
-
 	model, err := service.getModel(prompt.ModelOptions.Model)
 	if err != nil {
 		return nil, err
@@ -32,7 +40,7 @@ func (service *Service) Completion(ctx context.Context, prompt *pb.CompletionReq
 
 	messages := []*llm.Message{{
 		Type: llm.MessageTypeUser,
-		Text: text + "\n\n\n" + prompt.Prompt,
+		Text: getDocumentText(doc) + "\n\n\n" + prompt.Prompt,
 	}}
 
 	resp, err := model.GenerateCompletion(ctx, &llm.GenerateRequest{
