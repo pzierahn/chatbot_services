@@ -6,6 +6,8 @@ package chatbot.notion.v1;
 
 import "google/protobuf/empty.proto";
 
+import "chat_service.proto";
+
 service Notion {
   rpc ListDatabases(google.protobuf.Empty) returns (Databases);
   rpc ExecutePrompt(NotionPrompt) returns (stream ExecutionResult);
@@ -15,6 +17,7 @@ message NotionPrompt {
   string databaseID = 1;
   string collectionID = 2;
   string prompt = 3;
+  chat.v4.ModelOptions modelOptions = 4;
 }
 
 message ExecutionResult {

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/pzierahn/chatbot_services/llm/bedrock"
 	pb "github.com/pzierahn/chatbot_services/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -31,6 +32,12 @@ func main() {
 		DatabaseID:   "8b9304529d664d2997834734345236f6",
 		CollectionID: "59698763-c0ff-48c4-a69d-3d6ad62a7d50",
 		Prompt:       "Give a list of evaluation metrics used in the training of a machine learning model",
+		ModelOptions: &pb.ModelOptions{
+			Model:       bedrock.ClaudeHaiku,
+			Temperature: 1.0,
+			MaxTokens:   256,
+			TopP:        1.0,
+		},
 	})
 	if err != nil {
 		log.Fatalf("could not execute: %v", err)
@@ -45,6 +52,6 @@ func main() {
 			break
 		}
 
-		log.Printf("Finish: %v", result)
+		log.Printf("Completed: %v", result)
 	}
 }

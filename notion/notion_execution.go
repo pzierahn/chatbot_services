@@ -1,17 +1,9 @@
 package notion
 
 import (
-	"github.com/pzierahn/chatbot_services/llm/bedrock"
 	pb "github.com/pzierahn/chatbot_services/proto"
 	"sync"
 )
-
-var model = &pb.ModelOptions{
-	Model:       bedrock.ClaudeHaiku,
-	Temperature: 1.0,
-	MaxTokens:   256,
-	TopP:        1.0,
-}
 
 func (client *Client) ExecutePrompt(prompt *pb.NotionPrompt, stream pb.Notion_ExecutePromptServer) error {
 	ctx := stream.Context()
@@ -42,7 +34,7 @@ func (client *Client) ExecutePrompt(prompt *pb.NotionPrompt, stream pb.Notion_Ex
 			resp, err := client.chat.Completion(ctx, &pb.CompletionRequest{
 				DocumentId:   documentID,
 				Prompt:       prompt.Prompt,
-				ModelOptions: model,
+				ModelOptions: prompt.ModelOptions,
 			})
 			if err != nil {
 				return documentName, err
