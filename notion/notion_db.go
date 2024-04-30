@@ -7,6 +7,8 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
+const fileColumn = "File"
+
 // ListDatabases retrieves all databases in the workspace.
 func (client *Client) ListDatabases(ctx context.Context, _ *emptypb.Empty) (*pb.Databases, error) {
 	resp, err := client.api.Search.Do(ctx, &notionapi.SearchRequest{
@@ -52,7 +54,7 @@ func (client *Client) CreateDatabase(ctx context.Context, title string) (*notion
 			},
 		},
 		Properties: map[string]notionapi.PropertyConfig{
-			"ID": notionapi.TitlePropertyConfig{
+			fileColumn: notionapi.TitlePropertyConfig{
 				Type: notionapi.PropertyConfigTypeTitle,
 			},
 		},
@@ -70,7 +72,7 @@ func (client *Client) ListDocumentIDs(ctx context.Context, databaseID string) (m
 		&notionapi.DatabaseQueryRequest{
 			Sorts: []notionapi.SortObject{
 				{
-					Property:  "ID",
+					Property:  fileColumn,
 					Direction: "ascending",
 				},
 			},
@@ -84,7 +86,7 @@ func (client *Client) ListDocumentIDs(ctx context.Context, databaseID string) (m
 	for _, result := range dbEntries.Results {
 		props := result.Properties
 
-		rich, ok := props["ID"].(*notionapi.TitleProperty)
+		rich, ok := props[fileColumn].(*notionapi.TitleProperty)
 		if !ok {
 			continue
 		}
