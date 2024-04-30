@@ -2,19 +2,19 @@ package main
 
 import (
 	"context"
-	"github.com/jomei/notionapi"
 	"github.com/pzierahn/chatbot_services/llm/bedrock"
+	notion2 "github.com/pzierahn/chatbot_services/notion"
 	pb "github.com/pzierahn/chatbot_services/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 	"log"
-	"os"
 	"strings"
+	"sync"
 )
 
-// const databaseID = notionapi.DatabaseID("8b9304529d664d2997834734345236f6")
-const databaseID = notionapi.DatabaseID("2705037dfb084e97b5ce578a497a5c34")
+// const databaseID = "8b9304529d664d2997834734345236f6"
+const databaseID = "2705037dfb084e97b5ce578a497a5c34"
 
 func findDocumentIDs(list *pb.DocumentList) (map[string]string, map[string]string) {
 	// Map document names to document IDs
@@ -33,65 +33,22 @@ func findDocumentIDs(list *pb.DocumentList) (map[string]string, map[string]strin
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	token := os.Getenv("NOTION_API_KEY")
-	client := notionapi.NewClient(notionapi.Token(token))
-
-	ctx := context.Background()
-	dbEntries, err := client.Database.Query(ctx, databaseID, &notionapi.DatabaseQueryRequest{
-		Sorts: []notionapi.SortObject{
-			{
-				Property:  "ID",
-				Direction: "ascending",
-			},
-		},
-		PageSize: 999,
-	})
+	notion, err := notion2.New()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	parallelPrompts := map[string]string{
-		"subjects": "What is the number of subjects? Be concise and keep the answer short.",
-	}
+	ctx := context.Background()
 
-	var prompts []string
-	var columns []string
+	column := "eval"
+	prompt := "Give a list of evaluation metrics mentioned in the document."
 
-	for column, prompt := range parallelPrompts {
-		log.Printf("Create column %s", column)
-		_, err = client.Database.Update(ctx, databaseID, &notionapi.DatabaseUpdateRequest{
-			Properties: map[string]notionapi.PropertyConfig{
-				column: notionapi.RichTextPropertyConfig{
-					Type: notionapi.PropertyConfigTypeRichText,
-				},
-			},
-		})
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		prompts = append(prompts, prompt)
-		columns = append(columns, column)
+	err = notion.AddColumn(ctx, databaseID, column)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	log.Printf("Collect Notion page-ids")
-
-	// Document Name --> Notion PageID
-	pageIDs := make(map[string]notionapi.PageID)
-	for _, result := range dbEntries.Results {
-		props := result.Properties
-
-		rich, ok := props["ID"].(*notionapi.TitleProperty)
-		if !ok {
-			continue
-		}
-
-		if len(rich.Title) <= 0 {
-			continue
-		}
-
-		pageIDs[rich.Title[0].PlainText] = notionapi.PageID(result.ID)
-	}
 
 	conn, err := grpc.Dial(
 		"localhost:8869",
@@ -106,6 +63,8 @@ func main() {
 	chatService := pb.NewChatServiceClient(conn)
 
 	ctxx := metadata.AppendToOutgoingContext(ctx, "User-Id", "j7jjxLD9rla2DrZoeUu3Tnft4812")
+	ctxx, cnl := context.WithCancel(ctxx)
+	defer cnl()
 
 	log.Printf("List collection documents")
 	documentList, err := documentService.List(ctxx, &pb.DocumentFilter{
@@ -115,8 +74,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	nameIds, idsName := findDocumentIDs(documentList)
+	pageIDs, err := notion.ListDocumentIDs(ctx, databaseID)
+	if err != nil {
+		log.Fatal(err)
+	}
 
+	nameIds, idsName := findDocumentIDs(documentList)
 	var docIDs []string
 	for docName := range pageIDs {
 		docID, ok := nameIds[docName+".pdf"]
@@ -129,51 +92,52 @@ func main() {
 
 	log.Printf("Batch query execution on %d documents", len(docIDs))
 
-	resp, err := chatService.BatchChat(ctxx, &pb.BatchRequest{
-		DocumentIds: docIDs,
-		Prompts:     prompts,
-		ModelOptions: &pb.ModelOptions{
-			Model:       bedrock.ClaudeHaiku,
-			Temperature: 1,
-			MaxTokens:   256,
-			TopP:        1,
-		},
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
+	funcs := make([]func() (string, string, error), 0)
 
-	//
-	// Store the results on notion
-	//
-
-	log.Printf("Store results in Notion: %d", len(resp.Items))
-
-	for _, completion := range resp.Items {
-		docID := resp.DocumentIds[completion.DocumentId]
-		docName := idsName[docID]
-		pageID := pageIDs[strings.TrimSuffix(docName, ".pdf")]
-
-		column := columns[completion.Prompt]
-
-		log.Println(docName, column)
-
-		_, err = client.Page.Update(ctx, pageID, &notionapi.PageUpdateRequest{
-			Properties: map[string]notionapi.Property{
-				column: notionapi.RichTextProperty{
-					Type: notionapi.PropertyTypeRichText,
-					RichText: []notionapi.RichText{
-						{
-							Text: &notionapi.Text{
-								Content: completion.Completion,
-							},
-						},
-					},
+	for _, docID := range docIDs {
+		funcs = append(funcs, func() (string, string, error) {
+			resp, errx := chatService.Completion(ctxx, &pb.CompletionRequest{
+				DocumentId: docID,
+				Prompt:     prompt,
+				ModelOptions: &pb.ModelOptions{
+					Model:       bedrock.ClaudeHaiku,
+					Temperature: 1,
+					MaxTokens:   256,
+					TopP:        1,
 				},
-			},
+			})
+
+			return docID, resp.Completion, errx
 		})
-		if err != nil {
-			log.Println(err)
-		}
 	}
+
+	var wg sync.WaitGroup
+	wg.Add(len(funcs))
+
+	syn := make(chan struct{}, 10)
+
+	for idx := range len(funcs) {
+		go func(idx int) {
+			defer wg.Done()
+
+			syn <- struct{}{}
+			defer func() { <-syn }()
+
+			docID, completion, err := funcs[idx]()
+			if err != nil {
+				return
+			}
+
+			docName := idsName[docID]
+			docName = strings.TrimSuffix(docName, ".pdf")
+
+			log.Printf("Insert %s", docName)
+			err = notion.UpdatePage(ctx, pageIDs[docName], column, completion)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}(idx)
+	}
+
+	wg.Wait()
 }
