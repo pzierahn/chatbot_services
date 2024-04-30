@@ -6,6 +6,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
+	"io"
 	"log"
 )
 
@@ -31,11 +32,17 @@ func main() {
 		CollectionID: "59698763-c0ff-48c4-a69d-3d6ad62a7d50",
 		Prompt:       "Give a list of evaluation metrics used in the training of a machine learning model",
 	})
+	if err != nil {
+		log.Fatalf("could not execute: %v", err)
+	}
 
 	for {
 		result, err := stream.Recv()
-		if err != nil {
-			log.Fatalf("could not receive: %v", err)
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			log.Printf("could not receive: %v", err)
+			break
 		}
 
 		log.Printf("Finish: %v", result)

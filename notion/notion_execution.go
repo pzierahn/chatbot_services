@@ -3,7 +3,7 @@ package notion
 import (
 	"github.com/pzierahn/chatbot_services/llm/bedrock"
 	pb "github.com/pzierahn/chatbot_services/proto"
-	"log"
+	"sync"
 )
 
 var model = &pb.ModelOptions{
@@ -18,45 +18,81 @@ func (client *Client) ExecutePrompt(prompt *pb.NotionPrompt, stream pb.Notion_Ex
 
 	pageIDs, err := client.ListDocumentIDs(ctx, prompt.DatabaseID)
 	if err != nil {
-		log.Println(err)
 		return err
 	}
 
 	names, err := client.documents.MapDocumentNames(ctx, &pb.CollectionID{
 		Id: prompt.CollectionID,
 	})
-	log.Printf("Names: %s", names)
 
 	err = client.AddColumn(ctx, prompt.DatabaseID, prompt.Prompt)
 	if err != nil {
-		log.Println(err)
 		return err
 	}
 
+	jobs := make([]func() (string, error), 0)
+
 	for documentName, pageID := range pageIDs {
-		documentID := names.Items[documentName]
-		log.Printf("Document: %s (%s)", documentName, documentID)
-
-		resp, err := client.chat.Completion(ctx, &pb.CompletionRequest{
-			DocumentId:   documentID,
-			Prompt:       prompt.Prompt,
-			ModelOptions: model,
-		})
-		if err != nil {
-			log.Println(err)
-			return err
+		documentID, ok := names.Items[documentName]
+		if !ok {
+			continue
 		}
 
-		err = client.UpdateRow(ctx, pageID, prompt.Prompt, resp.Completion)
-		if err != nil {
-			log.Println(err)
-			return err
-		}
+		jobs = append(jobs, func() (string, error) {
+			resp, err := client.chat.Completion(ctx, &pb.CompletionRequest{
+				DocumentId:   documentID,
+				Prompt:       prompt.Prompt,
+				ModelOptions: model,
+			})
+			if err != nil {
+				return documentName, err
+			}
 
-		_ = stream.Send(&pb.ExecutionResult{
-			Document: documentName,
+			err = client.UpdateRow(ctx, pageID, prompt.Prompt, resp.Completion)
+			if err != nil {
+				return documentName, err
+			}
+
+			return documentName, nil
 		})
 	}
+
+	var wg sync.WaitGroup
+	wg.Add(len(jobs))
+
+	agents := 10
+	mux := make(chan struct{}, agents)
+	for range agents {
+		mux <- struct{}{}
+	}
+
+	for _, job := range jobs {
+		go func(job func() (string, error)) {
+			defer wg.Done()
+
+			select {
+			case <-ctx.Done():
+				return
+			case _, ok := <-mux:
+				if !ok {
+					return
+				}
+			}
+
+			defer func() { mux <- struct{}{} }()
+
+			documentName, err := job()
+			if err != nil {
+				return
+			}
+
+			_ = stream.Send(&pb.ExecutionResult{
+				Document: documentName,
+			})
+		}(job)
+	}
+
+	wg.Wait()
 
 	return nil
 }
