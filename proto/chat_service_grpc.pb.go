@@ -26,7 +26,6 @@ const (
 	ChatService_ListThreadIDs_FullMethodName           = "/chatbot.chat.v4.ChatService/ListThreadIDs"
 	ChatService_DeleteThread_FullMethodName            = "/chatbot.chat.v4.ChatService/DeleteThread"
 	ChatService_DeleteMessageFromThread_FullMethodName = "/chatbot.chat.v4.ChatService/DeleteMessageFromThread"
-	ChatService_BatchChat_FullMethodName               = "/chatbot.chat.v4.ChatService/BatchChat"
 	ChatService_Completion_FullMethodName              = "/chatbot.chat.v4.ChatService/Completion"
 )
 
@@ -40,7 +39,6 @@ type ChatServiceClient interface {
 	ListThreadIDs(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*ThreadIDs, error)
 	DeleteThread(ctx context.Context, in *ThreadID, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteMessageFromThread(ctx context.Context, in *MessageID, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	BatchChat(ctx context.Context, in *BatchRequest, opts ...grpc.CallOption) (*BatchResponse, error)
 	Completion(ctx context.Context, in *CompletionRequest, opts ...grpc.CallOption) (*CompletionResponse, error)
 }
 
@@ -106,15 +104,6 @@ func (c *chatServiceClient) DeleteMessageFromThread(ctx context.Context, in *Mes
 	return out, nil
 }
 
-func (c *chatServiceClient) BatchChat(ctx context.Context, in *BatchRequest, opts ...grpc.CallOption) (*BatchResponse, error) {
-	out := new(BatchResponse)
-	err := c.cc.Invoke(ctx, ChatService_BatchChat_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *chatServiceClient) Completion(ctx context.Context, in *CompletionRequest, opts ...grpc.CallOption) (*CompletionResponse, error) {
 	out := new(CompletionResponse)
 	err := c.cc.Invoke(ctx, ChatService_Completion_FullMethodName, in, out, opts...)
@@ -134,7 +123,6 @@ type ChatServiceServer interface {
 	ListThreadIDs(context.Context, *Collection) (*ThreadIDs, error)
 	DeleteThread(context.Context, *ThreadID) (*emptypb.Empty, error)
 	DeleteMessageFromThread(context.Context, *MessageID) (*emptypb.Empty, error)
-	BatchChat(context.Context, *BatchRequest) (*BatchResponse, error)
 	Completion(context.Context, *CompletionRequest) (*CompletionResponse, error)
 	mustEmbedUnimplementedChatServiceServer()
 }
@@ -160,9 +148,6 @@ func (UnimplementedChatServiceServer) DeleteThread(context.Context, *ThreadID) (
 }
 func (UnimplementedChatServiceServer) DeleteMessageFromThread(context.Context, *MessageID) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteMessageFromThread not implemented")
-}
-func (UnimplementedChatServiceServer) BatchChat(context.Context, *BatchRequest) (*BatchResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method BatchChat not implemented")
 }
 func (UnimplementedChatServiceServer) Completion(context.Context, *CompletionRequest) (*CompletionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Completion not implemented")
@@ -288,24 +273,6 @@ func _ChatService_DeleteMessageFromThread_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ChatService_BatchChat_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BatchRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ChatServiceServer).BatchChat(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ChatService_BatchChat_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ChatServiceServer).BatchChat(ctx, req.(*BatchRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _ChatService_Completion_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CompletionRequest)
 	if err := dec(in); err != nil {
@@ -354,10 +321,6 @@ var ChatService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteMessageFromThread",
 			Handler:    _ChatService_DeleteMessageFromThread_Handler,
-		},
-		{
-			MethodName: "BatchChat",
-			Handler:    _ChatService_BatchChat_Handler,
 		},
 		{
 			MethodName: "Completion",

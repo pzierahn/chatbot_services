@@ -16,8 +16,6 @@ service ChatService {
   rpc ListThreadIDs(collections.v2.Collection) returns (ThreadIDs);
   rpc DeleteThread(ThreadID) returns (google.protobuf.Empty);
   rpc DeleteMessageFromThread(MessageID) returns (google.protobuf.Empty);
-
-  rpc BatchChat(BatchRequest) returns (BatchResponse);
   rpc Completion(CompletionRequest) returns (CompletionResponse);
 }
 
