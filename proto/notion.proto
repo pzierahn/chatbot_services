@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+option go_package = "./proto";
+
+package chatbot.notion.v1;
+
+import "google/protobuf/empty.proto";
+
+service Notion {
+  rpc ListDatabases(google.protobuf.Empty) returns (Databases);
+  rpc ExecutePrompt(NotionPrompt) returns (stream ExecutionResult);
+}
+
+message NotionPrompt {
+  string databaseID = 1;
+  string collectionID = 2;
+  string prompt = 3;
+}
+
+message ExecutionResult {
+  string document = 1;
+}
+
+message DatabasesID {
+  string id = 1;
+}
+
+message Databases {
+  message Item {
+    string id = 1;
+    string name = 2;
+  }
+
+  repeated Item items = 1;
+}
