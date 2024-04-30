@@ -31,7 +31,7 @@ func main() {
 	stream, err := notion.ExecutePrompt(ctx, &pb.NotionPrompt{
 		DatabaseID:   "8b9304529d664d2997834734345236f6",
 		CollectionID: "59698763-c0ff-48c4-a69d-3d6ad62a7d50",
-		Prompt:       "Give a list of evaluation metrics used in the training of a machine learning model",
+		Prompt:       "List all Authors of the paper, separated by comma.",
 		ModelOptions: &pb.ModelOptions{
 			Model:       bedrock.ClaudeHaiku,
 			Temperature: 1.0,
@@ -52,6 +52,6 @@ func main() {
 			break
 		}
 
-		log.Printf("Completed: %v", result)
+		log.Printf("Completed: %v", result.Document)
 	}
 }
