@@ -18,6 +18,17 @@ service ChatService {
   rpc DeleteMessageFromThread(MessageID) returns (google.protobuf.Empty);
 
   rpc BatchChat(BatchRequest) returns (BatchResponse);
+  rpc Completion(CompletionRequest) returns (CompletionResponse);
+}
+
+message CompletionRequest {
+  string document_id = 1;
+  string prompt = 2;
+  ModelOptions model_options = 3;
+}
+
+message CompletionResponse {
+  string completion = 1;
 }
 
 message BatchRequest {
