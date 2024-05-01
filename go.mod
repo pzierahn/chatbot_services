@@ -17,7 +17,7 @@ require (
 	github.com/jomei/notionapi v1.13.0
 	github.com/qdrant/go-client v1.9.0
 	github.com/sashabaranov/go-openai v1.23.0
-	google.golang.org/api v0.176.1
+	google.golang.org/api v0.177.0
 	google.golang.org/grpc v1.63.2
 	google.golang.org/protobuf v1.34.0
 	jaytaylor.com/html2text v0.0.0-20230321000545-74c2419ad056
