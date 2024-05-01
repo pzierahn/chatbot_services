@@ -20,6 +20,9 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
+	Notion_SetApiKey_FullMethodName     = "/chatbot.notion.v1.Notion/SetApiKey"
+	Notion_RemoveApiKey_FullMethodName  = "/chatbot.notion.v1.Notion/RemoveApiKey"
+	Notion_GetApiKey_FullMethodName     = "/chatbot.notion.v1.Notion/GetApiKey"
 	Notion_ListDatabases_FullMethodName = "/chatbot.notion.v1.Notion/ListDatabases"
 	Notion_ExecutePrompt_FullMethodName = "/chatbot.notion.v1.Notion/ExecutePrompt"
 )
@@ -28,6 +31,9 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type NotionClient interface {
+	SetApiKey(ctx context.Context, in *NotionApiKey, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	RemoveApiKey(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetApiKey(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*NotionApiKey, error)
 	ListDatabases(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Databases, error)
 	ExecutePrompt(ctx context.Context, in *NotionPrompt, opts ...grpc.CallOption) (Notion_ExecutePromptClient, error)
 }
@@ -38,6 +44,33 @@ type notionClient struct {
 
 func NewNotionClient(cc grpc.ClientConnInterface) NotionClient {
 	return &notionClient{cc}
+}
+
+func (c *notionClient) SetApiKey(ctx context.Context, in *NotionApiKey, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Notion_SetApiKey_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *notionClient) RemoveApiKey(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Notion_RemoveApiKey_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *notionClient) GetApiKey(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*NotionApiKey, error) {
+	out := new(NotionApiKey)
+	err := c.cc.Invoke(ctx, Notion_GetApiKey_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *notionClient) ListDatabases(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Databases, error) {
@@ -85,6 +118,9 @@ func (x *notionExecutePromptClient) Recv() (*ExecutionResult, error) {
 // All implementations must embed UnimplementedNotionServer
 // for forward compatibility
 type NotionServer interface {
+	SetApiKey(context.Context, *NotionApiKey) (*emptypb.Empty, error)
+	RemoveApiKey(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
+	GetApiKey(context.Context, *emptypb.Empty) (*NotionApiKey, error)
 	ListDatabases(context.Context, *emptypb.Empty) (*Databases, error)
 	ExecutePrompt(*NotionPrompt, Notion_ExecutePromptServer) error
 	mustEmbedUnimplementedNotionServer()
@@ -94,6 +130,15 @@ type NotionServer interface {
 type UnimplementedNotionServer struct {
 }
 
+func (UnimplementedNotionServer) SetApiKey(context.Context, *NotionApiKey) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetApiKey not implemented")
+}
+func (UnimplementedNotionServer) RemoveApiKey(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveApiKey not implemented")
+}
+func (UnimplementedNotionServer) GetApiKey(context.Context, *emptypb.Empty) (*NotionApiKey, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetApiKey not implemented")
+}
 func (UnimplementedNotionServer) ListDatabases(context.Context, *emptypb.Empty) (*Databases, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListDatabases not implemented")
 }
@@ -111,6 +156,60 @@ type UnsafeNotionServer interface {
 
 func RegisterNotionServer(s grpc.ServiceRegistrar, srv NotionServer) {
 	s.RegisterService(&Notion_ServiceDesc, srv)
+}
+
+func _Notion_SetApiKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(NotionApiKey)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NotionServer).SetApiKey(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Notion_SetApiKey_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NotionServer).SetApiKey(ctx, req.(*NotionApiKey))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Notion_RemoveApiKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NotionServer).RemoveApiKey(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Notion_RemoveApiKey_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NotionServer).RemoveApiKey(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Notion_GetApiKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NotionServer).GetApiKey(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Notion_GetApiKey_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NotionServer).GetApiKey(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Notion_ListDatabases_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -159,6 +258,18 @@ var Notion_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "chatbot.notion.v1.Notion",
 	HandlerType: (*NotionServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "SetApiKey",
+			Handler:    _Notion_SetApiKey_Handler,
+		},
+		{
+			MethodName: "RemoveApiKey",
+			Handler:    _Notion_RemoveApiKey_Handler,
+		},
+		{
+			MethodName: "GetApiKey",
+			Handler:    _Notion_GetApiKey_Handler,
+		},
 		{
 			MethodName: "ListDatabases",
 			Handler:    _Notion_ListDatabases_Handler,

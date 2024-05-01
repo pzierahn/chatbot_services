@@ -159,7 +159,7 @@ func main() {
 	})
 	pb.RegisterChatServiceServer(grpcServer, chatService)
 
-	notion, err := notion2.New(chatService, docsService)
+	notion, err := notion2.New(chatService, docsService, db, authService)
 	if err != nil {
 		log.Fatalf("failed to create notion service: %v", err)
 	}

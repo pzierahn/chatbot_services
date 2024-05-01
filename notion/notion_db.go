@@ -11,7 +11,12 @@ const fileColumn = "ID"
 
 // ListDatabases retrieves all databases in the workspace.
 func (client *Client) ListDatabases(ctx context.Context, _ *emptypb.Empty) (*pb.Databases, error) {
-	resp, err := client.api.Search.Do(ctx, &notionapi.SearchRequest{
+	api, err := client.getAPIClient(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := api.Search.Do(ctx, &notionapi.SearchRequest{
 		Filter: notionapi.SearchFilter{
 			Value:    "database",
 			Property: "object",
@@ -40,7 +45,12 @@ func (client *Client) ListDatabases(ctx context.Context, _ *emptypb.Empty) (*pb.
 
 // CreateDatabase creates a new database in the workspace.
 func (client *Client) CreateDatabase(ctx context.Context, title string) (*notionapi.Database, error) {
-	resp, err := client.api.Database.Create(ctx, &notionapi.DatabaseCreateRequest{
+	api, err := client.getAPIClient(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := api.Database.Create(ctx, &notionapi.DatabaseCreateRequest{
 		Parent: notionapi.Parent{
 			Type:   "page_id",
 			PageID: "9579f240b48c453b8af0bf129fb1881e",
@@ -67,7 +77,12 @@ func (client *Client) CreateDatabase(ctx context.Context, title string) (*notion
 }
 
 func (client *Client) ListDocumentIDs(ctx context.Context, databaseID string) (map[string]string, error) {
-	dbEntries, err := client.api.Database.Query(
+	api, err := client.getAPIClient(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	dbEntries, err := api.Database.Query(
 		ctx, notionapi.DatabaseID(databaseID),
 		&notionapi.DatabaseQueryRequest{
 			Sorts: []notionapi.SortObject{
@@ -102,7 +117,12 @@ func (client *Client) ListDocumentIDs(ctx context.Context, databaseID string) (m
 }
 
 func (client *Client) AddColumn(ctx context.Context, databaseID, title string) error {
-	_, err := client.api.Database.Update(
+	api, err := client.getAPIClient(ctx)
+	if err != nil {
+		return err
+	}
+
+	_, err = api.Database.Update(
 		ctx,
 		notionapi.DatabaseID(databaseID),
 		&notionapi.DatabaseUpdateRequest{
@@ -117,7 +137,12 @@ func (client *Client) AddColumn(ctx context.Context, databaseID, title string) e
 }
 
 func (client *Client) UpdateRow(ctx context.Context, pageID, column, text string) error {
-	_, err := client.api.Page.Update(
+	api, err := client.getAPIClient(ctx)
+	if err != nil {
+		return err
+	}
+
+	_, err = api.Page.Update(
 		ctx,
 		notionapi.PageID(pageID),
 		&notionapi.PageUpdateRequest{
