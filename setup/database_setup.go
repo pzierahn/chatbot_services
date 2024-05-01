@@ -9,8 +9,8 @@ import (
 //go:embed db_setup.sql
 var dbSetup string
 
-// SetupTables creates all the tables in the database
-func SetupTables(ctx context.Context, conn *pgxpool.Pool) error {
+// CreateTables creates all the tables in the database
+func CreateTables(ctx context.Context, conn *pgxpool.Pool) error {
 	_, err := conn.Exec(ctx, dbSetup)
 	return err
 }

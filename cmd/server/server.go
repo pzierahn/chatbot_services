@@ -71,7 +71,7 @@ func main() {
 	}
 	defer db.Close()
 
-	err = setup.SetupTables(ctx, db)
+	err = setup.CreateTables(ctx, db)
 	if err != nil {
 		log.Fatalf("failed to setup tables: %v", err)
 	}
