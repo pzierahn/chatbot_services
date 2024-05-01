@@ -19,7 +19,7 @@ create table if not exists document_chunks
     id          uuid primary key default gen_random_uuid(),
     document_id uuid references documents (id) ON DELETE CASCADE,
     text        text not null,
-    index       int  not null
+    index int not null
 );
 
 create table if not exists model_usages
@@ -74,4 +74,11 @@ create table if not exists crashlytics
     app_version text        not null,
     exception   text        not null,
     stack_trace text
+);
+
+create table if not exists notion_api_keys
+(
+    user_id VARCHAR(36) not null,
+    api_key text        not null,
+    primary key (user_id)
 );
