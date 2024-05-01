@@ -44,7 +44,7 @@ func (service *Service) Completion(ctx context.Context, prompt *pb.CompletionReq
 	}}
 
 	resp, err := model.GenerateCompletion(ctx, &llm.GenerateRequest{
-		SystemPrompt: "Be concise and short. Do not repeat parts of the prompt.",
+		SystemPrompt: "Be concise and short. Do not repeat parts of the prompt. Don't write any prefaces or introductions.",
 		Messages:     messages,
 		Model:        prompt.ModelOptions.Model,
 		MaxTokens:    int(prompt.ModelOptions.MaxTokens),
