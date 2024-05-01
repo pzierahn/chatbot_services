@@ -5,6 +5,7 @@ import (
 	"github.com/jomei/notionapi"
 	pb "github.com/pzierahn/chatbot_services/proto"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"strings"
 )
 
 const fileColumn = "ID"
@@ -110,7 +111,10 @@ func (client *Client) ListDocumentIDs(ctx context.Context, databaseID string) (m
 			continue
 		}
 
-		pageIDs[rich.Title[0].PlainText] = result.ID.String()
+		filename := rich.Title[0].PlainText
+		filename = strings.TrimSuffix(filename, ".pdf")
+
+		pageIDs[filename] = result.ID.String()
 	}
 
 	return pageIDs, nil
