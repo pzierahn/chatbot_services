@@ -68,7 +68,7 @@ func (client *Client) GetApiKey(ctx context.Context, _ *emptypb.Empty) (*pb.Noti
 
 	apiKey := &pb.NotionApiKey{}
 
-	if !ok {
+	if ok {
 		apiKey.Key = key
 		return apiKey, nil
 	}
