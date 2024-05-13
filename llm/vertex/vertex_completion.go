@@ -16,6 +16,9 @@ func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateR
 	model.TopP = &req.TopP
 	model.Temperature = &req.Temperature
 	model.MaxOutputTokens = &outputTokens
+	model.SystemInstruction = &genai.Content{
+		Parts: []genai.Part{genai.Text(req.SystemPrompt)},
+	}
 
 	var parts []genai.Part
 	for _, msg := range req.Messages {
