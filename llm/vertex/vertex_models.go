@@ -8,11 +8,16 @@ import (
 const modelPrefix = "google."
 
 const (
-	GeminiPro   = "gemini-1.0-pro-002"
-	GeminiPro15 = "gemini-1.5-pro-preview-0409"
+	GeminiPro15        = "gemini-1.5-pro-latest"
+	GeminiFlash        = "gemini-1.5-flash-latest"
+	GeminiExperimental = "gemini-experimental"
 )
 
 var ModelCosts = map[string]llm.PricePer1000Tokens{
+	GeminiPro15: {
+		Input:  0.007,
+		Output: 0.021,
+	},
 	"gemini-1.0-pro": {
 		Input:  0.0005,
 		Output: 0.0015,
@@ -29,7 +34,11 @@ var ModelCosts = map[string]llm.PricePer1000Tokens{
 		Input:  0.0005,
 		Output: 0.0015,
 	},
-	GeminiPro15: {
+	"gemini-1.5-pro-preview-0409": {
+		Input:  0.007,
+		Output: 0.021,
+	},
+	"gemini-1.5-pro-preview-0514": {
 		Input:  0.007,
 		Output: 0.021,
 	},
@@ -38,8 +47,6 @@ var ModelCosts = map[string]llm.PricePer1000Tokens{
 func (client *Client) ProvidesModel(name string) bool {
 	switch {
 	case strings.HasPrefix(name, modelPrefix):
-		return true
-	case name == GeminiPro:
 		return true
 	case name == GeminiPro15:
 		return true
