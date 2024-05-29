@@ -11,8 +11,7 @@ import (
 )
 
 const (
-	systemPromptQuote  = "When summarizing key points from the specified source, clearly indicate direct references by adding a reference right after the respective content. Only reference materials that are explicitly included in the context window."
-	systemPromptNormal = "You are a helpful assistant. Answer in Markdown format without any code blocks. Give references to the source document if possible."
+	systemPromptNormal = "You are a helpful assistant. Answer in Markdown format."
 )
 
 func (service *Service) StartThread(ctx context.Context, prompt *pb.ThreadPrompt) (*pb.Thread, error) {
@@ -56,7 +55,7 @@ func (service *Service) StartThread(ctx context.Context, prompt *pb.ThreadPrompt
 	}
 
 	resp, err := model.GenerateCompletion(ctx, &llm.GenerateRequest{
-		SystemPrompt: systemPromptQuote,
+		SystemPrompt: systemPromptNormal,
 		Messages:     messages,
 		Model:        prompt.ModelOptions.Model,
 		MaxTokens:    int(prompt.ModelOptions.MaxTokens),
