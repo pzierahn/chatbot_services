@@ -2,7 +2,9 @@ package notion
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"github.com/jackc/pgx/v5"
 	pb "github.com/pzierahn/chatbot_services/proto"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"sync"
@@ -73,12 +75,17 @@ func (client *Client) GetApiKey(ctx context.Context, _ *emptypb.Empty) (*pb.Noti
 		return apiKey, nil
 	}
 
-	// Get the api key from the database
+	// Get the API key from the database
 	err = client.db.QueryRow(ctx,
 		`SELECT api_key FROM notion_api_keys WHERE user_id = $1`,
 		userID).Scan(&apiKey.Key)
+	if errors.Is(err, pgx.ErrNoRows) {
+		// No results found, return empty key
+		apiKey.Key = ""
+		return apiKey, nil
+	}
 	if err != nil {
-		return nil, fmt.Errorf("could not get api key: %v", err)
+		return nil, fmt.Errorf("could not get API key: %v", err)
 	}
 
 	mux.Lock()
