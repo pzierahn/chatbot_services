@@ -147,7 +147,8 @@ func (service *Service) insertEmbeddings(doc *document, embeddings Embeddings) e
 
 		vector, ok := embeddings[fragment.Id]
 		if !ok {
-			return fmt.Errorf("missing embedding for fragment %s", fragment.Id)
+			log.Printf("missing embedding for fragment %s", fragment.Id)
+			continue
 		}
 
 		vectors = append(vectors, &vectordb.Vector{
