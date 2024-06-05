@@ -59,7 +59,7 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 	}
 
 	completion, err := model.GenerateCompletion(ctx, &llm.GenerateRequest{
-		SystemPrompt: systemPromptQuote,
+		SystemPrompt: systemPromptNormal,
 		Messages:     messages,
 		Model:        prompt.ModelOptions.Model,
 		MaxTokens:    1024,
