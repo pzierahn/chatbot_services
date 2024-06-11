@@ -8,8 +8,8 @@ import (
 const modelPrefix = "google."
 
 const (
-	GeminiPro15        = "gemini-1.5-pro-latest"
-	GeminiFlash        = "gemini-1.5-flash-latest"
+	GeminiPro15        = "gemini-1.5-pro-001"
+	GeminiFlash        = "gemini-1.5-flash-001"
 	GeminiExperimental = "gemini-experimental"
 )
 
