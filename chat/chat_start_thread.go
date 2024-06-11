@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	systemPromptNormal = "You are a helpful assistant. Answer in Markdown format."
+	systemPromptNormal = "You are a helpful assistant. Answer in Markdown format. Quote the sources by [SourceID]"
 )
 
 func (service *Service) StartThread(ctx context.Context, prompt *pb.ThreadPrompt) (*pb.Thread, error) {
@@ -36,12 +36,10 @@ func (service *Service) StartThread(ctx context.Context, prompt *pb.ThreadPrompt
 
 	var messages []*llm.Message
 
-	for inx, doc := range chunkData.texts {
-		messages = append(messages, &llm.Message{
-			Type: llm.MessageTypeUser,
-			Text: "Source: '" + chunkData.source[inx] + "'\n" + doc,
-		})
-	}
+	messages = append(messages, &llm.Message{
+		Type: llm.MessageTypeUser,
+		Text: chunkData.toJSON(),
+	})
 
 	// Add the prompt to the messages
 	messages = append(messages, &llm.Message{

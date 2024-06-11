@@ -2,6 +2,7 @@ package chat
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	pb "github.com/pzierahn/chatbot_services/proto"
 	"github.com/pzierahn/chatbot_services/utils"
@@ -12,6 +13,20 @@ type chunks struct {
 	source []string
 	texts  []string
 	scores map[string]float32
+}
+
+func (chunks *chunks) toJSON() string {
+	var parts []map[string]string
+
+	for inx := range chunks.source {
+		parts = append(parts, map[string]string{
+			"SourceID": chunks.source[inx],
+			"Text":     chunks.texts[inx],
+		})
+	}
+
+	byt, _ := json.MarshalIndent(parts, "", "  ")
+	return string(byt)
 }
 
 func (service *Service) searchForContext(ctx context.Context, prompt *pb.ThreadPrompt) (*chunks, error) {
