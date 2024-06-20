@@ -10,7 +10,7 @@ import (
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	conn, err := grpc.Dial(
+	conn, err := grpc.NewClient(
 		"localhost:8869",
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
