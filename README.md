@@ -15,9 +15,6 @@ You also need to set the following environment variables:
 # OpenAI API key
 export OPENAI_API_KEY=""
 
-# Notion API key
-export NOTION_API_KEY=""
-
 # QDRANT API key
 export CHATBOT_QDRANT_KEY=""
 
