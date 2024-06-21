@@ -1,6 +1,9 @@
 package llm
 
-import "context"
+import (
+	"context"
+	"log"
+)
 
 const (
 	MessageTypeUser = iota
@@ -72,7 +75,11 @@ type Completion interface {
 }
 
 type DummyTracker struct {
+	PrintUsage bool
 }
 
 func (dummy DummyTracker) Track(ctx context.Context, usage ModelUsage) {
+	if dummy.PrintUsage {
+		log.Printf("Usage: %v", usage)
+	}
 }
