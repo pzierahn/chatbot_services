@@ -6,9 +6,10 @@ import (
 )
 
 const (
-	ClaudeSonnet = "anthropic.claude-3-sonnet-20240229-v1:0"
-	ClaudeHaiku  = "anthropic.claude-3-haiku-20240307-v1:0"
-	ClaudeOpus   = "anthropic.claude-3-opus-20240229-v1:0"
+	ClaudeSonnet35 = "anthropic.claude-3-5-sonnet-20240620-v1:0"
+	ClaudeSonnet   = "anthropic.claude-3-sonnet-20240229-v1:0"
+	ClaudeHaiku    = "anthropic.claude-3-haiku-20240307-v1:0"
+	ClaudeOpus     = "anthropic.claude-3-opus-20240229-v1:0"
 )
 
 var ModelCosts = map[string]llm.PricePer1000Tokens{
@@ -24,6 +25,10 @@ var ModelCosts = map[string]llm.PricePer1000Tokens{
 		Input:  0.003,
 		Output: 0.015,
 	},
+	"claude-3-5-sonnet-20240620": {
+		Input:  0.003,
+		Output: 0.015,
+	},
 	"claude-3-haiku-48k-20240307": {
 		Input:  0.00025,
 		Output: 0.00125,
@@ -36,6 +41,8 @@ var ModelCosts = map[string]llm.PricePer1000Tokens{
 
 func (client *Client) ProvidesModel(name string) bool {
 	switch {
+	case name == ClaudeSonnet35:
+		return true
 	case name == ClaudeSonnet:
 		return true
 	case name == ClaudeHaiku:
