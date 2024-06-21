@@ -11,7 +11,9 @@ import (
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	client, err := bedrock.New(llm.DummyTracker{})
+	client, err := bedrock.New(llm.DummyTracker{
+		PrintUsage: true,
+	})
 	if err != nil {
 		log.Fatalf("Failed to create client: %v", err)
 	}
@@ -22,7 +24,7 @@ func main() {
 			Type: llm.MessageTypeUser,
 			Text: "What is the meaning of life?",
 		}},
-		Model:       bedrock.ClaudeSonnet,
+		Model:       bedrock.ClaudeSonnet35,
 		MaxTokens:   128,
 		TopP:        1.0,
 		Temperature: 1.0,
