@@ -59,6 +59,7 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 	request := openai.ChatCompletionRequest{
 		Model:       model,
 		Temperature: req.Temperature,
+		TopP:        req.TopP,
 		MaxTokens:   req.MaxTokens,
 		Messages:    messages,
 		Tools:       client.getTools(),
