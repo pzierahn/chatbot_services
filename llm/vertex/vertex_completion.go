@@ -3,9 +3,7 @@ package vertex
 import (
 	"cloud.google.com/go/vertexai/genai"
 	"context"
-	"encoding/json"
 	"github.com/pzierahn/chatbot_services/llm"
-	"log"
 	"strings"
 	"time"
 )
@@ -34,9 +32,6 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 		return nil, err
 	}
 
-	byt, _ := json.MarshalIndent(gen, "", "  ")
-	log.Printf("Completion: %s", byt)
-
 	if len(gen.Candidates) == 0 || len(gen.Candidates[0].Content.Parts) == 0 {
 		return nil, nil
 	}
@@ -52,14 +47,12 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 	}
 
 	if fun, ok := gen.Candidates[0].Content.Parts[0].(genai.FunctionCall); ok {
-		log.Printf("name=%s args=%s", fun.Name, fun.Args)
 		parts = append(parts, fun)
 
 		result, err := client.callTool(ctx, fun.Name, fun.Args)
 		if err != nil {
 			return nil, err
 		}
-		log.Println("result:", result)
 
 		parts = append(parts, genai.FunctionResponse{
 			Name: fun.Name,
