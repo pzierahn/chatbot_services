@@ -6,7 +6,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/bedrockruntime"
 	"github.com/pzierahn/chatbot_services/llm"
-	"log"
 	"strings"
 	"time"
 )
@@ -59,10 +58,10 @@ const (
 	ChatMessageRoleAssistant = "assistant"
 )
 
-func (client *Client) invokeRequest(req *ClaudeRequest) (*ClaudeResponse, error) {
+func (client *Client) invokeRequest(model string, req *ClaudeRequest) (*ClaudeResponse, error) {
 	body, _ := json.Marshal(req)
 	result, err := client.bedrock.InvokeModel(context.Background(), &bedrockruntime.InvokeModelInput{
-		ModelId:     aws.String("anthropic.claude-3-5-sonnet-20240620-v1:0"),
+		ModelId:     aws.String(model),
 		ContentType: aws.String("application/json"),
 		Accept:      aws.String("application/json"),
 		Body:        body,
@@ -113,7 +112,7 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 		Tools:            client.getTools(),
 	}
 
-	response, err := client.invokeRequest(&request)
+	response, err := client.invokeRequest(req.Model, &request)
 	if err != nil {
 		return nil, err
 	}
@@ -149,11 +148,8 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 			}
 		}
 
-		byt, _ := json.MarshalIndent(messages, "", "  ")
-		log.Println(string(byt))
-
 		request.Messages = messages
-		response, err = client.invokeRequest(&request)
+		response, err = client.invokeRequest(req.Model, &request)
 		if err != nil {
 			return nil, err
 		}
