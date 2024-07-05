@@ -19,13 +19,12 @@ const (
 type Client struct {
 	ProjectID        string
 	Location         string
-	EmbeddingModel   string
 	predictionClient *aiplatform.PredictionClient
 	client           *genai.Client
-	usage            llm.Usage
+	tools            map[string]llm.ToolDefinition
 }
 
-func New(ctx context.Context, usage llm.Usage) (*Client, error) {
+func New(ctx context.Context) (*Client, error) {
 
 	var authOption []option.ClientOption
 	if _, err := os.Stat(localCredentialsFile); err == nil {
@@ -55,9 +54,7 @@ func New(ctx context.Context, usage llm.Usage) (*Client, error) {
 	return &Client{
 		ProjectID:        projectID,
 		Location:         location,
-		EmbeddingModel:   "textembedding-gecko-multilingual",
 		predictionClient: predictionClient,
 		client:           client,
-		usage:            usage,
 	}, nil
 }
