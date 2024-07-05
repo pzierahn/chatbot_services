@@ -24,24 +24,12 @@ func main() {
 
 	ctx := context.Background()
 
-	params := Parameters{
-		Type: "object",
-		Properties: map[string]ParametersProperties{
-			"prompt": {
-				Type:        "string",
-				Description: "The prompt for which to retrieve sources.",
-			},
-		},
-		Required: []string{"prompt"},
-	}
-	byt, _ := json.Marshal(params)
-
 	thread := []openai.ChatCompletionMessage{{
 		Role:    openai.ChatMessageRoleSystem,
 		Content: "You are a helpful assistant. Quote the sources by \\cite{SourceID}",
 	}, {
 		Role:    openai.ChatMessageRoleUser,
-		Content: "Who is Arnold Pitterson?",
+		Content: "Who are Arnold Pitterson and Hugo Alberts von Tahl?",
 	}}
 
 	client := openai.NewClient(os.Getenv("OPENAI_API_KEY"))
@@ -54,8 +42,17 @@ func main() {
 			Type: openai.ToolTypeFunction,
 			Function: &openai.FunctionDefinition{
 				Name:        "get_sources",
-				Description: "Retrieves the sources for the prompt.",
-				Parameters:  json.RawMessage(byt),
+				Description: "Retrieves the sources for the prompt. The prompt should be optimized for embedding retrieval. The tool will return a list of sources in JSON format with the following fields: SourceID, Content.",
+				Parameters: Parameters{
+					Type: "object",
+					Properties: map[string]ParametersProperties{
+						"prompt": {
+							Type:        "string",
+							Description: "The topic for which to retrieve sources. The prompt should be optimized for embedding retrieval.",
+						},
+					},
+					Required: []string{"prompt"},
+				},
 			},
 		}},
 	})
@@ -63,29 +60,34 @@ func main() {
 		log.Fatal(err)
 	}
 
-	byt, _ = json.MarshalIndent(resp, "", "  ")
+	byt, _ := json.MarshalIndent(resp, "", "  ")
 	log.Println(string(byt))
 
 	sources := []map[string]string{{
-		"SourceID": "2131245",
+		"SourceID": "S1",
 		"Content":  "Arnold Pitterson is a fictional character in the book 'The City of Glass' by Paul Auster.",
+	}, {
+		"SourceID": "S2",
+		"Content":  "Hugo Alberts von Tahl was a German philosopher who lived in the 19th century. He is known for his work on the philosophy of language and logic.",
 	}}
 
 	if resp.Choices[0].FinishReason == openai.FinishReasonToolCalls {
 		thread = append(thread, resp.Choices[0].Message)
-		tool := resp.Choices[0].Message.ToolCalls[0]
-		function := tool.Function
 
-		// Add your code here to handle the function call
-		log.Println("Function call:", function.Name)
-		log.Println("Function parameters:", function.Arguments)
+		for inx, tool := range resp.Choices[0].Message.ToolCalls {
+			function := tool.Function
 
-		sourceByt, _ := json.Marshal(sources)
-		thread = append(thread, openai.ChatCompletionMessage{
-			ToolCallID: tool.ID,
-			Role:       openai.ChatMessageRoleTool,
-			Content:    string(sourceByt),
-		})
+			// Add your code here to handle the function call
+			log.Println("Function call:", function.Name)
+			log.Println("Function parameters:", function.Arguments)
+
+			sourceByt, _ := json.Marshal(sources[inx])
+			thread = append(thread, openai.ChatCompletionMessage{
+				ToolCallID: tool.ID,
+				Role:       openai.ChatMessageRoleTool,
+				Content:    string(sourceByt),
+			})
+		}
 
 		resp, err = client.CreateChatCompletion(ctx, openai.ChatCompletionRequest{
 			Model:       openai.GPT4o,
