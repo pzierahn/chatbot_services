@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"github.com/pzierahn/chatbot_services/llm"
-	"github.com/pzierahn/chatbot_services/llm/bedrock"
+	"github.com/pzierahn/chatbot_services/llm/anthropic"
 	"log"
 )
 
@@ -11,7 +11,7 @@ import (
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	client, err := bedrock.New(llm.DummyTracker{
+	client, err := anthropic.New(llm.DummyTracker{
 		PrintUsage: true,
 	})
 	if err != nil {
@@ -24,7 +24,7 @@ func main() {
 			Type: llm.MessageTypeUser,
 			Text: "What is the meaning of life?",
 		}},
-		Model:       bedrock.ClaudeSonnet35,
+		Model:       anthropic.ClaudeSonnet35,
 		MaxTokens:   128,
 		TopP:        1.0,
 		Temperature: 1.0,

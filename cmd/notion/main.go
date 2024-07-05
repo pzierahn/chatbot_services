@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"github.com/pzierahn/chatbot_services/llm/bedrock"
+	"github.com/pzierahn/chatbot_services/llm/anthropic"
 	pb "github.com/pzierahn/chatbot_services/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -33,7 +33,7 @@ func main() {
 		CollectionID: "59698763-c0ff-48c4-a69d-3d6ad62a7d50",
 		Prompt:       "List all Authors of the paper, separated by comma.",
 		ModelOptions: &pb.ModelOptions{
-			Model:       bedrock.ClaudeHaiku,
+			Model:       anthropic.ClaudeHaiku,
 			Temperature: 1.0,
 			MaxTokens:   256,
 			TopP:        1.0,

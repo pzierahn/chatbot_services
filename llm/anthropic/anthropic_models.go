@@ -1,4 +1,4 @@
-package bedrock
+package anthropic
 
 import (
 	"github.com/pzierahn/chatbot_services/llm"

@@ -2,7 +2,7 @@ package account
 
 import (
 	"github.com/pzierahn/chatbot_services/llm"
-	"github.com/pzierahn/chatbot_services/llm/bedrock"
+	"github.com/pzierahn/chatbot_services/llm/anthropic"
 	"github.com/pzierahn/chatbot_services/llm/openai"
 	"github.com/pzierahn/chatbot_services/llm/vertex"
 )
@@ -10,7 +10,7 @@ import (
 var prices = map[string]llm.PricePer1000Tokens{}
 
 func init() {
-	for name, price := range bedrock.ModelCosts {
+	for name, price := range anthropic.ModelCosts {
 		prices[name] = price
 	}
 

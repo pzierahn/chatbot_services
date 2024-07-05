@@ -11,7 +11,7 @@ import (
 	"github.com/pzierahn/chatbot_services/crashlytics"
 	"github.com/pzierahn/chatbot_services/documents"
 	"github.com/pzierahn/chatbot_services/llm"
-	"github.com/pzierahn/chatbot_services/llm/bedrock"
+	"github.com/pzierahn/chatbot_services/llm/anthropic"
 	"github.com/pzierahn/chatbot_services/llm/openai"
 	"github.com/pzierahn/chatbot_services/llm/vertex"
 	notion2 "github.com/pzierahn/chatbot_services/notion"
@@ -128,7 +128,7 @@ func main() {
 		log.Fatalf("failed to create vertex service: %v", err)
 	}
 
-	bedrockService, err := bedrock.New(accountService)
+	bedrockService, err := anthropic.New(accountService)
 	if err != nil {
 		log.Printf("failed to create bedrock service: %v", err)
 	}

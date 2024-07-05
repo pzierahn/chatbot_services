@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/pzierahn/chatbot_services/llm"
-	"github.com/pzierahn/chatbot_services/llm/openai"
+	"github.com/pzierahn/chatbot_services/llm/anthropic"
 	"log"
 	"strings"
 )
@@ -16,7 +16,7 @@ func getSources(_ context.Context, input map[string]interface{}) (string, error)
 		return "", fmt.Errorf("missing prompt")
 	}
 
-	log.Println("Call", "get_sources", prompt)
+	log.Printf("Call get_sources: '%s'", prompt)
 
 	var sources []map[string]string
 
@@ -41,7 +41,7 @@ func getSources(_ context.Context, input map[string]interface{}) (string, error)
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	client, err := openai.New()
+	client, err := anthropic.New()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -70,7 +70,7 @@ func main() {
 			Content: "Who are Arnold Pitterson and Hugo Alberts von Tahl?",
 		}},
 		Temperature: 1.0,
-		MaxTokens:   128,
+		MaxTokens:   256,
 		Model:       "gpt-4o",
 	})
 	if err != nil {
