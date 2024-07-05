@@ -75,6 +75,13 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 		return nil, err
 	}
 
+	usage := llm.ModelUsage{
+		UserId:       req.UserId,
+		Model:        resp.Model,
+		InputTokens:  resp.Usage.PromptTokens,
+		OutputTokens: resp.Usage.CompletionTokens,
+	}
+
 	//
 	// The model wants to call a tools
 	//
@@ -113,6 +120,9 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 		if err != nil {
 			return nil, err
 		}
+
+		usage.OutputTokens += resp.Usage.CompletionTokens
+		usage.InputTokens += resp.Usage.PromptTokens
 	}
 
 	return &llm.CompletionResponse{
@@ -121,11 +131,6 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 			Content:   resp.Choices[0].Message.Content,
 			Timestamp: time.Now(),
 		},
-		Usage: llm.ModelUsage{
-			UserId:       req.UserId,
-			Model:        resp.Model,
-			InputTokens:  resp.Usage.PromptTokens,
-			OutputTokens: resp.Usage.CompletionTokens,
-		},
+		Usage: usage,
 	}, nil
 }
