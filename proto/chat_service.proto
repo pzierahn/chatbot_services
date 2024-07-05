@@ -2,7 +2,7 @@ syntax = "proto3";
 
 option go_package = "./proto";
 
-package chatbot.chat.v4;
+package chatbot.chat.v5;
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
@@ -10,7 +10,6 @@ import "google/protobuf/empty.proto";
 import "collection_service.proto";
 
 service ChatService {
-  rpc StartThread(ThreadPrompt) returns (Thread);
   rpc PostMessage(Prompt) returns (Message);
   rpc GetThread(ThreadID) returns (Thread);
   rpc ListThreadIDs(collections.v2.Collection) returns (ThreadIDs);
@@ -49,21 +48,22 @@ message BatchResponse {
 
   repeated Completion items = 4;
 }
-message Prompt {
-  string threadID = 1;
-  string prompt = 2;
-  ModelOptions model_options = 3;
-}
 
-message ThreadPrompt {
-  string prompt = 1;
-  string collection_id = 2;
+message Prompt {
+  // Thread ID to post the message to
+  string thread_id = 1;
+
+  // Prompt to generate completion
+  string prompt = 2;
+
+  // Model options
   ModelOptions model_options = 3;
 
   // Search options
   float threshold = 4;
   uint32 limit = 5;
 
+  // Attached documents
   repeated string document_ids = 6;
 }
 
@@ -74,18 +74,49 @@ message ModelOptions {
   float top_p = 4;
 }
 
-message Message {
+message ToolCall {
+  // ID of the tool to call
   string id = 1;
-  string prompt = 2;
-  string completion = 3;
-  google.protobuf.Timestamp timestamp = 4;
+
+  // Type of tool to call
+  string type = 2;
+
+  // Function to call
+  Function function = 3;
+
+  message Function {
+    // Name of the function to call
+    string name = 1;
+    // Arguments to pass to the function in JSON format
+    string arguments = 2;
+  }
+}
+
+message Message {
+  // Unique ID of the message
+  string id = 1;
+
+  // Role of the message
+  enum Role {
+    USER = 0;
+    ASSISTANT = 1;
+    TOOL = 2;
+  }
+  Role role = 2;
+
+  // Content of the message
+  string content = 3;
+
+  // Tool calls made in the message
+  repeated ToolCall tool_calls = 4;
+
+  // Timestamp of the message
+  google.protobuf.Timestamp timestamp = 5;
 }
 
 message Thread {
   string id = 1;
   repeated Message messages = 2;
-  repeated string referenceIDs = 3;
-  map<string, float> reference_scores = 4;
 }
 
 message ThreadID {

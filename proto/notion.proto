@@ -24,7 +24,7 @@ message NotionPrompt {
   string databaseID = 1;
   string collectionID = 2;
   string prompt = 3;
-  chat.v4.ModelOptions modelOptions = 4;
+  chat.v5.ModelOptions modelOptions = 4;
 }
 
 message ExecutionResult {
