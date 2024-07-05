@@ -42,7 +42,7 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 			Type: llm.MessageTypeUser,
 			Text: msg.Prompt,
 		}, {
-			Type: llm.MessageTypeBot,
+			Type: llm.MessageTypeAssistant,
 			Text: msg.Completion,
 		}}...)
 	}

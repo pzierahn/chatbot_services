@@ -7,7 +7,7 @@ import (
 
 const (
 	MessageTypeUser = iota
-	MessageTypeBot
+	MessageTypeAssistant
 )
 
 type Message struct {

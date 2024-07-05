@@ -22,7 +22,7 @@ func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateR
 		switch msg.Type {
 		case llm.MessageTypeUser:
 			role = openai.ChatMessageRoleUser
-		case llm.MessageTypeBot:
+		case llm.MessageTypeAssistant:
 			role = openai.ChatMessageRoleAssistant
 		}
 

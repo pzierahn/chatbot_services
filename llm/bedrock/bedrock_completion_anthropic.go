@@ -53,7 +53,7 @@ func (client *Client) generateCompletionAnthropic(ctx context.Context, req *llm.
 		switch msg.Type {
 		case llm.MessageTypeUser:
 			role = "user"
-		case llm.MessageTypeBot:
+		case llm.MessageTypeAssistant:
 			role = "assistant"
 		}
 
