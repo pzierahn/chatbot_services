@@ -41,6 +41,16 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 		return nil, nil
 	}
 
+	usage := llm.ModelUsage{
+		UserId: req.UserId,
+		Model:  modelName,
+	}
+
+	if gen.UsageMetadata != nil {
+		usage.InputTokens = int(gen.UsageMetadata.PromptTokenCount)
+		usage.OutputTokens = int(gen.UsageMetadata.CandidatesTokenCount)
+	}
+
 	if fun, ok := gen.Candidates[0].Content.Parts[0].(genai.FunctionCall); ok {
 		log.Printf("name=%s args=%s", fun.Name, fun.Args)
 		parts = append(parts, fun)
@@ -58,12 +68,14 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 			},
 		})
 
-		byt, _ := json.MarshalIndent(parts, "", "  ")
-		log.Printf("parts: %s", byt)
-
 		gen, err = model.GenerateContent(ctx, parts...)
 		if err != nil {
 			return nil, err
+		}
+
+		if gen.UsageMetadata != nil {
+			usage.InputTokens += int(gen.UsageMetadata.PromptTokenCount)
+			usage.OutputTokens += int(gen.UsageMetadata.CandidatesTokenCount)
 		}
 	}
 
@@ -72,22 +84,12 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 		return nil, nil
 	}
 
-	resp := &llm.CompletionResponse{
+	return &llm.CompletionResponse{
 		Message: &llm.Message{
 			Role:      llm.MessageTypeUser,
 			Content:   string(txt),
 			Timestamp: time.Now(),
 		},
-	}
-
-	if gen.UsageMetadata != nil {
-		resp.Usage = llm.ModelUsage{
-			UserId:       req.UserId,
-			Model:        modelName,
-			InputTokens:  int(gen.UsageMetadata.PromptTokenCount),
-			OutputTokens: int(gen.UsageMetadata.CandidatesTokenCount),
-		}
-	}
-
-	return resp, nil
+		Usage: usage,
+	}, nil
 }
