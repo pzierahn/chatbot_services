@@ -9,12 +9,12 @@ import (
 
 type Client struct {
 	bedrock *bedrockruntime.Client
-	usage   llm.Usage
+	tools   map[string]llm.ToolDefinition
 }
 
 const region = "us-east-1"
 
-func New(usage llm.Usage) (*Client, error) {
+func New() (*Client, error) {
 	sdkConfig, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(region))
 	if err != nil {
 		return nil, err
@@ -22,6 +22,5 @@ func New(usage llm.Usage) (*Client, error) {
 
 	return &Client{
 		bedrock: bedrockruntime.NewFromConfig(sdkConfig),
-		usage:   usage,
 	}, nil
 }
