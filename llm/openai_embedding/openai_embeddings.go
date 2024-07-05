@@ -8,7 +8,7 @@ import (
 
 const embeddingModel = openai.LargeEmbedding3
 
-func (client *Client) CreateEmbeddings(ctx context.Context, req *llm.EmbeddingRequest) (*llm.EmbeddingResponse, error) {
+func (client *Client) Create(ctx context.Context, req *llm.EmbeddingRequest) (*llm.EmbeddingResponse, error) {
 	resp, err := client.client.CreateEmbeddings(
 		ctx,
 		openai.EmbeddingRequestStrings{
@@ -19,15 +19,6 @@ func (client *Client) CreateEmbeddings(ctx context.Context, req *llm.EmbeddingRe
 	)
 	if err != nil {
 		return nil, err
-	}
-
-	if !req.SkipTracking {
-		client.usage.Track(ctx, llm.ModelUsage{
-			UserId:       req.UserId,
-			Model:        string(resp.Model),
-			InputTokens:  resp.Usage.PromptTokens,
-			OutputTokens: resp.Usage.CompletionTokens,
-		})
 	}
 
 	return &llm.EmbeddingResponse{

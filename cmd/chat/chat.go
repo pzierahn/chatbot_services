@@ -33,5 +33,5 @@ func main() {
 		log.Fatalf("Failed to generate completion: %v", err)
 	}
 
-	log.Printf("Response: %v", resp.Text)
+	log.Printf("CompletionResponse: %v", resp.Text)
 }
