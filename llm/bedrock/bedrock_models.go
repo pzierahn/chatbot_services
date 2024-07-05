@@ -2,7 +2,6 @@ package bedrock
 
 import (
 	"github.com/pzierahn/chatbot_services/llm"
-	"strings"
 )
 
 const (
@@ -48,8 +47,6 @@ func (client *Client) ProvidesModel(name string) bool {
 	case name == ClaudeHaiku:
 		return true
 	case name == ClaudeOpus:
-		return true
-	case strings.HasPrefix(name, "amazon."):
 		return true
 	default:
 		return false
