@@ -123,7 +123,8 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 		OutputTokens: response.Usage.OutputTokens,
 	}
 
-	if response.StopReason == "tool_use" {
+	loops := 0
+	for response.StopReason == "tool_use" && loops < 6 {
 		messages = append(messages, ClaudeMessage{
 			Role:    ChatMessageRoleAssistant,
 			Content: response.Content,
@@ -155,6 +156,8 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 
 		usage.OutputTokens += response.Usage.OutputTokens
 		usage.InputTokens += response.Usage.InputTokens
+
+		loops++
 	}
 
 	return &llm.CompletionResponse{
