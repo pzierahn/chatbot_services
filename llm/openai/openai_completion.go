@@ -7,7 +7,6 @@ import (
 	"github.com/sashabaranov/go-openai"
 	"log"
 	"strings"
-	"time"
 )
 
 func (client *Client) toOpenAIMessage(msg llm.Message) openai.ChatCompletionMessage {
@@ -127,9 +126,8 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 
 	return &llm.CompletionResponse{
 		Message: &llm.Message{
-			Role:      llm.MessageTypeAssistant,
-			Content:   resp.Choices[0].Message.Content,
-			Timestamp: time.Now(),
+			Role:    llm.MessageTypeAssistant,
+			Content: resp.Choices[0].Message.Content,
 		},
 		Usage: usage,
 	}, nil

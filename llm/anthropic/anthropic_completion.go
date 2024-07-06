@@ -7,7 +7,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/bedrockruntime"
 	"github.com/pzierahn/chatbot_services/llm"
 	"strings"
-	"time"
 )
 
 type ClaudeMessage struct {
@@ -160,9 +159,8 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 
 	return &llm.CompletionResponse{
 		Message: &llm.Message{
-			Role:      llm.MessageTypeAssistant,
-			Content:   strings.TrimSpace(response.Content[0].Text),
-			Timestamp: time.Now(),
+			Role:    llm.MessageTypeAssistant,
+			Content: strings.TrimSpace(response.Content[0].Text),
 		},
 		Usage: usage,
 	}, nil

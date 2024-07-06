@@ -5,7 +5,6 @@ import (
 	"context"
 	"github.com/pzierahn/chatbot_services/llm"
 	"strings"
-	"time"
 )
 
 func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest) (*llm.CompletionResponse, error) {
@@ -82,9 +81,8 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 
 	return &llm.CompletionResponse{
 		Message: &llm.Message{
-			Role:      llm.MessageTypeUser,
-			Content:   string(txt),
-			Timestamp: time.Now(),
+			Role:    llm.MessageTypeUser,
+			Content: string(txt),
 		},
 		Usage: usage,
 	}, nil

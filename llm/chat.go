@@ -2,13 +2,12 @@ package llm
 
 import (
 	"context"
-	"time"
 )
 
 const (
-	MessageTypeUser = iota
-	MessageTypeAssistant
-	MessageTypeTool
+	MessageTypeUser      = "user"
+	MessageTypeAssistant = "assistant"
+	MessageTypeTool      = "tool"
 )
 
 type Function struct {
@@ -18,7 +17,6 @@ type Function struct {
 
 type ToolCall struct {
 	Id       string
-	Type     string
 	Function Function
 }
 
@@ -41,10 +39,10 @@ type ToolDefinition struct {
 }
 
 type Message struct {
-	Role      int        `json:"role,omitempty"`
-	Content   string     `json:"content,omitempty"`
-	ToolCalls []ToolCall `json:"tool_calls,omitempty"`
-	Timestamp time.Time  `json:"timestamp,omitempty"`
+	Role       string     `json:"role,omitempty"`
+	Content    string     `json:"content,omitempty"`
+	ToolCalls  []ToolCall `json:"tool_calls,omitempty"`
+	ToolCallID string     `json:"tool_call_id,omitempty"`
 }
 
 type CompletionRequest struct {
