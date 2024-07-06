@@ -68,7 +68,7 @@ func main() {
 		SystemPrompt: "You are a helpful assistant. Quote the sources by \\cite{SourceID}",
 		Messages: []*llm.Message{{
 			Role:    llm.MessageTypeUser,
-			Content: "Who are Arnold Pitterson and Hugo Alberts von Tahl?",
+			Content: "Who is Arnold Pitterson? Who is Hugo Alberts von Tahl?",
 		}},
 		Temperature: 1.0,
 		TopP:        1.0,
