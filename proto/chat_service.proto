@@ -4,7 +4,6 @@ option go_package = "./proto";
 
 package chatbot.chat.v5;
 
-import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 
 import "collection_service.proto";
@@ -74,44 +73,18 @@ message ModelOptions {
   float top_p = 4;
 }
 
-message ToolCall {
-  // ID of the tool to call
-  string id = 1;
-
-  // Type of tool to call
-  string type = 2;
-
-  // Function to call
-  Function function = 3;
-
-  message Function {
-    // Name of the function to call
-    string name = 1;
-    // Arguments to pass to the function in JSON format
-    string arguments = 2;
-  }
-}
-
 message Message {
   // Unique ID of the message
   string id = 1;
 
-  // Role of the message
-  enum Role {
-    USER = 0;
-    ASSISTANT = 1;
-    TOOL = 2;
-  }
-  Role role = 2;
+  // Prompt used to generate the message
+  string prompt = 2;
 
-  // Content of the message
-  string content = 3;
+  // Generated completion
+  string completion = 3;
 
-  // Tool calls made in the message
-  repeated ToolCall tool_calls = 4;
-
-  // Timestamp of the message
-  google.protobuf.Timestamp timestamp = 5;
+  // ReferenceIDs and their scores
+  map<string, float> references = 4;
 }
 
 message Thread {
