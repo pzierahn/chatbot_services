@@ -22,12 +22,14 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 	}
 	model.Tools = client.getTools()
 
+	chat := model.StartChat()
+
 	var parts []genai.Part
 	for _, msg := range req.Messages {
 		parts = append(parts, genai.Text(msg.Content))
 	}
 
-	gen, err := model.GenerateContent(ctx, parts...)
+	gen, err := chat.SendMessage(ctx, parts...)
 	if err != nil {
 		return nil, err
 	}
@@ -54,14 +56,15 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 			return nil, err
 		}
 
-		parts = append(parts, genai.FunctionResponse{
+		functionResults := genai.FunctionResponse{
 			Name: fun.Name,
 			Response: map[string]any{
 				"content": result,
 			},
-		})
+		}
+		parts = append(parts, functionResults)
 
-		gen, err = model.GenerateContent(ctx, parts...)
+		gen, err = chat.SendMessage(ctx, functionResults)
 		if err != nil {
 			return nil, err
 		}
