@@ -21,14 +21,16 @@ func (client *Client) toOpenAIMessage(msg llm.Message) openai.ChatCompletionMess
 	}
 
 	message := openai.ChatCompletionMessage{
-		Role:      role,
-		Content:   msg.Content,
-		ToolCalls: make([]openai.ToolCall, len(msg.ToolCalls)),
+		Role:       role,
+		Content:    msg.Content,
+		ToolCalls:  make([]openai.ToolCall, len(msg.ToolCalls)),
+		ToolCallID: msg.ToolCallID,
 	}
 
 	for inx, call := range msg.ToolCalls {
 		message.ToolCalls[inx] = openai.ToolCall{
-			ID: call.Id,
+			ID:   call.Id,
+			Type: openai.ToolTypeFunction,
 			Function: openai.FunctionCall{
 				Name:      call.Function.Name,
 				Arguments: call.Function.Arguments,
