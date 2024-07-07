@@ -2,10 +2,8 @@ package openai
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/pzierahn/chatbot_services/llm"
 	"github.com/sashabaranov/go-openai"
-	"log"
 	"strings"
 )
 
@@ -15,13 +13,21 @@ func (client *Client) toOpenAIMessages(input []*llm.Message) []openai.ChatComple
 	for _, msg := range input {
 		switch msg.Role {
 		case llm.RoleUser:
-			message := openai.ChatCompletionMessage{
-				Role:    openai.ChatMessageRoleUser,
-				Content: msg.Content,
+
+			if msg.Content != "" {
+				messages = append(messages, openai.ChatCompletionMessage{
+					Role:    openai.ChatMessageRoleUser,
+					Content: msg.Content,
+				})
 			}
 
-			messages = append(messages, message)
-			continue
+			for _, response := range msg.ToolResponses {
+				messages = append(messages, openai.ChatCompletionMessage{
+					Role:       openai.ChatMessageRoleTool,
+					Content:    response.Content,
+					ToolCallID: response.CallID,
+				})
+			}
 		case llm.RoleAssistant:
 			message := openai.ChatCompletionMessage{
 				Role:      openai.ChatMessageRoleAssistant,
@@ -41,14 +47,6 @@ func (client *Client) toOpenAIMessages(input []*llm.Message) []openai.ChatComple
 			}
 
 			messages = append(messages, message)
-		case llm.RoleTool:
-			for _, response := range msg.ToolResponses {
-				messages = append(messages, openai.ChatCompletionMessage{
-					Role:       openai.ChatMessageRoleTool,
-					Content:    response.Content,
-					ToolCallID: response.CallID,
-				})
-			}
 		}
 	}
 
@@ -80,9 +78,6 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 		User:        req.UserId,
 	}
 
-	byt, _ := json.MarshalIndent(request, "", "  ")
-	log.Println("request:", string(byt))
-
 	resp, err := client.client.CreateChatCompletion(ctx, request)
 	if err != nil {
 		return nil, err
@@ -95,11 +90,11 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 		OutputTokens: resp.Usage.CompletionTokens,
 	}
 
-	//
-	// The model wants to call a tools
-	//
-
 	if resp.Choices[0].FinishReason == openai.FinishReasonToolCalls {
+		//
+		// The model wants to call tools
+		//
+
 		messages = append(messages, resp.Choices[0].Message)
 
 		for _, tool := range resp.Choices[0].Message.ToolCalls {
@@ -134,6 +129,7 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 			return nil, err
 		}
 
+		// Add the tool uage to the model usage
 		usage.OutputTokens += resp.Usage.CompletionTokens
 		usage.InputTokens += resp.Usage.PromptTokens
 	}

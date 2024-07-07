@@ -88,8 +88,6 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 			role = ChatMessageRoleUser
 		case llm.RoleAssistant:
 			role = ChatMessageRoleAssistant
-		case llm.RoleTool:
-			role = ChatMessageRoleUser
 		}
 
 		var content []Content

@@ -7,7 +7,6 @@ import (
 const (
 	RoleUser      = "user"
 	RoleAssistant = "assistant"
-	RoleTool      = "tool"
 )
 
 type ParametersProperties struct {
