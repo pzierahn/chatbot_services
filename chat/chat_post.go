@@ -1,4 +1,4 @@
-package chat_v5
+package chat
 
 import (
 	"context"

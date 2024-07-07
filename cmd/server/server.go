@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/pzierahn/chatbot_services/chat_v5"
+	"github.com/pzierahn/chatbot_services/chat"
 	pb "github.com/pzierahn/chatbot_services/proto"
 	"google.golang.org/grpc"
 	"log"
@@ -18,7 +18,7 @@ func init() {
 func main() {
 
 	grpcServer := grpc.NewServer()
-	chatService, err := chat_v5.New()
+	chatService, err := chat.New()
 	if err != nil {
 		log.Fatalf("failed to create chat service: %v", err)
 	}
