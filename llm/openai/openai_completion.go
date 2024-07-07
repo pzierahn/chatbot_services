@@ -2,10 +2,8 @@ package openai
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/pzierahn/chatbot_services/llm"
 	"github.com/sashabaranov/go-openai"
-	"log"
 	"strings"
 )
 
@@ -20,10 +18,6 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 	}
 
 	messages = append(messages, messagesToOpenAI(req.Messages)...)
-
-	byt, _ := json.MarshalIndent(messages, "", "  ")
-	log.Printf("messages: %s", string(byt))
-
 	model, _ := strings.CutPrefix(req.Model, modelPrefix)
 
 	request := openai.ChatCompletionRequest{
