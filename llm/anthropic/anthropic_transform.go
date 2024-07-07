@@ -6,12 +6,12 @@ import (
 )
 
 // transformToClaude converts a list of LLM messages to a list of ClaudeMessages
-func transformToClaude(mess []*llm.Message) ([]ClaudeMessage, error) {
-	var messages []ClaudeMessage
+func transformToClaude(messages []*llm.Message) ([]ClaudeMessage, error) {
+	var claudeMessages []ClaudeMessage
 
-	for _, msg := range mess {
+	for _, message := range messages {
 		var role string
-		switch msg.Role {
+		switch message.Role {
 		case llm.RoleUser:
 			role = ChatMessageRoleUser
 		case llm.RoleAssistant:
@@ -19,7 +19,7 @@ func transformToClaude(mess []*llm.Message) ([]ClaudeMessage, error) {
 		}
 
 		var content []Content
-		for _, toolCall := range msg.ToolCalls {
+		for _, toolCall := range message.ToolCalls {
 			var args map[string]interface{}
 			err := json.Unmarshal([]byte(toolCall.Function.Arguments), &args)
 			if err != nil {
@@ -34,7 +34,7 @@ func transformToClaude(mess []*llm.Message) ([]ClaudeMessage, error) {
 			})
 		}
 
-		for _, toolResponse := range msg.ToolResponses {
+		for _, toolResponse := range message.ToolResponses {
 			content = append(content, Content{
 				Type:      ContentTypeToolResult,
 				ToolUseId: toolResponse.CallID,
@@ -42,18 +42,18 @@ func transformToClaude(mess []*llm.Message) ([]ClaudeMessage, error) {
 			})
 		}
 
-		if msg.Content != "" {
+		if message.Content != "" {
 			content = append(content, Content{
 				Type: ContentTypeText,
-				Text: msg.Content,
+				Text: message.Content,
 			})
 		}
 
-		messages = append(messages, ClaudeMessage{
+		claudeMessages = append(claudeMessages, ClaudeMessage{
 			Role:    role,
 			Content: content,
 		})
 	}
 
-	return messages, nil
+	return claudeMessages, nil
 }
