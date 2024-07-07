@@ -130,16 +130,21 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 		})
 
 		// Call the function to get the result
-		results, err := client.callTool(ctx, fun.Name, fun.Args)
+		resultStr, err := client.callTool(ctx, fun.Name, fun.Args)
+		if err != nil {
+			return nil, err
+		}
+
+		// Parse the result
+		var results map[string]interface{}
+		err = json.Unmarshal([]byte(resultStr), &results)
 		if err != nil {
 			return nil, err
 		}
 
 		functionResults := genai.FunctionResponse{
-			Name: fun.Name,
-			Response: map[string]any{
-				"content": results,
-			},
+			Name:     fun.Name,
+			Response: results,
 		}
 		history = append(history, &genai.Content{
 			Role:  RoleUser,
