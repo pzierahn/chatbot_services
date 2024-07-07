@@ -9,54 +9,6 @@ import (
 	"strings"
 )
 
-type ClaudeMessage struct {
-	Role    string    `json:"role,omitempty"`
-	Content []Content `json:"content,omitempty"`
-}
-
-type ClaudeRequest struct {
-	AnthropicVersion string          `json:"anthropic_version,omitempty"`
-	System           string          `json:"system,omitempty"`
-	MaxTokens        int             `json:"max_tokens,omitempty"`
-	Temperature      float32         `json:"temperature,omitempty"`
-	TopP             float32         `json:"top_p,omitempty"`
-	TopK             int             `json:"top_k,omitempty"`
-	Tools            []ClaudeTool    `json:"tools,omitempty"`
-	Messages         []ClaudeMessage `json:"messages,omitempty"`
-}
-
-type Content struct {
-	Type string `json:"type,omitempty"`
-	Text string `json:"text,omitempty"`
-
-	// Function Parameters
-	ID        string                 `json:"id,omitempty"`
-	ToolUseId string                 `json:"tool_use_id,omitempty"`
-	Name      string                 `json:"name,omitempty"`
-	Input     map[string]interface{} `json:"input,omitempty"`
-	Content   string                 `json:"content,omitempty"`
-}
-
-type ClaudeUsage struct {
-	InputTokens  int `json:"input_tokens,omitempty"`
-	OutputTokens int `json:"output_tokens,omitempty"`
-}
-
-type ClaudeResponse struct {
-	Id         string      `json:"id,omitempty"`
-	Model      string      `json:"model,omitempty"`
-	Content    []Content   `json:"content,omitempty"`
-	Role       string      `json:"role,omitempty"`
-	StopReason string      `json:"stop_reason,omitempty"`
-	Type       string      `json:"type,omitempty"`
-	Usage      ClaudeUsage `json:"usage,omitempty"`
-}
-
-const (
-	ChatMessageRoleUser      = "user"
-	ChatMessageRoleAssistant = "assistant"
-)
-
 func (client *Client) invokeRequest(model string, req *ClaudeRequest) (*ClaudeResponse, error) {
 	body, _ := json.Marshal(req)
 	result, err := client.bedrock.InvokeModel(context.Background(), &bedrockruntime.InvokeModelInput{
@@ -79,52 +31,10 @@ func (client *Client) invokeRequest(model string, req *ClaudeRequest) (*ClaudeRe
 }
 
 func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest) (*llm.CompletionResponse, error) {
-	var messages []ClaudeMessage
 
-	for _, msg := range req.Messages {
-		var role string
-		switch msg.Role {
-		case llm.RoleUser:
-			role = ChatMessageRoleUser
-		case llm.RoleAssistant:
-			role = ChatMessageRoleAssistant
-		}
-
-		var content []Content
-		for _, toolCall := range msg.ToolCalls {
-			var args map[string]interface{}
-			err := json.Unmarshal([]byte(toolCall.Function.Arguments), &args)
-			if err != nil {
-				return nil, err
-			}
-
-			content = append(content, Content{
-				Type:  "tool_use",
-				ID:    toolCall.CallID,
-				Name:  toolCall.Function.Name,
-				Input: args,
-			})
-		}
-
-		for _, toolResponse := range msg.ToolResponses {
-			content = append(content, Content{
-				Type:      "tool_result",
-				ToolUseId: toolResponse.CallID,
-				Content:   toolResponse.Content,
-			})
-		}
-
-		if msg.Content != "" {
-			content = append(content, Content{
-				Type: "text",
-				Text: msg.Content,
-			})
-		}
-
-		messages = append(messages, ClaudeMessage{
-			Role:    role,
-			Content: content,
-		})
+	messages, err := transformToClaude(req.Messages)
+	if err != nil {
+		return nil, err
 	}
 
 	request := ClaudeRequest{
@@ -150,14 +60,14 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 	}
 
 	loops := 0
-	for response.StopReason == "tool_use" && loops < 6 {
+	for response.StopReason == ContentTypeToolUse && loops < 6 {
 		messages = append(messages, ClaudeMessage{
 			Role:    ChatMessageRoleAssistant,
 			Content: response.Content,
 		})
 
 		for _, message := range response.Content {
-			if message.Type == "tool_use" {
+			if message.Type == ContentTypeToolUse {
 				result, err := client.callTool(ctx, message.Name, message.Input)
 				if err != nil {
 					return nil, err
@@ -166,7 +76,7 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 				messages = append(messages, ClaudeMessage{
 					Role: ChatMessageRoleUser,
 					Content: []Content{{
-						Type:      "tool_result",
+						Type:      ContentTypeToolResult,
 						ToolUseId: message.ID,
 						Content:   result,
 					}},
