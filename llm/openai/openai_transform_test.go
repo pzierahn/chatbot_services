@@ -22,7 +22,7 @@ func Test_messagesToOpenAI(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	claudeMessages := messagesToOpenAI(messages)
+	history := messagesToOpenAI(messages)
 
 	var expected []openai.ChatCompletionMessage
 	err = json.Unmarshal(openaiMessagesByt, &expected)
@@ -31,8 +31,8 @@ func Test_messagesToOpenAI(t *testing.T) {
 	}
 
 	// Deep equal comparison with reflect.DeepEqual
-	if !reflect.DeepEqual(claudeMessages, expected) {
-		t.Fatalf("Expected %v, got %v", expected, claudeMessages)
+	if !reflect.DeepEqual(history, expected) {
+		t.Fatalf("Expected %v, got %v", expected, history)
 	}
 }
 
