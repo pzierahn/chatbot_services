@@ -60,11 +60,7 @@ message Prompt {
   ModelOptions model_options = 3;
 
   // Search options
-  float threshold = 4;
-  uint32 limit = 5;
-
-  // Attached documents
-  repeated string document_ids = 6;
+  RetrievalOptions retrieval_options = 4;
 }
 
 message ModelOptions {
@@ -72,6 +68,11 @@ message ModelOptions {
   float temperature = 2;
   uint32 max_tokens = 3;
   float top_p = 4;
+}
+
+message RetrievalOptions {
+  float threshold = 1;
+  uint32 documents = 2;
 }
 
 message Message {
