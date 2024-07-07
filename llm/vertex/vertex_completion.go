@@ -49,7 +49,7 @@ func (client *Client) transformToHistory(messages []*llm.Message) ([]*genai.Cont
 			})
 
 			// Check if the next message is a tool response
-			if inx+1 < len(messages) && messages[inx+1].Role == llm.RoleTool {
+			if inx+1 < len(messages) && len(messages[inx+1].ToolResponses) > iny {
 				toolResponse := messages[inx+1].ToolResponses[iny]
 
 				// Parse the tool response
