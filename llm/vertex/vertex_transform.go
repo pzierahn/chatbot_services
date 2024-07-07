@@ -66,3 +66,53 @@ func transformToHistory(messages []*llm.Message) ([]*genai.Content, error) {
 
 	return history, nil
 }
+
+// transformToMessages transforms a list of history items to a list of messages
+func transformToMessages(history []*genai.Content) ([]*llm.Message, error) {
+	var messages []*llm.Message
+
+	for _, content := range history {
+		var role string
+
+		if content.Role == RoleUser {
+			role = llm.RoleUser
+		} else {
+			role = llm.RoleAssistant
+		}
+
+		message := &llm.Message{
+			Role: role,
+		}
+
+		for _, part := range content.Parts {
+			if txt, ok := part.(genai.Text); ok {
+				message.Content = string(txt)
+			} else if call, ok := part.(genai.FunctionCall); ok {
+				args, err := json.Marshal(call.Args)
+				if err != nil {
+					return nil, err
+				}
+
+				message.ToolCalls = append(message.ToolCalls, llm.ToolCall{
+					Function: llm.Function{
+						Name:      call.Name,
+						Arguments: string(args),
+					},
+				})
+			} else if response, ok := part.(genai.FunctionResponse); ok {
+				resp, err := json.Marshal(response.Response)
+				if err != nil {
+					return nil, err
+				}
+
+				message.ToolResponses = append(message.ToolResponses, llm.ToolResponse{
+					Content: string(resp),
+				})
+			}
+		}
+
+		messages = append(messages, message)
+	}
+
+	return messages, nil
+}
