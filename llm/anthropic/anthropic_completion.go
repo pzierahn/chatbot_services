@@ -61,7 +61,7 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 
 	loops := 0
 	for response.StopReason == ContentTypeToolUse && loops < 6 {
-		messages = append(messages, ClaudeMessage{
+		request.Messages = append(request.Messages, ClaudeMessage{
 			Role:    ChatMessageRoleAssistant,
 			Content: response.Content,
 		})
@@ -73,7 +73,7 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 					return nil, err
 				}
 
-				messages = append(messages, ClaudeMessage{
+				request.Messages = append(request.Messages, ClaudeMessage{
 					Role: ChatMessageRoleUser,
 					Content: []Content{{
 						Type:      ContentTypeToolResult,
@@ -84,7 +84,6 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 			}
 		}
 
-		request.Messages = messages
 		response, err = client.invokeRequest(req.Model, &request)
 		if err != nil {
 			return nil, err
