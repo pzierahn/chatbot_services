@@ -22,6 +22,12 @@ services:
       timeout: 3s
       retries: 5
 
+  # Create a MongoDB instance
+  mongo:
+    image: mongodb/mongodb-community-server:latest
+    ports:
+      - "27017:27017"
+
   # Backend is the service that handles requests from the frontend
   backend:
     build: .
