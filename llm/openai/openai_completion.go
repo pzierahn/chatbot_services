@@ -9,36 +9,50 @@ import (
 	"strings"
 )
 
-func (client *Client) toOpenAIMessage(msg llm.Message) openai.ChatCompletionMessage {
-	var role string
-	switch msg.Role {
-	case llm.MessageTypeUser:
-		role = openai.ChatMessageRoleUser
-	case llm.MessageTypeAssistant:
-		role = openai.ChatMessageRoleAssistant
-	case llm.MessageTypeTool:
-		role = openai.ChatMessageRoleTool
-	}
+func (client *Client) toOpenAIMessages(input []*llm.Message) []openai.ChatCompletionMessage {
+	var messages []openai.ChatCompletionMessage
 
-	message := openai.ChatCompletionMessage{
-		Role:       role,
-		Content:    msg.Content,
-		ToolCalls:  make([]openai.ToolCall, len(msg.ToolCalls)),
-		ToolCallID: msg.ToolCallID,
-	}
+	for _, msg := range input {
+		switch msg.Role {
+		case llm.RoleUser:
+			message := openai.ChatCompletionMessage{
+				Role:    openai.ChatMessageRoleUser,
+				Content: msg.Content,
+			}
 
-	for inx, call := range msg.ToolCalls {
-		message.ToolCalls[inx] = openai.ToolCall{
-			ID:   call.Id,
-			Type: openai.ToolTypeFunction,
-			Function: openai.FunctionCall{
-				Name:      call.Function.Name,
-				Arguments: call.Function.Arguments,
-			},
+			messages = append(messages, message)
+			continue
+		case llm.RoleAssistant:
+			message := openai.ChatCompletionMessage{
+				Role:      openai.ChatMessageRoleAssistant,
+				Content:   msg.Content,
+				ToolCalls: make([]openai.ToolCall, len(msg.ToolCalls)),
+			}
+
+			for inx, call := range msg.ToolCalls {
+				message.ToolCalls[inx] = openai.ToolCall{
+					ID:   call.CallID,
+					Type: openai.ToolTypeFunction,
+					Function: openai.FunctionCall{
+						Name:      call.Function.Name,
+						Arguments: call.Function.Arguments,
+					},
+				}
+			}
+
+			messages = append(messages, message)
+		case llm.RoleTool:
+			for _, response := range msg.ToolResponses {
+				messages = append(messages, openai.ChatCompletionMessage{
+					Role:       openai.ChatMessageRoleTool,
+					Content:    response.Content,
+					ToolCallID: response.CallID,
+				})
+			}
 		}
 	}
 
-	return message
+	return messages
 }
 
 func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest) (*llm.CompletionResponse, error) {
@@ -51,9 +65,7 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 		})
 	}
 
-	for _, msg := range req.Messages {
-		messages = append(messages, client.toOpenAIMessage(*msg))
-	}
+	messages = append(messages, client.toOpenAIMessages(req.Messages)...)
 
 	model, _ := strings.CutPrefix(req.Model, modelPrefix)
 
@@ -128,7 +140,7 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 
 	return &llm.CompletionResponse{
 		Message: &llm.Message{
-			Role:    llm.MessageTypeAssistant,
+			Role:    llm.RoleAssistant,
 			Content: resp.Choices[0].Message.Content,
 		},
 		Usage: usage,
