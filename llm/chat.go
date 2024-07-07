@@ -9,24 +9,43 @@ const (
 	RoleAssistant = "assistant"
 )
 
+// ParametersProperties defines the properties of the parameters
 type ParametersProperties struct {
-	Type        string
+	// Type of the parameter
+	Type string
+
+	// Description of the parameter
 	Description string
 }
 
+// ToolParameters defines the input parameters for the function
 type ToolParameters struct {
-	Type       string
+	// Type of the parameters
+	Type string
+
+	// Properties of the parameters
 	Properties map[string]ParametersProperties
-	Required   []string
+
+	// Required parameters
+	Required []string
 }
 
+// ToolDefinition defines a function that can be called by the assistant
 type ToolDefinition struct {
-	Name        string
+	// Function name
+	Name string
+
+	// Description of the tool
 	Description string
-	Parameters  ToolParameters
-	Call        func(ctx context.Context, input map[string]interface{}) (string, error)
+
+	// Parameters of the function
+	Parameters ToolParameters
+
+	// Call is the function to call
+	Call func(ctx context.Context, input map[string]interface{}) (string, error)
 }
 
+// Function defines the function name and arguments
 type Function struct {
 	// Name of the function to call
 	Name string `json:"name,omitempty"`
@@ -35,6 +54,7 @@ type Function struct {
 	Arguments string `json:"arguments,omitempty"`
 }
 
+// ToolCall defines which tool to call
 type ToolCall struct {
 	// ID of the tool call
 	CallID string `json:"tool_call_id,omitempty"`
@@ -43,6 +63,7 @@ type ToolCall struct {
 	Function Function `json:"function,omitempty"`
 }
 
+// ToolResponses defines the response from the tool
 type ToolResponses struct {
 	// Calling tool ID
 	CallID string `json:"tool_call_id,omitempty"`
@@ -51,6 +72,7 @@ type ToolResponses struct {
 	Content string `json:"content,omitempty"`
 }
 
+// Message defines a message in the thread
 type Message struct {
 	// Role of the message
 	Role string `json:"role,omitempty"`
@@ -65,19 +87,37 @@ type Message struct {
 	ToolResponses []ToolResponses `json:"tool_responses,omitempty"`
 }
 
+// CompletionRequest defines the request to the completion API
 type CompletionRequest struct {
-	SystemPrompt string     `json:"system_prompt,omitempty"`
-	Messages     []*Message `json:"messages,omitempty"`
-	Model        string     `json:"model,omitempty"`
-	MaxTokens    int        `json:"max_tokens,omitempty"`
-	TopP         float32    `json:"top_p,omitempty"`
-	Temperature  float32    `json:"temperature,omitempty"`
-	UserId       string     `json:"user_id,omitempty"`
+	// SystemPrompt is the prompt for the system
+	SystemPrompt string `json:"system_prompt,omitempty"`
+
+	// Messages in the thread
+	Messages []*Message `json:"messages,omitempty"`
+
+	// Model to use for completion
+	Model string `json:"model,omitempty"`
+
+	// MaxTokens is the maximum number of tokens to generate
+	MaxTokens int `json:"max_tokens,omitempty"`
+
+	// TopP is the nucleus sampling probability
+	TopP float32 `json:"top_p,omitempty"`
+
+	// Temperature is the sampling temperature
+	Temperature float32 `json:"temperature,omitempty"`
+
+	// UserId to prevent abuse
+	UserId string `json:"user_id,omitempty"`
 }
 
+// CompletionResponse defines the response from the completion API
 type CompletionResponse struct {
-	Message *Message   `json:"message,omitempty"`
-	Usage   ModelUsage `json:"usage,omitempty"`
+	// Message to return
+	Message *Message `json:"message,omitempty"`
+
+	// Usage of the model
+	Usage ModelUsage `json:"usage,omitempty"`
 }
 
 type Chat interface {

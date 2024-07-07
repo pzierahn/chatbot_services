@@ -1,10 +1,18 @@
 package llm
 
+// ModelUsage defines the usage of a model
 type ModelUsage struct {
-	Model        string `json:"model,omitempty"`
-	UserId       string `json:"user_id,omitempty"`
-	InputTokens  int    `json:"prompt_tokens,omitempty"`
-	OutputTokens int    `json:"completion_tokens,omitempty"`
+	// Model name
+	Model string `json:"model,omitempty"`
+
+	// UserId is the user id
+	UserId string `json:"user_id,omitempty"`
+
+	// InputTokens is the number of tokens in the prompt
+	InputTokens int `json:"prompt_tokens,omitempty"`
+
+	// OutputTokens is the number of tokens in the completion
+	OutputTokens int `json:"completion_tokens,omitempty"`
 }
 
 type PricePer1000Tokens struct {
