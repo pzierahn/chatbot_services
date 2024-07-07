@@ -64,7 +64,7 @@ message Prompt {
 }
 
 message ModelOptions {
-  string model = 1;
+  string model_id = 1;
   float temperature = 2;
   uint32 max_tokens = 3;
   float top_p = 4;
