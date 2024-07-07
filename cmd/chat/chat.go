@@ -22,19 +22,21 @@ func getSources(_ context.Context, input map[string]interface{}) (string, error)
 
 	if strings.Contains(prompt, "Arnold Pitterson") {
 		sources = append(sources, map[string]string{
-			"SourceID": "S1",
-			"Content":  "Arnold Pitterson is a fictional character in the book 'The City of Glass' by Paul Auster.",
+			"source-id": "source-123",
+			"content":   "Arnold Pitterson is a fictional character in the book 'The City of Glass' by Paul Auster.",
 		})
 	}
 
 	if strings.Contains(prompt, "Hugo Alberts von Tahl") {
 		sources = append(sources, map[string]string{
-			"SourceID": "S2",
-			"Content":  "Hugo Alberts von Tahl was a German philosopher who lived in the 19th century. He is known for his work on the philosophy of language and logic.",
+			"source-id": "source-456",
+			"content":   "Hugo Alberts von Tahl was a German philosopher who lived in the 19th century. He is known for his work on the philosophy of language and logic.",
 		})
 	}
 
-	byt, _ := json.Marshal(sources)
+	byt, _ := json.Marshal(map[string]interface{}{
+		"sources": sources,
+	})
 	return string(byt), nil
 }
 
@@ -43,6 +45,11 @@ func main() {
 
 	ctx := context.Background()
 
+	//model := "gpt-4o"
+	//client, err := openai.New()
+	//model := vertex.GeminiPro15
+	//client, err := vertex.New(ctx)
+	model := anthropic.ClaudeSonnet35
 	client, err := anthropic.New()
 	if err != nil {
 		log.Fatal(err)
@@ -67,13 +74,13 @@ func main() {
 	resp, err := client.Completion(ctx, &llm.CompletionRequest{
 		SystemPrompt: "You are a helpful assistant. Quote the sources by \\cite{SourceID}",
 		Messages: []*llm.Message{{
-			Role:    llm.MessageTypeUser,
+			Role:    llm.RoleUser,
 			Content: "Who is Arnold Pitterson? Who is Hugo Alberts von Tahl?",
 		}},
 		Temperature: 1.0,
 		TopP:        1.0,
 		MaxTokens:   256,
-		Model:       anthropic.ClaudeSonnet35,
+		Model:       model,
 	})
 	if err != nil {
 		log.Fatal(err)
