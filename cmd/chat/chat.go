@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/pzierahn/chatbot_services/llm"
-	"github.com/pzierahn/chatbot_services/llm/anthropic"
+	"github.com/pzierahn/chatbot_services/llm/vertex"
 	"log"
 	"strings"
 )
@@ -47,10 +47,10 @@ func main() {
 
 	//model := "gpt-4o"
 	//client, err := openai.New()
-	//model := vertex.GeminiPro15
-	//client, err := vertex.New(ctx)
-	model := anthropic.ClaudeSonnet35
-	client, err := anthropic.New()
+	model := vertex.GeminiPro15
+	client, err := vertex.New(ctx)
+	//model := anthropic.ClaudeSonnet35
+	//client, err := anthropic.New()
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -4,6 +4,7 @@ option go_package = "./proto";
 
 package chatbot.chat.v5;
 
+import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 
 import "collection_service.proto";
@@ -83,8 +84,11 @@ message Message {
   // Generated completion
   string completion = 3;
 
+  // Timestamp of the message
+  google.protobuf.Timestamp timestamp = 4;
+
   // ReferenceIDs and their scores
-  map<string, float> references = 4;
+  map<string, float> references = 5;
 }
 
 message Thread {
