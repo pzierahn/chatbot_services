@@ -129,7 +129,7 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 			return nil, err
 		}
 
-		// Add the tool uage to the model usage
+		// Add the tool usage to the model usage
 		usage.OutputTokens += resp.Usage.CompletionTokens
 		usage.InputTokens += resp.Usage.PromptTokens
 	}
