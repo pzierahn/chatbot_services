@@ -63,8 +63,8 @@ type ToolCall struct {
 	Function Function `json:"function,omitempty"`
 }
 
-// ToolResponses defines the response from the tool
-type ToolResponses struct {
+// ToolResponse defines the response from the tool
+type ToolResponse struct {
 	// Calling tool ID
 	CallID string `json:"tool_call_id,omitempty"`
 
@@ -84,7 +84,7 @@ type Message struct {
 	ToolCalls []ToolCall `json:"tool_calls,omitempty"`
 
 	// Tool calls response by tool
-	ToolResponses []ToolResponses `json:"tool_responses,omitempty"`
+	ToolResponses []ToolResponse `json:"tool_responses,omitempty"`
 }
 
 // CompletionRequest defines the request to the completion API
