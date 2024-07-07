@@ -5,20 +5,10 @@ import (
 )
 
 const (
-	MessageTypeUser      = "user"
-	MessageTypeAssistant = "assistant"
-	MessageTypeTool      = "tool"
+	RoleUser      = "user"
+	RoleAssistant = "assistant"
+	RoleTool      = "tool"
 )
-
-type Function struct {
-	Name      string
-	Arguments string
-}
-
-type ToolCall struct {
-	Id       string
-	Function Function
-}
 
 type ParametersProperties struct {
 	Type        string
@@ -38,11 +28,42 @@ type ToolDefinition struct {
 	Call        func(ctx context.Context, input map[string]interface{}) (string, error)
 }
 
+type Function struct {
+	// Name of the function to call
+	Name string `json:"name,omitempty"`
+
+	// Arguments to pass to the function
+	Arguments string `json:"arguments,omitempty"`
+}
+
+type ToolCall struct {
+	// ID of the tool call
+	CallID string `json:"tool_call_id,omitempty"`
+
+	// Define function to call
+	Function Function `json:"function,omitempty"`
+}
+
+type ToolResponses struct {
+	// Calling tool ID
+	CallID string `json:"tool_call_id,omitempty"`
+
+	// Tool response
+	Content string `json:"content,omitempty"`
+}
+
 type Message struct {
-	Role       string     `json:"role,omitempty"`
-	Content    string     `json:"content,omitempty"`
-	ToolCalls  []ToolCall `json:"tool_calls,omitempty"`
-	ToolCallID string     `json:"tool_call_id,omitempty"`
+	// Role of the message
+	Role string `json:"role,omitempty"`
+
+	// User or assistant message
+	Content string `json:"content,omitempty"`
+
+	// Tool calls by assistant
+	ToolCalls []ToolCall `json:"tool_calls,omitempty"`
+
+	// Tool calls response by tool
+	ToolResponses []ToolResponses `json:"tool_responses,omitempty"`
 }
 
 type CompletionRequest struct {

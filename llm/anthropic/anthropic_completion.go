@@ -84,20 +84,48 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 	for _, msg := range req.Messages {
 		var role string
 		switch msg.Role {
-		case llm.MessageTypeUser:
+		case llm.RoleUser:
 			role = ChatMessageRoleUser
-		case llm.MessageTypeAssistant:
+		case llm.RoleAssistant:
 			role = ChatMessageRoleAssistant
-		case llm.MessageTypeTool:
+		case llm.RoleTool:
 			role = ChatMessageRoleUser
 		}
 
-		messages = append(messages, ClaudeMessage{
-			Role: role,
-			Content: []Content{{
+		var content []Content
+		for _, toolCall := range msg.ToolCalls {
+			var args map[string]interface{}
+			err := json.Unmarshal([]byte(toolCall.Function.Arguments), &args)
+			if err != nil {
+				return nil, err
+			}
+
+			content = append(content, Content{
+				Type:  "tool_use",
+				ID:    toolCall.CallID,
+				Name:  toolCall.Function.Name,
+				Input: args,
+			})
+		}
+
+		for _, toolResponse := range msg.ToolResponses {
+			content = append(content, Content{
+				Type:      "tool_result",
+				ToolUseId: toolResponse.CallID,
+				Content:   toolResponse.Content,
+			})
+		}
+
+		if msg.Content != "" {
+			content = append(content, Content{
 				Type: "text",
 				Text: msg.Content,
-			}},
+			})
+		}
+
+		messages = append(messages, ClaudeMessage{
+			Role:    role,
+			Content: content,
 		})
 	}
 
@@ -162,7 +190,7 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 
 	return &llm.CompletionResponse{
 		Message: &llm.Message{
-			Role:    llm.MessageTypeAssistant,
+			Role:    llm.RoleAssistant,
 			Content: strings.TrimSpace(response.Content[0].Text),
 		},
 		Usage: usage,
