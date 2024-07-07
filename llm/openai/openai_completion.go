@@ -2,56 +2,12 @@ package openai
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/pzierahn/chatbot_services/llm"
 	"github.com/sashabaranov/go-openai"
+	"log"
 	"strings"
 )
-
-func (client *Client) toOpenAIMessages(input []*llm.Message) []openai.ChatCompletionMessage {
-	var messages []openai.ChatCompletionMessage
-
-	for _, msg := range input {
-		switch msg.Role {
-		case llm.RoleUser:
-
-			if msg.Content != "" {
-				messages = append(messages, openai.ChatCompletionMessage{
-					Role:    openai.ChatMessageRoleUser,
-					Content: msg.Content,
-				})
-			}
-
-			for _, response := range msg.ToolResponses {
-				messages = append(messages, openai.ChatCompletionMessage{
-					Role:       openai.ChatMessageRoleTool,
-					Content:    response.Content,
-					ToolCallID: response.CallID,
-				})
-			}
-		case llm.RoleAssistant:
-			message := openai.ChatCompletionMessage{
-				Role:      openai.ChatMessageRoleAssistant,
-				Content:   msg.Content,
-				ToolCalls: make([]openai.ToolCall, len(msg.ToolCalls)),
-			}
-
-			for inx, call := range msg.ToolCalls {
-				message.ToolCalls[inx] = openai.ToolCall{
-					ID:   call.CallID,
-					Type: openai.ToolTypeFunction,
-					Function: openai.FunctionCall{
-						Name:      call.Function.Name,
-						Arguments: call.Function.Arguments,
-					},
-				}
-			}
-
-			messages = append(messages, message)
-		}
-	}
-
-	return messages
-}
 
 func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest) (*llm.CompletionResponse, error) {
 	var messages []openai.ChatCompletionMessage
@@ -63,7 +19,10 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 		})
 	}
 
-	messages = append(messages, client.toOpenAIMessages(req.Messages)...)
+	messages = append(messages, messagesToOpenAI(req.Messages)...)
+
+	byt, _ := json.MarshalIndent(messages, "", "  ")
+	log.Printf("messages: %s", string(byt))
 
 	model, _ := strings.CutPrefix(req.Model, modelPrefix)
 
