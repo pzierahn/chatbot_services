@@ -11,7 +11,7 @@ import (
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	client, err := voyageai.New()
+	client, err := voyageai.New(voyageai.ModelVoyageLarge2Instruct)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -10,7 +10,7 @@ type Client struct {
 	model  string
 }
 
-func New() (*Client, error) {
+func New(model string) (*Client, error) {
 	apiKey := os.Getenv("VOYAGE_API_KEY")
 	if apiKey == "" {
 		return nil, errors.New("VOYAGEAI_API_KEY is not set")
@@ -18,6 +18,6 @@ func New() (*Client, error) {
 
 	return &Client{
 		apiKey: apiKey,
-		model:  ModelVoyageLarge2,
+		model:  model,
 	}, nil
 }
