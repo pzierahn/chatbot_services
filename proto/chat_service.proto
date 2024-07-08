@@ -7,8 +7,6 @@ package chatbot.chat.v5;
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 
-import "collection_service.proto";
-
 service ChatService {
   rpc PostMessage(Prompt) returns (Message);
   rpc GetThread(ThreadID) returns (Thread);
