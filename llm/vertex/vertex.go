@@ -5,7 +5,6 @@ import (
 	"cloud.google.com/go/vertexai/genai"
 	"context"
 	"fmt"
-	"github.com/pzierahn/chatbot_services/llm"
 	"google.golang.org/api/option"
 	"os"
 )
@@ -21,7 +20,6 @@ type Client struct {
 	Location         string
 	predictionClient *aiplatform.PredictionClient
 	client           *genai.Client
-	tools            map[string]llm.ToolDefinition
 }
 
 func New(ctx context.Context) (*Client, error) {

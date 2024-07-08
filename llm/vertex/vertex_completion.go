@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/pzierahn/chatbot_services/llm"
 	"strings"
 )
@@ -22,6 +23,7 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 	modelName, _ := strings.CutPrefix(req.Model, modelPrefix)
 
 	outputTokens := int32(req.MaxTokens)
+	tools := toolConverter(req.Tools)
 
 	model := client.client.GenerativeModel(modelName)
 	model.TopP = &req.TopP
@@ -30,7 +32,7 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 	model.SystemInstruction = &genai.Content{
 		Parts: []genai.Part{genai.Text(req.SystemPrompt)},
 	}
-	model.Tools = client.getTools()
+	model.Tools = tools.toVertex()
 
 	chat := model.StartChat()
 
@@ -69,8 +71,18 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 			Parts: []genai.Part{fun},
 		})
 
+		call, found := tools.getFunction(fun.Name)
+		if !found {
+			return nil, fmt.Errorf("unknown tool %s", fun.Name)
+		}
+
+		input := make(map[string]interface{})
+		for key, value := range fun.Args {
+			input[key] = value
+		}
+
 		// Call the function to get the result
-		resultStr, err := client.callTool(ctx, fun.Name, fun.Args)
+		resultStr, err := call(ctx, input)
 		if err != nil {
 			return nil, err
 		}

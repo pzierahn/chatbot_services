@@ -2,8 +2,6 @@ package vertex
 
 import (
 	"cloud.google.com/go/vertexai/genai"
-	"context"
-	"fmt"
 	"github.com/pzierahn/chatbot_services/llm"
 )
 
@@ -18,16 +16,10 @@ type Parameters struct {
 	Required   []string                        `json:"required"`
 }
 
-func (client *Client) SetTools(tools []llm.ToolDefinition) {
-	client.tools = make(map[string]llm.ToolDefinition)
+type toolConverter []llm.ToolDefinition
 
-	for _, tool := range tools {
-		client.tools[tool.Name] = tool
-	}
-}
-
-func (client *Client) getTools() (tools []*genai.Tool) {
-	for _, tool := range client.tools {
+func (list toolConverter) toVertex() (tools []*genai.Tool) {
+	for _, tool := range list {
 		properties := make(map[string]*genai.Schema)
 		for name, prop := range tool.Parameters.Properties {
 			properties[name] = &genai.Schema{
@@ -52,16 +44,13 @@ func (client *Client) getTools() (tools []*genai.Tool) {
 	return tools
 }
 
-func (client *Client) callTool(ctx context.Context, name string, arguments map[string]any) (string, error) {
-	tool, ok := client.tools[name]
-	if !ok {
-		return "", fmt.Errorf("unknown tool %s", name)
+// getFunction returns the function call for a tool by name.
+func (list toolConverter) getFunction(name string) (llm.FunctionCall, bool) {
+	for _, tool := range list {
+		if tool.Name == name {
+			return tool.Call, true
+		}
 	}
 
-	input := make(map[string]interface{})
-	for key, value := range arguments {
-		input[key] = value
-	}
-
-	return tool.Call(ctx, input)
+	return nil, false
 }
