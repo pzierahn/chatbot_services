@@ -5,6 +5,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/pzierahn/chatbot_services/llm"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"time"
 )
 
@@ -56,4 +57,39 @@ func (service *Service) GetThread(ctx context.Context, userId string, threadId u
 	}
 
 	return &thread, nil
+}
+
+// GetThreadIDs returns all thread IDs of a user
+func (service *Service) GetThreadIDs(ctx context.Context, userId string) ([]uuid.UUID, error) {
+	coll := service.mongo.Database(DatabaseName).Collection(CollectionMessages)
+
+	filter := bson.M{
+		"user_id": userId,
+	}
+
+	ops := &options.FindOptions{
+		Projection: bson.M{
+			"thread_id": 1,
+		},
+	}
+
+	cursor, err := coll.Find(ctx, filter, ops)
+	if err != nil {
+		return nil, err
+	}
+
+	defer func() { _ = cursor.Close(ctx) }()
+
+	var result []uuid.UUID
+	for cursor.Next(ctx) {
+		var thread Thread
+		err = cursor.Decode(&thread)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, thread.ThreadId)
+	}
+
+	return result, nil
 }
