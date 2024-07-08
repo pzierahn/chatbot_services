@@ -6,14 +6,12 @@ import (
 	"github.com/sashabaranov/go-openai"
 )
 
-const embeddingModel = openai.LargeEmbedding3
-
-func (client *Client) Create(ctx context.Context, req *llm.EmbeddingRequest) (*llm.EmbeddingResponse, error) {
+func (client *Client) CreateEmbedding(ctx context.Context, req *llm.EmbeddingRequest) (*llm.EmbeddingResponse, error) {
 	resp, err := client.client.CreateEmbeddings(
 		ctx,
 		openai.EmbeddingRequestStrings{
-			Model: embeddingModel,
-			Input: []string{req.Input},
+			Model: client.model,
+			Input: req.Inputs,
 			User:  req.UserId,
 		},
 	)
@@ -21,12 +19,14 @@ func (client *Client) Create(ctx context.Context, req *llm.EmbeddingRequest) (*l
 		return nil, err
 	}
 
-	return &llm.EmbeddingResponse{
-		Data:   resp.Data[0].Embedding,
-		Tokens: resp.Usage.PromptTokens,
-	}, nil
-}
+	results := &llm.EmbeddingResponse{
+		Embeddings: make([][]float32, len(resp.Data)),
+		Tokens:     uint32(resp.Usage.PromptTokens),
+	}
 
-func (client *Client) GetEmbeddingModelName() string {
-	return string(embeddingModel)
+	for idx, item := range resp.Data {
+		results.Embeddings[idx] = item.Embedding
+	}
+
+	return results, nil
 }
