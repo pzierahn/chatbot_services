@@ -58,7 +58,7 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 			return nil, err
 		}
 
-		thread, err = service.db.GetThread(ctx, userId, threadId)
+		thread, err = service.Database.GetThread(ctx, userId, threadId)
 		if err != nil {
 			return nil, err
 		}
@@ -113,7 +113,7 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 
 				log.Printf("get_sources: %v", query)
 
-				search, err := service.search.Search(ctx, vectordb.SearchQuery{
+				search, err := service.Search.Search(ctx, vectordb.SearchQuery{
 					UserId:       userId,
 					CollectionId: prompt.CollectionId,
 					Query:        query,
@@ -144,7 +144,7 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 	//
 
 	thread.Messages = append(messages, response.Message)
-	err = service.db.StoreThread(ctx, thread)
+	err = service.Database.StoreThread(ctx, thread)
 	if err != nil {
 		return nil, err
 	}

@@ -7,24 +7,21 @@ import (
 	"github.com/pzierahn/chatbot_services/auth"
 	"github.com/pzierahn/chatbot_services/datastore"
 	"github.com/pzierahn/chatbot_services/llm"
-	"github.com/pzierahn/chatbot_services/llm/openai"
-	"github.com/pzierahn/chatbot_services/llm/vertex"
 	pb "github.com/pzierahn/chatbot_services/proto"
 	"github.com/pzierahn/chatbot_services/vectordb"
-	"github.com/pzierahn/chatbot_services/vectordb/qdrant"
 )
 
 type Service struct {
 	pb.UnimplementedChatServiceServer
-	models []llm.Chat
-	auth   auth.Service
-	db     *datastore.Service
-	search vectordb.DB
+	Models   []llm.Chat
+	Auth     auth.Service
+	Database *datastore.Service
+	Search   vectordb.DB
 }
 
 // getModel returns the llm.Chat that provides the given model.
 func (service *Service) getModel(name string) (llm.Chat, error) {
-	for _, model := range service.models {
+	for _, model := range service.Models {
 		if model.ProvidesModel(name) {
 			return model, nil
 		}
@@ -35,7 +32,7 @@ func (service *Service) getModel(name string) (llm.Chat, error) {
 
 // Verify checks the user's authentication and funding status.
 func (service *Service) Verify(ctx context.Context) (string, error) {
-	userId, err := service.auth.Verify(ctx)
+	userId, err := service.Auth.Verify(ctx)
 	if err != nil {
 		return "", err
 	}
@@ -55,46 +52,4 @@ func (service *Service) Verify(ctx context.Context) (string, error) {
 func (service *Service) hasFunding(ctx context.Context, userId string) (bool, error) {
 	// TODO: Check if the user has enough funds to chat.
 	return true, nil
-}
-
-func New() (*Service, error) {
-	//uri := os.Getenv("CHATBOT_MONGODB_URI")
-	//if uri == "" {
-	//	log.Fatal("MONGODB_URI is not set")
-	//}
-
-	ctx := context.Background()
-	db, err := datastore.New(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	fakeAuth, _ := auth.WithInsecure()
-
-	openaiClient, err := openai.New()
-	if err != nil {
-		return nil, err
-	}
-
-	vertexClient, err := vertex.New(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	models := []llm.Chat{
-		openaiClient,
-		vertexClient,
-	}
-
-	search, err := qdrant.New()
-	if err != nil {
-		return nil, err
-	}
-
-	return &Service{
-		auth:   fakeAuth,
-		db:     db,
-		models: models,
-		search: search,
-	}, nil
 }
