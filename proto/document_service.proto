@@ -7,22 +7,14 @@ package chatbot.documents.v2;
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
-import "collection_service.proto";
-
 service DocumentService {
   rpc List(DocumentFilter) returns (DocumentList);
   rpc Get(DocumentID) returns (Document);
-  rpc GetHeader(DocumentID) returns (DocumentHeader);
   rpc Rename(RenameDocument) returns (google.protobuf.Empty);
   rpc Delete(DocumentID) returns (google.protobuf.Empty);
   rpc Index(IndexJob) returns (stream IndexProgress);
   rpc Search(SearchQuery) returns (SearchResults);
   rpc GetReferences(ReferenceIDs) returns (References);
-  rpc MapDocumentNames(chatbot.collections.v2.CollectionID) returns (DocumentNames);
-}
-
-message DocumentNames {
-  map<string, string> items = 1;
 }
 
 message RenameDocument {

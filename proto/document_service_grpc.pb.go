@@ -20,15 +20,13 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	DocumentService_List_FullMethodName             = "/chatbot.documents.v2.DocumentService/List"
-	DocumentService_Get_FullMethodName              = "/chatbot.documents.v2.DocumentService/Get"
-	DocumentService_GetHeader_FullMethodName        = "/chatbot.documents.v2.DocumentService/GetHeader"
-	DocumentService_Rename_FullMethodName           = "/chatbot.documents.v2.DocumentService/Rename"
-	DocumentService_Delete_FullMethodName           = "/chatbot.documents.v2.DocumentService/Delete"
-	DocumentService_Index_FullMethodName            = "/chatbot.documents.v2.DocumentService/Index"
-	DocumentService_Search_FullMethodName           = "/chatbot.documents.v2.DocumentService/Search"
-	DocumentService_GetReferences_FullMethodName    = "/chatbot.documents.v2.DocumentService/GetReferences"
-	DocumentService_MapDocumentNames_FullMethodName = "/chatbot.documents.v2.DocumentService/MapDocumentNames"
+	DocumentService_List_FullMethodName          = "/chatbot.documents.v2.DocumentService/List"
+	DocumentService_Get_FullMethodName           = "/chatbot.documents.v2.DocumentService/Get"
+	DocumentService_Rename_FullMethodName        = "/chatbot.documents.v2.DocumentService/Rename"
+	DocumentService_Delete_FullMethodName        = "/chatbot.documents.v2.DocumentService/Delete"
+	DocumentService_Index_FullMethodName         = "/chatbot.documents.v2.DocumentService/Index"
+	DocumentService_Search_FullMethodName        = "/chatbot.documents.v2.DocumentService/Search"
+	DocumentService_GetReferences_FullMethodName = "/chatbot.documents.v2.DocumentService/GetReferences"
 )
 
 // DocumentServiceClient is the client API for DocumentService service.
@@ -37,13 +35,11 @@ const (
 type DocumentServiceClient interface {
 	List(ctx context.Context, in *DocumentFilter, opts ...grpc.CallOption) (*DocumentList, error)
 	Get(ctx context.Context, in *DocumentID, opts ...grpc.CallOption) (*Document, error)
-	GetHeader(ctx context.Context, in *DocumentID, opts ...grpc.CallOption) (*DocumentHeader, error)
 	Rename(ctx context.Context, in *RenameDocument, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Delete(ctx context.Context, in *DocumentID, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Index(ctx context.Context, in *IndexJob, opts ...grpc.CallOption) (DocumentService_IndexClient, error)
 	Search(ctx context.Context, in *SearchQuery, opts ...grpc.CallOption) (*SearchResults, error)
 	GetReferences(ctx context.Context, in *ReferenceIDs, opts ...grpc.CallOption) (*References, error)
-	MapDocumentNames(ctx context.Context, in *CollectionID, opts ...grpc.CallOption) (*DocumentNames, error)
 }
 
 type documentServiceClient struct {
@@ -68,16 +64,6 @@ func (c *documentServiceClient) Get(ctx context.Context, in *DocumentID, opts ..
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Document)
 	err := c.cc.Invoke(ctx, DocumentService_Get_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *documentServiceClient) GetHeader(ctx context.Context, in *DocumentID, opts ...grpc.CallOption) (*DocumentHeader, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(DocumentHeader)
-	err := c.cc.Invoke(ctx, DocumentService_GetHeader_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -157,29 +143,17 @@ func (c *documentServiceClient) GetReferences(ctx context.Context, in *Reference
 	return out, nil
 }
 
-func (c *documentServiceClient) MapDocumentNames(ctx context.Context, in *CollectionID, opts ...grpc.CallOption) (*DocumentNames, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(DocumentNames)
-	err := c.cc.Invoke(ctx, DocumentService_MapDocumentNames_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // DocumentServiceServer is the server API for DocumentService service.
 // All implementations must embed UnimplementedDocumentServiceServer
 // for forward compatibility
 type DocumentServiceServer interface {
 	List(context.Context, *DocumentFilter) (*DocumentList, error)
 	Get(context.Context, *DocumentID) (*Document, error)
-	GetHeader(context.Context, *DocumentID) (*DocumentHeader, error)
 	Rename(context.Context, *RenameDocument) (*emptypb.Empty, error)
 	Delete(context.Context, *DocumentID) (*emptypb.Empty, error)
 	Index(*IndexJob, DocumentService_IndexServer) error
 	Search(context.Context, *SearchQuery) (*SearchResults, error)
 	GetReferences(context.Context, *ReferenceIDs) (*References, error)
-	MapDocumentNames(context.Context, *CollectionID) (*DocumentNames, error)
 	mustEmbedUnimplementedDocumentServiceServer()
 }
 
@@ -192,9 +166,6 @@ func (UnimplementedDocumentServiceServer) List(context.Context, *DocumentFilter)
 }
 func (UnimplementedDocumentServiceServer) Get(context.Context, *DocumentID) (*Document, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
-}
-func (UnimplementedDocumentServiceServer) GetHeader(context.Context, *DocumentID) (*DocumentHeader, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetHeader not implemented")
 }
 func (UnimplementedDocumentServiceServer) Rename(context.Context, *RenameDocument) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Rename not implemented")
@@ -210,9 +181,6 @@ func (UnimplementedDocumentServiceServer) Search(context.Context, *SearchQuery) 
 }
 func (UnimplementedDocumentServiceServer) GetReferences(context.Context, *ReferenceIDs) (*References, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetReferences not implemented")
-}
-func (UnimplementedDocumentServiceServer) MapDocumentNames(context.Context, *CollectionID) (*DocumentNames, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method MapDocumentNames not implemented")
 }
 func (UnimplementedDocumentServiceServer) mustEmbedUnimplementedDocumentServiceServer() {}
 
@@ -259,24 +227,6 @@ func _DocumentService_Get_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(DocumentServiceServer).Get(ctx, req.(*DocumentID))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _DocumentService_GetHeader_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DocumentID)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(DocumentServiceServer).GetHeader(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: DocumentService_GetHeader_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DocumentServiceServer).GetHeader(ctx, req.(*DocumentID))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -374,24 +324,6 @@ func _DocumentService_GetReferences_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
-func _DocumentService_MapDocumentNames_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CollectionID)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(DocumentServiceServer).MapDocumentNames(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: DocumentService_MapDocumentNames_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DocumentServiceServer).MapDocumentNames(ctx, req.(*CollectionID))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // DocumentService_ServiceDesc is the grpc.ServiceDesc for DocumentService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -408,10 +340,6 @@ var DocumentService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _DocumentService_Get_Handler,
 		},
 		{
-			MethodName: "GetHeader",
-			Handler:    _DocumentService_GetHeader_Handler,
-		},
-		{
 			MethodName: "Rename",
 			Handler:    _DocumentService_Rename_Handler,
 		},
@@ -426,10 +354,6 @@ var DocumentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetReferences",
 			Handler:    _DocumentService_GetReferences_Handler,
-		},
-		{
-			MethodName: "MapDocumentNames",
-			Handler:    _DocumentService_MapDocumentNames_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
