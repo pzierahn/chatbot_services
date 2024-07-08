@@ -38,11 +38,7 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 		return nil, err
 	}
 
-	toolList := transformTools(req.Tools)
-	tools := make(map[string]llm.FunctionCall)
-	for _, tool := range req.Tools {
-		tools[tool.Name] = tool.Call
-	}
+	tools := toolConverter(req.Tools)
 
 	request := ClaudeRequest{
 		AnthropicVersion: "bedrock-2023-05-31",
@@ -51,7 +47,7 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 		MaxTokens:        req.MaxTokens,
 		TopP:             req.TopP,
 		Temperature:      req.Temperature,
-		Tools:            toolList,
+		Tools:            tools.toClaude(),
 	}
 
 	response, err := client.invokeRequest(req.Model, &request)
@@ -75,7 +71,7 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 
 		for _, message := range response.Content {
 			if message.Type == ContentTypeToolUse {
-				callTool, ok := tools[message.Name]
+				callTool, ok := tools.getFunction(message.Name)
 				if !ok {
 					return nil, fmt.Errorf("unknown tool %s", message.Name)
 				}
