@@ -1,4 +1,4 @@
-package openai_embedding
+package openai
 
 import (
 	"context"
@@ -10,7 +10,7 @@ func (client *Client) CreateEmbedding(ctx context.Context, req *llm.EmbeddingReq
 	resp, err := client.client.CreateEmbeddings(
 		ctx,
 		openai.EmbeddingRequestStrings{
-			Model: client.model,
+			Model: client.EmbeddingModel,
 			Input: req.Inputs,
 			User:  req.UserId,
 		},

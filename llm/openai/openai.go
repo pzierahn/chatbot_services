@@ -7,7 +7,8 @@ import (
 )
 
 type Client struct {
-	client *openai.Client
+	client         *openai.Client
+	EmbeddingModel openai.EmbeddingModel
 }
 
 func New() (*Client, error) {

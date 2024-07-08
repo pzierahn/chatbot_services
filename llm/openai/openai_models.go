@@ -8,6 +8,16 @@ import (
 
 const modelPrefix = "openai."
 
+const (
+	LargeEmbedding3 = openai.LargeEmbedding3
+	SmallEmbedding3 = openai.SmallEmbedding3
+)
+
+const (
+	DimensionModelLarge = 3072
+	DimensionModelSmall = 1536
+)
+
 var ModelCosts = map[string]llm.PricePer1000Tokens{
 	//
 	// GPT-4 Turbo
