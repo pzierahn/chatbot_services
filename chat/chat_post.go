@@ -129,6 +129,9 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 					return "", err
 				}
 
+				byt2, _ := json.MarshalIndent(search, "", "  ")
+				log.Printf("get_sources: %s", byt2)
+
 				return string(byt), nil
 			},
 		}},
@@ -143,7 +146,7 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 	// Save the response
 	//
 
-	thread.Messages = append(messages, response.Message)
+	thread.Messages = response.Messages
 	err = service.Database.StoreThread(ctx, thread)
 	if err != nil {
 		return nil, err
@@ -152,7 +155,7 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 	return &pb.Message{
 		ThreadId:   thread.Id.String(),
 		Prompt:     prompt.Prompt,
-		Completion: response.Message.Content,
+		Completion: thread.Messages[len(thread.Messages)-1].Content,
 		Timestamp:  timestamppb.Now(),
 	}, nil
 }
