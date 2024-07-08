@@ -2,14 +2,12 @@ package openai
 
 import (
 	"fmt"
-	"github.com/pzierahn/chatbot_services/llm"
 	"github.com/sashabaranov/go-openai"
 	"os"
 )
 
 type Client struct {
 	client *openai.Client
-	tools  map[string]llm.ToolDefinition
 }
 
 func New() (*Client, error) {

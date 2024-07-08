@@ -1,9 +1,6 @@
 package openai
 
 import (
-	"context"
-	"encoding/json"
-	"fmt"
 	"github.com/pzierahn/chatbot_services/llm"
 	"github.com/sashabaranov/go-openai"
 )
@@ -19,17 +16,12 @@ type Parameters struct {
 	Required   []string                        `json:"required"`
 }
 
-func (client *Client) SetTools(tools []llm.ToolDefinition) {
-	client.tools = make(map[string]llm.ToolDefinition)
+type toolConverter []llm.ToolDefinition
 
-	for _, tool := range tools {
-		client.tools[tool.Name] = tool
-	}
-}
+func (tools toolConverter) toOpenAI() []openai.Tool {
+	items := make([]openai.Tool, len(tools))
 
-func (client *Client) getTools() (tools []openai.Tool) {
-
-	for _, tool := range client.tools {
+	for inx, tool := range tools {
 		properties := make(map[string]ParametersProperties)
 		for name, prop := range tool.Parameters.Properties {
 			properties[name] = ParametersProperties{
@@ -38,7 +30,7 @@ func (client *Client) getTools() (tools []openai.Tool) {
 			}
 		}
 
-		tools = append(tools, openai.Tool{
+		items[inx] = openai.Tool{
 			Type: openai.ToolTypeFunction,
 			Function: &openai.FunctionDefinition{
 				Name:        tool.Name,
@@ -49,25 +41,18 @@ func (client *Client) getTools() (tools []openai.Tool) {
 					Required:   tool.Parameters.Required,
 				},
 			},
-		})
-	}
-
-	return tools
-}
-
-func (client *Client) callTool(ctx context.Context, name, arguments string) (string, error) {
-	tool, ok := client.tools[name]
-	if !ok {
-		return "", fmt.Errorf("unknown tool %s", name)
-	}
-
-	var input map[string]interface{}
-	if arguments != "" {
-		err := json.Unmarshal([]byte(arguments), &input)
-		if err != nil {
-			return "", err
 		}
 	}
 
-	return tool.Call(ctx, input)
+	return items
+}
+
+func (tools toolConverter) getFunction(name string) (llm.FunctionCall, bool) {
+	for _, tool := range tools {
+		if tool.Name == name {
+			return tool.Call, true
+		}
+	}
+
+	return nil, false
 }

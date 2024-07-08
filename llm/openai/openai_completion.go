@@ -2,6 +2,8 @@ package openai
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"github.com/pzierahn/chatbot_services/llm"
 	"github.com/sashabaranov/go-openai"
 	"strings"
@@ -20,13 +22,15 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 	messages = append(messages, messagesToOpenAI(req.Messages)...)
 	model, _ := strings.CutPrefix(req.Model, modelPrefix)
 
+	tools := toolConverter(req.Tools)
+
 	request := openai.ChatCompletionRequest{
 		Model:       model,
 		Temperature: req.Temperature,
 		TopP:        req.TopP,
 		MaxTokens:   req.MaxTokens,
 		Messages:    messages,
-		Tools:       client.getTools(),
+		Tools:       tools.toOpenAI(),
 		N:           1,
 		User:        req.UserId,
 	}
@@ -48,12 +52,26 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 		// The model wants to call tools
 		//
 
-		messages = append(messages, resp.Choices[0].Message)
+		request.Messages = append(request.Messages, resp.Choices[0].Message)
 
 		for _, tool := range resp.Choices[0].Message.ToolCalls {
-			function := tool.Function
+			name := tool.Function.Name
+			arguments := tool.Function.Arguments
 
-			response, err := client.callTool(ctx, function.Name, function.Arguments)
+			function, ok := tools.getFunction(name)
+			if !ok {
+				return nil, fmt.Errorf("unknown tool function: %s", name)
+			}
+
+			var input map[string]interface{}
+			if arguments != "" {
+				err = json.Unmarshal([]byte(arguments), &input)
+				if err != nil {
+					return nil, fmt.Errorf("invalid tool arguments: %s", arguments)
+				}
+			}
+
+			response, err := function(ctx, input)
 			if err != nil {
 				return nil, err
 			}
@@ -64,17 +82,7 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 				ToolCallID: tool.ID,
 			}
 
-			messages = append(messages, message)
-		}
-
-		request = openai.ChatCompletionRequest{
-			Model:       model,
-			Temperature: req.Temperature,
-			MaxTokens:   req.MaxTokens,
-			Messages:    messages,
-			N:           1,
-			Tools:       client.getTools(),
-			User:        req.UserId,
+			request.Messages = append(request.Messages, message)
 		}
 
 		resp, err = client.client.CreateChatCompletion(ctx, request)
