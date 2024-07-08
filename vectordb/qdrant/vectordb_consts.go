@@ -5,4 +5,5 @@ const (
 	PayloadUserId       = "userId"
 	PayloadCollectionId = "collectionId"
 	PayloadText         = "text"
+	PayloadPosition     = "position"
 )

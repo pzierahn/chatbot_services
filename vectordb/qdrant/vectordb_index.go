@@ -55,6 +55,11 @@ func (db *DB) Upsert(ctx context.Context, fragments []*vectordb.Fragment) error 
 						StringValue: item.Text,
 					},
 				},
+				PayloadPosition: {
+					Kind: &qdrant.Value_IntegerValue{
+						IntegerValue: int64(item.Position),
+					},
+				},
 			},
 		})
 	}

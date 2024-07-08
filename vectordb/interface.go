@@ -4,10 +4,11 @@ import "context"
 
 type Fragment struct {
 	Id           string `json:"id,omitempty"`
-	DocumentId   string `json:"document_id,omitempty"`
-	UserId       string `json:"user_id,omitempty"`
-	CollectionId string `json:"collection_id,omitempty"`
 	Text         string `json:"text,omitempty"`
+	UserId       string `json:"user_id,omitempty"`
+	DocumentId   string `json:"document_id,omitempty"`
+	CollectionId string `json:"collection_id,omitempty"`
+	Position     uint32 `json:"position,omitempty"`
 }
 
 type SearchQuery struct {

@@ -74,8 +74,9 @@ func (db *DB) Search(ctx context.Context, query vectordb.SearchQuery) (*vectordb
 			Id:           item.Id.GetUuid(),
 			CollectionId: item.Payload[PayloadCollectionId].GetStringValue(),
 			DocumentId:   item.Payload[PayloadDocumentId].GetStringValue(),
-			UserId:       item.Payload["userId"].GetStringValue(),
-			Text:         item.Payload["text"].GetStringValue(),
+			UserId:       item.Payload[PayloadUserId].GetStringValue(),
+			Text:         item.Payload[PayloadText].GetStringValue(),
+			Position:     uint32(item.Payload[PayloadPosition].GetIntegerValue()),
 		}
 
 		results.Fragments = append(results.Fragments, fragment)
