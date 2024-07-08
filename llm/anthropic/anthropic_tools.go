@@ -1,8 +1,6 @@
 package anthropic
 
 import (
-	"context"
-	"fmt"
 	"github.com/pzierahn/chatbot_services/llm"
 )
 
@@ -23,44 +21,34 @@ type ClaudeTool struct {
 	InputSchema ClaudeToolInput `json:"input_schema,omitempty"`
 }
 
-func (client *Client) SetTools(tools []llm.ToolDefinition) {
-	client.tools = make(map[string]llm.ToolDefinition)
+// transformToTool transforms a tool definition to a ClaudeTool object.
+func transformToTool(tool llm.ToolDefinition) ClaudeTool {
+	properties := make(map[string]ClaudeToolProperty)
+	for name, prop := range tool.Parameters.Properties {
+		properties[name] = ClaudeToolProperty{
+			Type:        prop.Type,
+			Description: prop.Description,
+		}
+	}
 
-	for _, tool := range tools {
-		client.tools[tool.Name] = tool
+	return ClaudeTool{
+		Name:        tool.Name,
+		Description: tool.Description,
+		InputSchema: ClaudeToolInput{
+			Type:       tool.Parameters.Type,
+			Properties: properties,
+			Required:   tool.Parameters.Required,
+		},
 	}
 }
 
-func (client *Client) getTools() (tools []ClaudeTool) {
+// transformTools transforms a list of tool definitions to a map of tool names to ClaudeTool objects.
+func transformTools(items []llm.ToolDefinition) []ClaudeTool {
+	tools := make([]ClaudeTool, len(items))
 
-	for _, tool := range client.tools {
-		properties := make(map[string]ClaudeToolProperty)
-		for name, prop := range tool.Parameters.Properties {
-			properties[name] = ClaudeToolProperty{
-				Type:        prop.Type,
-				Description: prop.Description,
-			}
-		}
-
-		tools = append(tools, ClaudeTool{
-			Name:        tool.Name,
-			Description: tool.Description,
-			InputSchema: ClaudeToolInput{
-				Type:       tool.Parameters.Type,
-				Properties: properties,
-				Required:   tool.Parameters.Required,
-			},
-		})
+	for inx, tool := range items {
+		tools[inx] = transformToTool(tool)
 	}
 
 	return tools
-}
-
-func (client *Client) callTool(ctx context.Context, name string, arguments map[string]interface{}) (string, error) {
-	tool, ok := client.tools[name]
-	if !ok {
-		return "", fmt.Errorf("unknown tool %s", name)
-	}
-
-	return tool.Call(ctx, arguments)
 }

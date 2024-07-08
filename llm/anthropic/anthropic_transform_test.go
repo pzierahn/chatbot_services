@@ -21,7 +21,7 @@ func Test_transformToClaude(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	claudeMessages, err := transformToClaude(messages)
+	claudeMessages, err := transformMessages(messages)
 	if err != nil {
 		t.Fatal(err)
 	}

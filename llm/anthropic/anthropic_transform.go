@@ -5,8 +5,8 @@ import (
 	"github.com/pzierahn/chatbot_services/llm"
 )
 
-// transformToClaude converts a list of LLM messages to a list of ClaudeMessages
-func transformToClaude(messages []*llm.Message) ([]ClaudeMessage, error) {
+// transformMessages converts a list of LLM messages to a list of ClaudeMessages
+func transformMessages(messages []*llm.Message) ([]ClaudeMessage, error) {
 	var claudeMessages []ClaudeMessage
 
 	for _, message := range messages {

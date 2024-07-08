@@ -3,6 +3,7 @@ package anthropic
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/bedrockruntime"
 	"github.com/pzierahn/chatbot_services/llm"
@@ -32,9 +33,15 @@ func (client *Client) invokeRequest(model string, req *ClaudeRequest) (*ClaudeRe
 
 func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest) (*llm.CompletionResponse, error) {
 
-	messages, err := transformToClaude(req.Messages)
+	messages, err := transformMessages(req.Messages)
 	if err != nil {
 		return nil, err
+	}
+
+	toolList := transformTools(req.Tools)
+	tools := make(map[string]llm.FunctionCall)
+	for _, tool := range req.Tools {
+		tools[tool.Name] = tool.Call
 	}
 
 	request := ClaudeRequest{
@@ -44,7 +51,7 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 		MaxTokens:        req.MaxTokens,
 		TopP:             req.TopP,
 		Temperature:      req.Temperature,
-		Tools:            client.getTools(),
+		Tools:            toolList,
 	}
 
 	response, err := client.invokeRequest(req.Model, &request)
@@ -68,7 +75,12 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 
 		for _, message := range response.Content {
 			if message.Type == ContentTypeToolUse {
-				result, err := client.callTool(ctx, message.Name, message.Input)
+				callTool, ok := tools[message.Name]
+				if !ok {
+					return nil, fmt.Errorf("unknown tool %s", message.Name)
+				}
+
+				result, err := callTool(ctx, message.Input)
 				if err != nil {
 					return nil, err
 				}
