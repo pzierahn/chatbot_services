@@ -4,78 +4,60 @@ import (
 	"cloud.google.com/go/storage"
 	"context"
 	"fmt"
+	"github.com/google/uuid"
+	"github.com/pzierahn/chatbot_services/datastore"
 	pb "github.com/pzierahn/chatbot_services/proto"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"log"
 )
 
-func (server *Service) Create(ctx context.Context, collection *pb.Collection) (*pb.Collection, error) {
-	uid, err := server.auth.Verify(ctx)
+func (server *Service) Store(ctx context.Context, collection *pb.Collection) (*emptypb.Empty, error) {
+	userId, err := server.Auth.Verify(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	result := server.db.QueryRow(
-		ctx,
-		`insert into collections (user_id, name)
-			values ($1, $2)
-			returning id`,
-		uid, collection.Name)
-
-	err = result.Scan(&collection.Id)
-	if err != nil {
-		return nil, err
+	var collectionId uuid.UUID
+	if collection.Id == "" {
+		collectionId = uuid.New()
+	} else {
+		collectionId, err = uuid.Parse(collection.Id)
+		if err != nil {
+			return nil, fmt.Errorf("invalid collection id: %s", collection.Id)
+		}
 	}
 
-	return collection, nil
-}
-
-func (server *Service) Update(ctx context.Context, collection *pb.Collection) (*pb.Collection, error) {
-	uid, err := server.auth.Verify(ctx)
+	err = server.Database.StoreCollection(ctx, &datastore.Collection{
+		Id:     collectionId,
+		UserId: userId,
+		Name:   "",
+	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to store collection: %s", err)
 	}
 
-	var update pb.Collection
-	err = server.db.QueryRow(
-		ctx,
-		`UPDATE collections
-			SET name = $3
-			WHERE id = $1 AND user_id = $2
-			RETURNING id, name`,
-		collection.Id, uid, collection.Name).Scan(
-		&update.Id, &update.Name)
-	if err != nil {
-		return nil, fmt.Errorf("failed to update collection: %s", err)
-	}
-
-	return &update, nil
+	return &emptypb.Empty{}, nil
 }
 
 func (server *Service) Delete(ctx context.Context, collection *pb.Collection) (*emptypb.Empty, error) {
-	uid, err := server.auth.Verify(ctx)
+	userId, err := server.Auth.Verify(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	docIds, err := server.collectionDocumentIds(ctx, uid, collection.Id)
+	collectionId, err := uuid.Parse(collection.Id)
+	if err != nil {
+		return nil, fmt.Errorf("invalid collection id: %s", collection.Id)
+	}
+
+	err = server.Search.DeleteCollection(ctx, userId, collection.Id)
 	if err != nil {
 		return nil, err
 	}
 
-	chunkIds, err := server.documentChunkIds(ctx, docIds)
-	if err != nil {
-		return nil, err
-	}
-
-	err = server.vectorDB.Delete(chunkIds)
-	if err != nil {
-		return nil, err
-	}
-
-	basePath := fmt.Sprintf("documents/%s/%s", uid, collection.Id)
-
-	iter := server.storage.Objects(ctx, &storage.Query{Prefix: basePath})
+	iter := server.Storage.Objects(ctx, &storage.Query{
+		Prefix: fmt.Sprintf("documents/%s/%s", userId, collection.Id),
+	})
 	for {
 		attrs, err := iter.Next()
 		if err != nil {
@@ -84,16 +66,13 @@ func (server *Service) Delete(ctx context.Context, collection *pb.Collection) (*
 
 		log.Printf("Delete: %s", attrs.Name)
 
-		err = server.storage.Object(attrs.Name).Delete(ctx)
+		err = server.Storage.Object(attrs.Name).Delete(ctx)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	_, err = server.db.Exec(
-		ctx,
-		`DELETE FROM collections WHERE id = $1 AND user_id = $2`,
-		collection.Id, uid)
+	err = server.Database.DeleteCollection(ctx, userId, collectionId)
 	if err != nil {
 		return nil, fmt.Errorf("failed to delete collection: %s", err)
 	}
