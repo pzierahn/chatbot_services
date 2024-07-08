@@ -3,17 +3,16 @@ package llm
 import "context"
 
 type EmbeddingRequest struct {
-	Input        string
-	UserId       string
-	SkipTracking bool
+	Inputs []string
+	UserId string
 }
 
 type EmbeddingResponse struct {
-	Data   []float32
-	Tokens int
+	Embeddings [][]float32
+	Tokens     int
+	Model      string
 }
 
 type Embedding interface {
-	Create(ctx context.Context, req *EmbeddingRequest) (*EmbeddingResponse, error)
-	GetEmbeddingModelName() string
+	CreateEmbedding(ctx context.Context, req *EmbeddingRequest) (*EmbeddingResponse, error)
 }
