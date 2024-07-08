@@ -30,6 +30,8 @@ type ToolParameters struct {
 	Required []string
 }
 
+type FunctionCall func(ctx context.Context, input map[string]interface{}) (string, error)
+
 // ToolDefinition defines a function that can be called by the assistant
 type ToolDefinition struct {
 	// Function name
@@ -42,7 +44,7 @@ type ToolDefinition struct {
 	Parameters ToolParameters
 
 	// Call is the function to call
-	Call func(ctx context.Context, input map[string]interface{}) (string, error)
+	Call FunctionCall
 }
 
 // Function defines the function name and arguments
@@ -109,6 +111,9 @@ type CompletionRequest struct {
 
 	// UserId to prevent abuse
 	UserId string `json:"user_id,omitempty" bson:"user_id,omitempty"`
+
+	// Tools to use for completion
+	Tools []ToolDefinition `json:"tools,omitempty" bson:"tools,omitempty"`
 }
 
 // CompletionResponse defines the response from the completion API
@@ -122,6 +127,5 @@ type CompletionResponse struct {
 
 type Chat interface {
 	Completion(ctx context.Context, req *CompletionRequest) (*CompletionResponse, error)
-	SetTools(tools []ToolDefinition)
 	ProvidesModel(model string) bool
 }

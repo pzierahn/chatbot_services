@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/pzierahn/chatbot_services/llm"
-	"github.com/pzierahn/chatbot_services/llm/vertex"
+	"github.com/pzierahn/chatbot_services/llm/anthropic"
 	"log"
 	"strings"
 )
@@ -47,29 +47,13 @@ func main() {
 
 	//model := "gpt-4o"
 	//client, err := openai.New()
-	model := vertex.GeminiPro15
-	client, err := vertex.New(ctx)
-	//model := anthropic.ClaudeSonnet35
-	//client, err := anthropic.New()
+	//model := vertex.GeminiPro15
+	//client, err := vertex.New(ctx)
+	model := anthropic.ClaudeSonnet35
+	client, err := anthropic.New()
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	client.SetTools([]llm.ToolDefinition{{
-		Name:        "get_sources",
-		Description: "Retrieves the sources for the prompt. The prompt should be optimized for embedding retrieval. The tool will return a list of sources in JSON format with the following fields: SourceID, Content.",
-		Parameters: llm.ToolParameters{
-			Type: "object",
-			Properties: map[string]llm.ParametersProperties{
-				"prompt": {
-					Type:        "string",
-					Description: "The topic for which to retrieve sources. The prompt should be optimized for embedding retrieval.",
-				},
-			},
-			Required: []string{"prompt"},
-		},
-		Call: getSources,
-	}})
 
 	resp, err := client.Completion(ctx, &llm.CompletionRequest{
 		SystemPrompt: "You are a helpful assistant. Quote the sources by \\cite{SourceID}",
@@ -81,6 +65,21 @@ func main() {
 		TopP:        1.0,
 		MaxTokens:   256,
 		Model:       model,
+		Tools: []llm.ToolDefinition{{
+			Name:        "get_sources",
+			Description: "Retrieves the sources for the prompt. The prompt should be optimized for embedding retrieval. The tool will return a list of sources in JSON format with the following fields: SourceID, Content.",
+			Parameters: llm.ToolParameters{
+				Type: "object",
+				Properties: map[string]llm.ParametersProperties{
+					"prompt": {
+						Type:        "string",
+						Description: "The topic for which to retrieve sources. The prompt should be optimized for embedding retrieval.",
+					},
+				},
+				Required: []string{"prompt"},
+			},
+			Call: getSources,
+		}},
 	})
 	if err != nil {
 		log.Fatal(err)
