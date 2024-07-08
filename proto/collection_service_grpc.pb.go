@@ -22,8 +22,7 @@ const _ = grpc.SupportPackageIsVersion8
 const (
 	CollectionService_Get_FullMethodName    = "/chatbot.collections.v2.CollectionService/Get"
 	CollectionService_List_FullMethodName   = "/chatbot.collections.v2.CollectionService/List"
-	CollectionService_Create_FullMethodName = "/chatbot.collections.v2.CollectionService/Create"
-	CollectionService_Update_FullMethodName = "/chatbot.collections.v2.CollectionService/Update"
+	CollectionService_Store_FullMethodName  = "/chatbot.collections.v2.CollectionService/Store"
 	CollectionService_Delete_FullMethodName = "/chatbot.collections.v2.CollectionService/Delete"
 )
 
@@ -33,8 +32,7 @@ const (
 type CollectionServiceClient interface {
 	Get(ctx context.Context, in *CollectionID, opts ...grpc.CallOption) (*Collection, error)
 	List(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Collections, error)
-	Create(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*Collection, error)
-	Update(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*Collection, error)
+	Store(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Delete(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
@@ -66,20 +64,10 @@ func (c *collectionServiceClient) List(ctx context.Context, in *emptypb.Empty, o
 	return out, nil
 }
 
-func (c *collectionServiceClient) Create(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*Collection, error) {
+func (c *collectionServiceClient) Store(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Collection)
-	err := c.cc.Invoke(ctx, CollectionService_Create_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *collectionServiceClient) Update(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*Collection, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Collection)
-	err := c.cc.Invoke(ctx, CollectionService_Update_FullMethodName, in, out, cOpts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, CollectionService_Store_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -102,8 +90,7 @@ func (c *collectionServiceClient) Delete(ctx context.Context, in *Collection, op
 type CollectionServiceServer interface {
 	Get(context.Context, *CollectionID) (*Collection, error)
 	List(context.Context, *emptypb.Empty) (*Collections, error)
-	Create(context.Context, *Collection) (*Collection, error)
-	Update(context.Context, *Collection) (*Collection, error)
+	Store(context.Context, *Collection) (*emptypb.Empty, error)
 	Delete(context.Context, *Collection) (*emptypb.Empty, error)
 	mustEmbedUnimplementedCollectionServiceServer()
 }
@@ -118,11 +105,8 @@ func (UnimplementedCollectionServiceServer) Get(context.Context, *CollectionID) 
 func (UnimplementedCollectionServiceServer) List(context.Context, *emptypb.Empty) (*Collections, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
 }
-func (UnimplementedCollectionServiceServer) Create(context.Context, *Collection) (*Collection, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
-}
-func (UnimplementedCollectionServiceServer) Update(context.Context, *Collection) (*Collection, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
+func (UnimplementedCollectionServiceServer) Store(context.Context, *Collection) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Store not implemented")
 }
 func (UnimplementedCollectionServiceServer) Delete(context.Context, *Collection) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
@@ -176,38 +160,20 @@ func _CollectionService_List_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
-func _CollectionService_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _CollectionService_Store_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Collection)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CollectionServiceServer).Create(ctx, in)
+		return srv.(CollectionServiceServer).Store(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: CollectionService_Create_FullMethodName,
+		FullMethod: CollectionService_Store_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CollectionServiceServer).Create(ctx, req.(*Collection))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _CollectionService_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Collection)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CollectionServiceServer).Update(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: CollectionService_Update_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CollectionServiceServer).Update(ctx, req.(*Collection))
+		return srv.(CollectionServiceServer).Store(ctx, req.(*Collection))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -246,12 +212,8 @@ var CollectionService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _CollectionService_List_Handler,
 		},
 		{
-			MethodName: "Create",
-			Handler:    _CollectionService_Create_Handler,
-		},
-		{
-			MethodName: "Update",
-			Handler:    _CollectionService_Update_Handler,
+			MethodName: "Store",
+			Handler:    _CollectionService_Store_Handler,
 		},
 		{
 			MethodName: "Delete",

@@ -2,6 +2,7 @@ package chat
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/pzierahn/chatbot_services/datastore"
@@ -12,12 +13,22 @@ import (
 	"time"
 )
 
+// PostMessage is a gRPC endpoint that receives a prompt and returns a completion.
 func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb.Message, error) {
 	log.Printf("PostMessage: %v", prompt)
 
 	userId, err := service.Verify(ctx)
 	if err != nil {
 		return nil, err
+	}
+
+	//
+	// Integrity check
+	//
+
+	collectionId, err := uuid.Parse(prompt.CollectionId)
+	if err != nil {
+		return nil, errors.New("invalid collection id")
 	}
 
 	modelOps := prompt.GetModelOptions()
@@ -34,42 +45,46 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 	// Get the thread messages
 	//
 
-	threadId, err := uuid.Parse(prompt.ThreadId)
-	if err != nil {
-		return nil, err
-	}
+	var thread *datastore.Thread
+	if prompt.ThreadId != "" {
+		//
+		// Get the thread from the database
+		//
 
-	messages, err := service.db.GetMessages(ctx, userId, threadId)
-	if err != nil {
-		return nil, err
+		threadId, err := uuid.Parse(prompt.ThreadId)
+		if err != nil {
+			return nil, err
+		}
+
+		thread, err = service.db.GetThread(ctx, userId, threadId)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		//
+		// Create a new thread
+		//
+
+		thread = &datastore.Thread{
+			Id:           uuid.New(),
+			UserId:       userId,
+			CollectionId: collectionId,
+			Timestamp:    time.Now(),
+		}
 	}
 
 	//
 	// Call the model
 	//
 
-	llmMessages, err := datastore.ToLLMMessages(messages)
-	if err != nil {
-		return nil, err
-	}
-
-	llmMessages = append(llmMessages, &llm.Message{
-		Role:    "user",
+	messages := append(thread.Messages, &llm.Message{
+		Role:    llm.RoleUser,
 		Content: prompt.Prompt,
 	})
 
-	datastorePrompt := &datastore.Message{
-		Id:        uuid.New(),
-		Role:      "user",
-		Content:   prompt.Prompt,
-		ThreadId:  threadId,
-		UserId:    userId,
-		Timestamp: time.Now(),
-	}
-
 	request := &llm.CompletionRequest{
 		//SystemPrompt: "",
-		Messages:    llmMessages,
+		Messages:    messages,
 		Model:       modelOps.ModelId,
 		MaxTokens:   int(modelOps.MaxTokens),
 		TopP:        modelOps.TopP,
@@ -86,27 +101,16 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 	// Save the response
 	//
 
-	datastoreResponse, err := datastore.ToDatastoreMessage(response.Message)
-	if err != nil {
-		return nil, err
-	}
-	datastoreResponse.Id = uuid.New()
-	datastoreResponse.ThreadId = threadId
-	datastoreResponse.UserId = userId
-	datastoreResponse.Timestamp = time.Now()
-
-	err = service.db.AddMessages(ctx, []*datastore.Message{
-		datastorePrompt,
-		datastoreResponse,
-	})
+	thread.Messages = append(messages, response.Message)
+	err = service.db.StoreThread(ctx, thread)
 	if err != nil {
 		return nil, err
 	}
 
 	return &pb.Message{
-		Id:         datastoreResponse.Id.String(),
+		ThreadId:   thread.Id.String(),
 		Prompt:     prompt.Prompt,
 		Completion: response.Message.Content,
-		Timestamp:  timestamppb.New(datastoreResponse.Timestamp),
+		Timestamp:  timestamppb.Now(),
 	}, nil
 }

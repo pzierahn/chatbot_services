@@ -8,6 +8,7 @@ import (
 	"github.com/pzierahn/chatbot_services/datastore"
 	"github.com/pzierahn/chatbot_services/llm"
 	"github.com/pzierahn/chatbot_services/llm/openai"
+	"github.com/pzierahn/chatbot_services/llm/vertex"
 	pb "github.com/pzierahn/chatbot_services/proto"
 )
 
@@ -72,8 +73,14 @@ func New() (*Service, error) {
 		return nil, err
 	}
 
+	vertexClient, err := vertex.New(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	models := []llm.Chat{
 		openaiClient,
+		vertexClient,
 	}
 
 	return &Service{

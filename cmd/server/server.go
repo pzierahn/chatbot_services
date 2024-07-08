@@ -16,7 +16,6 @@ func init() {
 }
 
 func main() {
-
 	grpcServer := grpc.NewServer()
 	chatService, err := chat.New()
 	if err != nil {
