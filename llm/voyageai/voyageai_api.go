@@ -23,7 +23,7 @@ type Data struct {
 }
 
 type Usage struct {
-	TotalTokens int `json:"total_tokens"`
+	TotalTokens uint32 `json:"total_tokens"`
 }
 
 // Response is the response structure for the Voyage AI API.

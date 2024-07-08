@@ -9,7 +9,7 @@ type EmbeddingRequest struct {
 
 type EmbeddingResponse struct {
 	Embeddings [][]float32
-	Tokens     int
+	Tokens     uint32
 	Model      string
 }
 
