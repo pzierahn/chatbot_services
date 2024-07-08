@@ -1,5 +1,7 @@
 package vectordb
 
+import "context"
+
 type Fragment struct {
 	Id           string `json:"id,omitempty"`
 	DocumentId   string `json:"document_id,omitempty"`
@@ -22,8 +24,8 @@ type SearchResults struct {
 }
 
 type DB interface {
-	Search(query SearchQuery) (*SearchResults, error)
-	Upsert(items []*Fragment) error
+	Search(context.Context, SearchQuery) (*SearchResults, error)
+	Upsert(context.Context, []*Fragment) error
 	Delete(ids []string) error
 	Close() error
 }
