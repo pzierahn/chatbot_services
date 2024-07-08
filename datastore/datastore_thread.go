@@ -35,7 +35,16 @@ func (service *Service) StoreThread(ctx context.Context, thread *Thread) error {
 		return errors.New("thread ID is missing")
 	}
 
-	_, err := coll.InsertOne(ctx, thread)
+	filter := bson.M{
+		"_id": thread.Id,
+	}
+
+	update := bson.M{
+		"$set": thread,
+	}
+
+	opts := options.Update().SetUpsert(true)
+	_, err := coll.UpdateOne(ctx, filter, update, opts)
 	if err != nil {
 		return err
 	}
