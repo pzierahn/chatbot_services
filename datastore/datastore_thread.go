@@ -2,6 +2,7 @@ package datastore
 
 import (
 	"context"
+	"errors"
 	"github.com/google/uuid"
 	"github.com/pzierahn/chatbot_services/llm"
 	"go.mongodb.org/mongo-driver/bson"
@@ -10,11 +11,8 @@ import (
 )
 
 type Thread struct {
-	// ID of the message
+	// ID of the thread
 	Id uuid.UUID `bson:"_id,omitempty"`
-
-	// Thread ID
-	ThreadId uuid.UUID `bson:"thread_id,omitempty"`
 
 	// User ID
 	UserId string `bson:"user_id,omitempty"`
@@ -33,6 +31,10 @@ type Thread struct {
 func (service *Service) StoreThread(ctx context.Context, thread *Thread) error {
 	coll := service.mongo.Database(DatabaseName).Collection(CollectionMessages)
 
+	if thread.Id == uuid.Nil {
+		return errors.New("thread ID is missing")
+	}
+
 	_, err := coll.InsertOne(ctx, thread)
 	if err != nil {
 		return err
@@ -46,8 +48,8 @@ func (service *Service) GetThread(ctx context.Context, userId string, threadId u
 	coll := service.mongo.Database(DatabaseName).Collection(CollectionMessages)
 
 	filter := bson.M{
-		"thread_id": threadId,
-		"user_id":   userId,
+		"_id":     threadId,
+		"user_id": userId,
 	}
 
 	var thread Thread
@@ -69,7 +71,7 @@ func (service *Service) GetThreadIDs(ctx context.Context, userId string) ([]uuid
 
 	ops := &options.FindOptions{
 		Projection: bson.M{
-			"thread_id": 1,
+			"_id": 1,
 		},
 	}
 
@@ -88,7 +90,7 @@ func (service *Service) GetThreadIDs(ctx context.Context, userId string) ([]uuid
 			return nil, err
 		}
 
-		result = append(result, thread.ThreadId)
+		result = append(result, thread.Id)
 	}
 
 	return result, nil
