@@ -30,3 +30,14 @@ func (client *Client) CreateEmbedding(ctx context.Context, req *llm.EmbeddingReq
 
 	return results, nil
 }
+
+func (client *Client) GetEmbeddingDimension() int {
+	switch client.EmbeddingModel {
+	case LargeEmbedding3:
+		return DimensionModelLarge
+	case SmallEmbedding3:
+		return DimensionModelSmall
+	default:
+		return 0
+	}
+}

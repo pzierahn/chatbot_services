@@ -42,7 +42,7 @@ type Request struct {
 }
 
 // callAPI calls the Voyage AI API with the given request and returns the response.
-func (voayage *Client) callAPI(ctx context.Context, request *Request) (*Response, error) {
+func (voyage *Client) callAPI(ctx context.Context, request *Request) (*Response, error) {
 
 	requestBody, err := json.Marshal(request)
 	if err != nil {
@@ -54,7 +54,7 @@ func (voayage *Client) callAPI(ctx context.Context, request *Request) (*Response
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("Authorization", "Bearer "+voayage.apiKey)
+	req.Header.Set("Authorization", "Bearer "+voyage.apiKey)
 
 	res, err := client.Do(req)
 	if err != nil {

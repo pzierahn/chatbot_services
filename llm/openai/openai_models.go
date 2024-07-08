@@ -103,7 +103,7 @@ var ModelCosts = map[string]llm.PricePer1000Tokens{
 		Input:  0.00002,
 		Output: 0.0,
 	},
-	string(openai.LargeEmbedding3): {
+	string(LargeEmbedding3): {
 		Input:  0.00013,
 		Output: 0.0,
 	},
