@@ -18,6 +18,9 @@ type Thread struct {
 	// User ID
 	UserId string `bson:"user_id,omitempty"`
 
+	// Collection ID
+	CollectionId uuid.UUID `bson:"collection_id,omitempty"`
+
 	// Timestamp of the last message
 	Timestamp time.Time `bson:"timestamp,omitempty"`
 

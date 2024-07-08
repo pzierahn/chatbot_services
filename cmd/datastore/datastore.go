@@ -30,10 +30,11 @@ func main() {
 
 	callId := uuid.NewString()
 	err = db.StoreThread(ctx, &datastore.Thread{
-		Id:        uuid.New(),
-		ThreadId:  uuid.MustParse(threadId),
-		UserId:    userId,
-		Timestamp: time.Now(),
+		Id:           uuid.New(),
+		ThreadId:     uuid.MustParse(threadId),
+		UserId:       userId,
+		CollectionId: uuid.New(),
+		Timestamp:    time.Now(),
 		Messages: []*llm.Message{{
 			Role:    llm.RoleUser,
 			Content: "Hallo Bot!",
