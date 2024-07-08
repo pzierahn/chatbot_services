@@ -10,7 +10,7 @@ func (client *Client) CreateEmbedding(ctx context.Context, req *llm.EmbeddingReq
 	resp, err := client.client.CreateEmbeddings(
 		ctx,
 		openai.EmbeddingRequestStrings{
-			Model: client.EmbeddingModel,
+			Model: client.embeddingModel,
 			Input: req.Inputs,
 			User:  req.UserId,
 		},
@@ -32,7 +32,7 @@ func (client *Client) CreateEmbedding(ctx context.Context, req *llm.EmbeddingReq
 }
 
 func (client *Client) GetEmbeddingDimension() int {
-	switch client.EmbeddingModel {
+	switch client.embeddingModel {
 	case LargeEmbedding3:
 		return DimensionModelLarge
 	case SmallEmbedding3:

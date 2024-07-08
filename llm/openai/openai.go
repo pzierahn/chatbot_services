@@ -8,7 +8,7 @@ import (
 
 type Client struct {
 	client         *openai.Client
-	EmbeddingModel openai.EmbeddingModel
+	embeddingModel openai.EmbeddingModel
 }
 
 func New() (*Client, error) {
@@ -18,6 +18,7 @@ func New() (*Client, error) {
 	}
 
 	return &Client{
-		client: openai.NewClient(token),
+		client:         openai.NewClient(token),
+		embeddingModel: LargeEmbedding3,
 	}, nil
 }
