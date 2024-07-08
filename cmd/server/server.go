@@ -88,8 +88,8 @@ func initModels(ctx context.Context) []llm.Chat {
 	return models
 }
 
-func initSearch() vectordb.DB {
-	search, err := qdrant.New()
+func initSearch(engine llm.Embedding) vectordb.DB {
+	search, err := qdrant.New(engine)
 	if err != nil {
 		log.Fatalf("failed to create qdrant search: %v", err)
 	}
@@ -102,7 +102,9 @@ func main() {
 
 	database := initDatastore(ctx)
 	models := initModels(ctx)
-	search := initSearch()
+
+	engine := models[0].(llm.Embedding)
+	search := initSearch(engine)
 	bucket := initBucket(ctx)
 	fakeAuth, _ := auth.WithInsecure()
 

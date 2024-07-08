@@ -3,7 +3,6 @@ package qdrant
 import (
 	"crypto/tls"
 	"github.com/pzierahn/chatbot_services/llm"
-	"github.com/pzierahn/chatbot_services/llm/voyageai"
 	"github.com/pzierahn/chatbot_services/vectordb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -24,7 +23,7 @@ func (db *DB) Close() error {
 	return db.conn.Close()
 }
 
-func New() (*DB, error) {
+func New(embedding llm.Embedding) (*DB, error) {
 	apiKey := os.Getenv("CHATBOT_QDRANT_KEY")
 	target := os.Getenv("CHATBOT_QDRANT_URL")
 
@@ -40,17 +39,12 @@ func New() (*DB, error) {
 		return nil, err
 	}
 
-	voyage, err := voyageai.New(voyageai.ModelVoyageLarge2)
-	if err != nil {
-		return nil, err
-	}
-
 	client := &DB{
 		conn:      conn,
 		apiKey:    apiKey,
 		namespace: "documents_v2",
-		dimension: voyageai.DimensionVoyageLarge2,
-		embedding: voyage,
+		embedding: embedding,
+		dimension: embedding.GetEmbeddingDimension(),
 	}
 
 	err = client.Init()
