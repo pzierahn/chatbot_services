@@ -17,8 +17,19 @@ type Collection struct {
 	Name string `bson:"name,omitempty"`
 }
 
-// StoreCollection stores a collection in the database
-func (service *Service) StoreCollection(ctx context.Context, collection *Collection) error {
+func (service *Service) InsertCollection(ctx context.Context, collection *Collection) error {
+	coll := service.mongo.Database(DatabaseName).Collection(CollectionCollections)
+
+	_, err := coll.InsertOne(ctx, collection)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// UpdateCollection updates a collection in the database
+func (service *Service) UpdateCollection(ctx context.Context, collection *Collection) error {
 	coll := service.mongo.Database(DatabaseName).Collection(CollectionCollections)
 
 	_, err := coll.UpdateOne(ctx, bson.M{

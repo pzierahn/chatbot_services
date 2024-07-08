@@ -11,7 +11,30 @@ import (
 	"log"
 )
 
-func (server *Service) Store(ctx context.Context, collection *pb.Collection) (*emptypb.Empty, error) {
+func (server *Service) Insert(ctx context.Context, collection *pb.Collection) (*emptypb.Empty, error) {
+	log.Printf("Insert: %v", collection)
+
+	userId, err := server.Auth.Verify(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	err = server.Database.InsertCollection(ctx, &datastore.Collection{
+		Id:     uuid.New(),
+		UserId: userId,
+		Name:   collection.Name,
+	})
+	if err != nil {
+		log.Printf("failed to store collection: %s", err)
+		return nil, fmt.Errorf("failed to store collection: %s", err)
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
+func (server *Service) Update(ctx context.Context, collection *pb.Collection) (*emptypb.Empty, error) {
+	log.Printf("Update: %v", collection)
+
 	userId, err := server.Auth.Verify(ctx)
 	if err != nil {
 		return nil, err
@@ -27,12 +50,13 @@ func (server *Service) Store(ctx context.Context, collection *pb.Collection) (*e
 		}
 	}
 
-	err = server.Database.StoreCollection(ctx, &datastore.Collection{
+	err = server.Database.UpdateCollection(ctx, &datastore.Collection{
 		Id:     collectionId,
 		UserId: userId,
-		Name:   "",
+		Name:   collection.Name,
 	})
 	if err != nil {
+		log.Printf("failed to store collection: %s", err)
 		return nil, fmt.Errorf("failed to store collection: %s", err)
 	}
 

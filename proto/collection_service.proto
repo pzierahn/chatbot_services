@@ -8,7 +8,8 @@ import "google/protobuf/empty.proto";
 
 service CollectionService {
   rpc List(google.protobuf.Empty) returns (Collections);
-  rpc Store(Collection) returns (google.protobuf.Empty);
+  rpc Insert(Collection) returns (google.protobuf.Empty);
+  rpc Update(Collection) returns (google.protobuf.Empty);
   rpc Delete(Collection) returns (google.protobuf.Empty);
 }
 
