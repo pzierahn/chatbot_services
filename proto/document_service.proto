@@ -14,15 +14,11 @@ service DocumentService {
   rpc Delete(DocumentID) returns (google.protobuf.Empty);
   rpc Index(IndexJob) returns (stream IndexProgress);
   rpc Search(SearchQuery) returns (SearchResults);
-  rpc GetReferences(ReferenceIDs) returns (References);
 }
 
 message RenameDocument {
   string id = 1;
-  oneof rename_to {
-    string file_name = 2;
-    string webpage_title = 3;
-  }
+  string name = 2;
 }
 
 message DocumentID {
@@ -34,30 +30,23 @@ message DocumentList {
   map<string, DocumentMetadata> items = 1;
 }
 
-message ReferenceIDs {
-  repeated string items = 1;
-}
-
 message Chunk {
   string id = 1;
   string text = 2;
-  uint32 index = 3;
-}
-
-message References {
-  repeated Document items = 1;
+  uint32 postion = 3;
 }
 
 message SearchQuery {
-  string query = 1;
+  string text = 1;
   string collection_id = 2;
   float threshold = 3;
   uint32 limit = 4;
 }
 
 message SearchResults {
-  repeated Document items = 1;
-  map<string, float> scores = 2;
+  repeated Chunk chunks = 1;
+  map<string, string> document_names = 2;
+  map<string, float> scores = 3;
 }
 
 message IndexProgress {
@@ -90,9 +79,8 @@ message Webpage {
 message Document {
   string id = 1;
   string collection_id = 2;
-  google.protobuf.Timestamp created_at = 3;
-  DocumentMetadata metadata = 4;
-  repeated Chunk chunks = 5;
+  DocumentMetadata metadata = 3;
+  repeated Chunk chunks = 4;
 }
 
 message DocumentHeader {

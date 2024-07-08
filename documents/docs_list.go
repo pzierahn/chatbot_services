@@ -2,56 +2,67 @@ package documents
 
 import (
 	"context"
+	"fmt"
+	"github.com/google/uuid"
+	"github.com/pzierahn/chatbot_services/datastore"
 	pb "github.com/pzierahn/chatbot_services/proto"
-	"github.com/pzierahn/chatbot_services/utils"
-	"strings"
 )
 
 func (service *Service) List(ctx context.Context, req *pb.DocumentFilter) (*pb.DocumentList, error) {
 
-	userId, err := service.auth.Verify(ctx)
+	userId, err := service.Auth.Verify(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	rows, err := service.db.Query(ctx,
-		`SELECT id, metadata
-		FROM documents
-		WHERE
-		    user_id = $1 AND
-		    collection_id = $2::uuid`,
-		userId, req.CollectionId)
+	filter := datastore.DocumentFilter{
+		UserId: userId,
+		Query:  req.Query,
+	}
+
+	filter.CollectionId, err = uuid.Parse(req.CollectionId)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 
-	documents := &pb.DocumentList{
+	docs, err := service.Database.ListDocuments(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+
+	result := &pb.DocumentList{
 		Items: make(map[string]*pb.DocumentMetadata),
 	}
 
-	for rows.Next() {
-		var (
-			docId string
-			meta  DocumentMeta
-		)
+	for _, doc := range docs {
 
-		err = rows.Scan(
-			&docId,
-			&meta,
-		)
-		if err != nil {
-			return nil, err
+		var metadata *pb.DocumentMetadata
+
+		switch doc.Type {
+		case datastore.DocumentTypeWeb:
+			metadata = &pb.DocumentMetadata{
+				Data: &pb.DocumentMetadata_Web{
+					Web: &pb.Webpage{
+						Title: doc.Name,
+						Url:   doc.Source,
+					},
+				},
+			}
+		case datastore.DocumentTypePDF:
+			metadata = &pb.DocumentMetadata{
+				Data: &pb.DocumentMetadata_File{
+					File: &pb.File{
+						Filename: doc.Name,
+						Path:     doc.Source,
+					},
+				},
+			}
+		default:
+			return nil, fmt.Errorf("unknown document type: %s", doc.Type)
 		}
 
-		proto := meta.toProto()
-		title := strings.ToLower(utils.GetDocumentTitle(proto))
-		query := strings.ToLower(req.Query)
-
-		if strings.Contains(title, query) {
-			documents.Items[docId] = proto
-		}
+		result.Items[doc.Id.String()] = metadata
 	}
 
-	return documents, nil
+	return result, nil
 }

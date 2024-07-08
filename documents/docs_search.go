@@ -3,8 +3,6 @@ package documents
 import (
 	"context"
 	"github.com/google/uuid"
-	"github.com/pzierahn/chatbot_services/account"
-	"github.com/pzierahn/chatbot_services/llm"
 	pb "github.com/pzierahn/chatbot_services/proto"
 	"github.com/pzierahn/chatbot_services/vectordb"
 )
@@ -19,55 +17,50 @@ type SearchQuery struct {
 
 func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.SearchResults, error) {
 
-	userId, err := service.auth.Verify(ctx)
+	userId, err := service.Auth.Verify(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	funding, err := service.account.HasFunding(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	if !funding {
-		return nil, account.NoFundingError()
-	}
-
-	resp, err := service.embeddings.CreateEmbeddings(ctx, &llm.EmbeddingRequest{
-		Input:  query.Query,
-		UserId: userId,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	vectors, err := service.vectorDB.Search(vectordb.SearchQuery{
+	vectors, err := service.SearchIndex.Search(ctx, vectordb.SearchQuery{
 		UserId:       userId,
 		CollectionId: query.CollectionId,
-		Vector:       resp.Data,
-		Limit:        int(query.Limit),
+		Query:        query.Text,
+		Limit:        query.Limit,
 		Threshold:    query.Threshold,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	refs := &pb.ReferenceIDs{}
-	for _, vector := range vectors {
-		refs.Items = append(refs.Items, vector.Id)
+	results := &pb.SearchResults{
+		DocumentNames: make(map[string]string),
+		Scores:        make(map[string]float32),
 	}
 
-	chunks, err := service.getReferences(ctx, userId, refs)
+	for idx, vector := range vectors.Fragments {
+		results.Chunks = append(results.Chunks, &pb.Chunk{
+			Id:      vector.Id,
+			Text:    vector.Text,
+			Postion: vector.Position,
+		})
+
+		results.DocumentNames[vector.DocumentId] = ""
+		results.Scores[vector.Id] = vectors.Scores[idx]
+	}
+
+	docIds := make([]uuid.UUID, 0)
+	for docId := range results.DocumentNames {
+		docIds = append(docIds, uuid.MustParse(docId))
+	}
+
+	docs, err := service.Database.GetDocumentMeta(ctx, userId, docIds...)
 	if err != nil {
 		return nil, err
 	}
 
-	results := &pb.SearchResults{
-		Items:  chunks.Items,
-		Scores: make(map[string]float32),
-	}
-	for _, vector := range vectors {
-		results.Scores[vector.Id] = vector.Score
+	for _, doc := range docs {
+		results.DocumentNames[doc.Id.String()] = doc.Name
 	}
 
 	return results, nil

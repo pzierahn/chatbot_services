@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/pzierahn/chatbot_services/account"
+	"github.com/pzierahn/chatbot_services/datastore"
 	"github.com/pzierahn/chatbot_services/pdf"
 	pb "github.com/pzierahn/chatbot_services/proto"
 	"github.com/pzierahn/chatbot_services/web"
@@ -13,28 +13,37 @@ import (
 )
 
 func (service *Service) Index(req *pb.IndexJob, stream pb.DocumentService_IndexServer) error {
-
 	ctx := stream.Context()
 
-	userId, err := service.auth.Verify(ctx)
+	userId, err := service.Auth.Verify(ctx)
 	if err != nil {
 		return err
 	}
 
-	funding, err := service.account.HasFunding(ctx)
-	if err != nil {
-		return err
-	}
-
-	if !funding {
-		return account.NoFundingError()
-	}
-
+	var documentId uuid.UUID
 	if req.Id == "" {
-		req.Id = uuid.NewString()
+		documentId = uuid.New()
+	} else {
+		documentId, err = uuid.Parse(req.Id)
+		if err != nil {
+			return err
+		}
 	}
 
-	var chunks []*pb.Chunk
+	collectionId, err := uuid.Parse(req.CollectionId)
+	if err != nil {
+		return err
+	}
+
+	data := &datastore.Document{
+		Id:           documentId,
+		UserId:       userId,
+		CollectionId: collectionId,
+		Name:         "",
+		Type:         "",
+		Source:       "",
+	}
+
 	switch req.Document.Data.(type) {
 	case *pb.DocumentMetadata_Web:
 		_ = stream.Send(&pb.IndexProgress{
@@ -42,16 +51,19 @@ func (service *Service) Index(req *pb.IndexJob, stream pb.DocumentService_IndexS
 		})
 
 		meta := req.Document.GetWeb()
-
-		chunks, err = service.getWebChunks(ctx, meta)
+		data.Type = datastore.DocumentTypeWeb
+		data.Name = meta.Title
+		data.Source = meta.Url
+		data.Content, err = service.getWebChunks(ctx, meta)
 	case *pb.DocumentMetadata_File:
 		_ = stream.Send(&pb.IndexProgress{
 			Status: "Extracting PDF pages",
 		})
-
 		meta := req.Document.GetFile()
-
-		chunks, err = service.getPDFChunks(ctx, meta)
+		data.Type = datastore.DocumentTypePDF
+		data.Name = meta.Filename
+		data.Source = meta.Path
+		data.Content, err = service.getPDFChunks(ctx, meta)
 	default:
 		return fmt.Errorf("unsupported metadata type")
 	}
@@ -60,35 +72,20 @@ func (service *Service) Index(req *pb.IndexJob, stream pb.DocumentService_IndexS
 		return err
 	}
 
-	data := &document{
-		userId:   userId,
-		document: req,
-		chunks:   chunks,
-	}
-
 	_ = stream.Send(&pb.IndexProgress{
-		Status:   "Generating embeddings",
-		Progress: 1.0 / 4.0,
+		Status:   "Inserting into search database",
+		Progress: 1.0 / 3.0,
 	})
-	embeddings, err := service.generateEmbeddings(ctx, userId, data)
+	err = service.addToSearchIndex(ctx, data)
 	if err != nil {
 		return err
 	}
 
 	_ = stream.Send(&pb.IndexProgress{
 		Status:   "Inserting into database",
-		Progress: 2.0 / 4.0,
+		Progress: 2.0 / 3.0,
 	})
-	err = service.insertIntoDB(ctx, data)
-	if err != nil {
-		return err
-	}
-
-	_ = stream.Send(&pb.IndexProgress{
-		Status:   "Inserting into vector database",
-		Progress: 3.0 / 4.0,
-	})
-	err = service.insertEmbeddings(data, embeddings)
+	err = service.Database.StoreDocument(ctx, data)
 	if err != nil {
 		return err
 	}
@@ -101,14 +98,14 @@ func (service *Service) Index(req *pb.IndexJob, stream pb.DocumentService_IndexS
 	return nil
 }
 
-func (service *Service) getWebChunks(ctx context.Context, meta *pb.Webpage) ([]*pb.Chunk, error) {
+func (service *Service) getWebChunks(ctx context.Context, meta *pb.Webpage) ([]*datastore.DocumentChunk, error) {
 	text, err := web.Scrape(ctx, meta.Url)
 	if err != nil {
 		return nil, err
 	}
 
 	var inx uint32
-	var chunks []*pb.Chunk
+	var chunks []*datastore.DocumentChunk
 
 	for chunk := 0; chunk < len(text)/6144; chunk++ {
 
@@ -116,10 +113,10 @@ func (service *Service) getWebChunks(ctx context.Context, meta *pb.Webpage) ([]*
 		end := min((chunk+1)*6144+200, len(text))
 		fragment := text[start:end]
 
-		chunks = append(chunks, &pb.Chunk{
-			Id:    uuid.NewString(),
-			Text:  strings.TrimSpace(fragment),
-			Index: inx,
+		chunks = append(chunks, &datastore.DocumentChunk{
+			Id:       uuid.New(),
+			Text:     strings.TrimSpace(fragment),
+			Position: inx,
 		})
 
 		inx++
@@ -128,9 +125,9 @@ func (service *Service) getWebChunks(ctx context.Context, meta *pb.Webpage) ([]*
 	return chunks, nil
 }
 
-func (service *Service) getPDFChunks(ctx context.Context, meta *pb.File) ([]*pb.Chunk, error) {
+func (service *Service) getPDFChunks(ctx context.Context, meta *pb.File) ([]*datastore.DocumentChunk, error) {
 
-	obj := service.storage.Object(meta.Path)
+	obj := service.Storage.Object(meta.Path)
 	read, err := obj.NewReader(ctx)
 	if err != nil {
 		return nil, err
@@ -147,12 +144,12 @@ func (service *Service) getPDFChunks(ctx context.Context, meta *pb.File) ([]*pb.
 		return nil, err
 	}
 
-	chunks := make([]*pb.Chunk, len(pages))
+	chunks := make([]*datastore.DocumentChunk, len(pages))
 	for inx, page := range pages {
-		chunks[inx] = &pb.Chunk{
-			Id:    uuid.NewString(),
-			Text:  page,
-			Index: uint32(inx),
+		chunks[inx] = &datastore.DocumentChunk{
+			Id:       uuid.New(),
+			Text:     page,
+			Position: uint32(inx),
 		}
 	}
 
