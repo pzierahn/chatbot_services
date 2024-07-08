@@ -47,7 +47,7 @@ func (db *DB) Search(ctx context.Context, query vectordb.SearchQuery) (*vectordb
 				{
 					ConditionOneOf: &qdrant.Condition_Field{
 						Field: &qdrant.FieldCondition{
-							Key: "userId",
+							Key: PayloadUserId,
 							Match: &qdrant.Match{
 								MatchValue: &qdrant.Match_Text{
 									Text: query.UserId,

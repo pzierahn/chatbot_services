@@ -6,31 +6,93 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-func (db *DB) Delete(ids []string) error {
+func (db *DB) DeleteCollection(ctx context.Context, userId, collectionId string) error {
 
-	if len(ids) == 0 {
-		return nil
-	}
-
-	ctx := metadata.AppendToOutgoingContext(
-		context.Background(),
+	ctx = metadata.AppendToOutgoingContext(
+		ctx,
 		"api-key",
 		db.apiKey,
 	)
 
-	var pointsIds []*qdrant.PointId
-	for _, id := range ids {
-		pointsIds = append(pointsIds, &qdrant.PointId{
-			PointIdOptions: &qdrant.PointId_Uuid{Uuid: id},
-		})
-	}
+	points := qdrant.NewPointsClient(db.conn)
+	_, err := points.Delete(ctx, &qdrant.DeletePoints{
+		Points: &qdrant.PointsSelector{
+			PointsSelectorOneOf: &qdrant.PointsSelector_Filter{
+				Filter: &qdrant.Filter{
+					Must: []*qdrant.Condition{
+						{
+							ConditionOneOf: &qdrant.Condition_Field{
+								Field: &qdrant.FieldCondition{
+									Key: PayloadCollectionId,
+									Match: &qdrant.Match{
+										MatchValue: &qdrant.Match_Text{
+											Text: collectionId,
+										},
+									},
+								},
+							},
+						},
+						{
+							ConditionOneOf: &qdrant.Condition_Field{
+								Field: &qdrant.FieldCondition{
+									Key: PayloadUserId,
+									Match: &qdrant.Match{
+										MatchValue: &qdrant.Match_Text{
+											Text: userId,
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		CollectionName: db.namespace,
+	})
+
+	return err
+}
+
+func (db *DB) DeleteDocument(ctx context.Context, userId, documentId string) error {
+
+	ctx = metadata.AppendToOutgoingContext(
+		ctx,
+		"api-key",
+		db.apiKey,
+	)
 
 	points := qdrant.NewPointsClient(db.conn)
 	_, err := points.Delete(ctx, &qdrant.DeletePoints{
 		Points: &qdrant.PointsSelector{
-			PointsSelectorOneOf: &qdrant.PointsSelector_Points{
-				Points: &qdrant.PointsIdsList{
-					Ids: pointsIds,
+			PointsSelectorOneOf: &qdrant.PointsSelector_Filter{
+				Filter: &qdrant.Filter{
+					Must: []*qdrant.Condition{
+						{
+							ConditionOneOf: &qdrant.Condition_Field{
+								Field: &qdrant.FieldCondition{
+									Key: PayloadDocumentId,
+									Match: &qdrant.Match{
+										MatchValue: &qdrant.Match_Text{
+											Text: documentId,
+										},
+									},
+								},
+							},
+						},
+						{
+							ConditionOneOf: &qdrant.Condition_Field{
+								Field: &qdrant.FieldCondition{
+									Key: PayloadUserId,
+									Match: &qdrant.Match{
+										MatchValue: &qdrant.Match_Text{
+											Text: userId,
+										},
+									},
+								},
+							},
+						},
+					},
 				},
 			},
 		},

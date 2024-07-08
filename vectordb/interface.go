@@ -27,6 +27,7 @@ type SearchResults struct {
 type DB interface {
 	Search(context.Context, SearchQuery) (*SearchResults, error)
 	Upsert(context.Context, []*Fragment) error
-	Delete(ids []string) error
+	DeleteCollection(ctx context.Context, userId, collectionId string) error
+	DeleteDocument(ctx context.Context, userId, documentId string) error
 	Close() error
 }
