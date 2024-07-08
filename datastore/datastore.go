@@ -17,8 +17,13 @@ func (service *Service) Close() {
 }
 
 const (
-	DatabaseName       = "chatbot"
-	CollectionMessages = "messages"
+	DatabaseName = "chatbot"
+)
+
+const (
+	CollectionMessages        = "messages"
+	CollectionDocumentsChunks = "document_chunks"
+	CollectionDokument        = "documents"
 )
 
 func New(ctx context.Context) (*Service, error) {

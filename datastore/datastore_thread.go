@@ -3,14 +3,33 @@ package datastore
 import (
 	"context"
 	"github.com/google/uuid"
+	"github.com/pzierahn/chatbot_services/llm"
 	"go.mongodb.org/mongo-driver/bson"
+	"time"
 )
 
-// AddMessage adds a message to the database
-func (service *Service) AddMessage(ctx context.Context, message *Message) error {
+type Thread struct {
+	// ID of the message
+	Id uuid.UUID `bson:"_id,omitempty"`
+
+	// Thread ID
+	ThreadId uuid.UUID `bson:"thread_id,omitempty"`
+
+	// User ID
+	UserId string `bson:"user_id,omitempty"`
+
+	// Timestamp of the last message
+	Timestamp time.Time `bson:"timestamp,omitempty"`
+
+	// Messages
+	Messages []*llm.Message `bson:"messages,omitempty"`
+}
+
+// StoreThread stores a thread
+func (service *Service) StoreThread(ctx context.Context, thread *Thread) error {
 	coll := service.mongo.Database(DatabaseName).Collection(CollectionMessages)
 
-	_, err := coll.InsertOne(ctx, message)
+	_, err := coll.InsertOne(ctx, thread)
 	if err != nil {
 		return err
 	}
@@ -18,25 +37,8 @@ func (service *Service) AddMessage(ctx context.Context, message *Message) error 
 	return nil
 }
 
-// AddMessages adds multiple messages to the database
-func (service *Service) AddMessages(ctx context.Context, messages []*Message) error {
-	coll := service.mongo.Database(DatabaseName).Collection(CollectionMessages)
-
-	var docs []interface{}
-	for _, message := range messages {
-		docs = append(docs, message)
-	}
-
-	_, err := coll.InsertMany(ctx, docs)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// GetMessages gets all messages from a thread
-func (service *Service) GetMessages(ctx context.Context, userId string, threadId uuid.UUID) ([]*Message, error) {
+// GetThread returns all messages of a thread
+func (service *Service) GetThread(ctx context.Context, userId string, threadId uuid.UUID) (*Thread, error) {
 	coll := service.mongo.Database(DatabaseName).Collection(CollectionMessages)
 
 	filter := bson.M{
@@ -44,20 +46,11 @@ func (service *Service) GetMessages(ctx context.Context, userId string, threadId
 		"user_id":   userId,
 	}
 
-	var messages []*Message
-	cursor, err := coll.Find(ctx, filter)
+	var thread Thread
+	err := coll.FindOne(ctx, filter).Decode(&thread)
 	if err != nil {
 		return nil, err
 	}
 
-	for cursor.Next(ctx) {
-		var message Message
-		err = cursor.Decode(&message)
-		if err != nil {
-			return nil, err
-		}
-		messages = append(messages, &message)
-	}
-
-	return messages, nil
+	return &thread, nil
 }

@@ -29,41 +29,31 @@ func main() {
 	//
 
 	callId := uuid.NewString()
-	err = db.AddMessages(ctx, []*datastore.Message{{
+	err = db.StoreThread(ctx, &datastore.Thread{
 		Id:        uuid.New(),
 		ThreadId:  uuid.MustParse(threadId),
 		UserId:    userId,
-		Role:      llm.RoleUser,
 		Timestamp: time.Now(),
-		Content:   "Hallo Bot!",
-	}, {
-		Id:        uuid.New(),
-		ThreadId:  uuid.MustParse(threadId),
-		UserId:    userId,
-		Role:      llm.RoleAssistant,
-		Timestamp: time.Now(),
-		ToolCalls: []datastore.ToolCall{{
-			CallID: callId,
-			Function: datastore.Function{
-				Name: "echo",
-				Arguments: map[string]any{
-					"text": "Hallo User!",
+		Messages: []*llm.Message{{
+			Role:    llm.RoleUser,
+			Content: "Hallo Bot!",
+		}, {
+			Role: llm.RoleAssistant,
+			ToolCalls: []llm.ToolCall{{
+				CallID: callId,
+				Function: llm.Function{
+					Name:      "echo",
+					Arguments: "{\"text\": \"Hallo User!\"}",
 				},
-			},
-		}},
-	}, {
-		Id:        uuid.New(),
-		ThreadId:  uuid.MustParse(threadId),
-		UserId:    userId,
-		Role:      llm.RoleUser,
-		Timestamp: time.Now(),
-		ToolResponses: []datastore.ToolResponse{{
-			CallID: callId,
-			Content: map[string]any{
-				"text": "Hallo User!",
-			},
-		}},
-	}})
+			}},
+		}, {
+			Role: llm.RoleUser,
+			ToolResponses: []llm.ToolResponse{{
+				CallID:  callId,
+				Content: "{\"text\": \"Hallo User!\"}",
+			}},
+		},
+		}})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -72,7 +62,7 @@ func main() {
 	// Get messages from the database.
 	//
 
-	results, err := db.GetMessages(ctx, userId, uuid.MustParse(threadId))
+	results, err := db.GetThread(ctx, userId, uuid.MustParse(threadId))
 	if err != nil {
 		log.Fatal(err)
 	}
