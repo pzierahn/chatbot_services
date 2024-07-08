@@ -16,6 +16,10 @@ func (service *Service) addToSearchIndex(ctx context.Context, doc *datastore.Doc
 			return fmt.Errorf("fragment id is empty")
 		}
 
+		if fragment.Text == "" {
+			continue
+		}
+
 		vectors = append(vectors, &vectordb.Fragment{
 			Id:           fragment.Id.String(),
 			Text:         fragment.Text,
