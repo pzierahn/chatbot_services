@@ -78,7 +78,7 @@ For local testing run the following command:
 CHATBOT_TEST=true \
 CHATBOT_QDRANT_INSECURE=true \
 PORT=8869 \
-CHATBOT_DB=postgresql://root@127.0.0.1:26257/defaultdb?sslmode=disable \
+CHATBOT_MONGODB_URI=mongodb://localhost:27017 \
 CHATBOT_QDRANT_URL=localhost:6334 \
 go run cmd/server/server.go
 
