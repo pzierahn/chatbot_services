@@ -85,7 +85,7 @@ func (service *Service) GetCollections(ctx context.Context, userId string) ([]Co
 func (service *Service) DeleteCollection(ctx context.Context, userId string, collectionId uuid.UUID) error {
 	collections := service.mongo.Database(DatabaseName).Collection(CollectionCollections)
 	documents := service.mongo.Database(DatabaseName).Collection(CollectionDokuments)
-	threads := service.mongo.Database(DatabaseName).Collection(CollectionMessages)
+	threads := service.mongo.Database(DatabaseName).Collection(CollectionThreads)
 
 	_, err := collections.DeleteOne(ctx, bson.M{
 		"_id":     collectionId,

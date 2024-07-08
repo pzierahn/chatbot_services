@@ -21,7 +21,7 @@ const (
 )
 
 const (
-	CollectionMessages    = "messages"
+	CollectionThreads     = "threads"
 	CollectionCollections = "collections"
 	CollectionDokuments   = "documents"
 )

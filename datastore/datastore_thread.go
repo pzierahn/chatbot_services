@@ -29,7 +29,7 @@ type Thread struct {
 
 // StoreThread stores a thread
 func (service *Service) StoreThread(ctx context.Context, thread *Thread) error {
-	coll := service.mongo.Database(DatabaseName).Collection(CollectionMessages)
+	coll := service.mongo.Database(DatabaseName).Collection(CollectionThreads)
 
 	if thread.Id == uuid.Nil {
 		return errors.New("thread ID is missing")
@@ -54,7 +54,7 @@ func (service *Service) StoreThread(ctx context.Context, thread *Thread) error {
 
 // GetThread returns all messages of a thread
 func (service *Service) GetThread(ctx context.Context, userId string, threadId uuid.UUID) (*Thread, error) {
-	coll := service.mongo.Database(DatabaseName).Collection(CollectionMessages)
+	coll := service.mongo.Database(DatabaseName).Collection(CollectionThreads)
 
 	filter := bson.M{
 		"_id":     threadId,
@@ -72,7 +72,7 @@ func (service *Service) GetThread(ctx context.Context, userId string, threadId u
 
 // GetThreadIDs returns all thread IDs of a user
 func (service *Service) GetThreadIDs(ctx context.Context, userId string) ([]uuid.UUID, error) {
-	coll := service.mongo.Database(DatabaseName).Collection(CollectionMessages)
+	coll := service.mongo.Database(DatabaseName).Collection(CollectionThreads)
 
 	filter := bson.M{
 		"user_id": userId,
