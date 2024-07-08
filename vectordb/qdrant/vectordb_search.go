@@ -2,14 +2,21 @@ package qdrant
 
 import (
 	"context"
+	"github.com/pzierahn/chatbot_services/llm"
 	"github.com/pzierahn/chatbot_services/vectordb"
 	qdrant "github.com/qdrant/go-client/qdrant"
 	"google.golang.org/grpc/metadata"
 )
 
-func (db *DB) Search(query vectordb.SearchQuery) ([]*vectordb.Vector, error) {
+func (db *DB) Search(ctx context.Context, query vectordb.SearchQuery) (*vectordb.SearchResults, error) {
 
-	ctx := context.Background()
+	embedding, err := db.embedding.CreateEmbedding(ctx, &llm.EmbeddingRequest{
+		Inputs: []string{query.Query},
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	ctx = metadata.AppendToOutgoingContext(ctx, "api-key", db.apiKey)
 
 	points := qdrant.NewPointsClient(db.conn)
@@ -21,14 +28,14 @@ func (db *DB) Search(query vectordb.SearchQuery) ([]*vectordb.Vector, error) {
 			},
 		},
 		ScoreThreshold: &query.Threshold,
-		Vector:         query.Vector,
+		Vector:         embedding.Embeddings[0],
 		Limit:          uint64(query.Limit),
 		Filter: &qdrant.Filter{
 			Must: []*qdrant.Condition{
 				{
 					ConditionOneOf: &qdrant.Condition_Field{
 						Field: &qdrant.FieldCondition{
-							Key: "collectionId",
+							Key: PayloadCollectionId,
 							Match: &qdrant.Match{
 								MatchValue: &qdrant.Match_Text{
 									Text: query.CollectionId,
@@ -60,17 +67,19 @@ func (db *DB) Search(query vectordb.SearchQuery) ([]*vectordb.Vector, error) {
 		return nil, nil
 	}
 
-	var results []*vectordb.Vector
+	results := &vectordb.SearchResults{}
 
 	for _, item := range queryResult.Result {
-		doc := &vectordb.Vector{
-			Id:         item.Id.GetUuid(),
-			DocumentId: item.Payload["documentId"].GetStringValue(),
-			Text:       item.Payload["text"].GetStringValue(),
-			Score:      item.Score,
+		fragment := &vectordb.Fragment{
+			Id:           item.Id.GetUuid(),
+			CollectionId: item.Payload[PayloadCollectionId].GetStringValue(),
+			DocumentId:   item.Payload[PayloadDocumentId].GetStringValue(),
+			UserId:       item.Payload["userId"].GetStringValue(),
+			Text:         item.Payload["text"].GetStringValue(),
 		}
 
-		results = append(results, doc)
+		results.Fragments = append(results.Fragments, fragment)
+		results.Scores = append(results.Scores, item.Score)
 	}
 
 	return results, nil

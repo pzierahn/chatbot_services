@@ -7,11 +7,20 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-func (db *DB) Upsert(items []*vectordb.Vector) error {
+func (db *DB) Upsert(ctx context.Context, fragments []*vectordb.Fragment) error {
+
+	embeddings, err := db.createEmbeddings(ctx, fragments)
+	if err != nil {
+		return err
+	}
 
 	var vectors []*qdrant.PointStruct
+	for _, item := range fragments {
+		vector, ok := embeddings[item.Id]
+		if !ok {
+			continue
+		}
 
-	for _, item := range items {
 		vectors = append(vectors, &qdrant.PointStruct{
 			Id: &qdrant.PointId{
 				PointIdOptions: &qdrant.PointId_Uuid{
@@ -21,27 +30,27 @@ func (db *DB) Upsert(items []*vectordb.Vector) error {
 			Vectors: &qdrant.Vectors{
 				VectorsOptions: &qdrant.Vectors_Vector{
 					Vector: &qdrant.Vector{
-						Data: item.Vector,
+						Data: vector,
 					},
 				},
 			},
 			Payload: map[string]*qdrant.Value{
-				"documentId": {
+				PayloadDocumentId: {
 					Kind: &qdrant.Value_StringValue{
 						StringValue: item.DocumentId,
 					},
 				},
-				"collectionId": {
+				PayloadCollectionId: {
 					Kind: &qdrant.Value_StringValue{
 						StringValue: item.CollectionId,
 					},
 				},
-				"userId": {
+				PayloadUserId: {
 					Kind: &qdrant.Value_StringValue{
 						StringValue: item.UserId,
 					},
 				},
-				"text": {
+				PayloadText: {
 					Kind: &qdrant.Value_StringValue{
 						StringValue: item.Text,
 					},
@@ -50,8 +59,8 @@ func (db *DB) Upsert(items []*vectordb.Vector) error {
 		})
 	}
 
-	ctx := metadata.AppendToOutgoingContext(
-		context.Background(),
+	ctx = metadata.AppendToOutgoingContext(
+		ctx,
 		"api-key",
 		db.apiKey,
 	)
