@@ -22,8 +22,9 @@ const (
 
 const (
 	CollectionMessages        = "messages"
+	CollectionCollections     = "collections"
 	CollectionDocumentsChunks = "document_chunks"
-	CollectionDokument        = "documents"
+	CollectionDokuments       = "documents"
 )
 
 func New(ctx context.Context) (*Service, error) {
