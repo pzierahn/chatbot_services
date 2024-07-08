@@ -10,6 +10,8 @@ import (
 	"github.com/pzierahn/chatbot_services/llm/openai"
 	"github.com/pzierahn/chatbot_services/llm/vertex"
 	pb "github.com/pzierahn/chatbot_services/proto"
+	"github.com/pzierahn/chatbot_services/vectordb"
+	"github.com/pzierahn/chatbot_services/vectordb/qdrant"
 )
 
 type Service struct {
@@ -17,6 +19,7 @@ type Service struct {
 	models []llm.Chat
 	auth   auth.Service
 	db     *datastore.Service
+	search vectordb.DB
 }
 
 // getModel returns the llm.Chat that provides the given model.
@@ -83,9 +86,15 @@ func New() (*Service, error) {
 		vertexClient,
 	}
 
+	search, err := qdrant.New()
+	if err != nil {
+		return nil, err
+	}
+
 	return &Service{
 		auth:   fakeAuth,
 		db:     db,
 		models: models,
+		search: search,
 	}, nil
 }

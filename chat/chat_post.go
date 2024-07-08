@@ -2,12 +2,14 @@ package chat
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/pzierahn/chatbot_services/datastore"
 	"github.com/pzierahn/chatbot_services/llm"
 	pb "github.com/pzierahn/chatbot_services/proto"
+	"github.com/pzierahn/chatbot_services/vectordb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"log"
 	"time"
@@ -90,6 +92,46 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 		TopP:        modelOps.TopP,
 		Temperature: modelOps.Temperature,
 		UserId:      userId,
+		Tools: []llm.ToolDefinition{{
+			Name:        "get_sources",
+			Description: "Retrieves the sources for the prompt. The prompt should be optimized for embedding retrieval. The tool will return a list of sources in JSON format with the following fields: SourceID, Content.",
+			Parameters: llm.ToolParameters{
+				Type: "object",
+				Properties: map[string]llm.ParametersProperties{
+					"prompt": {
+						Type:        "string",
+						Description: "The topic for which to retrieve sources. The prompt should be optimized for embedding retrieval.",
+					},
+				},
+				Required: []string{"prompt"},
+			},
+			Call: func(ctx context.Context, parameters map[string]interface{}) (string, error) {
+				query, ok := parameters["prompt"].(string)
+				if !ok {
+					return "", errors.New("prompt missing")
+				}
+
+				log.Printf("get_sources: %v", query)
+
+				search, err := service.search.Search(ctx, vectordb.SearchQuery{
+					UserId:       userId,
+					CollectionId: collectionId.String(),
+					Query:        query,
+					Limit:        10,
+					Threshold:    0.25,
+				})
+				if err != nil {
+					return "", err
+				}
+
+				byt, err := json.Marshal(search)
+				if err != nil {
+					return "", err
+				}
+
+				return string(byt), nil
+			},
+		}},
 	}
 
 	response, err := model.Completion(ctx, request)
