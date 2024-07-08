@@ -6,6 +6,7 @@ import (
 	firebase "firebase.google.com/go"
 	"github.com/pzierahn/chatbot_services/auth"
 	"github.com/pzierahn/chatbot_services/chat"
+	"github.com/pzierahn/chatbot_services/collections"
 	"github.com/pzierahn/chatbot_services/datastore"
 	"github.com/pzierahn/chatbot_services/documents"
 	"github.com/pzierahn/chatbot_services/llm"
@@ -119,9 +120,17 @@ func main() {
 		SearchIndex: search,
 	}
 
+	collectionService := &collections.Service{
+		Auth:     fakeAuth,
+		Database: database,
+		Storage:  bucket,
+		Search:   search,
+	}
+
 	grpcServer := grpc.NewServer()
 	pb.RegisterChatServiceServer(grpcServer, chatService)
 	pb.RegisterDocumentServiceServer(grpcServer, documentsService)
+	pb.RegisterCollectionServiceServer(grpcServer, collectionService)
 
 	port := os.Getenv("PORT")
 	if port == "" {
