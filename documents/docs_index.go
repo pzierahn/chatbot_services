@@ -148,7 +148,7 @@ func (service *Service) getPDFChunks(ctx context.Context, meta *pb.File) ([]*dat
 	for inx, page := range pages {
 		chunks[inx] = &datastore.DocumentChunk{
 			Id:       uuid.New(),
-			Text:     page,
+			Text:     strings.TrimSpace(page),
 			Position: uint32(inx),
 		}
 	}
