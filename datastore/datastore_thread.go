@@ -78,13 +78,13 @@ func (service *Service) GetThreadIDs(ctx context.Context, userId string) ([]uuid
 		"user_id": userId,
 	}
 
-	ops := &options.FindOptions{
+	opts := &options.FindOptions{
 		Projection: bson.M{
 			"_id": 1,
 		},
 	}
 
-	cursor, err := coll.Find(ctx, filter, ops)
+	cursor, err := coll.Find(ctx, filter, opts)
 	if err != nil {
 		return nil, err
 	}
