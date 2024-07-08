@@ -12,10 +12,14 @@ import "collection_service.proto";
 service ChatService {
   rpc PostMessage(Prompt) returns (Message);
   rpc GetThread(ThreadID) returns (Thread);
-  rpc ListThreadIDs(collections.v2.Collection) returns (ThreadIDs);
+  rpc ListThreadIDs(CollectionId) returns (ThreadIDs);
   rpc DeleteThread(ThreadID) returns (google.protobuf.Empty);
   rpc DeleteMessageFromThread(MessageID) returns (google.protobuf.Empty);
   rpc Completion(CompletionRequest) returns (CompletionResponse);
+}
+
+message CollectionId {
+  string id = 1;
 }
 
 message CompletionRequest {

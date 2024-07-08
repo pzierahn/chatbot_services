@@ -20,17 +20,15 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	CollectionService_Get_FullMethodName    = "/chatbot.collections.v2.CollectionService/Get"
-	CollectionService_List_FullMethodName   = "/chatbot.collections.v2.CollectionService/List"
-	CollectionService_Store_FullMethodName  = "/chatbot.collections.v2.CollectionService/Store"
-	CollectionService_Delete_FullMethodName = "/chatbot.collections.v2.CollectionService/Delete"
+	CollectionService_List_FullMethodName   = "/chatbot.collections.v3.CollectionService/List"
+	CollectionService_Store_FullMethodName  = "/chatbot.collections.v3.CollectionService/Store"
+	CollectionService_Delete_FullMethodName = "/chatbot.collections.v3.CollectionService/Delete"
 )
 
 // CollectionServiceClient is the client API for CollectionService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CollectionServiceClient interface {
-	Get(ctx context.Context, in *CollectionID, opts ...grpc.CallOption) (*Collection, error)
 	List(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Collections, error)
 	Store(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Delete(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -42,16 +40,6 @@ type collectionServiceClient struct {
 
 func NewCollectionServiceClient(cc grpc.ClientConnInterface) CollectionServiceClient {
 	return &collectionServiceClient{cc}
-}
-
-func (c *collectionServiceClient) Get(ctx context.Context, in *CollectionID, opts ...grpc.CallOption) (*Collection, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Collection)
-	err := c.cc.Invoke(ctx, CollectionService_Get_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *collectionServiceClient) List(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Collections, error) {
@@ -88,7 +76,6 @@ func (c *collectionServiceClient) Delete(ctx context.Context, in *Collection, op
 // All implementations must embed UnimplementedCollectionServiceServer
 // for forward compatibility
 type CollectionServiceServer interface {
-	Get(context.Context, *CollectionID) (*Collection, error)
 	List(context.Context, *emptypb.Empty) (*Collections, error)
 	Store(context.Context, *Collection) (*emptypb.Empty, error)
 	Delete(context.Context, *Collection) (*emptypb.Empty, error)
@@ -99,9 +86,6 @@ type CollectionServiceServer interface {
 type UnimplementedCollectionServiceServer struct {
 }
 
-func (UnimplementedCollectionServiceServer) Get(context.Context, *CollectionID) (*Collection, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
-}
 func (UnimplementedCollectionServiceServer) List(context.Context, *emptypb.Empty) (*Collections, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
 }
@@ -122,24 +106,6 @@ type UnsafeCollectionServiceServer interface {
 
 func RegisterCollectionServiceServer(s grpc.ServiceRegistrar, srv CollectionServiceServer) {
 	s.RegisterService(&CollectionService_ServiceDesc, srv)
-}
-
-func _CollectionService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CollectionID)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CollectionServiceServer).Get(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: CollectionService_Get_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CollectionServiceServer).Get(ctx, req.(*CollectionID))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _CollectionService_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -200,13 +166,9 @@ func _CollectionService_Delete_Handler(srv interface{}, ctx context.Context, dec
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var CollectionService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "chatbot.collections.v2.CollectionService",
+	ServiceName: "chatbot.collections.v3.CollectionService",
 	HandlerType: (*CollectionServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "Get",
-			Handler:    _CollectionService_Get_Handler,
-		},
 		{
 			MethodName: "List",
 			Handler:    _CollectionService_List_Handler,

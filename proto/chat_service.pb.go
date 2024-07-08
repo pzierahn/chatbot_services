@@ -22,6 +22,53 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type CollectionId struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+}
+
+func (x *CollectionId) Reset() {
+	*x = CollectionId{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_chat_service_proto_msgTypes[0]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *CollectionId) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CollectionId) ProtoMessage() {}
+
+func (x *CollectionId) ProtoReflect() protoreflect.Message {
+	mi := &file_chat_service_proto_msgTypes[0]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CollectionId.ProtoReflect.Descriptor instead.
+func (*CollectionId) Descriptor() ([]byte, []int) {
+	return file_chat_service_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *CollectionId) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
 type CompletionRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -35,7 +82,7 @@ type CompletionRequest struct {
 func (x *CompletionRequest) Reset() {
 	*x = CompletionRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_chat_service_proto_msgTypes[0]
+		mi := &file_chat_service_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -48,7 +95,7 @@ func (x *CompletionRequest) String() string {
 func (*CompletionRequest) ProtoMessage() {}
 
 func (x *CompletionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chat_service_proto_msgTypes[0]
+	mi := &file_chat_service_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -61,7 +108,7 @@ func (x *CompletionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CompletionRequest.ProtoReflect.Descriptor instead.
 func (*CompletionRequest) Descriptor() ([]byte, []int) {
-	return file_chat_service_proto_rawDescGZIP(), []int{0}
+	return file_chat_service_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *CompletionRequest) GetDocumentId() string {
@@ -96,7 +143,7 @@ type CompletionResponse struct {
 func (x *CompletionResponse) Reset() {
 	*x = CompletionResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_chat_service_proto_msgTypes[1]
+		mi := &file_chat_service_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -109,7 +156,7 @@ func (x *CompletionResponse) String() string {
 func (*CompletionResponse) ProtoMessage() {}
 
 func (x *CompletionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chat_service_proto_msgTypes[1]
+	mi := &file_chat_service_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -122,7 +169,7 @@ func (x *CompletionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CompletionResponse.ProtoReflect.Descriptor instead.
 func (*CompletionResponse) Descriptor() ([]byte, []int) {
-	return file_chat_service_proto_rawDescGZIP(), []int{1}
+	return file_chat_service_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *CompletionResponse) GetCompletion() string {
@@ -145,7 +192,7 @@ type BatchRequest struct {
 func (x *BatchRequest) Reset() {
 	*x = BatchRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_chat_service_proto_msgTypes[2]
+		mi := &file_chat_service_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -158,7 +205,7 @@ func (x *BatchRequest) String() string {
 func (*BatchRequest) ProtoMessage() {}
 
 func (x *BatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chat_service_proto_msgTypes[2]
+	mi := &file_chat_service_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -171,7 +218,7 @@ func (x *BatchRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BatchRequest.ProtoReflect.Descriptor instead.
 func (*BatchRequest) Descriptor() ([]byte, []int) {
-	return file_chat_service_proto_rawDescGZIP(), []int{2}
+	return file_chat_service_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *BatchRequest) GetDocumentIds() []string {
@@ -209,7 +256,7 @@ type BatchResponse struct {
 func (x *BatchResponse) Reset() {
 	*x = BatchResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_chat_service_proto_msgTypes[3]
+		mi := &file_chat_service_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -222,7 +269,7 @@ func (x *BatchResponse) String() string {
 func (*BatchResponse) ProtoMessage() {}
 
 func (x *BatchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chat_service_proto_msgTypes[3]
+	mi := &file_chat_service_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -235,7 +282,7 @@ func (x *BatchResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BatchResponse.ProtoReflect.Descriptor instead.
 func (*BatchResponse) Descriptor() ([]byte, []int) {
-	return file_chat_service_proto_rawDescGZIP(), []int{3}
+	return file_chat_service_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *BatchResponse) GetDocumentIds() []string {
@@ -286,7 +333,7 @@ type Prompt struct {
 func (x *Prompt) Reset() {
 	*x = Prompt{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_chat_service_proto_msgTypes[4]
+		mi := &file_chat_service_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -299,7 +346,7 @@ func (x *Prompt) String() string {
 func (*Prompt) ProtoMessage() {}
 
 func (x *Prompt) ProtoReflect() protoreflect.Message {
-	mi := &file_chat_service_proto_msgTypes[4]
+	mi := &file_chat_service_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -312,7 +359,7 @@ func (x *Prompt) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Prompt.ProtoReflect.Descriptor instead.
 func (*Prompt) Descriptor() ([]byte, []int) {
-	return file_chat_service_proto_rawDescGZIP(), []int{4}
+	return file_chat_service_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *Prompt) GetThreadId() string {
@@ -364,7 +411,7 @@ type ModelOptions struct {
 func (x *ModelOptions) Reset() {
 	*x = ModelOptions{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_chat_service_proto_msgTypes[5]
+		mi := &file_chat_service_proto_msgTypes[6]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -377,7 +424,7 @@ func (x *ModelOptions) String() string {
 func (*ModelOptions) ProtoMessage() {}
 
 func (x *ModelOptions) ProtoReflect() protoreflect.Message {
-	mi := &file_chat_service_proto_msgTypes[5]
+	mi := &file_chat_service_proto_msgTypes[6]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -390,7 +437,7 @@ func (x *ModelOptions) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ModelOptions.ProtoReflect.Descriptor instead.
 func (*ModelOptions) Descriptor() ([]byte, []int) {
-	return file_chat_service_proto_rawDescGZIP(), []int{5}
+	return file_chat_service_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ModelOptions) GetModelId() string {
@@ -434,7 +481,7 @@ type RetrievalOptions struct {
 func (x *RetrievalOptions) Reset() {
 	*x = RetrievalOptions{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_chat_service_proto_msgTypes[6]
+		mi := &file_chat_service_proto_msgTypes[7]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -447,7 +494,7 @@ func (x *RetrievalOptions) String() string {
 func (*RetrievalOptions) ProtoMessage() {}
 
 func (x *RetrievalOptions) ProtoReflect() protoreflect.Message {
-	mi := &file_chat_service_proto_msgTypes[6]
+	mi := &file_chat_service_proto_msgTypes[7]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -460,7 +507,7 @@ func (x *RetrievalOptions) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RetrievalOptions.ProtoReflect.Descriptor instead.
 func (*RetrievalOptions) Descriptor() ([]byte, []int) {
-	return file_chat_service_proto_rawDescGZIP(), []int{6}
+	return file_chat_service_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *RetrievalOptions) GetEnabled() bool {
@@ -504,7 +551,7 @@ type Message struct {
 func (x *Message) Reset() {
 	*x = Message{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_chat_service_proto_msgTypes[7]
+		mi := &file_chat_service_proto_msgTypes[8]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -517,7 +564,7 @@ func (x *Message) String() string {
 func (*Message) ProtoMessage() {}
 
 func (x *Message) ProtoReflect() protoreflect.Message {
-	mi := &file_chat_service_proto_msgTypes[7]
+	mi := &file_chat_service_proto_msgTypes[8]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -530,7 +577,7 @@ func (x *Message) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Message.ProtoReflect.Descriptor instead.
 func (*Message) Descriptor() ([]byte, []int) {
-	return file_chat_service_proto_rawDescGZIP(), []int{7}
+	return file_chat_service_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *Message) GetThreadId() string {
@@ -580,7 +627,7 @@ type Thread struct {
 func (x *Thread) Reset() {
 	*x = Thread{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_chat_service_proto_msgTypes[8]
+		mi := &file_chat_service_proto_msgTypes[9]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -593,7 +640,7 @@ func (x *Thread) String() string {
 func (*Thread) ProtoMessage() {}
 
 func (x *Thread) ProtoReflect() protoreflect.Message {
-	mi := &file_chat_service_proto_msgTypes[8]
+	mi := &file_chat_service_proto_msgTypes[9]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -606,7 +653,7 @@ func (x *Thread) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Thread.ProtoReflect.Descriptor instead.
 func (*Thread) Descriptor() ([]byte, []int) {
-	return file_chat_service_proto_rawDescGZIP(), []int{8}
+	return file_chat_service_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *Thread) GetId() string {
@@ -634,7 +681,7 @@ type ThreadID struct {
 func (x *ThreadID) Reset() {
 	*x = ThreadID{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_chat_service_proto_msgTypes[9]
+		mi := &file_chat_service_proto_msgTypes[10]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -647,7 +694,7 @@ func (x *ThreadID) String() string {
 func (*ThreadID) ProtoMessage() {}
 
 func (x *ThreadID) ProtoReflect() protoreflect.Message {
-	mi := &file_chat_service_proto_msgTypes[9]
+	mi := &file_chat_service_proto_msgTypes[10]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -660,7 +707,7 @@ func (x *ThreadID) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ThreadID.ProtoReflect.Descriptor instead.
 func (*ThreadID) Descriptor() ([]byte, []int) {
-	return file_chat_service_proto_rawDescGZIP(), []int{9}
+	return file_chat_service_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ThreadID) GetId() string {
@@ -682,7 +729,7 @@ type MessageID struct {
 func (x *MessageID) Reset() {
 	*x = MessageID{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_chat_service_proto_msgTypes[10]
+		mi := &file_chat_service_proto_msgTypes[11]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -695,7 +742,7 @@ func (x *MessageID) String() string {
 func (*MessageID) ProtoMessage() {}
 
 func (x *MessageID) ProtoReflect() protoreflect.Message {
-	mi := &file_chat_service_proto_msgTypes[10]
+	mi := &file_chat_service_proto_msgTypes[11]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -708,7 +755,7 @@ func (x *MessageID) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MessageID.ProtoReflect.Descriptor instead.
 func (*MessageID) Descriptor() ([]byte, []int) {
-	return file_chat_service_proto_rawDescGZIP(), []int{10}
+	return file_chat_service_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *MessageID) GetId() string {
@@ -736,7 +783,7 @@ type ThreadIDs struct {
 func (x *ThreadIDs) Reset() {
 	*x = ThreadIDs{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_chat_service_proto_msgTypes[11]
+		mi := &file_chat_service_proto_msgTypes[12]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -749,7 +796,7 @@ func (x *ThreadIDs) String() string {
 func (*ThreadIDs) ProtoMessage() {}
 
 func (x *ThreadIDs) ProtoReflect() protoreflect.Message {
-	mi := &file_chat_service_proto_msgTypes[11]
+	mi := &file_chat_service_proto_msgTypes[12]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -762,7 +809,7 @@ func (x *ThreadIDs) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ThreadIDs.ProtoReflect.Descriptor instead.
 func (*ThreadIDs) Descriptor() ([]byte, []int) {
-	return file_chat_service_proto_rawDescGZIP(), []int{11}
+	return file_chat_service_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ThreadIDs) GetIds() []string {
@@ -786,7 +833,7 @@ type BatchResponse_Completion struct {
 func (x *BatchResponse_Completion) Reset() {
 	*x = BatchResponse_Completion{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_chat_service_proto_msgTypes[12]
+		mi := &file_chat_service_proto_msgTypes[13]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -799,7 +846,7 @@ func (x *BatchResponse_Completion) String() string {
 func (*BatchResponse_Completion) ProtoMessage() {}
 
 func (x *BatchResponse_Completion) ProtoReflect() protoreflect.Message {
-	mi := &file_chat_service_proto_msgTypes[12]
+	mi := &file_chat_service_proto_msgTypes[13]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -812,7 +859,7 @@ func (x *BatchResponse_Completion) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BatchResponse_Completion.ProtoReflect.Descriptor instead.
 func (*BatchResponse_Completion) Descriptor() ([]byte, []int) {
-	return file_chat_service_proto_rawDescGZIP(), []int{3, 0}
+	return file_chat_service_proto_rawDescGZIP(), []int{4, 0}
 }
 
 func (x *BatchResponse_Completion) GetDocumentId() uint32 {
@@ -853,7 +900,9 @@ var file_chat_service_proto_rawDesc = []byte{
 	0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x1b, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2f, 0x70,
 	0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2f, 0x65, 0x6d, 0x70, 0x74, 0x79, 0x2e, 0x70, 0x72,
 	0x6f, 0x74, 0x6f, 0x1a, 0x18, 0x63, 0x6f, 0x6c, 0x6c, 0x65, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x5f,
-	0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x90, 0x01,
+	0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x1e, 0x0a,
+	0x0c, 0x43, 0x6f, 0x6c, 0x6c, 0x65, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x49, 0x64, 0x12, 0x0e, 0x0a,
+	0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x22, 0x90, 0x01,
 	0x0a, 0x11, 0x43, 0x6f, 0x6d, 0x70, 0x6c, 0x65, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75,
 	0x65, 0x73, 0x74, 0x12, 0x1f, 0x0a, 0x0b, 0x64, 0x6f, 0x63, 0x75, 0x6d, 0x65, 0x6e, 0x74, 0x5f,
 	0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0a, 0x64, 0x6f, 0x63, 0x75, 0x6d, 0x65,
@@ -956,7 +1005,7 @@ var file_chat_service_proto_rawDesc = []byte{
 	0x68, 0x72, 0x65, 0x61, 0x64, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08,
 	0x74, 0x68, 0x72, 0x65, 0x61, 0x64, 0x49, 0x64, 0x22, 0x1d, 0x0a, 0x09, 0x54, 0x68, 0x72, 0x65,
 	0x61, 0x64, 0x49, 0x44, 0x73, 0x12, 0x10, 0x0a, 0x03, 0x69, 0x64, 0x73, 0x18, 0x01, 0x20, 0x03,
-	0x28, 0x09, 0x52, 0x03, 0x69, 0x64, 0x73, 0x32, 0xca, 0x03, 0x0a, 0x0b, 0x43, 0x68, 0x61, 0x74,
+	0x28, 0x09, 0x52, 0x03, 0x69, 0x64, 0x73, 0x32, 0xc5, 0x03, 0x0a, 0x0b, 0x43, 0x68, 0x61, 0x74,
 	0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x40, 0x0a, 0x0b, 0x50, 0x6f, 0x73, 0x74, 0x4d,
 	0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x12, 0x17, 0x2e, 0x63, 0x68, 0x61, 0x74, 0x62, 0x6f, 0x74,
 	0x2e, 0x63, 0x68, 0x61, 0x74, 0x2e, 0x76, 0x35, 0x2e, 0x50, 0x72, 0x6f, 0x6d, 0x70, 0x74, 0x1a,
@@ -965,28 +1014,28 @@ var file_chat_service_proto_rawDesc = []byte{
 	0x54, 0x68, 0x72, 0x65, 0x61, 0x64, 0x12, 0x19, 0x2e, 0x63, 0x68, 0x61, 0x74, 0x62, 0x6f, 0x74,
 	0x2e, 0x63, 0x68, 0x61, 0x74, 0x2e, 0x76, 0x35, 0x2e, 0x54, 0x68, 0x72, 0x65, 0x61, 0x64, 0x49,
 	0x44, 0x1a, 0x17, 0x2e, 0x63, 0x68, 0x61, 0x74, 0x62, 0x6f, 0x74, 0x2e, 0x63, 0x68, 0x61, 0x74,
-	0x2e, 0x76, 0x35, 0x2e, 0x54, 0x68, 0x72, 0x65, 0x61, 0x64, 0x12, 0x4f, 0x0a, 0x0d, 0x4c, 0x69,
-	0x73, 0x74, 0x54, 0x68, 0x72, 0x65, 0x61, 0x64, 0x49, 0x44, 0x73, 0x12, 0x22, 0x2e, 0x63, 0x68,
-	0x61, 0x74, 0x62, 0x6f, 0x74, 0x2e, 0x63, 0x6f, 0x6c, 0x6c, 0x65, 0x63, 0x74, 0x69, 0x6f, 0x6e,
-	0x73, 0x2e, 0x76, 0x32, 0x2e, 0x43, 0x6f, 0x6c, 0x6c, 0x65, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x1a,
-	0x1a, 0x2e, 0x63, 0x68, 0x61, 0x74, 0x62, 0x6f, 0x74, 0x2e, 0x63, 0x68, 0x61, 0x74, 0x2e, 0x76,
-	0x35, 0x2e, 0x54, 0x68, 0x72, 0x65, 0x61, 0x64, 0x49, 0x44, 0x73, 0x12, 0x41, 0x0a, 0x0c, 0x44,
-	0x65, 0x6c, 0x65, 0x74, 0x65, 0x54, 0x68, 0x72, 0x65, 0x61, 0x64, 0x12, 0x19, 0x2e, 0x63, 0x68,
-	0x61, 0x74, 0x62, 0x6f, 0x74, 0x2e, 0x63, 0x68, 0x61, 0x74, 0x2e, 0x76, 0x35, 0x2e, 0x54, 0x68,
-	0x72, 0x65, 0x61, 0x64, 0x49, 0x44, 0x1a, 0x16, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e,
-	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x12, 0x4d,
-	0x0a, 0x17, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x46,
-	0x72, 0x6f, 0x6d, 0x54, 0x68, 0x72, 0x65, 0x61, 0x64, 0x12, 0x1a, 0x2e, 0x63, 0x68, 0x61, 0x74,
-	0x62, 0x6f, 0x74, 0x2e, 0x63, 0x68, 0x61, 0x74, 0x2e, 0x76, 0x35, 0x2e, 0x4d, 0x65, 0x73, 0x73,
-	0x61, 0x67, 0x65, 0x49, 0x44, 0x1a, 0x16, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x12, 0x55, 0x0a,
-	0x0a, 0x43, 0x6f, 0x6d, 0x70, 0x6c, 0x65, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x22, 0x2e, 0x63, 0x68,
+	0x2e, 0x76, 0x35, 0x2e, 0x54, 0x68, 0x72, 0x65, 0x61, 0x64, 0x12, 0x4a, 0x0a, 0x0d, 0x4c, 0x69,
+	0x73, 0x74, 0x54, 0x68, 0x72, 0x65, 0x61, 0x64, 0x49, 0x44, 0x73, 0x12, 0x1d, 0x2e, 0x63, 0x68,
 	0x61, 0x74, 0x62, 0x6f, 0x74, 0x2e, 0x63, 0x68, 0x61, 0x74, 0x2e, 0x76, 0x35, 0x2e, 0x43, 0x6f,
-	0x6d, 0x70, 0x6c, 0x65, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a,
-	0x23, 0x2e, 0x63, 0x68, 0x61, 0x74, 0x62, 0x6f, 0x74, 0x2e, 0x63, 0x68, 0x61, 0x74, 0x2e, 0x76,
-	0x35, 0x2e, 0x43, 0x6f, 0x6d, 0x70, 0x6c, 0x65, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70,
-	0x6f, 0x6e, 0x73, 0x65, 0x42, 0x09, 0x5a, 0x07, 0x2e, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62,
-	0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x6c, 0x6c, 0x65, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x49, 0x64, 0x1a, 0x1a, 0x2e, 0x63, 0x68, 0x61,
+	0x74, 0x62, 0x6f, 0x74, 0x2e, 0x63, 0x68, 0x61, 0x74, 0x2e, 0x76, 0x35, 0x2e, 0x54, 0x68, 0x72,
+	0x65, 0x61, 0x64, 0x49, 0x44, 0x73, 0x12, 0x41, 0x0a, 0x0c, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65,
+	0x54, 0x68, 0x72, 0x65, 0x61, 0x64, 0x12, 0x19, 0x2e, 0x63, 0x68, 0x61, 0x74, 0x62, 0x6f, 0x74,
+	0x2e, 0x63, 0x68, 0x61, 0x74, 0x2e, 0x76, 0x35, 0x2e, 0x54, 0x68, 0x72, 0x65, 0x61, 0x64, 0x49,
+	0x44, 0x1a, 0x16, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
+	0x62, 0x75, 0x66, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x12, 0x4d, 0x0a, 0x17, 0x44, 0x65, 0x6c,
+	0x65, 0x74, 0x65, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x46, 0x72, 0x6f, 0x6d, 0x54, 0x68,
+	0x72, 0x65, 0x61, 0x64, 0x12, 0x1a, 0x2e, 0x63, 0x68, 0x61, 0x74, 0x62, 0x6f, 0x74, 0x2e, 0x63,
+	0x68, 0x61, 0x74, 0x2e, 0x76, 0x35, 0x2e, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x49, 0x44,
+	0x1a, 0x16, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62,
+	0x75, 0x66, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x12, 0x55, 0x0a, 0x0a, 0x43, 0x6f, 0x6d, 0x70,
+	0x6c, 0x65, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x22, 0x2e, 0x63, 0x68, 0x61, 0x74, 0x62, 0x6f, 0x74,
+	0x2e, 0x63, 0x68, 0x61, 0x74, 0x2e, 0x76, 0x35, 0x2e, 0x43, 0x6f, 0x6d, 0x70, 0x6c, 0x65, 0x74,
+	0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x23, 0x2e, 0x63, 0x68, 0x61,
+	0x74, 0x62, 0x6f, 0x74, 0x2e, 0x63, 0x68, 0x61, 0x74, 0x2e, 0x76, 0x35, 0x2e, 0x43, 0x6f, 0x6d,
+	0x70, 0x6c, 0x65, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42,
+	0x09, 0x5a, 0x07, 0x2e, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x33,
 }
 
 var (
@@ -1001,47 +1050,47 @@ func file_chat_service_proto_rawDescGZIP() []byte {
 	return file_chat_service_proto_rawDescData
 }
 
-var file_chat_service_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_chat_service_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_chat_service_proto_goTypes = []any{
-	(*CompletionRequest)(nil),        // 0: chatbot.chat.v5.CompletionRequest
-	(*CompletionResponse)(nil),       // 1: chatbot.chat.v5.CompletionResponse
-	(*BatchRequest)(nil),             // 2: chatbot.chat.v5.BatchRequest
-	(*BatchResponse)(nil),            // 3: chatbot.chat.v5.BatchResponse
-	(*Prompt)(nil),                   // 4: chatbot.chat.v5.Prompt
-	(*ModelOptions)(nil),             // 5: chatbot.chat.v5.ModelOptions
-	(*RetrievalOptions)(nil),         // 6: chatbot.chat.v5.RetrievalOptions
-	(*Message)(nil),                  // 7: chatbot.chat.v5.Message
-	(*Thread)(nil),                   // 8: chatbot.chat.v5.Thread
-	(*ThreadID)(nil),                 // 9: chatbot.chat.v5.ThreadID
-	(*MessageID)(nil),                // 10: chatbot.chat.v5.MessageID
-	(*ThreadIDs)(nil),                // 11: chatbot.chat.v5.ThreadIDs
-	(*BatchResponse_Completion)(nil), // 12: chatbot.chat.v5.BatchResponse.Completion
-	nil,                              // 13: chatbot.chat.v5.Message.ReferencesEntry
-	(*timestamppb.Timestamp)(nil),    // 14: google.protobuf.Timestamp
-	(*Collection)(nil),               // 15: chatbot.collections.v2.Collection
+	(*CollectionId)(nil),             // 0: chatbot.chat.v5.CollectionId
+	(*CompletionRequest)(nil),        // 1: chatbot.chat.v5.CompletionRequest
+	(*CompletionResponse)(nil),       // 2: chatbot.chat.v5.CompletionResponse
+	(*BatchRequest)(nil),             // 3: chatbot.chat.v5.BatchRequest
+	(*BatchResponse)(nil),            // 4: chatbot.chat.v5.BatchResponse
+	(*Prompt)(nil),                   // 5: chatbot.chat.v5.Prompt
+	(*ModelOptions)(nil),             // 6: chatbot.chat.v5.ModelOptions
+	(*RetrievalOptions)(nil),         // 7: chatbot.chat.v5.RetrievalOptions
+	(*Message)(nil),                  // 8: chatbot.chat.v5.Message
+	(*Thread)(nil),                   // 9: chatbot.chat.v5.Thread
+	(*ThreadID)(nil),                 // 10: chatbot.chat.v5.ThreadID
+	(*MessageID)(nil),                // 11: chatbot.chat.v5.MessageID
+	(*ThreadIDs)(nil),                // 12: chatbot.chat.v5.ThreadIDs
+	(*BatchResponse_Completion)(nil), // 13: chatbot.chat.v5.BatchResponse.Completion
+	nil,                              // 14: chatbot.chat.v5.Message.ReferencesEntry
+	(*timestamppb.Timestamp)(nil),    // 15: google.protobuf.Timestamp
 	(*emptypb.Empty)(nil),            // 16: google.protobuf.Empty
 }
 var file_chat_service_proto_depIdxs = []int32{
-	5,  // 0: chatbot.chat.v5.CompletionRequest.model_options:type_name -> chatbot.chat.v5.ModelOptions
-	5,  // 1: chatbot.chat.v5.BatchRequest.model_options:type_name -> chatbot.chat.v5.ModelOptions
-	12, // 2: chatbot.chat.v5.BatchResponse.items:type_name -> chatbot.chat.v5.BatchResponse.Completion
-	5,  // 3: chatbot.chat.v5.Prompt.model_options:type_name -> chatbot.chat.v5.ModelOptions
-	6,  // 4: chatbot.chat.v5.Prompt.retrieval_options:type_name -> chatbot.chat.v5.RetrievalOptions
-	14, // 5: chatbot.chat.v5.Message.timestamp:type_name -> google.protobuf.Timestamp
-	13, // 6: chatbot.chat.v5.Message.references:type_name -> chatbot.chat.v5.Message.ReferencesEntry
-	7,  // 7: chatbot.chat.v5.Thread.messages:type_name -> chatbot.chat.v5.Message
-	4,  // 8: chatbot.chat.v5.ChatService.PostMessage:input_type -> chatbot.chat.v5.Prompt
-	9,  // 9: chatbot.chat.v5.ChatService.GetThread:input_type -> chatbot.chat.v5.ThreadID
-	15, // 10: chatbot.chat.v5.ChatService.ListThreadIDs:input_type -> chatbot.collections.v2.Collection
-	9,  // 11: chatbot.chat.v5.ChatService.DeleteThread:input_type -> chatbot.chat.v5.ThreadID
-	10, // 12: chatbot.chat.v5.ChatService.DeleteMessageFromThread:input_type -> chatbot.chat.v5.MessageID
-	0,  // 13: chatbot.chat.v5.ChatService.Completion:input_type -> chatbot.chat.v5.CompletionRequest
-	7,  // 14: chatbot.chat.v5.ChatService.PostMessage:output_type -> chatbot.chat.v5.Message
-	8,  // 15: chatbot.chat.v5.ChatService.GetThread:output_type -> chatbot.chat.v5.Thread
-	11, // 16: chatbot.chat.v5.ChatService.ListThreadIDs:output_type -> chatbot.chat.v5.ThreadIDs
+	6,  // 0: chatbot.chat.v5.CompletionRequest.model_options:type_name -> chatbot.chat.v5.ModelOptions
+	6,  // 1: chatbot.chat.v5.BatchRequest.model_options:type_name -> chatbot.chat.v5.ModelOptions
+	13, // 2: chatbot.chat.v5.BatchResponse.items:type_name -> chatbot.chat.v5.BatchResponse.Completion
+	6,  // 3: chatbot.chat.v5.Prompt.model_options:type_name -> chatbot.chat.v5.ModelOptions
+	7,  // 4: chatbot.chat.v5.Prompt.retrieval_options:type_name -> chatbot.chat.v5.RetrievalOptions
+	15, // 5: chatbot.chat.v5.Message.timestamp:type_name -> google.protobuf.Timestamp
+	14, // 6: chatbot.chat.v5.Message.references:type_name -> chatbot.chat.v5.Message.ReferencesEntry
+	8,  // 7: chatbot.chat.v5.Thread.messages:type_name -> chatbot.chat.v5.Message
+	5,  // 8: chatbot.chat.v5.ChatService.PostMessage:input_type -> chatbot.chat.v5.Prompt
+	10, // 9: chatbot.chat.v5.ChatService.GetThread:input_type -> chatbot.chat.v5.ThreadID
+	0,  // 10: chatbot.chat.v5.ChatService.ListThreadIDs:input_type -> chatbot.chat.v5.CollectionId
+	10, // 11: chatbot.chat.v5.ChatService.DeleteThread:input_type -> chatbot.chat.v5.ThreadID
+	11, // 12: chatbot.chat.v5.ChatService.DeleteMessageFromThread:input_type -> chatbot.chat.v5.MessageID
+	1,  // 13: chatbot.chat.v5.ChatService.Completion:input_type -> chatbot.chat.v5.CompletionRequest
+	8,  // 14: chatbot.chat.v5.ChatService.PostMessage:output_type -> chatbot.chat.v5.Message
+	9,  // 15: chatbot.chat.v5.ChatService.GetThread:output_type -> chatbot.chat.v5.Thread
+	12, // 16: chatbot.chat.v5.ChatService.ListThreadIDs:output_type -> chatbot.chat.v5.ThreadIDs
 	16, // 17: chatbot.chat.v5.ChatService.DeleteThread:output_type -> google.protobuf.Empty
 	16, // 18: chatbot.chat.v5.ChatService.DeleteMessageFromThread:output_type -> google.protobuf.Empty
-	1,  // 19: chatbot.chat.v5.ChatService.Completion:output_type -> chatbot.chat.v5.CompletionResponse
+	2,  // 19: chatbot.chat.v5.ChatService.Completion:output_type -> chatbot.chat.v5.CompletionResponse
 	14, // [14:20] is the sub-list for method output_type
 	8,  // [8:14] is the sub-list for method input_type
 	8,  // [8:8] is the sub-list for extension type_name
@@ -1057,7 +1106,7 @@ func file_chat_service_proto_init() {
 	file_collection_service_proto_init()
 	if !protoimpl.UnsafeEnabled {
 		file_chat_service_proto_msgTypes[0].Exporter = func(v any, i int) any {
-			switch v := v.(*CompletionRequest); i {
+			switch v := v.(*CollectionId); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1069,7 +1118,7 @@ func file_chat_service_proto_init() {
 			}
 		}
 		file_chat_service_proto_msgTypes[1].Exporter = func(v any, i int) any {
-			switch v := v.(*CompletionResponse); i {
+			switch v := v.(*CompletionRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1081,7 +1130,7 @@ func file_chat_service_proto_init() {
 			}
 		}
 		file_chat_service_proto_msgTypes[2].Exporter = func(v any, i int) any {
-			switch v := v.(*BatchRequest); i {
+			switch v := v.(*CompletionResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1093,7 +1142,7 @@ func file_chat_service_proto_init() {
 			}
 		}
 		file_chat_service_proto_msgTypes[3].Exporter = func(v any, i int) any {
-			switch v := v.(*BatchResponse); i {
+			switch v := v.(*BatchRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1105,7 +1154,7 @@ func file_chat_service_proto_init() {
 			}
 		}
 		file_chat_service_proto_msgTypes[4].Exporter = func(v any, i int) any {
-			switch v := v.(*Prompt); i {
+			switch v := v.(*BatchResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1117,7 +1166,7 @@ func file_chat_service_proto_init() {
 			}
 		}
 		file_chat_service_proto_msgTypes[5].Exporter = func(v any, i int) any {
-			switch v := v.(*ModelOptions); i {
+			switch v := v.(*Prompt); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1129,7 +1178,7 @@ func file_chat_service_proto_init() {
 			}
 		}
 		file_chat_service_proto_msgTypes[6].Exporter = func(v any, i int) any {
-			switch v := v.(*RetrievalOptions); i {
+			switch v := v.(*ModelOptions); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1141,7 +1190,7 @@ func file_chat_service_proto_init() {
 			}
 		}
 		file_chat_service_proto_msgTypes[7].Exporter = func(v any, i int) any {
-			switch v := v.(*Message); i {
+			switch v := v.(*RetrievalOptions); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1153,7 +1202,7 @@ func file_chat_service_proto_init() {
 			}
 		}
 		file_chat_service_proto_msgTypes[8].Exporter = func(v any, i int) any {
-			switch v := v.(*Thread); i {
+			switch v := v.(*Message); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1165,7 +1214,7 @@ func file_chat_service_proto_init() {
 			}
 		}
 		file_chat_service_proto_msgTypes[9].Exporter = func(v any, i int) any {
-			switch v := v.(*ThreadID); i {
+			switch v := v.(*Thread); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1177,7 +1226,7 @@ func file_chat_service_proto_init() {
 			}
 		}
 		file_chat_service_proto_msgTypes[10].Exporter = func(v any, i int) any {
-			switch v := v.(*MessageID); i {
+			switch v := v.(*ThreadID); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1189,7 +1238,7 @@ func file_chat_service_proto_init() {
 			}
 		}
 		file_chat_service_proto_msgTypes[11].Exporter = func(v any, i int) any {
-			switch v := v.(*ThreadIDs); i {
+			switch v := v.(*MessageID); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1201,6 +1250,18 @@ func file_chat_service_proto_init() {
 			}
 		}
 		file_chat_service_proto_msgTypes[12].Exporter = func(v any, i int) any {
+			switch v := v.(*ThreadIDs); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_chat_service_proto_msgTypes[13].Exporter = func(v any, i int) any {
 			switch v := v.(*BatchResponse_Completion); i {
 			case 0:
 				return &v.state
@@ -1219,7 +1280,7 @@ func file_chat_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_chat_service_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   14,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

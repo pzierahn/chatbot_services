@@ -34,7 +34,7 @@ const (
 type ChatServiceClient interface {
 	PostMessage(ctx context.Context, in *Prompt, opts ...grpc.CallOption) (*Message, error)
 	GetThread(ctx context.Context, in *ThreadID, opts ...grpc.CallOption) (*Thread, error)
-	ListThreadIDs(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*ThreadIDs, error)
+	ListThreadIDs(ctx context.Context, in *CollectionId, opts ...grpc.CallOption) (*ThreadIDs, error)
 	DeleteThread(ctx context.Context, in *ThreadID, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteMessageFromThread(ctx context.Context, in *MessageID, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Completion(ctx context.Context, in *CompletionRequest, opts ...grpc.CallOption) (*CompletionResponse, error)
@@ -68,7 +68,7 @@ func (c *chatServiceClient) GetThread(ctx context.Context, in *ThreadID, opts ..
 	return out, nil
 }
 
-func (c *chatServiceClient) ListThreadIDs(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*ThreadIDs, error) {
+func (c *chatServiceClient) ListThreadIDs(ctx context.Context, in *CollectionId, opts ...grpc.CallOption) (*ThreadIDs, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ThreadIDs)
 	err := c.cc.Invoke(ctx, ChatService_ListThreadIDs_FullMethodName, in, out, cOpts...)
@@ -114,7 +114,7 @@ func (c *chatServiceClient) Completion(ctx context.Context, in *CompletionReques
 type ChatServiceServer interface {
 	PostMessage(context.Context, *Prompt) (*Message, error)
 	GetThread(context.Context, *ThreadID) (*Thread, error)
-	ListThreadIDs(context.Context, *Collection) (*ThreadIDs, error)
+	ListThreadIDs(context.Context, *CollectionId) (*ThreadIDs, error)
 	DeleteThread(context.Context, *ThreadID) (*emptypb.Empty, error)
 	DeleteMessageFromThread(context.Context, *MessageID) (*emptypb.Empty, error)
 	Completion(context.Context, *CompletionRequest) (*CompletionResponse, error)
@@ -131,7 +131,7 @@ func (UnimplementedChatServiceServer) PostMessage(context.Context, *Prompt) (*Me
 func (UnimplementedChatServiceServer) GetThread(context.Context, *ThreadID) (*Thread, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetThread not implemented")
 }
-func (UnimplementedChatServiceServer) ListThreadIDs(context.Context, *Collection) (*ThreadIDs, error) {
+func (UnimplementedChatServiceServer) ListThreadIDs(context.Context, *CollectionId) (*ThreadIDs, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListThreadIDs not implemented")
 }
 func (UnimplementedChatServiceServer) DeleteThread(context.Context, *ThreadID) (*emptypb.Empty, error) {
@@ -193,7 +193,7 @@ func _ChatService_GetThread_Handler(srv interface{}, ctx context.Context, dec fu
 }
 
 func _ChatService_ListThreadIDs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Collection)
+	in := new(CollectionId)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -205,7 +205,7 @@ func _ChatService_ListThreadIDs_Handler(srv interface{}, ctx context.Context, de
 		FullMethod: ChatService_ListThreadIDs_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ChatServiceServer).ListThreadIDs(ctx, req.(*Collection))
+		return srv.(ChatServiceServer).ListThreadIDs(ctx, req.(*CollectionId))
 	}
 	return interceptor(ctx, in, info, handler)
 }
