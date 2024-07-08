@@ -38,6 +38,12 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 		return nil, fmt.Errorf("options missing")
 	}
 
+	retrievalOptions := prompt.GetRetrievalOptions()
+	if retrievalOptions == nil {
+		return nil, fmt.Errorf("retrieval options missing")
+
+	}
+
 	model, err := service.getModel(modelOps.ModelId)
 	if err != nil {
 		return nil, err
@@ -117,8 +123,8 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 					UserId:       userId,
 					CollectionId: prompt.CollectionId,
 					Query:        query,
-					Limit:        prompt.RetrievalOptions.Documents,
-					Threshold:    prompt.RetrievalOptions.Threshold,
+					Limit:        retrievalOptions.Documents,
+					Threshold:    retrievalOptions.Threshold,
 				})
 				if err != nil {
 					return "", err
