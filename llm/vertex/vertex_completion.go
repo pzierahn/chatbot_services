@@ -120,11 +120,18 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 		return nil, nil
 	}
 
+	thread, err := transformToMessages(history)
+	if err != nil {
+		return nil, err
+	}
+
+	thread = append(thread, &llm.Message{
+		Role:    llm.RoleAssistant,
+		Content: string(txt),
+	})
+
 	return &llm.CompletionResponse{
-		Message: &llm.Message{
-			Role:    llm.RoleAssistant,
-			Content: string(txt),
-		},
-		Usage: usage,
+		Messages: thread,
+		Usage:    usage,
 	}, nil
 }

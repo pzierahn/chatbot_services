@@ -103,11 +103,18 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 		loops++
 	}
 
+	thread, err := claudeToMessages(request.Messages)
+	if err != nil {
+		return nil, err
+	}
+
+	thread = append(thread, &llm.Message{
+		Role:    llm.RoleAssistant,
+		Content: strings.TrimSpace(response.Content[0].Text),
+	})
+
 	return &llm.CompletionResponse{
-		Message: &llm.Message{
-			Role:    llm.RoleAssistant,
-			Content: strings.TrimSpace(response.Content[0].Text),
-		},
-		Usage: usage,
+		Messages: thread,
+		Usage:    usage,
 	}, nil
 }

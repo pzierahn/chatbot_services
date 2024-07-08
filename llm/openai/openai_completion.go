@@ -95,11 +95,14 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 		usage.InputTokens += resp.Usage.PromptTokens
 	}
 
+	thread := openaiToMessages(request.Messages)
+	thread = append(thread, &llm.Message{
+		Role:    llm.RoleAssistant,
+		Content: resp.Choices[0].Message.Content,
+	})
+
 	return &llm.CompletionResponse{
-		Message: &llm.Message{
-			Role:    llm.RoleAssistant,
-			Content: resp.Choices[0].Message.Content,
-		},
-		Usage: usage,
+		Messages: thread,
+		Usage:    usage,
 	}, nil
 }

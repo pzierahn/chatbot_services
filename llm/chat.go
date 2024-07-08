@@ -119,7 +119,7 @@ type CompletionRequest struct {
 // CompletionResponse defines the response from the completion API
 type CompletionResponse struct {
 	// Message to return
-	Message *Message `json:"message,omitempty" bson:"message,omitempty"`
+	Messages []*Message `json:"messages,omitempty" bson:"messages,omitempty"`
 
 	// Usage of the model
 	Usage ModelUsage `json:"usage,omitempty" bson:"usage,omitempty"`
