@@ -8,7 +8,10 @@ import (
 	"time"
 )
 
-const parallelRequests = 10
+const (
+	batchSize        = 10
+	parallelRequests = 10
+)
 
 var slots = make(chan struct{}, parallelRequests)
 
@@ -19,8 +22,8 @@ func init() {
 }
 
 type embedding struct {
-	id        string
-	embedding []float32
+	id        []string
+	embedding [][]float32
 	tokens    uint32
 	error     error
 }
@@ -32,9 +35,13 @@ func (db *DB) createEmbeddings(ctx context.Context, fragments []*vectordb.Fragme
 	ctx, cnl := context.WithCancel(ctx)
 	defer cnl()
 
-	for _, fragment := range fragments {
+	// Process 10 fragments in one go
+	for start := 0; start < len(fragments); start += batchSize {
+		end := min(start+batchSize, len(fragments))
+		batch := fragments[start:end]
+
 		// Start a goroutine for each document in parallel
-		go func(fragment *vectordb.Fragment) {
+		go func(batch []*vectordb.Fragment) {
 			select {
 			case <-ctx.Done():
 				// Abort if the context is canceled
@@ -44,17 +51,22 @@ func (db *DB) createEmbeddings(ctx context.Context, fragments []*vectordb.Fragme
 				// Ensure the slot is released after the function returns
 				defer func() { slots <- struct{}{} }()
 
+				var inputs, ids []string
+				for _, fragment := range batch {
+					inputs = append(inputs, fragment.Text)
+					ids = append(ids, fragment.Id)
+				}
+
 				// Allow up to 3 attempts to create an embedding
 				for attempt := 2; attempt >= 0; attempt-- {
 					result, err := db.embedding.CreateEmbedding(ctx, &llm.EmbeddingRequest{
-						Inputs: []string{fragment.Text},
-						UserId: "todo",
+						Inputs: inputs,
 					})
 					if err == nil {
 						// Successfully created an embedding
 						results <- &embedding{
-							id:        fragment.Id,
-							embedding: result.Embeddings[0],
+							id:        ids,
+							embedding: result.Embeddings,
 							tokens:    result.Tokens,
 						}
 						break
@@ -63,7 +75,7 @@ func (db *DB) createEmbeddings(ctx context.Context, fragments []*vectordb.Fragme
 						if attempt <= 0 {
 							// Failed to create an embedding
 							results <- &embedding{
-								id:    fragment.Id,
+								id:    ids,
 								error: err,
 							}
 							break
@@ -74,7 +86,7 @@ func (db *DB) createEmbeddings(ctx context.Context, fragments []*vectordb.Fragme
 					}
 				}
 			}
-		}(fragment)
+		}(batch)
 	}
 
 	received := 0
@@ -82,19 +94,22 @@ func (db *DB) createEmbeddings(ctx context.Context, fragments []*vectordb.Fragme
 	var err error
 
 	for result := range results {
-		received++
-		log.Printf("createEmbeddings: %d/%d", received, len(fragments))
+		received += len(result.id)
+		// log.Printf("createEmbeddings: %d/%d", received, len(fragments))
 
 		if err != nil {
 			// Skip the remaining results if an error occurred
 		} else if result.error != nil {
 			// Record the error and cancel all other requests
 			err = result.error
-			log.Printf("createEmbeddings: %v", err)
 			cnl()
+
+			log.Printf("error creating embeddings: %v", err)
 		} else {
 			// Record the embedding
-			embeddings[result.id] = result.embedding
+			for inx, id := range result.id {
+				embeddings[id] = result.embedding[inx]
+			}
 		}
 
 		if received == len(fragments) {
