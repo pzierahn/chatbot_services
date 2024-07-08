@@ -169,3 +169,17 @@ func (service *Service) RenameDocument(ctx context.Context, userId string, id uu
 
 	return nil
 }
+
+func (service *Service) DeleteDocument(ctx context.Context, userId string, id uuid.UUID) error {
+	coll := service.mongo.Database(DatabaseName).Collection(CollectionDokuments)
+
+	_, err := coll.DeleteOne(ctx, bson.M{
+		"_id":     id,
+		"user_id": userId,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

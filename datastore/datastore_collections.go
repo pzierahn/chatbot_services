@@ -21,7 +21,12 @@ type Collection struct {
 func (service *Service) StoreCollection(ctx context.Context, collection *Collection) error {
 	coll := service.mongo.Database(DatabaseName).Collection(CollectionCollections)
 
-	_, err := coll.InsertOne(ctx, collection)
+	_, err := coll.UpdateOne(ctx, bson.M{
+		"_id":     collection.Id,
+		"user_id": collection.UserId,
+	}, bson.M{
+		"$set": collection,
+	})
 	if err != nil {
 		return err
 	}
@@ -63,4 +68,28 @@ func (service *Service) GetCollections(ctx context.Context, userId string) ([]Co
 	}
 
 	return collections, nil
+}
+
+// DeleteCollection deletes a collection from the database
+func (service *Service) DeleteCollection(ctx context.Context, userId string, collectionId uuid.UUID) error {
+	collections := service.mongo.Database(DatabaseName).Collection(CollectionCollections)
+	documents := service.mongo.Database(DatabaseName).Collection(CollectionDokuments)
+
+	_, err := collections.DeleteOne(ctx, bson.M{
+		"_id":     collectionId,
+		"user_id": userId,
+	})
+	if err != nil {
+		return err
+	}
+
+	_, err = documents.DeleteMany(ctx, bson.M{
+		"collection_id": collectionId,
+		"user_id":       userId,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
