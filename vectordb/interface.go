@@ -14,7 +14,7 @@ type SearchQuery struct {
 	UserId       string  `json:"user_id,omitempty"`
 	CollectionId string  `json:"collection_id,omitempty"`
 	Query        string  `json:"query,omitempty"`
-	Limit        int     `json:"limit,omitempty"`
+	Limit        uint32  `json:"limit,omitempty"`
 	Threshold    float32 `json:"threshold,omitempty"`
 }
 
