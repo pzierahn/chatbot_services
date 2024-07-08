@@ -7,6 +7,7 @@ import (
 	"github.com/pzierahn/chatbot_services/auth"
 	"github.com/pzierahn/chatbot_services/chat"
 	"github.com/pzierahn/chatbot_services/datastore"
+	"github.com/pzierahn/chatbot_services/documents"
 	"github.com/pzierahn/chatbot_services/llm"
 	"github.com/pzierahn/chatbot_services/llm/anthropic"
 	"github.com/pzierahn/chatbot_services/llm/openai"
@@ -28,11 +29,6 @@ func init() {
 }
 
 func initDatastore(ctx context.Context) *datastore.Service {
-	uri := os.Getenv("CHATBOT_MONGODB_URI")
-	if uri == "" {
-		log.Fatal("CHATBOT_MONGODB_URI is not set")
-	}
-
 	db, err := datastore.New(ctx)
 	if err != nil {
 		log.Fatalf("failed to create datastore service: %v", err)
@@ -103,20 +99,29 @@ func initSearch() vectordb.DB {
 func main() {
 	ctx := context.Background()
 
-	db := initDatastore(ctx)
-	bucket := initBucket(ctx)
+	database := initDatastore(ctx)
 	models := initModels(ctx)
 	search := initSearch()
-
+	bucket := initBucket(ctx)
 	fakeAuth, _ := auth.WithInsecure()
 
-	chatService, err := chat.New()
-	if err != nil {
-		log.Fatalf("failed to create chat service: %v", err)
+	chatService := &chat.Service{
+		Models:   models,
+		Auth:     fakeAuth,
+		Database: database,
+		Search:   search,
+	}
+
+	documentsService := &documents.Service{
+		Auth:        fakeAuth,
+		Database:    database,
+		Storage:     bucket,
+		SearchIndex: search,
 	}
 
 	grpcServer := grpc.NewServer()
 	pb.RegisterChatServiceServer(grpcServer, chatService)
+	pb.RegisterDocumentServiceServer(grpcServer, documentsService)
 
 	port := os.Getenv("PORT")
 	if port == "" {
