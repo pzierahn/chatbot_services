@@ -32,12 +32,12 @@ func (service *Service) Delete(ctx context.Context, req *pb.DocumentID) (*emptyp
 		}
 	}
 
-	var ids []string
-	for _, chunk := range doc.Content {
-		ids = append(ids, chunk.Id.String())
+	err = service.SearchIndex.DeleteDocument(ctx, userId, req.Id)
+	if err != nil {
+		return nil, err
 	}
 
-	err = service.SearchIndex.Delete(ids)
+	err = service.Database.DeleteDocument(ctx, userId, docId)
 	if err != nil {
 		return nil, err
 	}
