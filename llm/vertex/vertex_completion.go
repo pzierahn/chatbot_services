@@ -127,7 +127,7 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 
 	thread = append(thread, &llm.Message{
 		Role:    llm.RoleAssistant,
-		Content: string(txt),
+		Content: strings.TrimSpace(string(txt)),
 	})
 
 	return &llm.CompletionResponse{

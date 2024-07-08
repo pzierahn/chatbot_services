@@ -98,7 +98,7 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 	thread := openaiToMessages(request.Messages)
 	thread = append(thread, &llm.Message{
 		Role:    llm.RoleAssistant,
-		Content: resp.Choices[0].Message.Content,
+		Content: strings.TrimSpace(resp.Choices[0].Message.Content),
 	})
 
 	return &llm.CompletionResponse{
