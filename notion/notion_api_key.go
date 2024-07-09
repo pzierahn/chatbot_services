@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
 	"github.com/pzierahn/chatbot_services/datastore"
 	pb "github.com/pzierahn/chatbot_services/proto"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -21,7 +20,6 @@ func (client *Client) InsertAPIKey(ctx context.Context, key *pb.NotionApiKey) (*
 
 	// Insert the key into the database
 	err = client.Database.InsertNotionAPIKey(ctx, &datastore.NotionAPIKey{
-		Id:     uuid.New(),
 		UserId: userId,
 		Key:    key.Key,
 	})
