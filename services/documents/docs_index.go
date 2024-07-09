@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/pzierahn/chatbot_services/datastore"
-	"github.com/pzierahn/chatbot_services/pdf"
 	pb "github.com/pzierahn/chatbot_services/proto"
 	"github.com/pzierahn/chatbot_services/utils"
 	"io"
@@ -139,7 +138,7 @@ func (service *Service) getPDFChunks(ctx context.Context, meta *pb.File) ([]*dat
 		return nil, err
 	}
 
-	pages, err := pdf.GetPagesFromBytes(ctx, raw)
+	pages, err := utils.GetPagesFromPDFBytes(ctx, raw)
 	if err != nil {
 		return nil, err
 	}
