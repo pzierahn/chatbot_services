@@ -25,6 +25,8 @@ const (
 	CollectionCollections = "collections"
 	CollectionDokuments   = "documents"
 	CollectionCrashlytics = "crashlytics"
+	CollectionPayments    = "payments"
+	CollectionModelUsages = "model_usages"
 )
 
 func New(ctx context.Context) (*Service, error) {
