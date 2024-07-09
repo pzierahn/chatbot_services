@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/pzierahn/chatbot_services/account"
-	"github.com/pzierahn/chatbot_services/auth"
 	"github.com/pzierahn/chatbot_services/datastore"
 	"github.com/pzierahn/chatbot_services/llm"
 	pb "github.com/pzierahn/chatbot_services/proto"
@@ -14,7 +13,7 @@ import (
 type Service struct {
 	pb.UnimplementedChatServiceServer
 	Models   []llm.Chat
-	Auth     auth.Service
+	Auth     account.Verifier
 	Database *datastore.Service
 	Search   vectordb.DB
 }
