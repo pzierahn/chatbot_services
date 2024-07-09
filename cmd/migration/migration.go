@@ -34,5 +34,6 @@ func main() {
 		Next:   next,
 	}
 
-	migrator.MigrateCollections()
+	//migrator.MigrateCollections()
+	migrator.MigrateDocuments()
 }
