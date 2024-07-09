@@ -7,7 +7,7 @@ import (
 	"github.com/pzierahn/chatbot_services/datastore"
 	"github.com/pzierahn/chatbot_services/pdf"
 	pb "github.com/pzierahn/chatbot_services/proto"
-	"github.com/pzierahn/chatbot_services/web"
+	"github.com/pzierahn/chatbot_services/utils"
 	"io"
 	"strings"
 )
@@ -99,7 +99,7 @@ func (service *Service) Index(req *pb.IndexJob, stream pb.DocumentService_IndexS
 }
 
 func (service *Service) getWebChunks(ctx context.Context, meta *pb.Webpage) ([]*datastore.DocumentChunk, error) {
-	text, err := web.Scrape(ctx, meta.Url)
+	text, err := utils.Scrape(ctx, meta.Url)
 	if err != nil {
 		return nil, err
 	}
