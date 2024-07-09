@@ -14,6 +14,7 @@ import (
 	"github.com/pzierahn/chatbot_services/llm/anthropic"
 	"github.com/pzierahn/chatbot_services/llm/openai"
 	"github.com/pzierahn/chatbot_services/llm/vertex"
+	"github.com/pzierahn/chatbot_services/notion"
 	pb "github.com/pzierahn/chatbot_services/proto"
 	"github.com/pzierahn/chatbot_services/vectordb"
 	"github.com/pzierahn/chatbot_services/vectordb/qdrant"
@@ -150,11 +151,20 @@ func main() {
 		Search:   search,
 	}
 
+	notionService := &notion.Client{
+		Chat:      chatService,
+		Documents: documentsService,
+		Database:  database,
+		Auth:      userService,
+		Cache:     make(map[string]string),
+	}
+
 	grpcServer := grpc.NewServer()
 	pb.RegisterAccountServiceServer(grpcServer, userService)
 	pb.RegisterChatServiceServer(grpcServer, chatService)
 	pb.RegisterDocumentServiceServer(grpcServer, documentsService)
 	pb.RegisterCollectionServiceServer(grpcServer, collectionService)
+	pb.RegisterNotionServer(grpcServer, notionService)
 
 	port := os.Getenv("PORT")
 	if port == "" {
