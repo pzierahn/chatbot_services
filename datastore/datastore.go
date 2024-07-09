@@ -21,12 +21,13 @@ const (
 )
 
 const (
-	CollectionThreads     = "threads"
-	CollectionCollections = "collections"
-	CollectionDokuments   = "documents"
-	CollectionCrashlytics = "crashlytics"
-	CollectionPayments    = "payments"
-	CollectionModelUsages = "model_usages"
+	CollectionThreads      = "threads"
+	CollectionCollections  = "collections"
+	CollectionDokuments    = "documents"
+	CollectionCrashlytics  = "crashlytics"
+	CollectionPayments     = "payments"
+	CollectionModelUsages  = "model_usages"
+	CollectionNotionAPIKey = "notion_api_keys"
 )
 
 func New(ctx context.Context) (*Service, error) {
