@@ -160,6 +160,15 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 		return nil, err
 	}
 
+	_ = service.Database.InsertModelUsage(ctx, &datastore.ModelUsage{
+		Id:           uuid.New(),
+		UserId:       userId,
+		Timestamp:    time.Now(),
+		ModelId:      modelOps.ModelId,
+		InputTokens:  response.Usage.InputTokens,
+		OutputTokens: response.Usage.OutputTokens,
+	})
+
 	return &pb.Message{
 		ThreadId:   thread.Id.String(),
 		Prompt:     prompt.Prompt,

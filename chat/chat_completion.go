@@ -9,6 +9,7 @@ import (
 	pb "github.com/pzierahn/chatbot_services/proto"
 	"log"
 	"strings"
+	"time"
 )
 
 // getDocumentText returns the text of a document as a single string.
@@ -53,7 +54,7 @@ func (service *Service) Completion(ctx context.Context, prompt *pb.CompletionReq
 		Content: getDocumentText(document) + "\n\n\n" + prompt.Prompt,
 	}}
 
-	resp, err := model.Completion(ctx, &llm.CompletionRequest{
+	response, err := model.Completion(ctx, &llm.CompletionRequest{
 		SystemPrompt: "Be concise and short. Do not repeat parts of the prompt. Don't write any prefaces or introductions.",
 		Messages:     messages,
 		Model:        prompt.ModelOptions.ModelId,
@@ -67,7 +68,16 @@ func (service *Service) Completion(ctx context.Context, prompt *pb.CompletionReq
 		return nil, err
 	}
 
+	_ = service.Database.InsertModelUsage(ctx, &datastore.ModelUsage{
+		Id:           uuid.New(),
+		UserId:       userId,
+		Timestamp:    time.Now(),
+		ModelId:      prompt.ModelOptions.ModelId,
+		InputTokens:  response.Usage.InputTokens,
+		OutputTokens: response.Usage.OutputTokens,
+	})
+
 	return &pb.CompletionResponse{
-		Completion: resp.Messages[1].Content,
+		Completion: response.Messages[1].Content,
 	}, nil
 }
