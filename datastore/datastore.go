@@ -2,8 +2,10 @@ package datastore
 
 import (
 	"context"
+	"errors"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"os"
 )
 
 // Service defines the datastore service
@@ -31,12 +33,10 @@ const (
 )
 
 func New(ctx context.Context) (*Service, error) {
-	//uri := os.Getenv("CHATBOT_MONGODB_URI")
-	//if uri == "" {
-	//	log.Fatal("MONGODB_URI is not set")
-	//}
-
-	uri := "mongodb://localhost:27017"
+	uri := os.Getenv("CHATBOT_MONGODB_URI")
+	if uri == "" {
+		return nil, errors.New("CHATBOT_MONGODB_URI not set")
+	}
 
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
 	if err != nil {

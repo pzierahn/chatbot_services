@@ -112,8 +112,14 @@ func initAuth(ctx context.Context, app *firebase.App) auth.Service {
 	return service
 }
 
+func setTestEnv() {
+	_ = os.Setenv("CHATBOT_MONGODB_URI", "mongodb://localhost:27017")
+}
+
 func main() {
 	ctx := context.Background()
+
+	setTestEnv()
 
 	app := initFirebase(ctx)
 
