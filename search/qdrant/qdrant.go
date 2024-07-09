@@ -44,7 +44,7 @@ func New(engine llm.Embedding) (*Search, error) {
 	client := &Search{
 		conn:          conn,
 		apiKey:        apiKey,
-		namespace:     "documents",
+		namespace:     "documents_v2",
 		embedding:     engine,
 		dimension:     engine.GetEmbeddingDimension(),
 		fastEmbedding: fastEmbedding,
