@@ -3,11 +3,11 @@ package notion
 import (
 	"context"
 	"github.com/jomei/notionapi"
-	"github.com/pzierahn/chatbot_services/account"
-	"github.com/pzierahn/chatbot_services/chat"
 	"github.com/pzierahn/chatbot_services/datastore"
-	"github.com/pzierahn/chatbot_services/documents"
 	pb "github.com/pzierahn/chatbot_services/proto"
+	"github.com/pzierahn/chatbot_services/services/account"
+	"github.com/pzierahn/chatbot_services/services/chat"
+	"github.com/pzierahn/chatbot_services/services/documents"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"sync"
 )
