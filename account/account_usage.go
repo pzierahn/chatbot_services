@@ -15,12 +15,7 @@ type Usage struct {
 	Output uint32
 }
 
-func (service *Service) GetCosts(ctx context.Context, _ *emptypb.Empty) (*pb.Costs, error) {
-	userId, err := service.Auth.Verify(ctx)
-	if err != nil {
-		return nil, err
-	}
-
+func (service *LiveService) getCosts(ctx context.Context, userId string) (*pb.Costs, error) {
 	usages, err := service.Database.GetModelUsages(ctx, userId)
 	if err != nil {
 		return nil, err
@@ -55,4 +50,13 @@ func (service *Service) GetCosts(ctx context.Context, _ *emptypb.Empty) (*pb.Cos
 	return &pb.Costs{
 		Models: costs,
 	}, nil
+}
+
+func (service *LiveService) GetCosts(ctx context.Context, _ *emptypb.Empty) (*pb.Costs, error) {
+	userId, err := service.Auth.Verify(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return service.getCosts(ctx, userId)
 }

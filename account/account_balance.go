@@ -6,13 +6,13 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-func (service *Service) GetBalanceSheet(ctx context.Context, req *emptypb.Empty) (*pb.BalanceSheet, error) {
-	payments, err := service.GetPayments(ctx, req)
+func (service *LiveService) getBalanceSheet(ctx context.Context, userId string) (*pb.BalanceSheet, error) {
+	payments, err := service.getPayments(ctx, userId)
 	if err != nil {
 		return nil, err
 	}
 
-	costs, err := service.GetCosts(ctx, req)
+	costs, err := service.getCosts(ctx, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -33,26 +33,11 @@ func (service *Service) GetBalanceSheet(ctx context.Context, req *emptypb.Empty)
 	return balanceSheet, nil
 }
 
-func (service *Service) HasFunding(ctx context.Context) (bool, error) {
-	payments, err := service.GetPayments(ctx, &emptypb.Empty{})
+func (service *LiveService) GetBalanceSheet(ctx context.Context, req *emptypb.Empty) (*pb.BalanceSheet, error) {
+	userId, err := service.Auth.Verify(ctx)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 
-	var payedAmount uint32
-	for _, payment := range payments.Items {
-		payedAmount += payment.Amount
-	}
-
-	usages, err := service.GetCosts(ctx, &emptypb.Empty{})
-	if err != nil {
-		return false, err
-	}
-
-	var costs uint32
-	for _, model := range usages.Models {
-		costs += model.Costs
-	}
-
-	return payedAmount > costs, nil
+	return service.getBalanceSheet(ctx, userId)
 }

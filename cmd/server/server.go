@@ -4,6 +4,7 @@ import (
 	"cloud.google.com/go/storage"
 	"context"
 	firebase "firebase.google.com/go"
+	"github.com/pzierahn/chatbot_services/account"
 	"github.com/pzierahn/chatbot_services/auth"
 	"github.com/pzierahn/chatbot_services/chat"
 	"github.com/pzierahn/chatbot_services/collections"
@@ -106,24 +107,30 @@ func main() {
 	engine := models[0].(llm.Embedding)
 	search := initSearch(engine)
 	bucket := initBucket(ctx)
+
 	fakeAuth, _ := auth.WithInsecure()
+
+	userService := &account.LiveService{
+		Database: database,
+		Auth:     fakeAuth,
+	}
 
 	chatService := &chat.Service{
 		Models:   models,
-		Auth:     fakeAuth,
+		Auth:     userService,
 		Database: database,
 		Search:   search,
 	}
 
 	documentsService := &documents.Service{
-		Auth:        fakeAuth,
+		Auth:        userService,
 		Database:    database,
 		Storage:     bucket,
 		SearchIndex: search,
 	}
 
 	collectionService := &collections.Service{
-		Auth:     fakeAuth,
+		Auth:     userService,
 		Database: database,
 		Storage:  bucket,
 		Search:   search,

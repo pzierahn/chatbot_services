@@ -7,16 +7,13 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func (service *Service) GetPayments(ctx context.Context, _ *emptypb.Empty) (*pb.Payments, error) {
-	userId, err := service.Auth.Verify(ctx)
+func (service *LiveService) getPayments(ctx context.Context, userId string) (*pb.Payments, error) {
+	payments, err := service.Database.GetPayments(ctx, userId)
 	if err != nil {
 		return nil, err
 	}
 
-	payments, err := service.Database.GetPayments(ctx, userId)
-
 	pbPayments := make([]*pb.Payment, len(payments))
-
 	for idx, pay := range payments {
 		pbPayments[idx] = &pb.Payment{
 			Id:     pay.Id.String(),
@@ -28,4 +25,13 @@ func (service *Service) GetPayments(ctx context.Context, _ *emptypb.Empty) (*pb.
 	return &pb.Payments{
 		Items: pbPayments,
 	}, nil
+}
+
+func (service *LiveService) GetPayments(ctx context.Context, _ *emptypb.Empty) (*pb.Payments, error) {
+	userId, err := service.Auth.Verify(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return service.getPayments(ctx, userId)
 }
