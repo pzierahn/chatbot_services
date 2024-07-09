@@ -114,6 +114,9 @@ func initAuth(ctx context.Context, app *firebase.App) auth.Service {
 
 func setTestEnv() {
 	_ = os.Setenv("CHATBOT_MONGODB_URI", "mongodb://localhost:27017")
+	_ = os.Setenv("CHATBOT_QDRANT_KEY", "")
+	_ = os.Setenv("CHATBOT_QDRANT_URL", "localhost:6334")
+	_ = os.Setenv("CHATBOT_QDRANT_INSECURE", "true")
 }
 
 func main() {
@@ -129,11 +132,11 @@ func main() {
 	engine := models[0].(llm.Embedding)
 	search := initSearch(engine)
 	bucket := initBucket(ctx, app)
-	authService := initAuth(ctx, app)
+	//authService := initAuth(ctx, app)
 
-	userService := &account.Service{
-		Database: database,
-		Auth:     authService,
+	userService := &account.InsecureVerifier{
+		//Database: database,
+		//Auth:     authService,
 	}
 
 	chatService := &chat.Service{
@@ -166,7 +169,7 @@ func main() {
 	}
 
 	grpcServer := grpc.NewServer()
-	pb.RegisterAccountServiceServer(grpcServer, userService)
+	//pb.RegisterAccountServiceServer(grpcServer, userService)
 	pb.RegisterChatServiceServer(grpcServer, chatService)
 	pb.RegisterDocumentServiceServer(grpcServer, documentsService)
 	pb.RegisterCollectionServiceServer(grpcServer, collectionService)
