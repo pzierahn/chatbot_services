@@ -130,7 +130,9 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 					return "", err
 				}
 
-				byt, err := json.Marshal(search)
+				byt, err := json.Marshal(map[string]any{
+					"sources": search,
+				})
 				if err != nil {
 					return "", err
 				}
