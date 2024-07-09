@@ -9,7 +9,7 @@ import (
 )
 
 type Service struct {
-	pb.UnimplementedDocumentServiceServer
+	pb.UnimplementedDocumentServer
 	Auth        account.Verifier
 	Database    *datastore.Service
 	Storage     *storage.BucketHandle

@@ -10,7 +10,7 @@ import (
 )
 
 type Service struct {
-	pb.UnimplementedChatServiceServer
+	pb.UnimplementedChatServer
 	Models   []llm.Chat
 	Auth     account.Verifier
 	Database *datastore.Service

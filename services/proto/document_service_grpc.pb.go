@@ -20,81 +20,69 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	DocumentService_List_FullMethodName   = "/chatbot.documents.v2.DocumentService/List"
-	DocumentService_Get_FullMethodName    = "/chatbot.documents.v2.DocumentService/Get"
-	DocumentService_Rename_FullMethodName = "/chatbot.documents.v2.DocumentService/Rename"
-	DocumentService_Delete_FullMethodName = "/chatbot.documents.v2.DocumentService/Delete"
-	DocumentService_Index_FullMethodName  = "/chatbot.documents.v2.DocumentService/Index"
-	DocumentService_Search_FullMethodName = "/chatbot.documents.v2.DocumentService/Search"
+	Document_List_FullMethodName   = "/chatbot.documents.v1.Document/List"
+	Document_Rename_FullMethodName = "/chatbot.documents.v1.Document/Rename"
+	Document_Delete_FullMethodName = "/chatbot.documents.v1.Document/Delete"
+	Document_Index_FullMethodName  = "/chatbot.documents.v1.Document/Index"
+	Document_Search_FullMethodName = "/chatbot.documents.v1.Document/Search"
 )
 
-// DocumentServiceClient is the client API for DocumentService service.
+// DocumentClient is the client API for Document service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type DocumentServiceClient interface {
+type DocumentClient interface {
 	List(ctx context.Context, in *DocumentFilter, opts ...grpc.CallOption) (*DocumentList, error)
-	Get(ctx context.Context, in *DocumentID, opts ...grpc.CallOption) (*Document, error)
 	Rename(ctx context.Context, in *RenameDocument, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Delete(ctx context.Context, in *DocumentID, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	Index(ctx context.Context, in *IndexJob, opts ...grpc.CallOption) (DocumentService_IndexClient, error)
+	Index(ctx context.Context, in *IndexJob, opts ...grpc.CallOption) (Document_IndexClient, error)
 	Search(ctx context.Context, in *SearchQuery, opts ...grpc.CallOption) (*SearchResults, error)
 }
 
-type documentServiceClient struct {
+type documentClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewDocumentServiceClient(cc grpc.ClientConnInterface) DocumentServiceClient {
-	return &documentServiceClient{cc}
+func NewDocumentClient(cc grpc.ClientConnInterface) DocumentClient {
+	return &documentClient{cc}
 }
 
-func (c *documentServiceClient) List(ctx context.Context, in *DocumentFilter, opts ...grpc.CallOption) (*DocumentList, error) {
+func (c *documentClient) List(ctx context.Context, in *DocumentFilter, opts ...grpc.CallOption) (*DocumentList, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(DocumentList)
-	err := c.cc.Invoke(ctx, DocumentService_List_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, Document_List_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *documentServiceClient) Get(ctx context.Context, in *DocumentID, opts ...grpc.CallOption) (*Document, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Document)
-	err := c.cc.Invoke(ctx, DocumentService_Get_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *documentServiceClient) Rename(ctx context.Context, in *RenameDocument, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *documentClient) Rename(ctx context.Context, in *RenameDocument, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, DocumentService_Rename_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, Document_Rename_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *documentServiceClient) Delete(ctx context.Context, in *DocumentID, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *documentClient) Delete(ctx context.Context, in *DocumentID, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, DocumentService_Delete_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, Document_Delete_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *documentServiceClient) Index(ctx context.Context, in *IndexJob, opts ...grpc.CallOption) (DocumentService_IndexClient, error) {
+func (c *documentClient) Index(ctx context.Context, in *IndexJob, opts ...grpc.CallOption) (Document_IndexClient, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &DocumentService_ServiceDesc.Streams[0], DocumentService_Index_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Document_ServiceDesc.Streams[0], Document_Index_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &documentServiceIndexClient{ClientStream: stream}
+	x := &documentIndexClient{ClientStream: stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -104,16 +92,16 @@ func (c *documentServiceClient) Index(ctx context.Context, in *IndexJob, opts ..
 	return x, nil
 }
 
-type DocumentService_IndexClient interface {
+type Document_IndexClient interface {
 	Recv() (*IndexProgress, error)
 	grpc.ClientStream
 }
 
-type documentServiceIndexClient struct {
+type documentIndexClient struct {
 	grpc.ClientStream
 }
 
-func (x *documentServiceIndexClient) Recv() (*IndexProgress, error) {
+func (x *documentIndexClient) Recv() (*IndexProgress, error) {
 	m := new(IndexProgress)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -121,207 +109,181 @@ func (x *documentServiceIndexClient) Recv() (*IndexProgress, error) {
 	return m, nil
 }
 
-func (c *documentServiceClient) Search(ctx context.Context, in *SearchQuery, opts ...grpc.CallOption) (*SearchResults, error) {
+func (c *documentClient) Search(ctx context.Context, in *SearchQuery, opts ...grpc.CallOption) (*SearchResults, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(SearchResults)
-	err := c.cc.Invoke(ctx, DocumentService_Search_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, Document_Search_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// DocumentServiceServer is the server API for DocumentService service.
-// All implementations must embed UnimplementedDocumentServiceServer
+// DocumentServer is the server API for Document service.
+// All implementations must embed UnimplementedDocumentServer
 // for forward compatibility
-type DocumentServiceServer interface {
+type DocumentServer interface {
 	List(context.Context, *DocumentFilter) (*DocumentList, error)
-	Get(context.Context, *DocumentID) (*Document, error)
 	Rename(context.Context, *RenameDocument) (*emptypb.Empty, error)
 	Delete(context.Context, *DocumentID) (*emptypb.Empty, error)
-	Index(*IndexJob, DocumentService_IndexServer) error
+	Index(*IndexJob, Document_IndexServer) error
 	Search(context.Context, *SearchQuery) (*SearchResults, error)
-	mustEmbedUnimplementedDocumentServiceServer()
+	mustEmbedUnimplementedDocumentServer()
 }
 
-// UnimplementedDocumentServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedDocumentServiceServer struct {
+// UnimplementedDocumentServer must be embedded to have forward compatible implementations.
+type UnimplementedDocumentServer struct {
 }
 
-func (UnimplementedDocumentServiceServer) List(context.Context, *DocumentFilter) (*DocumentList, error) {
+func (UnimplementedDocumentServer) List(context.Context, *DocumentFilter) (*DocumentList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
 }
-func (UnimplementedDocumentServiceServer) Get(context.Context, *DocumentID) (*Document, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
-}
-func (UnimplementedDocumentServiceServer) Rename(context.Context, *RenameDocument) (*emptypb.Empty, error) {
+func (UnimplementedDocumentServer) Rename(context.Context, *RenameDocument) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Rename not implemented")
 }
-func (UnimplementedDocumentServiceServer) Delete(context.Context, *DocumentID) (*emptypb.Empty, error) {
+func (UnimplementedDocumentServer) Delete(context.Context, *DocumentID) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
-func (UnimplementedDocumentServiceServer) Index(*IndexJob, DocumentService_IndexServer) error {
+func (UnimplementedDocumentServer) Index(*IndexJob, Document_IndexServer) error {
 	return status.Errorf(codes.Unimplemented, "method Index not implemented")
 }
-func (UnimplementedDocumentServiceServer) Search(context.Context, *SearchQuery) (*SearchResults, error) {
+func (UnimplementedDocumentServer) Search(context.Context, *SearchQuery) (*SearchResults, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Search not implemented")
 }
-func (UnimplementedDocumentServiceServer) mustEmbedUnimplementedDocumentServiceServer() {}
+func (UnimplementedDocumentServer) mustEmbedUnimplementedDocumentServer() {}
 
-// UnsafeDocumentServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to DocumentServiceServer will
+// UnsafeDocumentServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to DocumentServer will
 // result in compilation errors.
-type UnsafeDocumentServiceServer interface {
-	mustEmbedUnimplementedDocumentServiceServer()
+type UnsafeDocumentServer interface {
+	mustEmbedUnimplementedDocumentServer()
 }
 
-func RegisterDocumentServiceServer(s grpc.ServiceRegistrar, srv DocumentServiceServer) {
-	s.RegisterService(&DocumentService_ServiceDesc, srv)
+func RegisterDocumentServer(s grpc.ServiceRegistrar, srv DocumentServer) {
+	s.RegisterService(&Document_ServiceDesc, srv)
 }
 
-func _DocumentService_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Document_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DocumentFilter)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(DocumentServiceServer).List(ctx, in)
+		return srv.(DocumentServer).List(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: DocumentService_List_FullMethodName,
+		FullMethod: Document_List_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DocumentServiceServer).List(ctx, req.(*DocumentFilter))
+		return srv.(DocumentServer).List(ctx, req.(*DocumentFilter))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _DocumentService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DocumentID)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(DocumentServiceServer).Get(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: DocumentService_Get_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DocumentServiceServer).Get(ctx, req.(*DocumentID))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _DocumentService_Rename_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Document_Rename_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RenameDocument)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(DocumentServiceServer).Rename(ctx, in)
+		return srv.(DocumentServer).Rename(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: DocumentService_Rename_FullMethodName,
+		FullMethod: Document_Rename_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DocumentServiceServer).Rename(ctx, req.(*RenameDocument))
+		return srv.(DocumentServer).Rename(ctx, req.(*RenameDocument))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _DocumentService_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Document_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DocumentID)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(DocumentServiceServer).Delete(ctx, in)
+		return srv.(DocumentServer).Delete(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: DocumentService_Delete_FullMethodName,
+		FullMethod: Document_Delete_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DocumentServiceServer).Delete(ctx, req.(*DocumentID))
+		return srv.(DocumentServer).Delete(ctx, req.(*DocumentID))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _DocumentService_Index_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _Document_Index_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(IndexJob)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(DocumentServiceServer).Index(m, &documentServiceIndexServer{ServerStream: stream})
+	return srv.(DocumentServer).Index(m, &documentIndexServer{ServerStream: stream})
 }
 
-type DocumentService_IndexServer interface {
+type Document_IndexServer interface {
 	Send(*IndexProgress) error
 	grpc.ServerStream
 }
 
-type documentServiceIndexServer struct {
+type documentIndexServer struct {
 	grpc.ServerStream
 }
 
-func (x *documentServiceIndexServer) Send(m *IndexProgress) error {
+func (x *documentIndexServer) Send(m *IndexProgress) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func _DocumentService_Search_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Document_Search_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SearchQuery)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(DocumentServiceServer).Search(ctx, in)
+		return srv.(DocumentServer).Search(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: DocumentService_Search_FullMethodName,
+		FullMethod: Document_Search_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DocumentServiceServer).Search(ctx, req.(*SearchQuery))
+		return srv.(DocumentServer).Search(ctx, req.(*SearchQuery))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// DocumentService_ServiceDesc is the grpc.ServiceDesc for DocumentService service.
+// Document_ServiceDesc is the grpc.ServiceDesc for Document service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var DocumentService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "chatbot.documents.v2.DocumentService",
-	HandlerType: (*DocumentServiceServer)(nil),
+var Document_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "chatbot.documents.v1.Document",
+	HandlerType: (*DocumentServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "List",
-			Handler:    _DocumentService_List_Handler,
-		},
-		{
-			MethodName: "Get",
-			Handler:    _DocumentService_Get_Handler,
+			Handler:    _Document_List_Handler,
 		},
 		{
 			MethodName: "Rename",
-			Handler:    _DocumentService_Rename_Handler,
+			Handler:    _Document_Rename_Handler,
 		},
 		{
 			MethodName: "Delete",
-			Handler:    _DocumentService_Delete_Handler,
+			Handler:    _Document_Delete_Handler,
 		},
 		{
 			MethodName: "Search",
-			Handler:    _DocumentService_Search_Handler,
+			Handler:    _Document_Search_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "Index",
-			Handler:       _DocumentService_Index_Handler,
+			Handler:       _Document_Index_Handler,
 			ServerStreams: true,
 		},
 	},

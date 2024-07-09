@@ -17,7 +17,7 @@ type Verifier interface {
 
 // Service is the account service implementation.
 type Service struct {
-	pb.UnimplementedAccountServiceServer
+	pb.UnimplementedAccountServer
 	Database *datastore.Service
 	Auth     auth.Service
 }

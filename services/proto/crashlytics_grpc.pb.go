@@ -20,90 +20,90 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	CrashlyticsService_RecordError_FullMethodName = "/crashlytics.v1.CrashlyticsService/RecordError"
+	Crashlytics_RecordError_FullMethodName = "/crashlytics.v1.Crashlytics/RecordError"
 )
 
-// CrashlyticsServiceClient is the client API for CrashlyticsService service.
+// CrashlyticsClient is the client API for Crashlytics service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type CrashlyticsServiceClient interface {
+type CrashlyticsClient interface {
 	RecordError(ctx context.Context, in *Error, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
-type crashlyticsServiceClient struct {
+type crashlyticsClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewCrashlyticsServiceClient(cc grpc.ClientConnInterface) CrashlyticsServiceClient {
-	return &crashlyticsServiceClient{cc}
+func NewCrashlyticsClient(cc grpc.ClientConnInterface) CrashlyticsClient {
+	return &crashlyticsClient{cc}
 }
 
-func (c *crashlyticsServiceClient) RecordError(ctx context.Context, in *Error, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *crashlyticsClient) RecordError(ctx context.Context, in *Error, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, CrashlyticsService_RecordError_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, Crashlytics_RecordError_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// CrashlyticsServiceServer is the server API for CrashlyticsService service.
-// All implementations must embed UnimplementedCrashlyticsServiceServer
+// CrashlyticsServer is the server API for Crashlytics service.
+// All implementations must embed UnimplementedCrashlyticsServer
 // for forward compatibility
-type CrashlyticsServiceServer interface {
+type CrashlyticsServer interface {
 	RecordError(context.Context, *Error) (*emptypb.Empty, error)
-	mustEmbedUnimplementedCrashlyticsServiceServer()
+	mustEmbedUnimplementedCrashlyticsServer()
 }
 
-// UnimplementedCrashlyticsServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedCrashlyticsServiceServer struct {
+// UnimplementedCrashlyticsServer must be embedded to have forward compatible implementations.
+type UnimplementedCrashlyticsServer struct {
 }
 
-func (UnimplementedCrashlyticsServiceServer) RecordError(context.Context, *Error) (*emptypb.Empty, error) {
+func (UnimplementedCrashlyticsServer) RecordError(context.Context, *Error) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RecordError not implemented")
 }
-func (UnimplementedCrashlyticsServiceServer) mustEmbedUnimplementedCrashlyticsServiceServer() {}
+func (UnimplementedCrashlyticsServer) mustEmbedUnimplementedCrashlyticsServer() {}
 
-// UnsafeCrashlyticsServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to CrashlyticsServiceServer will
+// UnsafeCrashlyticsServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to CrashlyticsServer will
 // result in compilation errors.
-type UnsafeCrashlyticsServiceServer interface {
-	mustEmbedUnimplementedCrashlyticsServiceServer()
+type UnsafeCrashlyticsServer interface {
+	mustEmbedUnimplementedCrashlyticsServer()
 }
 
-func RegisterCrashlyticsServiceServer(s grpc.ServiceRegistrar, srv CrashlyticsServiceServer) {
-	s.RegisterService(&CrashlyticsService_ServiceDesc, srv)
+func RegisterCrashlyticsServer(s grpc.ServiceRegistrar, srv CrashlyticsServer) {
+	s.RegisterService(&Crashlytics_ServiceDesc, srv)
 }
 
-func _CrashlyticsService_RecordError_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Crashlytics_RecordError_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Error)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CrashlyticsServiceServer).RecordError(ctx, in)
+		return srv.(CrashlyticsServer).RecordError(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: CrashlyticsService_RecordError_FullMethodName,
+		FullMethod: Crashlytics_RecordError_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CrashlyticsServiceServer).RecordError(ctx, req.(*Error))
+		return srv.(CrashlyticsServer).RecordError(ctx, req.(*Error))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// CrashlyticsService_ServiceDesc is the grpc.ServiceDesc for CrashlyticsService service.
+// Crashlytics_ServiceDesc is the grpc.ServiceDesc for Crashlytics service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var CrashlyticsService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "crashlytics.v1.CrashlyticsService",
-	HandlerType: (*CrashlyticsServiceServer)(nil),
+var Crashlytics_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "crashlytics.v1.Crashlytics",
+	HandlerType: (*CrashlyticsServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "RecordError",
-			Handler:    _CrashlyticsService_RecordError_Handler,
+			Handler:    _Crashlytics_RecordError_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

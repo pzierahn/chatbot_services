@@ -11,7 +11,7 @@ import (
 
 // Service implements the crashlytics service.
 type Service struct {
-	pb.UnimplementedCrashlyticsServiceServer
+	pb.UnimplementedCrashlyticsServer
 	Auth     auth.Service
 	Database *datastore.Service
 }

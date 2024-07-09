@@ -9,7 +9,7 @@ import (
 )
 
 type Service struct {
-	pb.UnimplementedCollectionServiceServer
+	pb.UnimplementedCollectionsServer
 	Auth     account.Verifier
 	Database *datastore.Service
 	Storage  *storage.BucketHandle

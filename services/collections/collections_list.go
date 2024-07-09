@@ -6,7 +6,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-func (server *Service) List(ctx context.Context, _ *emptypb.Empty) (*pb.Collections, error) {
+func (server *Service) List(ctx context.Context, _ *emptypb.Empty) (*pb.CollectionList, error) {
 	userId, err := server.Auth.Verify(ctx)
 	if err != nil {
 		return nil, err
@@ -25,7 +25,7 @@ func (server *Service) List(ctx context.Context, _ *emptypb.Empty) (*pb.Collecti
 		}
 	}
 
-	return &pb.Collections{
+	return &pb.CollectionList{
 		Items: list,
 	}, nil
 }

@@ -7,7 +7,7 @@ package chatbot.account.v1;
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
-service AccountService {
+service Account {
   rpc GetCosts(google.protobuf.Empty) returns (Costs);
   rpc GetPayments(google.protobuf.Empty) returns (Payments);
   rpc GetBalanceSheet(google.protobuf.Empty) returns (BalanceSheet);

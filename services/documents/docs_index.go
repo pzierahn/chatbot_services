@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-func (service *Service) Index(req *pb.IndexJob, stream pb.DocumentService_IndexServer) error {
+func (service *Service) Index(req *pb.IndexJob, stream pb.Document_IndexServer) error {
 	ctx := stream.Context()
 
 	userId, err := service.Auth.Verify(ctx)

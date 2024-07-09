@@ -20,204 +20,204 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	CollectionService_List_FullMethodName   = "/chatbot.collections.v3.CollectionService/List"
-	CollectionService_Insert_FullMethodName = "/chatbot.collections.v3.CollectionService/Insert"
-	CollectionService_Update_FullMethodName = "/chatbot.collections.v3.CollectionService/Update"
-	CollectionService_Delete_FullMethodName = "/chatbot.collections.v3.CollectionService/Delete"
+	Collections_List_FullMethodName   = "/chatbot.collections.v1.Collections/List"
+	Collections_Insert_FullMethodName = "/chatbot.collections.v1.Collections/Insert"
+	Collections_Update_FullMethodName = "/chatbot.collections.v1.Collections/Update"
+	Collections_Delete_FullMethodName = "/chatbot.collections.v1.Collections/Delete"
 )
 
-// CollectionServiceClient is the client API for CollectionService service.
+// CollectionsClient is the client API for Collections service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type CollectionServiceClient interface {
-	List(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Collections, error)
+type CollectionsClient interface {
+	List(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CollectionList, error)
 	Insert(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Update(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Delete(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
-type collectionServiceClient struct {
+type collectionsClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewCollectionServiceClient(cc grpc.ClientConnInterface) CollectionServiceClient {
-	return &collectionServiceClient{cc}
+func NewCollectionsClient(cc grpc.ClientConnInterface) CollectionsClient {
+	return &collectionsClient{cc}
 }
 
-func (c *collectionServiceClient) List(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Collections, error) {
+func (c *collectionsClient) List(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CollectionList, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Collections)
-	err := c.cc.Invoke(ctx, CollectionService_List_FullMethodName, in, out, cOpts...)
+	out := new(CollectionList)
+	err := c.cc.Invoke(ctx, Collections_List_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *collectionServiceClient) Insert(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, CollectionService_Insert_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *collectionServiceClient) Update(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *collectionsClient) Insert(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, CollectionService_Update_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, Collections_Insert_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *collectionServiceClient) Delete(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *collectionsClient) Update(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, CollectionService_Delete_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, Collections_Update_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// CollectionServiceServer is the server API for CollectionService service.
-// All implementations must embed UnimplementedCollectionServiceServer
+func (c *collectionsClient) Delete(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Collections_Delete_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// CollectionsServer is the server API for Collections service.
+// All implementations must embed UnimplementedCollectionsServer
 // for forward compatibility
-type CollectionServiceServer interface {
-	List(context.Context, *emptypb.Empty) (*Collections, error)
+type CollectionsServer interface {
+	List(context.Context, *emptypb.Empty) (*CollectionList, error)
 	Insert(context.Context, *Collection) (*emptypb.Empty, error)
 	Update(context.Context, *Collection) (*emptypb.Empty, error)
 	Delete(context.Context, *Collection) (*emptypb.Empty, error)
-	mustEmbedUnimplementedCollectionServiceServer()
+	mustEmbedUnimplementedCollectionsServer()
 }
 
-// UnimplementedCollectionServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedCollectionServiceServer struct {
+// UnimplementedCollectionsServer must be embedded to have forward compatible implementations.
+type UnimplementedCollectionsServer struct {
 }
 
-func (UnimplementedCollectionServiceServer) List(context.Context, *emptypb.Empty) (*Collections, error) {
+func (UnimplementedCollectionsServer) List(context.Context, *emptypb.Empty) (*CollectionList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
 }
-func (UnimplementedCollectionServiceServer) Insert(context.Context, *Collection) (*emptypb.Empty, error) {
+func (UnimplementedCollectionsServer) Insert(context.Context, *Collection) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Insert not implemented")
 }
-func (UnimplementedCollectionServiceServer) Update(context.Context, *Collection) (*emptypb.Empty, error) {
+func (UnimplementedCollectionsServer) Update(context.Context, *Collection) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
 }
-func (UnimplementedCollectionServiceServer) Delete(context.Context, *Collection) (*emptypb.Empty, error) {
+func (UnimplementedCollectionsServer) Delete(context.Context, *Collection) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
-func (UnimplementedCollectionServiceServer) mustEmbedUnimplementedCollectionServiceServer() {}
+func (UnimplementedCollectionsServer) mustEmbedUnimplementedCollectionsServer() {}
 
-// UnsafeCollectionServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to CollectionServiceServer will
+// UnsafeCollectionsServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to CollectionsServer will
 // result in compilation errors.
-type UnsafeCollectionServiceServer interface {
-	mustEmbedUnimplementedCollectionServiceServer()
+type UnsafeCollectionsServer interface {
+	mustEmbedUnimplementedCollectionsServer()
 }
 
-func RegisterCollectionServiceServer(s grpc.ServiceRegistrar, srv CollectionServiceServer) {
-	s.RegisterService(&CollectionService_ServiceDesc, srv)
+func RegisterCollectionsServer(s grpc.ServiceRegistrar, srv CollectionsServer) {
+	s.RegisterService(&Collections_ServiceDesc, srv)
 }
 
-func _CollectionService_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Collections_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CollectionServiceServer).List(ctx, in)
+		return srv.(CollectionsServer).List(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: CollectionService_List_FullMethodName,
+		FullMethod: Collections_List_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CollectionServiceServer).List(ctx, req.(*emptypb.Empty))
+		return srv.(CollectionsServer).List(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _CollectionService_Insert_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Collections_Insert_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Collection)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CollectionServiceServer).Insert(ctx, in)
+		return srv.(CollectionsServer).Insert(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: CollectionService_Insert_FullMethodName,
+		FullMethod: Collections_Insert_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CollectionServiceServer).Insert(ctx, req.(*Collection))
+		return srv.(CollectionsServer).Insert(ctx, req.(*Collection))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _CollectionService_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Collections_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Collection)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CollectionServiceServer).Update(ctx, in)
+		return srv.(CollectionsServer).Update(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: CollectionService_Update_FullMethodName,
+		FullMethod: Collections_Update_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CollectionServiceServer).Update(ctx, req.(*Collection))
+		return srv.(CollectionsServer).Update(ctx, req.(*Collection))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _CollectionService_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Collections_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Collection)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CollectionServiceServer).Delete(ctx, in)
+		return srv.(CollectionsServer).Delete(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: CollectionService_Delete_FullMethodName,
+		FullMethod: Collections_Delete_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CollectionServiceServer).Delete(ctx, req.(*Collection))
+		return srv.(CollectionsServer).Delete(ctx, req.(*Collection))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// CollectionService_ServiceDesc is the grpc.ServiceDesc for CollectionService service.
+// Collections_ServiceDesc is the grpc.ServiceDesc for Collections service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var CollectionService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "chatbot.collections.v3.CollectionService",
-	HandlerType: (*CollectionServiceServer)(nil),
+var Collections_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "chatbot.collections.v1.Collections",
+	HandlerType: (*CollectionsServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "List",
-			Handler:    _CollectionService_List_Handler,
+			Handler:    _Collections_List_Handler,
 		},
 		{
 			MethodName: "Insert",
-			Handler:    _CollectionService_Insert_Handler,
+			Handler:    _Collections_Insert_Handler,
 		},
 		{
 			MethodName: "Update",
-			Handler:    _CollectionService_Update_Handler,
+			Handler:    _Collections_Update_Handler,
 		},
 		{
 			MethodName: "Delete",
-			Handler:    _CollectionService_Delete_Handler,
+			Handler:    _Collections_Delete_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -20,18 +20,18 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	ChatService_PostMessage_FullMethodName             = "/chatbot.chat.v5.ChatService/PostMessage"
-	ChatService_GetThread_FullMethodName               = "/chatbot.chat.v5.ChatService/GetThread"
-	ChatService_ListThreadIDs_FullMethodName           = "/chatbot.chat.v5.ChatService/ListThreadIDs"
-	ChatService_DeleteThread_FullMethodName            = "/chatbot.chat.v5.ChatService/DeleteThread"
-	ChatService_DeleteMessageFromThread_FullMethodName = "/chatbot.chat.v5.ChatService/DeleteMessageFromThread"
-	ChatService_Completion_FullMethodName              = "/chatbot.chat.v5.ChatService/Completion"
+	Chat_PostMessage_FullMethodName             = "/chatbot.chat.v1.Chat/PostMessage"
+	Chat_GetThread_FullMethodName               = "/chatbot.chat.v1.Chat/GetThread"
+	Chat_ListThreadIDs_FullMethodName           = "/chatbot.chat.v1.Chat/ListThreadIDs"
+	Chat_DeleteThread_FullMethodName            = "/chatbot.chat.v1.Chat/DeleteThread"
+	Chat_DeleteMessageFromThread_FullMethodName = "/chatbot.chat.v1.Chat/DeleteMessageFromThread"
+	Chat_Completion_FullMethodName              = "/chatbot.chat.v1.Chat/Completion"
 )
 
-// ChatServiceClient is the client API for ChatService service.
+// ChatClient is the client API for Chat service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type ChatServiceClient interface {
+type ChatClient interface {
 	PostMessage(ctx context.Context, in *Prompt, opts ...grpc.CallOption) (*Message, error)
 	GetThread(ctx context.Context, in *ThreadID, opts ...grpc.CallOption) (*Thread, error)
 	ListThreadIDs(ctx context.Context, in *CollectionId, opts ...grpc.CallOption) (*ThreadIDs, error)
@@ -40,260 +40,260 @@ type ChatServiceClient interface {
 	Completion(ctx context.Context, in *CompletionRequest, opts ...grpc.CallOption) (*CompletionResponse, error)
 }
 
-type chatServiceClient struct {
+type chatClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewChatServiceClient(cc grpc.ClientConnInterface) ChatServiceClient {
-	return &chatServiceClient{cc}
+func NewChatClient(cc grpc.ClientConnInterface) ChatClient {
+	return &chatClient{cc}
 }
 
-func (c *chatServiceClient) PostMessage(ctx context.Context, in *Prompt, opts ...grpc.CallOption) (*Message, error) {
+func (c *chatClient) PostMessage(ctx context.Context, in *Prompt, opts ...grpc.CallOption) (*Message, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Message)
-	err := c.cc.Invoke(ctx, ChatService_PostMessage_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, Chat_PostMessage_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *chatServiceClient) GetThread(ctx context.Context, in *ThreadID, opts ...grpc.CallOption) (*Thread, error) {
+func (c *chatClient) GetThread(ctx context.Context, in *ThreadID, opts ...grpc.CallOption) (*Thread, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Thread)
-	err := c.cc.Invoke(ctx, ChatService_GetThread_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, Chat_GetThread_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *chatServiceClient) ListThreadIDs(ctx context.Context, in *CollectionId, opts ...grpc.CallOption) (*ThreadIDs, error) {
+func (c *chatClient) ListThreadIDs(ctx context.Context, in *CollectionId, opts ...grpc.CallOption) (*ThreadIDs, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ThreadIDs)
-	err := c.cc.Invoke(ctx, ChatService_ListThreadIDs_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, Chat_ListThreadIDs_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *chatServiceClient) DeleteThread(ctx context.Context, in *ThreadID, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *chatClient) DeleteThread(ctx context.Context, in *ThreadID, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, ChatService_DeleteThread_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, Chat_DeleteThread_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *chatServiceClient) DeleteMessageFromThread(ctx context.Context, in *MessageID, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *chatClient) DeleteMessageFromThread(ctx context.Context, in *MessageID, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, ChatService_DeleteMessageFromThread_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, Chat_DeleteMessageFromThread_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *chatServiceClient) Completion(ctx context.Context, in *CompletionRequest, opts ...grpc.CallOption) (*CompletionResponse, error) {
+func (c *chatClient) Completion(ctx context.Context, in *CompletionRequest, opts ...grpc.CallOption) (*CompletionResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(CompletionResponse)
-	err := c.cc.Invoke(ctx, ChatService_Completion_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, Chat_Completion_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// ChatServiceServer is the server API for ChatService service.
-// All implementations must embed UnimplementedChatServiceServer
+// ChatServer is the server API for Chat service.
+// All implementations must embed UnimplementedChatServer
 // for forward compatibility
-type ChatServiceServer interface {
+type ChatServer interface {
 	PostMessage(context.Context, *Prompt) (*Message, error)
 	GetThread(context.Context, *ThreadID) (*Thread, error)
 	ListThreadIDs(context.Context, *CollectionId) (*ThreadIDs, error)
 	DeleteThread(context.Context, *ThreadID) (*emptypb.Empty, error)
 	DeleteMessageFromThread(context.Context, *MessageID) (*emptypb.Empty, error)
 	Completion(context.Context, *CompletionRequest) (*CompletionResponse, error)
-	mustEmbedUnimplementedChatServiceServer()
+	mustEmbedUnimplementedChatServer()
 }
 
-// UnimplementedChatServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedChatServiceServer struct {
+// UnimplementedChatServer must be embedded to have forward compatible implementations.
+type UnimplementedChatServer struct {
 }
 
-func (UnimplementedChatServiceServer) PostMessage(context.Context, *Prompt) (*Message, error) {
+func (UnimplementedChatServer) PostMessage(context.Context, *Prompt) (*Message, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PostMessage not implemented")
 }
-func (UnimplementedChatServiceServer) GetThread(context.Context, *ThreadID) (*Thread, error) {
+func (UnimplementedChatServer) GetThread(context.Context, *ThreadID) (*Thread, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetThread not implemented")
 }
-func (UnimplementedChatServiceServer) ListThreadIDs(context.Context, *CollectionId) (*ThreadIDs, error) {
+func (UnimplementedChatServer) ListThreadIDs(context.Context, *CollectionId) (*ThreadIDs, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListThreadIDs not implemented")
 }
-func (UnimplementedChatServiceServer) DeleteThread(context.Context, *ThreadID) (*emptypb.Empty, error) {
+func (UnimplementedChatServer) DeleteThread(context.Context, *ThreadID) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteThread not implemented")
 }
-func (UnimplementedChatServiceServer) DeleteMessageFromThread(context.Context, *MessageID) (*emptypb.Empty, error) {
+func (UnimplementedChatServer) DeleteMessageFromThread(context.Context, *MessageID) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteMessageFromThread not implemented")
 }
-func (UnimplementedChatServiceServer) Completion(context.Context, *CompletionRequest) (*CompletionResponse, error) {
+func (UnimplementedChatServer) Completion(context.Context, *CompletionRequest) (*CompletionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Completion not implemented")
 }
-func (UnimplementedChatServiceServer) mustEmbedUnimplementedChatServiceServer() {}
+func (UnimplementedChatServer) mustEmbedUnimplementedChatServer() {}
 
-// UnsafeChatServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to ChatServiceServer will
+// UnsafeChatServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ChatServer will
 // result in compilation errors.
-type UnsafeChatServiceServer interface {
-	mustEmbedUnimplementedChatServiceServer()
+type UnsafeChatServer interface {
+	mustEmbedUnimplementedChatServer()
 }
 
-func RegisterChatServiceServer(s grpc.ServiceRegistrar, srv ChatServiceServer) {
-	s.RegisterService(&ChatService_ServiceDesc, srv)
+func RegisterChatServer(s grpc.ServiceRegistrar, srv ChatServer) {
+	s.RegisterService(&Chat_ServiceDesc, srv)
 }
 
-func _ChatService_PostMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Chat_PostMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Prompt)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ChatServiceServer).PostMessage(ctx, in)
+		return srv.(ChatServer).PostMessage(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ChatService_PostMessage_FullMethodName,
+		FullMethod: Chat_PostMessage_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ChatServiceServer).PostMessage(ctx, req.(*Prompt))
+		return srv.(ChatServer).PostMessage(ctx, req.(*Prompt))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ChatService_GetThread_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Chat_GetThread_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ThreadID)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ChatServiceServer).GetThread(ctx, in)
+		return srv.(ChatServer).GetThread(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ChatService_GetThread_FullMethodName,
+		FullMethod: Chat_GetThread_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ChatServiceServer).GetThread(ctx, req.(*ThreadID))
+		return srv.(ChatServer).GetThread(ctx, req.(*ThreadID))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ChatService_ListThreadIDs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Chat_ListThreadIDs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CollectionId)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ChatServiceServer).ListThreadIDs(ctx, in)
+		return srv.(ChatServer).ListThreadIDs(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ChatService_ListThreadIDs_FullMethodName,
+		FullMethod: Chat_ListThreadIDs_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ChatServiceServer).ListThreadIDs(ctx, req.(*CollectionId))
+		return srv.(ChatServer).ListThreadIDs(ctx, req.(*CollectionId))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ChatService_DeleteThread_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Chat_DeleteThread_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ThreadID)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ChatServiceServer).DeleteThread(ctx, in)
+		return srv.(ChatServer).DeleteThread(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ChatService_DeleteThread_FullMethodName,
+		FullMethod: Chat_DeleteThread_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ChatServiceServer).DeleteThread(ctx, req.(*ThreadID))
+		return srv.(ChatServer).DeleteThread(ctx, req.(*ThreadID))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ChatService_DeleteMessageFromThread_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Chat_DeleteMessageFromThread_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(MessageID)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ChatServiceServer).DeleteMessageFromThread(ctx, in)
+		return srv.(ChatServer).DeleteMessageFromThread(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ChatService_DeleteMessageFromThread_FullMethodName,
+		FullMethod: Chat_DeleteMessageFromThread_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ChatServiceServer).DeleteMessageFromThread(ctx, req.(*MessageID))
+		return srv.(ChatServer).DeleteMessageFromThread(ctx, req.(*MessageID))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ChatService_Completion_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Chat_Completion_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CompletionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ChatServiceServer).Completion(ctx, in)
+		return srv.(ChatServer).Completion(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ChatService_Completion_FullMethodName,
+		FullMethod: Chat_Completion_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ChatServiceServer).Completion(ctx, req.(*CompletionRequest))
+		return srv.(ChatServer).Completion(ctx, req.(*CompletionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// ChatService_ServiceDesc is the grpc.ServiceDesc for ChatService service.
+// Chat_ServiceDesc is the grpc.ServiceDesc for Chat service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var ChatService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "chatbot.chat.v5.ChatService",
-	HandlerType: (*ChatServiceServer)(nil),
+var Chat_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "chatbot.chat.v1.Chat",
+	HandlerType: (*ChatServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "PostMessage",
-			Handler:    _ChatService_PostMessage_Handler,
+			Handler:    _Chat_PostMessage_Handler,
 		},
 		{
 			MethodName: "GetThread",
-			Handler:    _ChatService_GetThread_Handler,
+			Handler:    _Chat_GetThread_Handler,
 		},
 		{
 			MethodName: "ListThreadIDs",
-			Handler:    _ChatService_ListThreadIDs_Handler,
+			Handler:    _Chat_ListThreadIDs_Handler,
 		},
 		{
 			MethodName: "DeleteThread",
-			Handler:    _ChatService_DeleteThread_Handler,
+			Handler:    _Chat_DeleteThread_Handler,
 		},
 		{
 			MethodName: "DeleteMessageFromThread",
-			Handler:    _ChatService_DeleteMessageFromThread_Handler,
+			Handler:    _Chat_DeleteMessageFromThread_Handler,
 		},
 		{
 			MethodName: "Completion",
-			Handler:    _ChatService_Completion_Handler,
+			Handler:    _Chat_Completion_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

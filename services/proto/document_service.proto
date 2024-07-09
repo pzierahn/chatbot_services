@@ -2,14 +2,13 @@ syntax = "proto3";
 
 option go_package = "./proto";
 
-package chatbot.documents.v2;
+package chatbot.documents.v1;
 
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
-service DocumentService {
+service Document {
   rpc List(DocumentFilter) returns (DocumentList);
-  rpc Get(DocumentID) returns (Document);
   rpc Rename(RenameDocument) returns (google.protobuf.Empty);
   rpc Delete(DocumentID) returns (google.protobuf.Empty);
   rpc Index(IndexJob) returns (stream IndexProgress);
@@ -74,13 +73,6 @@ message File {
 message Webpage {
   string url = 1;
   string title = 2;
-}
-
-message Document {
-  string id = 1;
-  string collection_id = 2;
-  DocumentMetadata metadata = 3;
-  repeated Chunk chunks = 4;
 }
 
 message DocumentHeader {

@@ -170,9 +170,9 @@ func main() {
 
 	grpcServer := grpc.NewServer()
 	//pb.RegisterAccountServiceServer(grpcServer, userService)
-	pb.RegisterChatServiceServer(grpcServer, chatService)
-	pb.RegisterDocumentServiceServer(grpcServer, documentsService)
-	pb.RegisterCollectionServiceServer(grpcServer, collectionService)
+	pb.RegisterChatServer(grpcServer, chatService)
+	pb.RegisterDocumentServer(grpcServer, documentsService)
+	pb.RegisterCollectionsServer(grpcServer, collectionService)
 	pb.RegisterNotionServer(grpcServer, notionService)
 
 	port := os.Getenv("PORT")

@@ -6,7 +6,7 @@ package crashlytics.v1;
 
 import "google/protobuf/empty.proto";
 
-service CrashlyticsService {
+service Crashlytics {
   rpc RecordError(Error) returns (google.protobuf.Empty);
 }
 

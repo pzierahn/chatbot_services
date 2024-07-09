@@ -2,12 +2,12 @@ syntax = "proto3";
 
 option go_package = "./proto";
 
-package chatbot.chat.v5;
+package chatbot.chat.v1;
 
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
-service ChatService {
+service Chat {
   rpc PostMessage(Prompt) returns (Message);
   rpc GetThread(ThreadID) returns (Thread);
   rpc ListThreadIDs(CollectionId) returns (ThreadIDs);
