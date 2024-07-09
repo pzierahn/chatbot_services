@@ -7,7 +7,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func (service *LiveService) getPayments(ctx context.Context, userId string) (*pb.Payments, error) {
+func (service *Service) getPayments(ctx context.Context, userId string) (*pb.Payments, error) {
 	payments, err := service.Database.GetPayments(ctx, userId)
 	if err != nil {
 		return nil, err
@@ -27,7 +27,7 @@ func (service *LiveService) getPayments(ctx context.Context, userId string) (*pb
 	}, nil
 }
 
-func (service *LiveService) GetPayments(ctx context.Context, _ *emptypb.Empty) (*pb.Payments, error) {
+func (service *Service) GetPayments(ctx context.Context, _ *emptypb.Empty) (*pb.Payments, error) {
 	userId, err := service.Auth.Verify(ctx)
 	if err != nil {
 		return nil, err

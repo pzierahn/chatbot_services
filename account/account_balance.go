@@ -6,7 +6,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-func (service *LiveService) getBalanceSheet(ctx context.Context, userId string) (*pb.BalanceSheet, error) {
+func (service *Service) getBalanceSheet(ctx context.Context, userId string) (*pb.BalanceSheet, error) {
 	payments, err := service.getPayments(ctx, userId)
 	if err != nil {
 		return nil, err
@@ -33,7 +33,7 @@ func (service *LiveService) getBalanceSheet(ctx context.Context, userId string) 
 	return balanceSheet, nil
 }
 
-func (service *LiveService) GetBalanceSheet(ctx context.Context, req *emptypb.Empty) (*pb.BalanceSheet, error) {
+func (service *Service) GetBalanceSheet(ctx context.Context, req *emptypb.Empty) (*pb.BalanceSheet, error) {
 	userId, err := service.Auth.Verify(ctx)
 	if err != nil {
 		return nil, err

@@ -124,7 +124,7 @@ func main() {
 	bucket := initBucket(ctx, app)
 	authService := initAuth(ctx, app)
 
-	userService := &account.LiveService{
+	userService := &account.Service{
 		Database: database,
 		Auth:     authService,
 	}

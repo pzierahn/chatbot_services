@@ -12,11 +12,11 @@ func NoFundingError() error {
 	return status.Errorf(NoFundingCode, "no funding available, please contact support")
 }
 
-func (service *LiveService) Verify(ctx context.Context) (userId string, err error) {
+func (service *Service) Verify(ctx context.Context) (userId string, err error) {
 	return service.Auth.Verify(ctx)
 }
 
-func (service *LiveService) VerifyFunding(ctx context.Context) (userId string, err error) {
+func (service *Service) VerifyFunding(ctx context.Context) (userId string, err error) {
 	userId, err = service.Auth.Verify(ctx)
 	if err != nil {
 		return
