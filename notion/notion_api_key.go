@@ -4,8 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/jackc/pgx/v5"
+	"github.com/google/uuid"
+	"github.com/pzierahn/chatbot_services/datastore"
 	pb "github.com/pzierahn/chatbot_services/proto"
+	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"sync"
 )
@@ -13,59 +15,82 @@ import (
 var mux sync.RWMutex
 var apiKeyCache = make(map[string]string)
 
-func (client *Client) SetApiKey(ctx context.Context, key *pb.NotionApiKey) (*emptypb.Empty, error) {
+func (client *Client) InsertAPIKey(ctx context.Context, key *pb.NotionApiKey) (*emptypb.Empty, error) {
 
-	userID, err := client.auth.Verify(ctx)
+	userId, err := client.Auth.Verify(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	// Insert or update key in database
-	_, err = client.db.Exec(ctx,
-		`INSERT INTO notion_api_keys (user_id, api_key) VALUES ($1, $2) 
-			   ON CONFLICT (user_id) DO UPDATE SET api_key = $2`, userID, key.Key)
-
+	// Insert the key into the database
+	err = client.Database.InsertNotionAPIKey(ctx, &datastore.NotionAPIKey{
+		Id:     uuid.New(),
+		UserId: userId,
+		Key:    key.Key,
+	})
 	if err != nil {
 		return nil, err
 	}
 
 	mux.Lock()
-	apiKeyCache[userID] = key.Key
+	apiKeyCache[userId] = key.Key
 	mux.Unlock()
 
 	return &emptypb.Empty{}, nil
 }
 
-func (client *Client) RemoveApiKey(ctx context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
+func (client *Client) UpdateAPIKey(ctx context.Context, key *pb.NotionApiKey) (*emptypb.Empty, error) {
 
-	userID, err := client.auth.Verify(ctx)
+	userId, err := client.Auth.Verify(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Update the key in the database
+	err = client.Database.UpdateNotionAPIKey(ctx, &datastore.NotionAPIKey{
+		UserId: userId,
+		Key:    key.Key,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	mux.Lock()
+	apiKeyCache[userId] = key.Key
+	mux.Unlock()
+
+	return &emptypb.Empty{}, nil
+}
+
+func (client *Client) DeleteAPIKey(ctx context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
+
+	userId, err := client.Auth.Verify(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	// Delete the key from the database
-	_, err = client.db.Exec(ctx, `DELETE FROM notion_api_keys WHERE user_id = $1`, userID)
-
+	err = client.Database.DeleteNotionAPIKey(ctx, userId)
 	if err != nil {
 		return nil, err
 	}
 
 	mux.Lock()
-	delete(apiKeyCache, userID)
+	delete(apiKeyCache, userId)
 	mux.Unlock()
 
 	return &emptypb.Empty{}, nil
 }
 
-func (client *Client) GetApiKey(ctx context.Context, _ *emptypb.Empty) (*pb.NotionApiKey, error) {
+func (client *Client) GetAPIKey(ctx context.Context, _ *emptypb.Empty) (*pb.NotionApiKey, error) {
 
-	userID, err := client.auth.Verify(ctx)
+	userId, err := client.Auth.Verify(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	mux.RLock()
-	key, ok := apiKeyCache[userID]
+	key, ok := apiKeyCache[userId]
 	mux.RUnlock()
 
 	apiKey := &pb.NotionApiKey{}
@@ -76,10 +101,8 @@ func (client *Client) GetApiKey(ctx context.Context, _ *emptypb.Empty) (*pb.Noti
 	}
 
 	// Get the API key from the database
-	err = client.db.QueryRow(ctx,
-		`SELECT api_key FROM notion_api_keys WHERE user_id = $1`,
-		userID).Scan(&apiKey.Key)
-	if errors.Is(err, pgx.ErrNoRows) {
+	apiKey.Key, err = client.Database.GetNotionAPIKey(ctx, userId)
+	if errors.Is(err, mongo.ErrNoDocuments) {
 		// No results found, return empty key
 		apiKey.Key = ""
 		return apiKey, nil
@@ -89,7 +112,7 @@ func (client *Client) GetApiKey(ctx context.Context, _ *emptypb.Empty) (*pb.Noti
 	}
 
 	mux.Lock()
-	apiKeyCache[userID] = apiKey.Key
+	apiKeyCache[userId] = apiKey.Key
 	mux.Unlock()
 
 	return apiKey, nil

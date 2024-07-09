@@ -2,16 +2,17 @@ syntax = "proto3";
 
 option go_package = "./proto";
 
-package chatbot.notion.v1;
+package chatbot.notion.v2;
 
 import "google/protobuf/empty.proto";
 
 import "chat_service.proto";
 
 service Notion {
-  rpc SetApiKey(NotionApiKey) returns (google.protobuf.Empty);
-  rpc RemoveApiKey(google.protobuf.Empty) returns (google.protobuf.Empty);
-  rpc GetApiKey(google.protobuf.Empty) returns (NotionApiKey);
+  rpc InsertAPIKey(NotionApiKey) returns (google.protobuf.Empty);
+  rpc UpdateAPIKey(NotionApiKey) returns (google.protobuf.Empty);
+  rpc DeleteAPIKey(google.protobuf.Empty) returns (google.protobuf.Empty);
+  rpc GetAPIKey(google.protobuf.Empty) returns (NotionApiKey);
   rpc ListDatabases(google.protobuf.Empty) returns (Databases);
   rpc ExecutePrompt(NotionPrompt) returns (stream ExecutionResult);
 }
