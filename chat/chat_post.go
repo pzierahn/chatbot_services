@@ -19,7 +19,7 @@ import (
 func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb.Message, error) {
 	log.Printf("PostMessage: %v", prompt)
 
-	userId, err := service.Verify(ctx)
+	userId, err := service.Auth.VerifyFunding(ctx)
 	if err != nil {
 		return nil, err
 	}
