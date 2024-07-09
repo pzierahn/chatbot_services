@@ -88,8 +88,6 @@ func (server *Service) Delete(ctx context.Context, collection *pb.Collection) (*
 			break
 		}
 
-		log.Printf("Delete: %s", attrs.Name)
-
 		err = server.Storage.Object(attrs.Name).Delete(ctx)
 		if err != nil {
 			return nil, err
