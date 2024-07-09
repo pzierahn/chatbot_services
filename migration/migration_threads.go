@@ -38,7 +38,7 @@ func (migrator *Migrator) MigrateThreads() {
 	JOIN
 		threads t ON tm.thread_id = t.id;`)
 	if err != nil {
-		log.Fatalf("Query collections: %v", err)
+		log.Fatalf("Query threads: %v", err)
 	}
 	defer rows.Close()
 

@@ -63,7 +63,7 @@ func (migrator *Migrator) MigrateDocuments() {
 
 	rows, err = migrator.Legacy.Query(ctx, "SELECT document_id, id, index, text FROM document_chunks")
 	if err != nil {
-		log.Fatalf("Query collections: %v", err)
+		log.Fatalf("Query document_chunks: %v", err)
 	}
 	for rows.Next() {
 		var docId uuid.UUID
@@ -71,7 +71,7 @@ func (migrator *Migrator) MigrateDocuments() {
 
 		err = rows.Scan(&docId, &chunk.Id, &chunk.Position, &chunk.Text)
 		if err != nil {
-			log.Fatalf("Scan collection: %v", err)
+			log.Fatalf("Scan document_chunk: %v", err)
 		}
 
 		docChunks[docId] = append(docChunks[docId], &chunk)

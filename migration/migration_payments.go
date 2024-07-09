@@ -11,11 +11,11 @@ import (
 func (migrator *Migrator) MigratePayments() {
 	ctx := context.Background()
 
-	log.Printf("Migrating collections")
+	log.Printf("Migrating payments...")
 
 	rows, err := migrator.Legacy.Query(ctx, "SELECT id, user_id, date, amount FROM payments")
 	if err != nil {
-		log.Fatalf("Query collections: %v", err)
+		log.Fatalf("Query payments: %v", err)
 	}
 
 	count := 0
