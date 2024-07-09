@@ -9,12 +9,9 @@ import (
 	pb "github.com/pzierahn/chatbot_services/proto"
 	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"sync"
 )
 
-var mux sync.RWMutex
-var apiKeyCache = make(map[string]string)
-
+// InsertAPIKey inserts a new API key into the database.
 func (client *Client) InsertAPIKey(ctx context.Context, key *pb.NotionApiKey) (*emptypb.Empty, error) {
 
 	userId, err := client.Auth.Verify(ctx)
@@ -32,13 +29,12 @@ func (client *Client) InsertAPIKey(ctx context.Context, key *pb.NotionApiKey) (*
 		return nil, err
 	}
 
-	mux.Lock()
-	apiKeyCache[userId] = key.Key
-	mux.Unlock()
+	client.setCachedKey(userId, key.Key)
 
 	return &emptypb.Empty{}, nil
 }
 
+// UpdateAPIKey updates an existing API key in the database.
 func (client *Client) UpdateAPIKey(ctx context.Context, key *pb.NotionApiKey) (*emptypb.Empty, error) {
 
 	userId, err := client.Auth.Verify(ctx)
@@ -55,13 +51,11 @@ func (client *Client) UpdateAPIKey(ctx context.Context, key *pb.NotionApiKey) (*
 		return nil, err
 	}
 
-	mux.Lock()
-	apiKeyCache[userId] = key.Key
-	mux.Unlock()
-
+	client.setCachedKey(userId, key.Key)
 	return &emptypb.Empty{}, nil
 }
 
+// DeleteAPIKey deletes an existing API key from the database.
 func (client *Client) DeleteAPIKey(ctx context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
 
 	userId, err := client.Auth.Verify(ctx)
@@ -75,13 +69,11 @@ func (client *Client) DeleteAPIKey(ctx context.Context, _ *emptypb.Empty) (*empt
 		return nil, err
 	}
 
-	mux.Lock()
-	delete(apiKeyCache, userId)
-	mux.Unlock()
-
+	client.deleteCachedKey(userId)
 	return &emptypb.Empty{}, nil
 }
 
+// GetAPIKey retrieve the API key from the database.
 func (client *Client) GetAPIKey(ctx context.Context, _ *emptypb.Empty) (*pb.NotionApiKey, error) {
 
 	userId, err := client.Auth.Verify(ctx)
@@ -89,10 +81,7 @@ func (client *Client) GetAPIKey(ctx context.Context, _ *emptypb.Empty) (*pb.Noti
 		return nil, err
 	}
 
-	mux.RLock()
-	key, ok := apiKeyCache[userId]
-	mux.RUnlock()
-
+	key, ok := client.getCachedKey(userId)
 	apiKey := &pb.NotionApiKey{}
 
 	if ok {
@@ -111,9 +100,6 @@ func (client *Client) GetAPIKey(ctx context.Context, _ *emptypb.Empty) (*pb.Noti
 		return nil, fmt.Errorf("could not get API key: %v", err)
 	}
 
-	mux.Lock()
-	apiKeyCache[userId] = apiKey.Key
-	mux.Unlock()
-
+	client.setCachedKey(userId, apiKey.Key)
 	return apiKey, nil
 }

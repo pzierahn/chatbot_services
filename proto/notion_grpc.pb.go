@@ -20,12 +20,12 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	Notion_InsertAPIKey_FullMethodName  = "/chatbot.notion.v1.Notion/InsertAPIKey"
-	Notion_UpdateAPIKey_FullMethodName  = "/chatbot.notion.v1.Notion/UpdateAPIKey"
-	Notion_DeleteAPIKey_FullMethodName  = "/chatbot.notion.v1.Notion/DeleteAPIKey"
-	Notion_GetAPIKey_FullMethodName     = "/chatbot.notion.v1.Notion/GetAPIKey"
-	Notion_ListDatabases_FullMethodName = "/chatbot.notion.v1.Notion/ListDatabases"
-	Notion_ExecutePrompt_FullMethodName = "/chatbot.notion.v1.Notion/ExecutePrompt"
+	Notion_InsertAPIKey_FullMethodName  = "/chatbot.notion.v2.Notion/InsertAPIKey"
+	Notion_UpdateAPIKey_FullMethodName  = "/chatbot.notion.v2.Notion/UpdateAPIKey"
+	Notion_DeleteAPIKey_FullMethodName  = "/chatbot.notion.v2.Notion/DeleteAPIKey"
+	Notion_GetAPIKey_FullMethodName     = "/chatbot.notion.v2.Notion/GetAPIKey"
+	Notion_ListDatabases_FullMethodName = "/chatbot.notion.v2.Notion/ListDatabases"
+	Notion_ExecutePrompt_FullMethodName = "/chatbot.notion.v2.Notion/ExecutePrompt"
 )
 
 // NotionClient is the client API for Notion service.
@@ -294,7 +294,7 @@ func (x *notionExecutePromptServer) Send(m *ExecutionResult) error {
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Notion_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "chatbot.notion.v1.Notion",
+	ServiceName: "chatbot.notion.v2.Notion",
 	HandlerType: (*NotionServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

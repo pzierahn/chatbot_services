@@ -22,8 +22,8 @@ message NotionApiKey {
 }
 
 message NotionPrompt {
-  string databaseID = 1;
-  string collectionID = 2;
+  string database_id = 1;
+  string collection_id = 2;
   string prompt = 3;
   chat.v5.ModelOptions modelOptions = 4;
 }

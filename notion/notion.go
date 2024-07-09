@@ -9,6 +9,7 @@ import (
 	"github.com/pzierahn/chatbot_services/documents"
 	pb "github.com/pzierahn/chatbot_services/proto"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"sync"
 )
 
 type Client struct {
@@ -17,6 +18,27 @@ type Client struct {
 	Documents *documents.Service
 	Database  *datastore.Service
 	Auth      account.Verifier
+	mux       sync.RWMutex
+	Cache     map[string]string
+}
+
+func (client *Client) getCachedKey(userId string) (key string, ok bool) {
+	client.mux.RLock()
+	defer client.mux.RUnlock()
+	key, ok = client.Cache[userId]
+	return
+}
+
+func (client *Client) setCachedKey(userId, key string) {
+	client.mux.Lock()
+	defer client.mux.Unlock()
+	client.Cache[userId] = key
+}
+
+func (client *Client) deleteCachedKey(userId string) {
+	client.mux.Lock()
+	defer client.mux.Unlock()
+	delete(client.Cache, userId)
 }
 
 func (client *Client) getAPIClient(ctx context.Context) (*notionapi.Client, error) {

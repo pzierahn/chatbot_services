@@ -1,6 +1,8 @@
 package notion
 
 import (
+	"github.com/google/uuid"
+	"github.com/pzierahn/chatbot_services/datastore"
 	pb "github.com/pzierahn/chatbot_services/proto"
 	"sync"
 )
@@ -8,16 +10,22 @@ import (
 func (client *Client) ExecutePrompt(prompt *pb.NotionPrompt, stream pb.Notion_ExecutePromptServer) error {
 	ctx := stream.Context()
 
-	pageIDs, err := client.ListDocumentIDs(ctx, prompt.DatabaseID)
+	userId, err := client.Auth.VerifyFunding(ctx)
 	if err != nil {
 		return err
 	}
 
-	names, err := client.documents.MapDocumentNames(ctx, &pb.CollectionID{
-		Id: prompt.CollectionID,
-	})
+	collectionId, err := uuid.Parse(prompt.CollectionId)
+	if err != nil {
+		return err
+	}
 
-	err = client.AddColumn(ctx, prompt.DatabaseID, prompt.Prompt)
+	pageIDs, err := client.filenamesPageIds(ctx, prompt.DatabaseId)
+	if err != nil {
+		return err
+	}
+
+	err = client.addNewColumn(ctx, prompt.DatabaseId, prompt.Prompt)
 	if err != nil {
 		return err
 	}
@@ -25,14 +33,18 @@ func (client *Client) ExecutePrompt(prompt *pb.NotionPrompt, stream pb.Notion_Ex
 	jobs := make([]func() (string, error), 0)
 
 	for documentName, pageID := range pageIDs {
-		documentID, ok := names.Items[documentName]
-		if !ok {
-			continue
-		}
-
 		jobs = append(jobs, func() (string, error) {
-			resp, err := client.chat.Completion(ctx, &pb.CompletionRequest{
-				DocumentId:   documentID,
+			documentId, err := client.Database.FindDocumentId(ctx, datastore.FindRequest{
+				UserId:       userId,
+				CollectionId: collectionId,
+				Name:         documentName,
+			})
+			if err != nil {
+				return documentName, err
+			}
+
+			resp, err := client.Chat.Completion(ctx, &pb.CompletionRequest{
+				DocumentId:   documentId.String(),
 				Prompt:       prompt.Prompt,
 				ModelOptions: prompt.ModelOptions,
 			})

@@ -44,47 +44,15 @@ func (client *Client) ListDatabases(ctx context.Context, _ *emptypb.Empty) (*pb.
 	return databases, nil
 }
 
-// CreateDatabase creates a new database in the workspace.
-func (client *Client) CreateDatabase(ctx context.Context, title string) (*notionapi.Database, error) {
-	api, err := client.getAPIClient(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := api.Database.Create(ctx, &notionapi.DatabaseCreateRequest{
-		Parent: notionapi.Parent{
-			Type:   "page_id",
-			PageID: "9579f240b48c453b8af0bf129fb1881e",
-		},
-		Title: []notionapi.RichText{
-			{
-				Type: notionapi.ObjectTypeText,
-				Text: &notionapi.Text{
-					Content: title,
-				},
-			},
-		},
-		Properties: map[string]notionapi.PropertyConfig{
-			fileColumn: notionapi.TitlePropertyConfig{
-				Type: notionapi.PropertyConfigTypeTitle,
-			},
-		},
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	return resp, nil
-}
-
-func (client *Client) ListDocumentIDs(ctx context.Context, databaseID string) (map[string]string, error) {
+// filenamesPageIds maps filenames to page IDs in a database.
+func (client *Client) filenamesPageIds(ctx context.Context, databaseId string) (map[string]string, error) {
 	api, err := client.getAPIClient(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	dbEntries, err := api.Database.Query(
-		ctx, notionapi.DatabaseID(databaseID),
+		ctx, notionapi.DatabaseID(databaseId),
 		&notionapi.DatabaseQueryRequest{
 			Sorts: []notionapi.SortObject{
 				{
@@ -120,7 +88,8 @@ func (client *Client) ListDocumentIDs(ctx context.Context, databaseID string) (m
 	return pageIDs, nil
 }
 
-func (client *Client) AddColumn(ctx context.Context, databaseID, title string) error {
+// addNewColumn adds a new column with the given title to a database.
+func (client *Client) addNewColumn(ctx context.Context, databaseID, title string) error {
 	api, err := client.getAPIClient(ctx)
 	if err != nil {
 		return err
