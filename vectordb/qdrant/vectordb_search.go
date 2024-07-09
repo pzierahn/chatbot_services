@@ -8,7 +8,7 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-func (db *DB) Search(ctx context.Context, query vectordb.SearchQuery) (*vectordb.SearchResults, error) {
+func (db *DB) Search(ctx context.Context, query vectordb.SearchQuery) ([]*vectordb.SearchResult, error) {
 
 	embedding, err := db.embedding.CreateEmbedding(ctx, &llm.EmbeddingRequest{
 		Inputs: []string{query.Query},
@@ -67,20 +67,16 @@ func (db *DB) Search(ctx context.Context, query vectordb.SearchQuery) (*vectordb
 		return nil, nil
 	}
 
-	results := &vectordb.SearchResults{}
+	results := make([]*vectordb.SearchResult, len(queryResult.Result))
 
-	for _, item := range queryResult.Result {
-		fragment := &vectordb.Fragment{
-			Id:           item.Id.GetUuid(),
-			CollectionId: item.Payload[PayloadCollectionId].GetStringValue(),
-			DocumentId:   item.Payload[PayloadDocumentId].GetStringValue(),
-			UserId:       item.Payload[PayloadUserId].GetStringValue(),
-			Text:         item.Payload[PayloadText].GetStringValue(),
-			Position:     uint32(item.Payload[PayloadPosition].GetIntegerValue()),
+	for idx, item := range queryResult.Result {
+		results[idx] = &vectordb.SearchResult{
+			Id:         item.Id.GetUuid(),
+			DocumentId: item.Payload[PayloadDocumentId].GetStringValue(),
+			Text:       item.Payload[PayloadText].GetStringValue(),
+			Position:   uint32(item.Payload[PayloadPosition].GetIntegerValue()),
+			Score:      item.Score,
 		}
-
-		results.Fragments = append(results.Fragments, fragment)
-		results.Scores = append(results.Scores, item.Score)
 	}
 
 	return results, nil

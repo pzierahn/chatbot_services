@@ -19,13 +19,16 @@ type SearchQuery struct {
 	Threshold    float32 `json:"threshold,omitempty"`
 }
 
-type SearchResults struct {
-	Fragments []*Fragment `json:"fragments,omitempty"`
-	Scores    []float32   `json:"scores,omitempty"`
+type SearchResult struct {
+	Id         string  `json:"id,omitempty"`
+	Text       string  `json:"text,omitempty"`
+	DocumentId string  `json:"document_id,omitempty"`
+	Position   uint32  `json:"position,omitempty"`
+	Score      float32 `json:"score,omitempty"`
 }
 
 type DB interface {
-	Search(context.Context, SearchQuery) (*SearchResults, error)
+	Search(context.Context, SearchQuery) ([]*SearchResult, error)
 	Upsert(context.Context, []*Fragment) error
 	DeleteCollection(ctx context.Context, userId, collectionId string) error
 	DeleteDocument(ctx context.Context, userId, documentId string) error
