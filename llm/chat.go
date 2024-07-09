@@ -59,7 +59,7 @@ type Function struct {
 // ToolCall defines which tool to call
 type ToolCall struct {
 	// ID of the tool call
-	CallID string `json:"tool_call_id,omitempty" bson:"call_id,omitempty"`
+	CallID string `json:"tool_call_id,omitempty" bson:"tool_call_id,omitempty"`
 
 	// Define function to call
 	Function Function `json:"function,omitempty" bson:"function,omitempty"`
