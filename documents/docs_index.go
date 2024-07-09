@@ -85,7 +85,7 @@ func (service *Service) Index(req *pb.IndexJob, stream pb.DocumentService_IndexS
 		Status:   "Inserting into database",
 		Progress: 2.0 / 3.0,
 	})
-	err = service.Database.StoreDocument(ctx, data)
+	err = service.Database.InsertDocument(ctx, data)
 	if err != nil {
 		return err
 	}

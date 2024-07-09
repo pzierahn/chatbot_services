@@ -54,7 +54,7 @@ func main() {
 	}
 
 	// Store the document
-	err = db.StoreDocument(ctx, doc)
+	err = db.InsertDocument(ctx, doc)
 	if err != nil {
 		log.Fatal(err)
 	}

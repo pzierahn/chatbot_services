@@ -46,8 +46,8 @@ type DocumentChunk struct {
 	Position uint32 `bson:"position,omitempty"`
 }
 
-// StoreDocument stores a document in the database.
-func (service *Service) StoreDocument(ctx context.Context, document *Document) error {
+// InsertDocument stores a document in the database.
+func (service *Service) InsertDocument(ctx context.Context, document *Document) error {
 	coll := service.mongo.Database(DatabaseName).Collection(CollectionDokuments)
 
 	_, err := coll.InsertOne(ctx, document)
