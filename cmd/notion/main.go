@@ -29,11 +29,11 @@ func main() {
 	ctx = metadata.AppendToOutgoingContext(ctx, "User-Id", "j7jjxLD9rla2DrZoeUu3Tnft4812")
 
 	stream, err := notion.ExecutePrompt(ctx, &pb.NotionPrompt{
-		DatabaseID:   "8b9304529d664d2997834734345236f6",
-		CollectionID: "59698763-c0ff-48c4-a69d-3d6ad62a7d50",
+		DatabaseId:   "8b9304529d664d2997834734345236f6",
+		CollectionId: "59698763-c0ff-48c4-a69d-3d6ad62a7d50",
 		Prompt:       "List all Authors of the paper, separated by comma.",
 		ModelOptions: &pb.ModelOptions{
-			Model:       anthropic.ClaudeHaiku,
+			ModelId:     anthropic.ClaudeHaiku,
 			Temperature: 1.0,
 			MaxTokens:   256,
 			TopP:        1.0,
