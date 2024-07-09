@@ -17,7 +17,7 @@ import (
 )
 
 type Sources struct {
-	Items []*search.SearchResult `json:"sources"`
+	Items []*search.Result `json:"sources"`
 }
 
 // PostMessage is a gRPC endpoint that receives a prompt and returns a completion.
@@ -123,7 +123,7 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 
 				log.Printf("get_sources: %v", query)
 
-				search, err := service.Search.Search(ctx, search.SearchQuery{
+				search, err := service.Search.Search(ctx, search.Query{
 					UserId:       userId,
 					CollectionId: prompt.CollectionId,
 					Query:        query,

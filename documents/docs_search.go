@@ -22,7 +22,7 @@ func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.
 		return nil, err
 	}
 
-	vectors, err := service.SearchIndex.Search(ctx, search.SearchQuery{
+	vectors, err := service.SearchIndex.Search(ctx, search.Query{
 		UserId:       userId,
 		CollectionId: query.CollectionId,
 		Query:        query.Text,

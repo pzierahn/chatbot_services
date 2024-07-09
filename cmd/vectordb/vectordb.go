@@ -43,7 +43,7 @@ func main() {
 	//	log.Fatal(err)
 	//}
 
-	results, err := db.Search(ctx, search.SearchQuery{
+	results, err := db.Search(ctx, search.Query{
 		CollectionId: collectionId,
 		Query:        "Haare",
 		Limit:        10,

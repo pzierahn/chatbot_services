@@ -8,7 +8,7 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-func (db *DB) Search(ctx context.Context, query search.SearchQuery) ([]*search.SearchResult, error) {
+func (db *DB) Search(ctx context.Context, query search.Query) ([]*search.Result, error) {
 
 	embedding, err := db.embedding.CreateEmbedding(ctx, &llm.EmbeddingRequest{
 		Inputs: []string{query.Query},
@@ -67,10 +67,10 @@ func (db *DB) Search(ctx context.Context, query search.SearchQuery) ([]*search.S
 		return nil, nil
 	}
 
-	results := make([]*search.SearchResult, len(queryResult.Result))
+	results := make([]*search.Result, len(queryResult.Result))
 
 	for idx, item := range queryResult.Result {
-		results[idx] = &search.SearchResult{
+		results[idx] = &search.Result{
 			Id:         item.Id.GetUuid(),
 			DocumentId: item.Payload[PayloadDocumentId].GetStringValue(),
 			Text:       item.Payload[PayloadText].GetStringValue(),

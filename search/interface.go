@@ -11,7 +11,7 @@ type Fragment struct {
 	Position     uint32 `json:"position,omitempty"`
 }
 
-type SearchQuery struct {
+type Query struct {
 	UserId       string  `json:"user_id,omitempty"`
 	CollectionId string  `json:"collection_id,omitempty"`
 	Query        string  `json:"query,omitempty"`
@@ -19,7 +19,7 @@ type SearchQuery struct {
 	Threshold    float32 `json:"threshold,omitempty"`
 }
 
-type SearchResult struct {
+type Result struct {
 	Id         string  `json:"id,omitempty"`
 	Text       string  `json:"text,omitempty"`
 	DocumentId string  `json:"document_id,omitempty"`
@@ -28,7 +28,7 @@ type SearchResult struct {
 }
 
 type Index interface {
-	Search(context.Context, SearchQuery) ([]*SearchResult, error)
+	Search(context.Context, Query) ([]*Result, error)
 	Upsert(context.Context, []*Fragment) error
 	DeleteCollection(ctx context.Context, userId, collectionId string) error
 	DeleteDocument(ctx context.Context, userId, documentId string) error
