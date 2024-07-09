@@ -39,7 +39,7 @@ func initDatastore(ctx context.Context) *datastore.Service {
 	return db
 }
 
-func initBucket(ctx context.Context) *storage.BucketHandle {
+func initFirebase(ctx context.Context) *firebase.App {
 	var opts []option.ClientOption
 	if _, err := os.Stat(credentialsFile); err == nil {
 		serviceAccount := option.WithCredentialsFile(credentialsFile)
@@ -51,6 +51,10 @@ func initBucket(ctx context.Context) *storage.BucketHandle {
 		log.Fatalf("failed to create firebase app: %v", err)
 	}
 
+	return app
+}
+
+func initBucket(ctx context.Context, app *firebase.App) *storage.BucketHandle {
 	firebaseStorage, err := app.Storage(ctx)
 	if err != nil {
 		log.Fatalf("failed to create firebase storage client: %v", err)
@@ -98,21 +102,31 @@ func initSearch(engine llm.Embedding) vectordb.DB {
 	return search
 }
 
+func initAuth(ctx context.Context, app *firebase.App) auth.Service {
+	service, err := auth.WithFirebase(ctx, app)
+	if err != nil {
+		log.Fatalf("failed to create auth service: %v", err)
+	}
+
+	return service
+}
+
 func main() {
 	ctx := context.Background()
+
+	app := initFirebase(ctx)
 
 	database := initDatastore(ctx)
 	models := initModels(ctx)
 
 	engine := models[0].(llm.Embedding)
 	search := initSearch(engine)
-	bucket := initBucket(ctx)
-
-	fakeAuth, _ := auth.WithInsecure()
+	bucket := initBucket(ctx, app)
+	authService := initAuth(ctx, app)
 
 	userService := &account.LiveService{
 		Database: database,
-		Auth:     fakeAuth,
+		Auth:     authService,
 	}
 
 	chatService := &chat.Service{
@@ -137,6 +151,7 @@ func main() {
 	}
 
 	grpcServer := grpc.NewServer()
+	pb.RegisterAccountServiceServer(grpcServer, userService)
 	pb.RegisterChatServiceServer(grpcServer, chatService)
 	pb.RegisterDocumentServiceServer(grpcServer, documentsService)
 	pb.RegisterCollectionServiceServer(grpcServer, collectionService)
