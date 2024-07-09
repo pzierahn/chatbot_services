@@ -208,3 +208,26 @@ func (service *Service) FindDocumentId(ctx context.Context, req FindRequest) (uu
 
 	return document.Id, nil
 }
+
+func (service *Service) GetDocumentName(ctx context.Context, userId string, documentId uuid.UUID) (string, error) {
+	coll := service.mongo.Database(DatabaseName).Collection(CollectionDokuments)
+
+	opts := &options.FindOneOptions{
+		Projection: bson.M{
+			"name": 1,
+		},
+	}
+
+	filter := bson.M{
+		"user_id": userId,
+		"_id":     documentId,
+	}
+
+	var document Document
+	err := coll.FindOne(ctx, filter, opts).Decode(&document)
+	if err != nil {
+		return "", err
+	}
+
+	return document.Name, nil
+}

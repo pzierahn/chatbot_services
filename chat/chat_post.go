@@ -12,6 +12,7 @@ import (
 	"github.com/pzierahn/chatbot_services/vectordb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"log"
+	"sort"
 	"time"
 )
 
@@ -45,7 +46,6 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 	retrievalOptions := prompt.GetRetrievalOptions()
 	if retrievalOptions == nil {
 		return nil, fmt.Errorf("retrieval options missing")
-
 	}
 
 	model, err := service.getModel(modelOps.ModelId)
@@ -173,27 +173,43 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 		OutputTokens: response.Usage.OutputTokens,
 	})
 
+	// Get the document names
+	sources := getSources(response.Messages)
+
+	for idx, source := range sources {
+		docId, err := uuid.Parse(source.DocumentId)
+		if err != nil {
+			continue
+		}
+
+		docName, err := service.Database.GetDocumentName(ctx, userId, docId)
+		if err != nil {
+			continue
+		}
+		sources[idx].Name = docName
+	}
+
 	return &pb.Message{
 		ThreadId:   thread.Id.String(),
 		Prompt:     prompt.Prompt,
 		Completion: thread.Messages[len(thread.Messages)-1].Content,
 		Timestamp:  timestamppb.Now(),
-		References: getSources(response.Messages),
+		Sources:    sources,
 	}, nil
 }
 
-func getSources(messages []*llm.Message) map[string]float32 {
+func getSources(messages []*llm.Message) []*pb.Source {
 	if len(messages) < 3 {
 		return nil
 	}
 
-	sources := make(map[string]float32)
+	fragments := make(map[uuid.UUID][]*pb.Source_Fragment)
 
 	for idx := len(messages) - 2; idx > 0; idx-- {
 		message := messages[idx]
-		//if message.Role == llm.RoleUser && len(message.ToolCalls) == 0 {
-		//	break
-		//}
+		if message.Role == llm.RoleUser && len(message.ToolResponses) == 0 {
+			break
+		}
 
 		isSourceCall := make(map[string]bool)
 		for _, toolCall := range messages[idx-1].ToolCalls {
@@ -212,10 +228,32 @@ func getSources(messages []*llm.Message) map[string]float32 {
 				}
 
 				for _, item := range source.Items {
-					sources[item.Id] = item.Score
+					docId, err := uuid.Parse(item.DocumentId)
+					if err != nil {
+						continue
+					}
+
+					fragments[docId] = append(fragments[docId], &pb.Source_Fragment{
+						Id:       item.Id,
+						Content:  item.Text,
+						Position: item.Position,
+						Score:    item.Score,
+					})
 				}
 			}
 		}
+	}
+
+	sources := make([]*pb.Source, 0)
+	for docId, parts := range fragments {
+		sort.Slice(parts, func(i, j int) bool {
+			return parts[i].Position < parts[j].Position
+		})
+
+		sources = append(sources, &pb.Source{
+			DocumentId: docId.String(),
+			Fragments:  parts,
+		})
 	}
 
 	return sources
