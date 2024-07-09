@@ -2,7 +2,7 @@ package collections
 
 import (
 	"context"
-	pb "github.com/pzierahn/chatbot_services/proto"
+	pb "github.com/pzierahn/chatbot_services/services/proto"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 

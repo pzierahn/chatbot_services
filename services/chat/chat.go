@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"github.com/pzierahn/chatbot_services/datastore"
 	"github.com/pzierahn/chatbot_services/llm"
-	pb "github.com/pzierahn/chatbot_services/proto"
 	"github.com/pzierahn/chatbot_services/search"
 	"github.com/pzierahn/chatbot_services/services/account"
+	pb "github.com/pzierahn/chatbot_services/services/proto"
 )
 
 type Service struct {

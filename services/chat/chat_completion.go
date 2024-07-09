@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/pzierahn/chatbot_services/datastore"
 	"github.com/pzierahn/chatbot_services/llm"
-	pb "github.com/pzierahn/chatbot_services/proto"
+	pb "github.com/pzierahn/chatbot_services/services/proto"
 	"log"
 	"strings"
 	"time"

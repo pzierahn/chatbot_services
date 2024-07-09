@@ -1,6 +1,6 @@
 package utils
 
-import pb "github.com/pzierahn/chatbot_services/proto"
+import pb "github.com/pzierahn/chatbot_services/services/proto"
 
 func GetDocumentTitle(meta *pb.DocumentMetadata) string {
 	switch meta.Data.(type) {

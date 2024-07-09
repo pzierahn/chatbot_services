@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
-	pb "github.com/pzierahn/chatbot_services/proto"
+	pb "github.com/pzierahn/chatbot_services/services/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"log"

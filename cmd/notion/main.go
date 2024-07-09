@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"github.com/pzierahn/chatbot_services/llm/anthropic"
-	pb "github.com/pzierahn/chatbot_services/proto"
+	pb "github.com/pzierahn/chatbot_services/services/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"

@@ -5,7 +5,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/pzierahn/chatbot_services/auth"
 	"github.com/pzierahn/chatbot_services/datastore"
-	pb "github.com/pzierahn/chatbot_services/proto"
+	pb "github.com/pzierahn/chatbot_services/services/proto"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 

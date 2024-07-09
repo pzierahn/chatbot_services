@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/pzierahn/chatbot_services/auth"
 	"github.com/pzierahn/chatbot_services/datastore"
-	pb "github.com/pzierahn/chatbot_services/proto"
+	pb "github.com/pzierahn/chatbot_services/services/proto"
 )
 
 // Verifier is an interface for verifying user identity and funding.

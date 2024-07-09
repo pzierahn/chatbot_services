@@ -3,8 +3,8 @@ package documents
 import (
 	"context"
 	"github.com/google/uuid"
-	pb "github.com/pzierahn/chatbot_services/proto"
 	"github.com/pzierahn/chatbot_services/search"
+	pb "github.com/pzierahn/chatbot_services/services/proto"
 )
 
 type SearchQuery struct {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
-	pb "github.com/pzierahn/chatbot_services/proto"
+	pb "github.com/pzierahn/chatbot_services/services/proto"
 	"io"
 )
 

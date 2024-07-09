@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/pzierahn/chatbot_services/datastore"
-	pb "github.com/pzierahn/chatbot_services/proto"
+	pb "github.com/pzierahn/chatbot_services/services/proto"
 	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
