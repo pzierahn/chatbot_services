@@ -32,12 +32,7 @@ const (
 	CollectionNotionAPIKey = "notion_api_keys"
 )
 
-func New(ctx context.Context) (*Service, error) {
-	uri := os.Getenv("CHATBOT_MONGODB_URI")
-	if uri == "" {
-		return nil, errors.New("CHATBOT_MONGODB_URI not set")
-	}
-
+func NewFrom(ctx context.Context, uri string) (*Service, error) {
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
 	if err != nil {
 		return nil, err
@@ -46,4 +41,13 @@ func New(ctx context.Context) (*Service, error) {
 	return &Service{
 		mongo: client,
 	}, nil
+}
+
+func New(ctx context.Context) (*Service, error) {
+	uri := os.Getenv("CHATBOT_MONGODB_URI")
+	if uri == "" {
+		return nil, errors.New("CHATBOT_MONGODB_URI not set")
+	}
+
+	return NewFrom(ctx, uri)
 }
