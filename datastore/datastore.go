@@ -24,6 +24,7 @@ const (
 	CollectionThreads     = "threads"
 	CollectionCollections = "collections"
 	CollectionDokuments   = "documents"
+	CollectionCrashlytics = "crashlytics"
 )
 
 func New(ctx context.Context) (*Service, error) {
