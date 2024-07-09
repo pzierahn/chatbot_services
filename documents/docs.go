@@ -13,5 +13,5 @@ type Service struct {
 	Auth        account.Verifier
 	Database    *datastore.Service
 	Storage     *storage.BucketHandle
-	SearchIndex search.DB
+	SearchIndex search.Index
 }

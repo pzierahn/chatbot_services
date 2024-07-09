@@ -14,7 +14,7 @@ type Service struct {
 	Models   []llm.Chat
 	Auth     account.Verifier
 	Database *datastore.Service
-	Search   search.DB
+	Search   search.Index
 }
 
 // getModel returns the llm.Chat that provides the given model.

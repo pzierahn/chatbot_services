@@ -27,7 +27,7 @@ type SearchResult struct {
 	Score      float32 `json:"score,omitempty"`
 }
 
-type DB interface {
+type Index interface {
 	Search(context.Context, SearchQuery) ([]*SearchResult, error)
 	Upsert(context.Context, []*Fragment) error
 	DeleteCollection(ctx context.Context, userId, collectionId string) error
