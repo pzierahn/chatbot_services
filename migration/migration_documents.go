@@ -6,6 +6,7 @@ import (
 	"github.com/pzierahn/chatbot_services/datastore"
 	"github.com/pzierahn/chatbot_services/search"
 	"log"
+	"sync"
 )
 
 type Webpage struct {
@@ -132,8 +133,21 @@ func (migrator *Migrator) MigrateDocumentToSearch(index search.Index) {
 		log.Fatalf("Query documents: %v", err)
 	}
 
-	var upserts int
-	var processed int
+	upserts := make(chan int, 3)
+	defer close(upserts)
+
+	var wg sync.WaitGroup
+
+	go func() {
+		processedFragments := 0
+		processedDocuments := 0
+
+		for upsert := range upserts {
+			processedFragments += upsert
+			processedDocuments++
+			log.Printf("Processed: docs=%d fragments=%d", processedDocuments, processedFragments)
+		}
+	}()
 
 	// Iterate over all documents
 	for rows.Next() {
@@ -148,33 +162,34 @@ func (migrator *Migrator) MigrateDocumentToSearch(index search.Index) {
 			log.Fatalf("Scan document: %v", err)
 		}
 
-		log.Printf("Processing document %d %s", processed, docId)
-
-		doc, err := migrator.Next.GetDocument(ctx, userId, docId)
-		if err != nil {
-			log.Fatalf("Get document: %v", err)
-		}
-
-		fragments := make([]*search.Fragment, len(doc.Content))
-		for idx, chunk := range doc.Content {
-			fragments[idx] = &search.Fragment{
-				Id:           chunk.Id.String(),
-				Text:         chunk.Text,
-				UserId:       userId,
-				DocumentId:   doc.Id.String(),
-				CollectionId: collectionId.String(),
-				Position:     chunk.Position,
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			doc, err := migrator.Next.GetDocument(ctx, userId, docId)
+			if err != nil {
+				log.Fatalf("Get document: %v", err)
 			}
-		}
 
-		_, err = index.Upsert(ctx, fragments)
-		if err != nil {
-			log.Fatalf("Upsert fragments: %v", err)
-		}
+			fragments := make([]*search.Fragment, len(doc.Content))
+			for idx, chunk := range doc.Content {
+				fragments[idx] = &search.Fragment{
+					Id:           chunk.Id.String(),
+					Text:         chunk.Text,
+					UserId:       userId,
+					DocumentId:   doc.Id.String(),
+					CollectionId: collectionId.String(),
+					Position:     chunk.Position,
+				}
+			}
 
-		upserts += len(fragments)
-		processed++
+			_, err = index.Upsert(ctx, fragments)
+			if err != nil {
+				log.Fatalf("Upsert fragments: %v", err)
+			}
+
+			upserts <- len(fragments)
+		}()
 	}
 
-	log.Printf("Upserted %d fragments", upserts)
+	wg.Wait()
 }
