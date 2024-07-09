@@ -170,6 +170,7 @@ func (service *Service) RenameDocument(ctx context.Context, userId string, id uu
 	return nil
 }
 
+// DeleteDocument deletes a document from the database.
 func (service *Service) DeleteDocument(ctx context.Context, userId string, id uuid.UUID) error {
 	coll := service.mongo.Database(DatabaseName).Collection(CollectionDokuments)
 
@@ -182,4 +183,28 @@ func (service *Service) DeleteDocument(ctx context.Context, userId string, id uu
 	}
 
 	return nil
+}
+
+// FindRequest defines the input for finding a document ID
+type FindRequest struct {
+	UserId       string
+	CollectionId uuid.UUID
+	Name         string
+}
+
+// FindDocumentId finds a document ID for a given name
+func (service *Service) FindDocumentId(ctx context.Context, req FindRequest) (uuid.UUID, error) {
+	coll := service.mongo.Database(DatabaseName).Collection(CollectionDokuments)
+
+	var document Document
+	err := coll.FindOne(ctx, bson.M{
+		"user_id":       req.UserId,
+		"collection_id": req.CollectionId,
+		"name":          req.Name,
+	}).Decode(&document)
+	if err != nil {
+		return uuid.Nil, err
+	}
+
+	return document.Id, nil
 }
