@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"github.com/pzierahn/chatbot_services/datastore"
+	"github.com/pzierahn/chatbot_services/search"
 	"log"
 )
 
@@ -114,4 +115,66 @@ func (migrator *Migrator) MigrateDocuments() {
 			log.Fatalf("Insert document: %v", err)
 		}
 	}
+}
+
+func (migrator *Migrator) MigrateDocumentToSearch(index search.Index) {
+	ctx := context.Background()
+
+	log.Printf("Migrating documents")
+
+	//
+	// Get all documents
+	//
+
+	// Query all document and user ids
+	rows, err := migrator.Legacy.Query(ctx, "SELECT id, user_id, collection_id FROM documents")
+	if err != nil {
+		log.Fatalf("Query documents: %v", err)
+	}
+
+	var upserts int
+	var processed int
+
+	// Iterate over all documents
+	for rows.Next() {
+		var (
+			docId        uuid.UUID
+			userId       string
+			collectionId uuid.UUID
+		)
+
+		err = rows.Scan(&docId, &userId, &collectionId)
+		if err != nil {
+			log.Fatalf("Scan document: %v", err)
+		}
+
+		log.Printf("Processing document %d %s", processed, docId)
+
+		doc, err := migrator.Next.GetDocument(ctx, userId, docId)
+		if err != nil {
+			log.Fatalf("Get document: %v", err)
+		}
+
+		fragments := make([]*search.Fragment, len(doc.Content))
+		for idx, chunk := range doc.Content {
+			fragments[idx] = &search.Fragment{
+				Id:           chunk.Id.String(),
+				Text:         chunk.Text,
+				UserId:       userId,
+				DocumentId:   doc.Id.String(),
+				CollectionId: collectionId.String(),
+				Position:     chunk.Position,
+			}
+		}
+
+		_, err = index.Upsert(ctx, fragments)
+		if err != nil {
+			log.Fatalf("Upsert fragments: %v", err)
+		}
+
+		upserts += len(fragments)
+		processed++
+	}
+
+	log.Printf("Upserted %d fragments", upserts)
 }

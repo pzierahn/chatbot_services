@@ -4,10 +4,19 @@ import (
 	"context"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pzierahn/chatbot_services/datastore"
+	"github.com/pzierahn/chatbot_services/llm/openai"
 	"github.com/pzierahn/chatbot_services/migration"
+	"github.com/pzierahn/chatbot_services/search/qdrant"
 	"log"
 	"os"
 )
+
+func init() {
+	_ = os.Setenv("CHATBOT_MONGODB_URI", "mongodb://localhost:27017")
+	_ = os.Setenv("CHATBOT_QDRANT_KEY", "")
+	_ = os.Setenv("CHATBOT_QDRANT_URL", "localhost:6334")
+	_ = os.Setenv("CHATBOT_QDRANT_INSECURE", "true")
+}
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -21,12 +30,21 @@ func main() {
 	}
 	defer legacy.Close()
 
-	uri := "mongodb://localhost:27017"
-	next, err := datastore.NewFrom(ctx, uri)
+	next, err := datastore.New(ctx)
 	if err != nil {
 		log.Fatalf("failed to create datastore service: %v", err)
 	}
 	defer next.Close()
+
+	engine, err := openai.New()
+	if err != nil {
+		log.Fatalf("failed to create openai service: %v", err)
+	}
+
+	index, err := qdrant.New(engine)
+	if err != nil {
+		log.Fatalf("failed to create search service: %v", err)
+	}
 
 	// Create a new migrator
 	migrator := &migration.Migrator{
@@ -36,7 +54,8 @@ func main() {
 
 	//migrator.MigrateCollections()
 	//migrator.MigrateDocuments()
+	migrator.MigrateDocumentToSearch(index)
 	//migrator.MigrateThreads()
 	//migrator.MigratePayments()
-	migrator.MigrateUsages()
+	//migrator.MigrateUsages()
 }
