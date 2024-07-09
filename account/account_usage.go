@@ -3,10 +3,8 @@ package account
 import (
 	"context"
 	"github.com/google/uuid"
-	"github.com/pzierahn/chatbot_services/llm"
 	pb "github.com/pzierahn/chatbot_services/proto"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"log"
 )
 
 type Usage struct {
@@ -17,60 +15,44 @@ type Usage struct {
 	Output uint32
 }
 
-func (service *Service) Track(ctx context.Context, usage llm.ModelUsage) {
-	if usage.UserId == "" || usage.InputTokens == 0 {
-		return
-	}
-
-	_, err := service.db.Exec(
-		ctx,
-		`INSERT INTO model_usages (user_id, model, input_tokens, output_tokens) 
-			VALUES ($1, $2, $3, $4)`,
-		usage.UserId,
-		usage.Model,
-		usage.InputTokens,
-		usage.OutputTokens,
-	)
-	if err != nil {
-		log.Printf("failed to record usage: %v", err)
-	}
-}
-
 func (service *Service) GetCosts(ctx context.Context, _ *emptypb.Empty) (*pb.Costs, error) {
-	userID, err := service.auth.Verify(ctx)
+	userId, err := service.Auth.Verify(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	rows, err := service.db.Query(ctx,
-		`SELECT model, COUNT(model), SUM(input_tokens), SUM(output_tokens)
-			FROM model_usages
-			WHERE user_id = $1
-			GROUP BY model
-			ORDER BY model`, userID)
+	usages, err := service.Database.GetModelUsages(ctx, userId)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 
-	var costs pb.Costs
-	for rows.Next() {
-		var model pb.ModelCosts
-		err = rows.Scan(
-			&model.Model,
-			&model.Requests,
-			&model.Input,
-			&model.Output,
-		)
-		if err != nil {
-			return nil, err
-		}
+	modelCalls := make(map[string]uint32)
+	inputs := make(map[string]uint32)
+	outputs := make(map[string]uint32)
 
-		modelPrice := prices[model.Model]
-		model.Costs = modelPrice.Cost(model.Input, model.Output)
-
-		costs.Models = append(costs.Models, &model)
+	for _, usage := range usages {
+		modelCalls[usage.ModelId]++
+		inputs[usage.ModelId] += usage.InputTokens
+		outputs[usage.ModelId] += usage.OutputTokens
 	}
 
-	return &costs, nil
+	var costs []*pb.ModelCosts
+
+	for modelId, calls := range modelCalls {
+		price := prices[modelId]
+		input := inputs[modelId]
+		output := outputs[modelId]
+
+		costs = append(costs, &pb.ModelCosts{
+			Model:    modelId,
+			Input:    input,
+			Output:   output,
+			Costs:    price.Cost(input, output),
+			Requests: calls,
+		})
+	}
+
+	return &pb.Costs{
+		Models: costs,
+	}, nil
 }
