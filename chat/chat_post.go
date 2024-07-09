@@ -15,6 +15,10 @@ import (
 	"time"
 )
 
+type Sources struct {
+	Items []*vectordb.SearchResult `json:"sources"`
+}
+
 // PostMessage is a gRPC endpoint that receives a prompt and returns a completion.
 func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb.Message, error) {
 	log.Printf("PostMessage: %v", prompt)
@@ -130,8 +134,8 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 					return "", err
 				}
 
-				byt, err := json.Marshal(map[string]any{
-					"sources": search,
+				byt, err := json.Marshal(Sources{
+					Items: search,
 				})
 				if err != nil {
 					return "", err
@@ -174,5 +178,45 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 		Prompt:     prompt.Prompt,
 		Completion: thread.Messages[len(thread.Messages)-1].Content,
 		Timestamp:  timestamppb.Now(),
+		References: getSources(response.Messages),
 	}, nil
+}
+
+func getSources(messages []*llm.Message) map[string]float32 {
+	if len(messages) < 3 {
+		return nil
+	}
+
+	sources := make(map[string]float32)
+
+	for idx := len(messages) - 2; idx > 0; idx-- {
+		message := messages[idx]
+		//if message.Role == llm.RoleUser && len(message.ToolCalls) == 0 {
+		//	break
+		//}
+
+		isSourceCall := make(map[string]bool)
+		for _, toolCall := range messages[idx-1].ToolCalls {
+			if toolCall.Function.Name == "get_sources" {
+				isSourceCall[toolCall.CallID] = true
+			}
+		}
+
+		for _, toolResponse := range message.ToolResponses {
+			if isSourceCall[toolResponse.CallID] {
+				var source Sources
+
+				err := json.Unmarshal([]byte(toolResponse.Content), &source)
+				if err != nil {
+					continue
+				}
+
+				for _, item := range source.Items {
+					sources[item.Id] = item.Score
+				}
+			}
+		}
+	}
+
+	return sources
 }
