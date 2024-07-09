@@ -22,7 +22,7 @@ func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.
 		return nil, err
 	}
 
-	vectors, err := service.SearchIndex.Search(ctx, search.Query{
+	searchResults, err := service.SearchIndex.Search(ctx, search.Query{
 		UserId:       userId,
 		CollectionId: query.CollectionId,
 		Query:        query.Text,
@@ -38,7 +38,7 @@ func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.
 		Scores:        make(map[string]float32),
 	}
 
-	for _, vector := range vectors {
+	for _, vector := range searchResults.Results {
 		results.Chunks = append(results.Chunks, &pb.Chunk{
 			Id:      vector.Id,
 			Text:    vector.Text,
