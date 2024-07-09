@@ -9,6 +9,7 @@ import (
 	"time"
 )
 
+// addToSearchIndex adds the document content to the search index.
 func (service *Service) addToSearchIndex(ctx context.Context, doc *datastore.Document) error {
 	var vectors []*search.Fragment
 
@@ -17,6 +18,7 @@ func (service *Service) addToSearchIndex(ctx context.Context, doc *datastore.Doc
 			return fmt.Errorf("fragment id is empty")
 		}
 
+		// Empty fragments lead to errors in the search index
 		if fragment.Text == "" {
 			continue
 		}
