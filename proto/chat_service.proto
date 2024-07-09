@@ -4,8 +4,8 @@ option go_package = "./proto";
 
 package chatbot.chat.v5;
 
-import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
 
 service ChatService {
   rpc PostMessage(Prompt) returns (Message);
@@ -81,6 +81,20 @@ message RetrievalOptions {
   uint32 documents = 3;
 }
 
+message Source {
+  string document_id = 1;
+  string name = 2;
+
+  message Fragment {
+    string id = 1;
+    string content = 2;
+    uint32 position = 3;
+    float score = 4;
+  }
+
+  repeated Fragment fragments = 3;
+}
+
 message Message {
   // Unique ID of the message
   string thread_id = 1;
@@ -94,8 +108,8 @@ message Message {
   // Timestamp of the message
   google.protobuf.Timestamp timestamp = 4;
 
-  // ReferenceIDs and their scores
-  map<string, float> references = 5;
+  // Sources used to generate the completion
+  repeated Source sources = 5;
 }
 
 message Thread {
