@@ -3,12 +3,12 @@ package qdrant
 import (
 	"context"
 	"github.com/pzierahn/chatbot_services/llm"
-	"github.com/pzierahn/chatbot_services/vectordb"
+	"github.com/pzierahn/chatbot_services/search"
 	qdrant "github.com/qdrant/go-client/qdrant"
 	"google.golang.org/grpc/metadata"
 )
 
-func (db *DB) Search(ctx context.Context, query vectordb.SearchQuery) ([]*vectordb.SearchResult, error) {
+func (db *DB) Search(ctx context.Context, query search.SearchQuery) ([]*search.SearchResult, error) {
 
 	embedding, err := db.embedding.CreateEmbedding(ctx, &llm.EmbeddingRequest{
 		Inputs: []string{query.Query},
@@ -67,10 +67,10 @@ func (db *DB) Search(ctx context.Context, query vectordb.SearchQuery) ([]*vector
 		return nil, nil
 	}
 
-	results := make([]*vectordb.SearchResult, len(queryResult.Result))
+	results := make([]*search.SearchResult, len(queryResult.Result))
 
 	for idx, item := range queryResult.Result {
-		results[idx] = &vectordb.SearchResult{
+		results[idx] = &search.SearchResult{
 			Id:         item.Id.GetUuid(),
 			DocumentId: item.Payload[PayloadDocumentId].GetStringValue(),
 			Text:       item.Payload[PayloadText].GetStringValue(),

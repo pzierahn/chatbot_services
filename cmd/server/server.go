@@ -16,8 +16,8 @@ import (
 	"github.com/pzierahn/chatbot_services/llm/vertex"
 	"github.com/pzierahn/chatbot_services/notion"
 	pb "github.com/pzierahn/chatbot_services/proto"
-	"github.com/pzierahn/chatbot_services/vectordb"
-	"github.com/pzierahn/chatbot_services/vectordb/qdrant"
+	"github.com/pzierahn/chatbot_services/search"
+	"github.com/pzierahn/chatbot_services/search/qdrant"
 	"google.golang.org/api/option"
 	"google.golang.org/grpc"
 	"log"
@@ -94,7 +94,7 @@ func initModels(ctx context.Context) []llm.Chat {
 	return models
 }
 
-func initSearch(engine llm.Embedding) vectordb.DB {
+func initSearch(engine llm.Embedding) search.DB {
 	search, err := qdrant.New(engine)
 	if err != nil {
 		log.Fatalf("failed to create qdrant search: %v", err)

@@ -5,7 +5,7 @@ import (
 	"github.com/pzierahn/chatbot_services/account"
 	"github.com/pzierahn/chatbot_services/datastore"
 	pb "github.com/pzierahn/chatbot_services/proto"
-	"github.com/pzierahn/chatbot_services/vectordb"
+	"github.com/pzierahn/chatbot_services/search"
 )
 
 type Service struct {
@@ -13,5 +13,5 @@ type Service struct {
 	Auth        account.Verifier
 	Database    *datastore.Service
 	Storage     *storage.BucketHandle
-	SearchIndex vectordb.DB
+	SearchIndex search.DB
 }

@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/google/uuid"
 	pb "github.com/pzierahn/chatbot_services/proto"
-	"github.com/pzierahn/chatbot_services/vectordb"
+	"github.com/pzierahn/chatbot_services/search"
 )
 
 type SearchQuery struct {
@@ -22,7 +22,7 @@ func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.
 		return nil, err
 	}
 
-	vectors, err := service.SearchIndex.Search(ctx, vectordb.SearchQuery{
+	vectors, err := service.SearchIndex.Search(ctx, search.SearchQuery{
 		UserId:       userId,
 		CollectionId: query.CollectionId,
 		Query:        query.Text,

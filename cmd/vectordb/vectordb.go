@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"github.com/pzierahn/chatbot_services/vectordb"
-	"github.com/pzierahn/chatbot_services/vectordb/qdrant"
+	"github.com/pzierahn/chatbot_services/search"
+	"github.com/pzierahn/chatbot_services/search/qdrant"
 	"log"
 	"os"
 )
@@ -43,7 +43,7 @@ func main() {
 	//	log.Fatal(err)
 	//}
 
-	results, err := db.Search(ctx, vectordb.SearchQuery{
+	results, err := db.Search(ctx, search.SearchQuery{
 		CollectionId: collectionId,
 		Query:        "Haare",
 		Limit:        10,

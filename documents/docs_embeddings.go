@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/pzierahn/chatbot_services/datastore"
-	"github.com/pzierahn/chatbot_services/vectordb"
+	"github.com/pzierahn/chatbot_services/search"
 )
 
 func (service *Service) addToSearchIndex(ctx context.Context, doc *datastore.Document) error {
-	var vectors []*vectordb.Fragment
+	var vectors []*search.Fragment
 
 	for _, fragment := range doc.Content {
 		if fragment.Id == uuid.Nil {
@@ -20,7 +20,7 @@ func (service *Service) addToSearchIndex(ctx context.Context, doc *datastore.Doc
 			continue
 		}
 
-		vectors = append(vectors, &vectordb.Fragment{
+		vectors = append(vectors, &search.Fragment{
 			Id:           fragment.Id.String(),
 			Text:         fragment.Text,
 			UserId:       doc.UserId,

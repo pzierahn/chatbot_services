@@ -3,7 +3,7 @@ package qdrant
 import (
 	"crypto/tls"
 	"github.com/pzierahn/chatbot_services/llm"
-	"github.com/pzierahn/chatbot_services/vectordb"
+	"github.com/pzierahn/chatbot_services/search"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
@@ -16,7 +16,7 @@ type DB struct {
 	namespace string
 	embedding llm.Embedding
 	dimension int
-	queue     chan *vectordb.Fragment
+	queue     chan *search.Fragment
 }
 
 func (db *DB) Close() error {

@@ -9,7 +9,7 @@ import (
 	"github.com/pzierahn/chatbot_services/datastore"
 	"github.com/pzierahn/chatbot_services/llm"
 	pb "github.com/pzierahn/chatbot_services/proto"
-	"github.com/pzierahn/chatbot_services/vectordb"
+	"github.com/pzierahn/chatbot_services/search"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"log"
 	"sort"
@@ -17,7 +17,7 @@ import (
 )
 
 type Sources struct {
-	Items []*vectordb.SearchResult `json:"sources"`
+	Items []*search.SearchResult `json:"sources"`
 }
 
 // PostMessage is a gRPC endpoint that receives a prompt and returns a completion.
@@ -123,7 +123,7 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 
 				log.Printf("get_sources: %v", query)
 
-				search, err := service.Search.Search(ctx, vectordb.SearchQuery{
+				search, err := service.Search.Search(ctx, search.SearchQuery{
 					UserId:       userId,
 					CollectionId: prompt.CollectionId,
 					Query:        query,

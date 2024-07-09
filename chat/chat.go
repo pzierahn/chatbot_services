@@ -6,7 +6,7 @@ import (
 	"github.com/pzierahn/chatbot_services/datastore"
 	"github.com/pzierahn/chatbot_services/llm"
 	pb "github.com/pzierahn/chatbot_services/proto"
-	"github.com/pzierahn/chatbot_services/vectordb"
+	"github.com/pzierahn/chatbot_services/search"
 )
 
 type Service struct {
@@ -14,7 +14,7 @@ type Service struct {
 	Models   []llm.Chat
 	Auth     account.Verifier
 	Database *datastore.Service
-	Search   vectordb.DB
+	Search   search.DB
 }
 
 // getModel returns the llm.Chat that provides the given model.

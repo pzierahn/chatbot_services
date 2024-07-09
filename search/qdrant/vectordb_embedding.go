@@ -3,7 +3,7 @@ package qdrant
 import (
 	"context"
 	"github.com/pzierahn/chatbot_services/llm"
-	"github.com/pzierahn/chatbot_services/vectordb"
+	"github.com/pzierahn/chatbot_services/search"
 	"log"
 	"time"
 )
@@ -28,7 +28,7 @@ type embedding struct {
 	error     error
 }
 
-func (db *DB) createEmbeddings(ctx context.Context, fragments []*vectordb.Fragment) (map[string][]float32, error) {
+func (db *DB) createEmbeddings(ctx context.Context, fragments []*search.Fragment) (map[string][]float32, error) {
 	results := make(chan *embedding, len(fragments))
 	defer close(results)
 
@@ -41,7 +41,7 @@ func (db *DB) createEmbeddings(ctx context.Context, fragments []*vectordb.Fragme
 		batch := fragments[start:end]
 
 		// Start a goroutine for each document in parallel
-		go func(batch []*vectordb.Fragment) {
+		go func(batch []*search.Fragment) {
 			select {
 			case <-ctx.Done():
 				// Abort if the context is canceled

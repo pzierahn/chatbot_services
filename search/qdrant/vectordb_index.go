@@ -2,12 +2,12 @@ package qdrant
 
 import (
 	"context"
-	"github.com/pzierahn/chatbot_services/vectordb"
+	"github.com/pzierahn/chatbot_services/search"
 	qdrant "github.com/qdrant/go-client/qdrant"
 	"google.golang.org/grpc/metadata"
 )
 
-func (db *DB) Upsert(ctx context.Context, fragments []*vectordb.Fragment) error {
+func (db *DB) Upsert(ctx context.Context, fragments []*search.Fragment) error {
 
 	embeddings, err := db.createEmbeddings(ctx, fragments)
 	if err != nil {
