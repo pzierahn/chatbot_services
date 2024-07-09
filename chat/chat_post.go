@@ -123,7 +123,7 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 
 				log.Printf("get_sources: %v", query)
 
-				search, err := service.Search.Search(ctx, search.Query{
+				response, err := service.Search.Search(ctx, search.Query{
 					UserId:       userId,
 					CollectionId: prompt.CollectionId,
 					Query:        query,
@@ -134,21 +134,32 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 					return "", err
 				}
 
-				sort.Slice(search, func(i, j int) bool {
-					return search[i].DocumentId < search[j].DocumentId
+				_ = service.Database.InsertModelUsage(ctx, &datastore.ModelUsage{
+					Id:          uuid.New(),
+					UserId:      userId,
+					Timestamp:   time.Now(),
+					ModelId:     response.Usage.ModelId,
+					InputTokens: response.Usage.Tokens,
 				})
-				sort.Slice(search, func(i, j int) bool {
-					return search[i].Position < search[j].Position
+
+				sources := response.Results
+
+				// Group by document and sort by position
+				sort.Slice(sources, func(i, j int) bool {
+					if sources[i].DocumentId != sources[j].DocumentId {
+						return sources[i].DocumentId < sources[j].DocumentId
+					}
+					return sources[i].Position < sources[j].Position
 				})
 
 				byt, err := json.Marshal(Sources{
-					Items: search,
+					Items: sources,
 				})
 				if err != nil {
 					return "", err
 				}
 
-				byt2, _ := json.MarshalIndent(search, "", "  ")
+				byt2, _ := json.MarshalIndent(sources, "", "  ")
 				log.Printf("get_sources: %s", byt2)
 
 				return string(byt), nil

@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/pzierahn/chatbot_services/datastore"
 	"github.com/pzierahn/chatbot_services/search"
+	"time"
 )
 
 func (service *Service) addToSearchIndex(ctx context.Context, doc *datastore.Document) error {
@@ -30,5 +31,18 @@ func (service *Service) addToSearchIndex(ctx context.Context, doc *datastore.Doc
 		})
 	}
 
-	return service.SearchIndex.Upsert(ctx, vectors)
+	usage, err := service.SearchIndex.Upsert(ctx, vectors)
+	if err != nil {
+		return err
+	}
+
+	_ = service.Database.InsertModelUsage(ctx, &datastore.ModelUsage{
+		Id:          uuid.New(),
+		UserId:      doc.UserId,
+		Timestamp:   time.Now(),
+		ModelId:     usage.ModelId,
+		InputTokens: usage.Tokens,
+	})
+
+	return nil
 }
