@@ -95,13 +95,13 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 	})
 
 	request := &llm.CompletionRequest{
-		//SystemPrompt: "",
-		Messages:    messages,
-		Model:       modelOps.ModelId,
-		MaxTokens:   int(modelOps.MaxTokens),
-		TopP:        modelOps.TopP,
-		Temperature: modelOps.Temperature,
-		UserId:      userId,
+		SystemPrompt: "You are a scientific research assistant. Quote sources with \\cite{document_id}.",
+		Messages:     messages,
+		Model:        modelOps.ModelId,
+		MaxTokens:    int(modelOps.MaxTokens),
+		TopP:         modelOps.TopP,
+		Temperature:  modelOps.Temperature,
+		UserId:       userId,
 		Tools: []llm.ToolDefinition{{
 			Name:        "get_sources",
 			Description: "Retrieves the sources for the prompt. The prompt should be optimized for embedding retrieval. The tool will return a list of sources in JSON format with the following fields: SourceID, Content.",
@@ -133,6 +133,13 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 				if err != nil {
 					return "", err
 				}
+
+				sort.Slice(search, func(i, j int) bool {
+					return search[i].DocumentId < search[j].DocumentId
+				})
+				sort.Slice(search, func(i, j int) bool {
+					return search[i].Position < search[j].Position
+				})
 
 				byt, err := json.Marshal(Sources{
 					Items: search,
