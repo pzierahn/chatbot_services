@@ -95,12 +95,12 @@ func initModels(ctx context.Context) []llm.Chat {
 }
 
 func initSearch(engine llm.Embedding) search.Index {
-	search, err := qdrant.New(engine)
+	searchEngine, err := qdrant.New(engine)
 	if err != nil {
 		log.Fatalf("failed to create qdrant search: %v", err)
 	}
 
-	return search
+	return searchEngine
 }
 
 func initAuth(ctx context.Context, app *firebase.App) auth.Service {
@@ -130,7 +130,7 @@ func main() {
 	models := initModels(ctx)
 
 	engine := models[0].(llm.Embedding)
-	search := initSearch(engine)
+	searchEngine := initSearch(engine)
 	bucket := initBucket(ctx, app)
 	//authService := initAuth(ctx, app)
 
@@ -143,21 +143,21 @@ func main() {
 		Models:   models,
 		Auth:     userService,
 		Database: database,
-		Search:   search,
+		Search:   searchEngine,
 	}
 
 	documentsService := &documents.Service{
 		Auth:        userService,
 		Database:    database,
 		Storage:     bucket,
-		SearchIndex: search,
+		SearchIndex: searchEngine,
 	}
 
 	collectionService := &collections.Service{
 		Auth:     userService,
 		Database: database,
 		Storage:  bucket,
-		Search:   search,
+		Search:   searchEngine,
 	}
 
 	notionService := &notion.Client{
