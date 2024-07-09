@@ -10,20 +10,20 @@ import (
 	"os"
 )
 
-type DB struct {
-	conn      *grpc.ClientConn
-	apiKey    string
-	namespace string
-	embedding llm.Embedding
-	dimension int
-	queue     chan *search.Fragment
+type Search struct {
+	conn          *grpc.ClientConn
+	apiKey        string
+	namespace     string
+	embedding     llm.Embedding
+	fastEmbedding *search.ParallelEmbedding
+	dimension     int
 }
 
-func (db *DB) Close() error {
+func (db *Search) Close() error {
 	return db.conn.Close()
 }
 
-func New(embedding llm.Embedding) (*DB, error) {
+func New(engine llm.Embedding) (*Search, error) {
 	apiKey := os.Getenv("CHATBOT_QDRANT_KEY")
 	target := os.Getenv("CHATBOT_QDRANT_URL")
 
@@ -39,12 +39,15 @@ func New(embedding llm.Embedding) (*DB, error) {
 		return nil, err
 	}
 
-	client := &DB{
-		conn:      conn,
-		apiKey:    apiKey,
-		namespace: "documents_v2",
-		embedding: embedding,
-		dimension: embedding.GetEmbeddingDimension(),
+	fastEmbedding := search.NewParallelEmbedding(engine, 10, 10)
+
+	client := &Search{
+		conn:          conn,
+		apiKey:        apiKey,
+		namespace:     "documents",
+		embedding:     engine,
+		dimension:     engine.GetEmbeddingDimension(),
+		fastEmbedding: fastEmbedding,
 	}
 
 	err = client.Init()

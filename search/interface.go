@@ -27,9 +27,19 @@ type Result struct {
 	Score      float32 `json:"score,omitempty"`
 }
 
+type Results struct {
+	Results []*Result `json:"results,omitempty"`
+	Usage   Usage     `json:"usage,omitempty"`
+}
+
+type Usage struct {
+	ModelId string `json:"model_id,omitempty"`
+	Tokens  uint32 `json:"tokens,omitempty"`
+}
+
 type Index interface {
-	Search(context.Context, Query) ([]*Result, error)
-	Upsert(context.Context, []*Fragment) error
+	Search(context.Context, Query) (*Results, error)
+	Upsert(context.Context, []*Fragment) (*Usage, error)
 	DeleteCollection(ctx context.Context, userId, collectionId string) error
 	DeleteDocument(ctx context.Context, userId, documentId string) error
 	Close() error

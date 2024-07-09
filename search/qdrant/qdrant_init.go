@@ -6,7 +6,7 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-func (db *DB) Init() error {
+func (db *Search) Init() error {
 	collectionClient := qdrant.NewCollectionsClient(db.conn)
 
 	ctx := context.Background()

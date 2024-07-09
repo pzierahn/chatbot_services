@@ -6,7 +6,7 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-func (db *DB) DeleteCollection(ctx context.Context, userId, collectionId string) error {
+func (db *Search) DeleteCollection(ctx context.Context, userId, collectionId string) error {
 
 	ctx = metadata.AppendToOutgoingContext(
 		ctx,
@@ -54,7 +54,7 @@ func (db *DB) DeleteCollection(ctx context.Context, userId, collectionId string)
 	return err
 }
 
-func (db *DB) DeleteDocument(ctx context.Context, userId, documentId string) error {
+func (db *Search) DeleteDocument(ctx context.Context, userId, documentId string) error {
 
 	ctx = metadata.AppendToOutgoingContext(
 		ctx,

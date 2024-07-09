@@ -7,16 +7,16 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-func (db *DB) Upsert(ctx context.Context, fragments []*search.Fragment) error {
+func (db *Search) Upsert(ctx context.Context, fragments []*search.Fragment) (*search.Usage, error) {
 
-	embeddings, err := db.createEmbeddings(ctx, fragments)
+	embedded, err := db.fastEmbedding.CreateEmbeddings(ctx, fragments)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	var vectors []*qdrant.PointStruct
 	for _, item := range fragments {
-		vector, ok := embeddings[item.Id]
+		vector, ok := embedded.Embeddings[item.Id]
 		if !ok {
 			continue
 		}
@@ -79,9 +79,9 @@ func (db *DB) Upsert(ctx context.Context, fragments []*search.Fragment) error {
 			Points:         vectors[start:end],
 		})
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
 
-	return nil
+	return &embedded.Usage, nil
 }

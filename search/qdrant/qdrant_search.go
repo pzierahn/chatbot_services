@@ -8,9 +8,9 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-func (db *DB) Search(ctx context.Context, query search.Query) ([]*search.Result, error) {
+func (db *Search) Search(ctx context.Context, query search.Query) (*search.Results, error) {
 
-	embedding, err := db.embedding.CreateEmbedding(ctx, &llm.EmbeddingRequest{
+	embedded, err := db.embedding.CreateEmbedding(ctx, &llm.EmbeddingRequest{
 		Inputs: []string{query.Query},
 	})
 	if err != nil {
@@ -28,7 +28,7 @@ func (db *DB) Search(ctx context.Context, query search.Query) ([]*search.Result,
 			},
 		},
 		ScoreThreshold: &query.Threshold,
-		Vector:         embedding.Embeddings[0],
+		Vector:         embedded.Embeddings[0],
 		Limit:          uint64(query.Limit),
 		Filter: &qdrant.Filter{
 			Must: []*qdrant.Condition{
@@ -67,10 +67,16 @@ func (db *DB) Search(ctx context.Context, query search.Query) ([]*search.Result,
 		return nil, nil
 	}
 
-	results := make([]*search.Result, len(queryResult.Result))
+	results := &search.Results{
+		Results: make([]*search.Result, len(queryResult.Result)),
+		Usage: search.Usage{
+			ModelId: embedded.Model,
+			Tokens:  embedded.Tokens,
+		},
+	}
 
 	for idx, item := range queryResult.Result {
-		results[idx] = &search.Result{
+		results.Results[idx] = &search.Result{
 			Id:         item.Id.GetUuid(),
 			DocumentId: item.Payload[PayloadDocumentId].GetStringValue(),
 			Text:       item.Payload[PayloadText].GetStringValue(),
