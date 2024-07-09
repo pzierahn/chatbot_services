@@ -10,7 +10,6 @@ import (
 	"github.com/pzierahn/chatbot_services/llm"
 	"github.com/pzierahn/chatbot_services/search"
 	pb "github.com/pzierahn/chatbot_services/services/proto"
-	"google.golang.org/protobuf/types/known/timestamppb"
 	"log"
 	"sort"
 	"time"
@@ -211,7 +210,6 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 		ThreadId:   thread.Id.String(),
 		Prompt:     prompt.Prompt,
 		Completion: thread.Messages[len(thread.Messages)-1].Content,
-		Timestamp:  timestamppb.Now(),
 		Sources:    sources,
 	}, nil
 }
