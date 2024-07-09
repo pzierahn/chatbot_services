@@ -36,5 +36,6 @@ func main() {
 
 	//migrator.MigrateCollections()
 	//migrator.MigrateDocuments()
-	migrator.MigrateThreads()
+	//migrator.MigrateThreads()
+	migrator.MigratePayments()
 }
