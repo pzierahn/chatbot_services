@@ -9,10 +9,10 @@ type ModelUsage struct {
 	UserId string `json:"user_id,omitempty"`
 
 	// InputTokens is the number of tokens in the prompt
-	InputTokens int `json:"prompt_tokens,omitempty"`
+	InputTokens uint32 `json:"prompt_tokens,omitempty"`
 
 	// OutputTokens is the number of tokens in the completion
-	OutputTokens int `json:"completion_tokens,omitempty"`
+	OutputTokens uint32 `json:"completion_tokens,omitempty"`
 }
 
 type PricePer1000Tokens struct {

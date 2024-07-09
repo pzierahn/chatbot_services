@@ -43,8 +43,8 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 	usage := llm.ModelUsage{
 		UserId:       req.UserId,
 		Model:        resp.Model,
-		InputTokens:  resp.Usage.PromptTokens,
-		OutputTokens: resp.Usage.CompletionTokens,
+		InputTokens:  uint32(resp.Usage.PromptTokens),
+		OutputTokens: uint32(resp.Usage.CompletionTokens),
 	}
 
 	if resp.Choices[0].FinishReason == openai.FinishReasonToolCalls {
@@ -91,8 +91,8 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 		}
 
 		// Add the tool usage to the model usage
-		usage.OutputTokens += resp.Usage.CompletionTokens
-		usage.InputTokens += resp.Usage.PromptTokens
+		usage.InputTokens += uint32(resp.Usage.PromptTokens)
+		usage.OutputTokens += uint32(resp.Usage.CompletionTokens)
 	}
 
 	thread := openaiToMessages(request.Messages)

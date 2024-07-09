@@ -58,8 +58,8 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 	usage := llm.ModelUsage{
 		UserId:       req.UserId,
 		Model:        response.Model,
-		InputTokens:  response.Usage.InputTokens,
-		OutputTokens: response.Usage.OutputTokens,
+		InputTokens:  uint32(response.Usage.InputTokens),
+		OutputTokens: uint32(response.Usage.OutputTokens),
 	}
 
 	loops := 0
@@ -97,8 +97,8 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 			return nil, err
 		}
 
-		usage.OutputTokens += response.Usage.OutputTokens
-		usage.InputTokens += response.Usage.InputTokens
+		usage.InputTokens += uint32(response.Usage.InputTokens)
+		usage.OutputTokens += uint32(response.Usage.OutputTokens)
 
 		loops++
 	}

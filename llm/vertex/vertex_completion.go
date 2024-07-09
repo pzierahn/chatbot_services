@@ -60,8 +60,8 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 	}
 
 	if gen.UsageMetadata != nil {
-		usage.InputTokens = int(gen.UsageMetadata.PromptTokenCount)
-		usage.OutputTokens = int(gen.UsageMetadata.CandidatesTokenCount)
+		usage.InputTokens = uint32(gen.UsageMetadata.PromptTokenCount)
+		usage.OutputTokens = uint32(gen.UsageMetadata.CandidatesTokenCount)
 	}
 
 	if fun, ok := gen.Candidates[0].Content.Parts[0].(genai.FunctionCall); ok {
@@ -110,8 +110,8 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 		}
 
 		if gen.UsageMetadata != nil {
-			usage.InputTokens += int(gen.UsageMetadata.PromptTokenCount)
-			usage.OutputTokens += int(gen.UsageMetadata.CandidatesTokenCount)
+			usage.InputTokens += uint32(gen.UsageMetadata.PromptTokenCount)
+			usage.OutputTokens += uint32(gen.UsageMetadata.CandidatesTokenCount)
 		}
 	}
 
