@@ -16,4 +16,5 @@ type EmbeddingResponse struct {
 type Embedding interface {
 	CreateEmbedding(ctx context.Context, req *EmbeddingRequest) (*EmbeddingResponse, error)
 	GetEmbeddingDimension() int
+	GetModelId() string
 }

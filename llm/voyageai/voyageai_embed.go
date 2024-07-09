@@ -39,3 +39,7 @@ func (voyage *Client) GetEmbeddingDimension() int {
 		return 0
 	}
 }
+
+func (voyage *Client) GetModelId() string {
+	return voyage.model
+}

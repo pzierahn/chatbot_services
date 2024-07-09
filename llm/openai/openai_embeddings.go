@@ -41,3 +41,7 @@ func (client *Client) GetEmbeddingDimension() int {
 		return 0
 	}
 }
+
+func (client *Client) GetModelId() string {
+	return string(client.embeddingModel)
+}
