@@ -47,6 +47,7 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 		MaxTokens:        req.MaxTokens,
 		TopP:             req.TopP,
 		Temperature:      req.Temperature,
+		ToolChoice:       req.ToolChoice,
 		Tools:            tools.toClaude(),
 	}
 
@@ -64,6 +65,9 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 
 	loops := 0
 	for response.StopReason == ContentTypeToolUse && loops < 6 {
+		// Reset the tool choice to prevent multiple tool calls
+		request.ToolChoice = nil
+
 		request.Messages = append(request.Messages, ClaudeMessage{
 			Role:    ChatMessageRoleAssistant,
 			Content: response.Content,

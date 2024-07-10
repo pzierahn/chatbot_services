@@ -33,6 +33,7 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 		Tools:       tools.toOpenAI(),
 		N:           1,
 		User:        req.UserId,
+		ToolChoice:  getToolChoice(req.ToolChoice),
 	}
 
 	resp, err := client.client.CreateChatCompletion(ctx, request)
@@ -52,6 +53,8 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 		// The model wants to call tools
 		//
 
+		// Reset the tool choice to avoid infinite loops
+		request.ToolChoice = "auto"
 		request.Messages = append(request.Messages, resp.Choices[0].Message)
 
 		for _, tool := range resp.Choices[0].Message.ToolCalls {

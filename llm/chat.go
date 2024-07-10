@@ -89,6 +89,19 @@ type Message struct {
 	ToolResponses []ToolResponse `json:"tool_responses,omitempty" bson:"tool_responses,omitempty"`
 }
 
+const (
+	ToolUseAuto = "auto" // ToolUseAuto allows the bot to decide whether to call any provided tools or not
+	ToolUseAny  = "any"  // ToolUseAny forces the bot to call any provided tools
+	ToolUseTool = "tool" // ToolUseTool forces the bot to call a specific tool
+	ToolUseNone = "none" // ToolUseNone forces the bot to not call any tools
+)
+
+// ToolChoice defines if the model should use a tool
+type ToolChoice struct {
+	Type string `json:"type,omitempty" bson:"type,omitempty"`
+	Name string `json:"name,omitempty" bson:"name,omitempty"`
+}
+
 // CompletionRequest defines the request to the completion API
 type CompletionRequest struct {
 	// SystemPrompt is the prompt for the system
@@ -111,6 +124,9 @@ type CompletionRequest struct {
 
 	// UserId to prevent abuse
 	UserId string `json:"user_id,omitempty" bson:"user_id,omitempty"`
+
+	// ToolChoice defines if the user wants to use a tool
+	ToolChoice *ToolChoice `json:"tool_choice,omitempty" bson:"tool_choice,omitempty"`
 
 	// Tools to use for completion
 	Tools []*ToolDefinition `json:"tools,omitempty" bson:"tools,omitempty"`

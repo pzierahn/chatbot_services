@@ -1,5 +1,7 @@
 package anthropic
 
+import "github.com/pzierahn/chatbot_services/llm"
+
 type ClaudeMessage struct {
 	Role    string    `json:"role,omitempty"`
 	Content []Content `json:"content,omitempty"`
@@ -13,6 +15,7 @@ type ClaudeRequest struct {
 	TopP             float32         `json:"top_p,omitempty"`
 	TopK             int             `json:"top_k,omitempty"`
 	Tools            []ClaudeTool    `json:"tools,omitempty"`
+	ToolChoice       *llm.ToolChoice `json:"tool_choice,omitempty"`
 	Messages         []ClaudeMessage `json:"messages,omitempty"`
 }
 

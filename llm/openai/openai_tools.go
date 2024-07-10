@@ -56,3 +56,27 @@ func (tools toolConverter) getFunction(name string) (llm.FunctionCall, bool) {
 
 	return nil, false
 }
+
+func getToolChoice(config *llm.ToolChoice) any {
+	if config == nil {
+		return nil
+	}
+
+	switch config.Type {
+	case llm.ToolUseAuto:
+		return "auto"
+	case llm.ToolUseAny:
+		return "required"
+	case llm.ToolUseTool:
+		return openai.ToolChoice{
+			Type: openai.ToolTypeFunction,
+			Function: openai.ToolFunction{
+				Name: config.Name,
+			},
+		}
+	case llm.ToolUseNone:
+		return "none"
+	default:
+		return "auto"
+	}
+}

@@ -56,3 +56,31 @@ func (list toolConverter) getFunction(name string) (llm.FunctionCall, bool) {
 
 	return nil, false
 }
+
+func getToolConfig(config *llm.ToolChoice) *genai.ToolConfig {
+	if config == nil {
+		return nil
+	}
+
+	var mode genai.FunctionCallingMode
+	var allowed []string
+
+	switch config.Type {
+	case llm.ToolUseAuto:
+		mode = genai.FunctionCallingAuto
+	case llm.ToolUseAny:
+		mode = genai.FunctionCallingAny
+	case llm.ToolUseTool:
+		mode = genai.FunctionCallingAny
+		allowed = []string{config.Name}
+	default:
+		mode = genai.FunctionCallingAuto
+	}
+
+	return &genai.ToolConfig{
+		FunctionCallingConfig: &genai.FunctionCallingConfig{
+			Mode:                 mode,
+			AllowedFunctionNames: allowed,
+		},
+	}
+}

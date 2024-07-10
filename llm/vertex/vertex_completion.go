@@ -27,6 +27,12 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 
 	model := client.client.GenerativeModel(modelName)
 	model.TopP = &req.TopP
+
+	if modelName == GeminiPro15 {
+		// Tool choice is only available for the GeminiPro15 model
+		model.ToolConfig = getToolConfig(req.ToolChoice)
+	}
+
 	model.Temperature = &req.Temperature
 	model.MaxOutputTokens = &outputTokens
 	model.SystemInstruction = &genai.Content{
