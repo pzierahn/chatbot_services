@@ -70,12 +70,13 @@ func (service *Service) GetThread(ctx context.Context, userId string, threadId u
 	return &thread, nil
 }
 
-// GetThreadIDs returns all thread IDs of a user
-func (service *Service) GetThreadIDs(ctx context.Context, userId string) ([]uuid.UUID, error) {
+// GetThreadIDs returns all thread IDs of a collection for a user
+func (service *Service) GetThreadIDs(ctx context.Context, userId string, collectionId uuid.UUID) ([]uuid.UUID, error) {
 	coll := service.mongo.Database(DatabaseName).Collection(CollectionThreads)
 
 	filter := bson.M{
-		"user_id": userId,
+		"user_id":       userId,
+		"collection_id": collectionId,
 	}
 
 	opts := &options.FindOptions{
