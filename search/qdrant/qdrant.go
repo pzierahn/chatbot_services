@@ -39,7 +39,7 @@ func New(engine llm.Embedding, namespace string) (*Search, error) {
 		return nil, err
 	}
 
-	fastEmbedding := search.NewParallelEmbedding(engine, 10, 30)
+	fastEmbedding := search.NewParallelEmbedding(engine, 10, 100)
 
 	client := &Search{
 		conn:          conn,

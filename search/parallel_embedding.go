@@ -113,7 +113,7 @@ func (engine *ParallelEmbedding) CreateEmbeddings(ctx context.Context, fragments
 						}
 
 						// Wait for a short time before retrying
-						time.Sleep(time.Duration(attempt) * 10 * time.Second)
+						time.Sleep(time.Duration(attempt) * 13 * time.Second)
 					}
 				}
 			}
