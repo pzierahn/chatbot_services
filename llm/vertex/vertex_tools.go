@@ -19,6 +19,8 @@ type Parameters struct {
 type toolConverter []*llm.ToolDefinition
 
 func (list toolConverter) toVertex() (tools []*genai.Tool) {
+	var functions []*genai.FunctionDeclaration
+
 	for _, tool := range list {
 		properties := make(map[string]*genai.Schema)
 		for name, prop := range tool.Parameters.Properties {
@@ -28,20 +30,20 @@ func (list toolConverter) toVertex() (tools []*genai.Tool) {
 			}
 		}
 
-		tools = append(tools, &genai.Tool{
-			FunctionDeclarations: []*genai.FunctionDeclaration{{
-				Name:        tool.Name,
-				Description: tool.Description,
-				Parameters: &genai.Schema{
-					Type:       genai.TypeObject,
-					Properties: properties,
-					Required:   tool.Parameters.Required,
-				},
-			}},
+		functions = append(functions, &genai.FunctionDeclaration{
+			Name:        tool.Name,
+			Description: tool.Description,
+			Parameters: &genai.Schema{
+				Type:       genai.TypeObject,
+				Properties: properties,
+				Required:   tool.Parameters.Required,
+			},
 		})
 	}
 
-	return tools
+	return []*genai.Tool{{
+		FunctionDeclarations: functions,
+	}}
 }
 
 // getFunction returns the function call for a tool by name.
