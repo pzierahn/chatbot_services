@@ -95,7 +95,7 @@ func initModels(ctx context.Context) []llm.Chat {
 }
 
 func initSearch(engine llm.Embedding) search.Index {
-	searchEngine, err := qdrant.New(engine)
+	searchEngine, err := qdrant.New(engine, "documents_v2")
 	if err != nil {
 		log.Fatalf("failed to create qdrant search: %v", err)
 	}

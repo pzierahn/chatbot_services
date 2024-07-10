@@ -41,7 +41,7 @@ func main() {
 		log.Fatalf("failed to create openai service: %v", err)
 	}
 
-	index, err := qdrant.New(engine)
+	index, err := qdrant.New(engine, "documents_v2")
 	if err != nil {
 		log.Fatalf("failed to create search service: %v", err)
 	}
