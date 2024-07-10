@@ -147,10 +147,22 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 		}),
 	}
 
+	toolChoice := &llm.ToolChoice{
+		Type: llm.ToolUseAuto,
+	}
+
+	if len(messages) == 1 && len(prompt.Attachments) == 0 {
+		// Force tool call if there are messages and no attachments
+		log.Printf("Force tool call")
+		toolChoice.Type = llm.ToolUseTool
+		toolChoice.Name = toolGetSources
+	}
+
 	var systemPrompt string
 	if len(prompt.Attachments) > 0 {
 		// Attachment mode
 		systemPrompt = systemPromptNormal
+		toolChoice.Type = llm.ToolUseNone
 	} else {
 		// Retrieval mode
 		systemPrompt = systemPromptLatex
@@ -164,6 +176,7 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 		TopP:         modelOps.TopP,
 		Temperature:  modelOps.Temperature,
 		UserId:       userId,
+		ToolChoice:   toolChoice,
 		Tools:        tools,
 	}
 
