@@ -63,10 +63,6 @@ func (db *Search) Search(ctx context.Context, query search.Query) (*search.Resul
 		return nil, err
 	}
 
-	if len(queryResult.Result) == 0 {
-		return nil, nil
-	}
-
 	results := &search.Results{
 		Results: make([]*search.Result, len(queryResult.Result)),
 		Usage: search.Usage{
