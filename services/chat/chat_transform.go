@@ -24,7 +24,7 @@ func getSources(messages []*llm.Message) []*pb.Source {
 
 		isSourceCall := make(map[string]bool)
 		for _, toolCall := range messages[idx-1].ToolCalls {
-			if toolCall.Function.Name == "get_sources" {
+			if toolCall.Name == "get_sources" {
 				isSourceCall[toolCall.CallID] = true
 			}
 		}
@@ -102,7 +102,7 @@ func messagesToProto(messages []*llm.Message) ([]*pb.Message, error) {
 
 			isSourceCall := make(map[string]bool)
 			for _, toolCall := range assistant.ToolCalls {
-				if toolCall.Function.Name == "get_sources" {
+				if toolCall.Name == "get_sources" {
 					isSourceCall[toolCall.CallID] = true
 				}
 			}

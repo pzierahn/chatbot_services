@@ -39,8 +39,8 @@ func messagesToOpenAI(input []*llm.Message) []openai.ChatCompletionMessage {
 					ID:   call.CallID,
 					Type: openai.ToolTypeFunction,
 					Function: openai.FunctionCall{
-						Name:      call.Function.Name,
-						Arguments: call.Function.Arguments,
+						Name:      call.Name,
+						Arguments: call.Arguments,
 					},
 				}
 			}
@@ -71,11 +71,9 @@ func openaiToMessages(input []openai.ChatCompletionMessage) []*llm.Message {
 
 			for _, call := range msg.ToolCalls {
 				message.ToolCalls = append(message.ToolCalls, llm.ToolCall{
-					CallID: call.ID,
-					Function: llm.Function{
-						Name:      call.Function.Name,
-						Arguments: call.Function.Arguments,
-					},
+					CallID:    call.ID,
+					Name:      call.Function.Name,
+					Arguments: call.Function.Arguments,
 				})
 			}
 

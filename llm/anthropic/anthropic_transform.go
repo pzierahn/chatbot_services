@@ -21,7 +21,7 @@ func transformMessages(messages []*llm.Message) ([]ClaudeMessage, error) {
 		var content []Content
 		for _, toolCall := range message.ToolCalls {
 			var args map[string]interface{}
-			err := json.Unmarshal([]byte(toolCall.Function.Arguments), &args)
+			err := json.Unmarshal([]byte(toolCall.Arguments), &args)
 			if err != nil {
 				return nil, err
 			}
@@ -29,7 +29,7 @@ func transformMessages(messages []*llm.Message) ([]ClaudeMessage, error) {
 			content = append(content, Content{
 				Type:  ContentTypeToolUse,
 				ID:    toolCall.CallID,
-				Name:  toolCall.Function.Name,
+				Name:  toolCall.Name,
 				Input: args,
 			})
 		}
@@ -84,11 +84,9 @@ func claudeToMessages(messages []ClaudeMessage) ([]*llm.Message, error) {
 				}
 
 				llmMessage.ToolCalls = append(llmMessage.ToolCalls, llm.ToolCall{
-					CallID: content.ID,
-					Function: llm.Function{
-						Name:      content.Name,
-						Arguments: string(args),
-					},
+					CallID:    content.ID,
+					Name:      content.Name,
+					Arguments: string(args),
 				})
 			case ContentTypeToolResult:
 				llmMessage.ToolResponses = append(llmMessage.ToolResponses, llm.ToolResponse{

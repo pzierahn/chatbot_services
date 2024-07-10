@@ -47,22 +47,16 @@ type ToolDefinition struct {
 	Call FunctionCall
 }
 
-// Function defines the function name and arguments
-type Function struct {
-	// Name of the function to call
-	Name string `json:"name,omitempty" bson:"name,omitempty"`
-
-	// Arguments to pass to the function
-	Arguments string `json:"arguments,omitempty" bson:"arguments,omitempty"`
-}
-
 // ToolCall defines which tool to call
 type ToolCall struct {
 	// ID of the tool call
 	CallID string `json:"tool_call_id,omitempty" bson:"tool_call_id,omitempty"`
 
-	// Define function to call
-	Function Function `json:"function,omitempty" bson:"function,omitempty"`
+	// Name of the function to call
+	Name string `json:"name,omitempty" bson:"name,omitempty"`
+
+	// Arguments to pass to the function
+	Arguments string `json:"arguments,omitempty" bson:"arguments,omitempty"`
 }
 
 // ToolResponse defines the response from the tool

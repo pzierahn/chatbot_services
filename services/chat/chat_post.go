@@ -119,11 +119,9 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 			{
 				Role: llm.RoleAssistant,
 				ToolCalls: []llm.ToolCall{{
-					CallID: callId.String(),
-					Function: llm.Function{
-						Name:      toolAttachDocument,
-						Arguments: fmt.Sprintf("{\"documentId\": \"%s\"}", documentId),
-					},
+					CallID:    callId.String(),
+					Name:      toolAttachDocument,
+					Arguments: fmt.Sprintf("{\"documentId\": \"%s\"}", documentId),
 				}},
 			},
 			{

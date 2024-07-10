@@ -28,7 +28,7 @@ func transformToHistory(messages []*llm.Message) ([]*genai.Content, error) {
 
 		for iny, call := range msg.ToolCalls {
 			var args map[string]interface{}
-			err := json.Unmarshal([]byte(call.Function.Arguments), &args)
+			err := json.Unmarshal([]byte(call.Arguments), &args)
 			if err != nil {
 				return nil, err
 			}
@@ -36,7 +36,7 @@ func transformToHistory(messages []*llm.Message) ([]*genai.Content, error) {
 			history = append(history, &genai.Content{
 				Role: RoleModel,
 				Parts: []genai.Part{genai.FunctionCall{
-					Name: call.Function.Name,
+					Name: call.Name,
 					Args: args,
 				}},
 			})
@@ -56,7 +56,7 @@ func transformToHistory(messages []*llm.Message) ([]*genai.Content, error) {
 				history = append(history, &genai.Content{
 					Role: RoleUser,
 					Parts: []genai.Part{genai.FunctionResponse{
-						Name:     call.Function.Name,
+						Name:     call.Name,
 						Response: response,
 					}},
 				})
@@ -94,10 +94,8 @@ func transformToMessages(history []*genai.Content) ([]*llm.Message, error) {
 				}
 
 				message.ToolCalls = append(message.ToolCalls, llm.ToolCall{
-					Function: llm.Function{
-						Name:      call.Name,
-						Arguments: string(args),
-					},
+					Name:      call.Name,
+					Arguments: string(args),
 				})
 			} else if response, ok := part.(genai.FunctionResponse); ok {
 				resp, err := json.Marshal(response.Response)
