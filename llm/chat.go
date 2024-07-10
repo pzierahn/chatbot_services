@@ -50,7 +50,7 @@ type ToolDefinition struct {
 // ToolCall defines which tool to call
 type ToolCall struct {
 	// ID of the tool call
-	CallID string `json:"tool_call_id,omitempty" bson:"tool_call_id,omitempty"`
+	CallID string `json:"id,omitempty" bson:"tool_call_id,omitempty"`
 
 	// Name of the function to call
 	Name string `json:"name,omitempty" bson:"name,omitempty"`
@@ -62,7 +62,7 @@ type ToolCall struct {
 // ToolResponse defines the response from the tool
 type ToolResponse struct {
 	// Calling tool ID
-	CallID string `json:"tool_call_id,omitempty" bson:"tool_call_id,omitempty"`
+	CallID string `json:"id,omitempty" bson:"tool_call_id,omitempty"`
 
 	// Tool response
 	Content string `json:"content,omitempty" bson:"content,omitempty"`
