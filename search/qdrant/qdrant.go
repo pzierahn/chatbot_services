@@ -23,7 +23,7 @@ func (db *Search) Close() error {
 	return db.conn.Close()
 }
 
-func New(engine llm.Embedding) (*Search, error) {
+func New(engine llm.Embedding, namespace string) (*Search, error) {
 	apiKey := os.Getenv("CHATBOT_QDRANT_KEY")
 	target := os.Getenv("CHATBOT_QDRANT_URL")
 
@@ -39,12 +39,12 @@ func New(engine llm.Embedding) (*Search, error) {
 		return nil, err
 	}
 
-	fastEmbedding := search.NewParallelEmbedding(engine, 10, 10)
+	fastEmbedding := search.NewParallelEmbedding(engine, 10, 30)
 
 	client := &Search{
 		conn:          conn,
 		apiKey:        apiKey,
-		namespace:     "documents_v2",
+		namespace:     namespace,
 		embedding:     engine,
 		dimension:     engine.GetEmbeddingDimension(),
 		fastEmbedding: fastEmbedding,
