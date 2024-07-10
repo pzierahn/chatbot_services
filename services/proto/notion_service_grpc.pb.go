@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.4.0
 // - protoc             v5.27.1
-// source: notion.proto
+// source: notion_service.proto
 
 package proto
 
@@ -325,5 +325,5 @@ var Notion_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "notion.proto",
+	Metadata: "notion_service.proto",
 }
