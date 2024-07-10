@@ -37,26 +37,26 @@ const (
 func (service *Service) getSourceTools(params retrievalParameters) *llm.ToolDefinition {
 	return &llm.ToolDefinition{
 		Name:        toolGetSources,
-		Description: "Retrieve information from from the knowledge base. ",
+		Description: "Retrieves relevant knowledge and sources for a given query from a curated knowledge base. The search query should be clear, concise and containing key terms related to the desired information. The tool will return a list of document fragments with text and documentId. It should be used when the user asks about specific topics and requires precise information.",
 		Parameters: llm.ToolParameters{
 			Type: "object",
 			Properties: map[string]llm.ParametersProperties{
-				"prompt": {
+				"query": {
 					Type:        "string",
 					Description: "A query or statement for which the information is requested.",
 				},
 			},
 			Required: []string{
-				"prompt",
+				"query",
 			},
 		},
 		Call: func(ctx context.Context, parameters map[string]interface{}) (string, error) {
-			query, ok := parameters["prompt"].(string)
+			query, ok := parameters["query"].(string)
 			if !ok {
-				return "", errors.New("prompt missing")
+				return "", errors.New("query missing")
 			}
 
-			log.Printf("get_sources: %v", query)
+			log.Printf("get_sources: \"%v\"", query)
 
 			response, err := service.Search.Search(ctx, search.Query{
 				UserId:       params.userId,
@@ -94,8 +94,8 @@ func (service *Service) getSourceTools(params retrievalParameters) *llm.ToolDefi
 				return "", err
 			}
 
-			byt2, _ := json.MarshalIndent(sources, "", "  ")
-			log.Printf("get_sources: %s", byt2)
+			//byt2, _ := json.MarshalIndent(sources, "", "  ")
+			//log.Printf("get_sources: %s", byt2)
 
 			return string(byt), nil
 		},
