@@ -88,7 +88,7 @@ func (engine *ParallelEmbedding) CreateEmbeddings(ctx context.Context, fragments
 				}
 
 				// Allow up to 3 attempts to create an embedding
-				for attempt := 2; attempt >= 0; attempt-- {
+				for attempt := 1; attempt <= 3; attempt++ {
 					result, err := engine.engine.CreateEmbedding(ctx, &llm.EmbeddingRequest{
 						Inputs: inputs,
 					})
@@ -102,7 +102,7 @@ func (engine *ParallelEmbedding) CreateEmbeddings(ctx context.Context, fragments
 						break
 					} else {
 						// Failed to create an embedding. This can if too many requests are made in a short time.
-						if attempt <= 0 {
+						if attempt >= 3 {
 							// Failed to create an embedding
 							results <- &embedding{
 								id:    ids,
@@ -112,7 +112,7 @@ func (engine *ParallelEmbedding) CreateEmbeddings(ctx context.Context, fragments
 						}
 
 						// Wait for a short time before retrying
-						time.Sleep(30 * time.Second)
+						time.Sleep(time.Duration(attempt) * 10 * time.Second)
 					}
 				}
 			}
