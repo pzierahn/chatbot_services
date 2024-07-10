@@ -60,3 +60,20 @@ func (list toolConverter) getFunction(name string) (llm.FunctionCall, bool) {
 
 	return nil, false
 }
+
+func getToolConfig(config *llm.ToolChoice) *ToolChoice {
+	if config == nil {
+		return nil
+	}
+
+	switch config.Type {
+	case llm.ToolUseNone:
+		// Not supported by Claude.
+		return nil
+	default:
+		return &ToolChoice{
+			Type: config.Type,
+			Name: config.Name,
+		}
+	}
+}

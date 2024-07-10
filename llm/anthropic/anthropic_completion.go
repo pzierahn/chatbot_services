@@ -47,7 +47,7 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 		MaxTokens:        req.MaxTokens,
 		TopP:             req.TopP,
 		Temperature:      req.Temperature,
-		ToolChoice:       req.ToolChoice,
+		ToolChoice:       getToolConfig(req.ToolChoice),
 		Tools:            tools.toClaude(),
 	}
 
