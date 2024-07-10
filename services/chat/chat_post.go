@@ -138,6 +138,13 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 
 	tools := []*llm.ToolDefinition{
 		service.getAttachDocumentTool(),
+		service.getSourceTools(retrievalParameters{
+			prompt:        prompt.Prompt,
+			userId:        userId,
+			collectionId:  prompt.CollectionId,
+			fragmentCount: retrievalOptions.Documents,
+			threshold:     retrievalOptions.Threshold,
+		}),
 	}
 
 	var systemPrompt string
@@ -147,13 +154,6 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 	} else {
 		// Retrieval mode
 		systemPrompt = systemPromptLatex
-		tools = append(tools, service.getSourceTools(retrievalParameters{
-			prompt:        prompt.Prompt,
-			userId:        userId,
-			collectionId:  prompt.CollectionId,
-			fragmentCount: retrievalOptions.Documents,
-			threshold:     retrievalOptions.Threshold,
-		}))
 	}
 
 	request := &llm.CompletionRequest{

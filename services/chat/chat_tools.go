@@ -37,13 +37,13 @@ const (
 func (service *Service) getSourceTools(params retrievalParameters) *llm.ToolDefinition {
 	return &llm.ToolDefinition{
 		Name:        toolGetSources,
-		Description: "Find information about the prompt. Don't call this function if the function attach_document was called!",
+		Description: "Retrieve information from from the knowledge base. ",
 		Parameters: llm.ToolParameters{
 			Type: "object",
 			Properties: map[string]llm.ParametersProperties{
 				"prompt": {
 					Type:        "string",
-					Description: "The prompt to search for. Ensure that the prompt is optimized for retrieval.",
+					Description: "A query or statement for which the information is requested.",
 				},
 			},
 			Required: []string{
