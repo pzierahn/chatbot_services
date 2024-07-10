@@ -6,6 +6,7 @@ import (
 	"github.com/pzierahn/chatbot_services/datastore"
 	"github.com/pzierahn/chatbot_services/search"
 	"log"
+	"strings"
 	"sync"
 )
 
@@ -121,7 +122,7 @@ func (migrator *Migrator) MigrateDocuments() {
 func (migrator *Migrator) MigrateDocumentToSearch(index search.Index) {
 	ctx := context.Background()
 
-	log.Printf("Migrating documents")
+	log.Printf("Migrating documents...")
 
 	//
 	// Get all documents
@@ -136,8 +137,6 @@ func (migrator *Migrator) MigrateDocumentToSearch(index search.Index) {
 	upserts := make(chan int, 3)
 	defer close(upserts)
 
-	var wg sync.WaitGroup
-
 	go func() {
 		processedFragments := 0
 		processedDocuments := 0
@@ -148,6 +147,8 @@ func (migrator *Migrator) MigrateDocumentToSearch(index search.Index) {
 			log.Printf("Processed: docs=%d fragments=%d", processedDocuments, processedFragments)
 		}
 	}()
+
+	var wg sync.WaitGroup
 
 	// Iterate over all documents
 	for rows.Next() {
@@ -170,16 +171,22 @@ func (migrator *Migrator) MigrateDocumentToSearch(index search.Index) {
 				log.Fatalf("Get document: %v", err)
 			}
 
-			fragments := make([]*search.Fragment, len(doc.Content))
-			for idx, chunk := range doc.Content {
-				fragments[idx] = &search.Fragment{
+			fragments := make([]*search.Fragment, 0)
+			for _, chunk := range doc.Content {
+				text := strings.TrimSpace(chunk.Text)
+				if text == "" {
+					// Skip empty chunks
+					continue
+				}
+
+				fragments = append(fragments, &search.Fragment{
 					Id:           chunk.Id.String(),
-					Text:         chunk.Text,
+					Text:         text,
 					UserId:       userId,
 					DocumentId:   doc.Id.String(),
 					CollectionId: collectionId.String(),
 					Position:     chunk.Position,
-				}
+				})
 			}
 
 			_, err = index.Upsert(ctx, fragments)
@@ -192,4 +199,6 @@ func (migrator *Migrator) MigrateDocumentToSearch(index search.Index) {
 	}
 
 	wg.Wait()
+
+	log.Printf("Migration done")
 }
