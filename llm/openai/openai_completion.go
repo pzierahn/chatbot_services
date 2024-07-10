@@ -48,7 +48,7 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 		OutputTokens: uint32(resp.Usage.CompletionTokens),
 	}
 
-	if resp.Choices[0].FinishReason == openai.FinishReasonToolCalls {
+	if len(resp.Choices[0].Message.ToolCalls) > 0 {
 		//
 		// The model wants to call tools
 		//
