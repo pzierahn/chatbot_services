@@ -32,10 +32,15 @@ type document struct {
 	Metadata     DocumentMeta `json:"metadata,omitempty"`
 }
 
+type update struct {
+	upserts int
+	tokens  uint32
+}
+
 func (migrator *Migrator) MigrateDocuments() {
 	ctx := context.Background()
 
-	log.Printf("Migrating documents")
+	log.Printf("Migrating documents...")
 
 	//
 	// Get all documents
@@ -122,7 +127,7 @@ func (migrator *Migrator) MigrateDocuments() {
 func (migrator *Migrator) MigrateDocumentToSearch(index search.Index) {
 	ctx := context.Background()
 
-	log.Printf("Migrating documents...")
+	log.Printf("Migrating documents to search...")
 
 	//
 	// Get all documents
@@ -134,17 +139,22 @@ func (migrator *Migrator) MigrateDocumentToSearch(index search.Index) {
 		log.Fatalf("Query documents: %v", err)
 	}
 
-	upserts := make(chan int, 3)
-	defer close(upserts)
+	updates := make(chan update, 3)
+	defer close(updates)
 
 	go func() {
-		processedFragments := 0
-		processedDocuments := 0
+		var (
+			processedFragments int
+			burnedTokens       uint32
+			processedDocuments int
+		)
 
-		for upsert := range upserts {
-			processedFragments += upsert
+		for event := range updates {
+			processedFragments += event.upserts
+			burnedTokens += event.tokens
 			processedDocuments++
-			log.Printf("Processed: docs=%d fragments=%d", processedDocuments, processedFragments)
+			log.Printf("Processed: docs=%d fragments=%d tokens=%d",
+				processedDocuments, processedFragments, burnedTokens)
 		}
 	}()
 
@@ -168,6 +178,7 @@ func (migrator *Migrator) MigrateDocumentToSearch(index search.Index) {
 			defer wg.Done()
 			doc, err := migrator.Next.GetDocument(ctx, userId, docId)
 			if err != nil {
+				log.Printf("userId=%s docId=%s", userId, docId)
 				log.Fatalf("Get document: %v", err)
 			}
 
@@ -189,12 +200,15 @@ func (migrator *Migrator) MigrateDocumentToSearch(index search.Index) {
 				})
 			}
 
-			_, err = index.Upsert(ctx, fragments)
+			usage, err := index.Upsert(ctx, fragments)
 			if err != nil {
 				log.Fatalf("Upsert fragments: %v", err)
 			}
 
-			upserts <- len(fragments)
+			updates <- update{
+				upserts: len(fragments),
+				tokens:  usage.Tokens,
+			}
 		}()
 	}
 
