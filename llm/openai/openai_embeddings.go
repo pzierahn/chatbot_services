@@ -21,6 +21,7 @@ func (client *Client) CreateEmbedding(ctx context.Context, req *llm.EmbeddingReq
 
 	results := &llm.EmbeddingResponse{
 		Embeddings: make([][]float32, len(resp.Data)),
+		Model:      client.GetModelId(),
 		Tokens:     uint32(resp.Usage.PromptTokens),
 	}
 
