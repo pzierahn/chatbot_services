@@ -16,7 +16,7 @@ type Parameters struct {
 	Required   []string                        `json:"required"`
 }
 
-type toolConverter []llm.ToolDefinition
+type toolConverter []*llm.ToolDefinition
 
 func (tools toolConverter) toOpenAI() []openai.Tool {
 	items := make([]openai.Tool, len(tools))

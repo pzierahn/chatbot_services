@@ -65,6 +65,9 @@ message Prompt {
 
   // Search options
   RetrievalOptions retrieval_options = 5;
+
+  // Attachments to the prompt
+  repeated string attachments = 6;
 }
 
 message ModelOptions {

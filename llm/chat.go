@@ -113,7 +113,7 @@ type CompletionRequest struct {
 	UserId string `json:"user_id,omitempty" bson:"user_id,omitempty"`
 
 	// Tools to use for completion
-	Tools []ToolDefinition `json:"tools,omitempty" bson:"tools,omitempty"`
+	Tools []*ToolDefinition `json:"tools,omitempty" bson:"tools,omitempty"`
 }
 
 // CompletionResponse defines the response from the completion API

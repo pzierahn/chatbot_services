@@ -8,20 +8,24 @@ import (
 	"github.com/google/uuid"
 	"github.com/pzierahn/chatbot_services/datastore"
 	"github.com/pzierahn/chatbot_services/llm"
-	"github.com/pzierahn/chatbot_services/search"
 	pb "github.com/pzierahn/chatbot_services/services/proto"
+	"github.com/pzierahn/chatbot_services/utils"
 	"log"
-	"sort"
+	"strings"
 	"time"
 )
 
-type Sources struct {
-	Items []*search.Result `json:"sources"`
-}
+const (
+	systemPromptLatex = "" +
+		"You are a scientific research assistant. " +
+		"Answer in Markdown format. " +
+		"Quote sources with \\cite{document_id}."
+	systemPromptNormal = "You are a helpful assistant. Answer in Markdown format."
+)
 
 // PostMessage is a gRPC endpoint that receives a prompt and returns a completion.
 func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb.Message, error) {
-	log.Printf("PostMessage: %v", prompt)
+	log.Printf("PostMessage: %v", utils.Prettify(prompt))
 
 	userId, err := service.Auth.VerifyFunding(ctx)
 	if err != nil {
@@ -93,77 +97,74 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 		Content: prompt.Prompt,
 	})
 
+	// Add the sources tool
+	for _, docId := range prompt.Attachments {
+		callId := uuid.New()
+
+		documentId, err := uuid.Parse(docId)
+		if err != nil {
+			return nil, err
+		}
+
+		document, err := service.Database.GetDocument(ctx, userId, documentId)
+		if err != nil {
+			return nil, err
+		}
+
+		response, _ := json.Marshal(Document{
+			Text: joinDocumentText(document),
+		})
+
+		messages = append(messages, []*llm.Message{
+			{
+				Role: llm.RoleAssistant,
+				ToolCalls: []llm.ToolCall{{
+					CallID: callId.String(),
+					Function: llm.Function{
+						Name:      toolAttachDocument,
+						Arguments: fmt.Sprintf("{\"documentId\": \"%s\"}", documentId),
+					},
+				}},
+			},
+			{
+				Role: llm.RoleUser,
+				ToolResponses: []llm.ToolResponse{{
+					CallID:  callId.String(),
+					Content: string(response),
+				}},
+			},
+		}...)
+	}
+
+	tools := []*llm.ToolDefinition{
+		service.getAttachDocumentTool(),
+	}
+
+	var systemPrompt string
+	if len(prompt.Attachments) > 0 {
+		// Attachment mode
+		systemPrompt = systemPromptNormal
+	} else {
+		// Retrieval mode
+		systemPrompt = systemPromptLatex
+		tools = append(tools, service.getSourceTools(retrievalParameters{
+			prompt:        prompt.Prompt,
+			userId:        userId,
+			collectionId:  prompt.CollectionId,
+			fragmentCount: retrievalOptions.Documents,
+			threshold:     retrievalOptions.Threshold,
+		}))
+	}
+
 	request := &llm.CompletionRequest{
-		SystemPrompt: "You are a scientific research assistant. Quote sources with \\cite{document_id}.",
+		SystemPrompt: systemPrompt,
 		Messages:     messages,
 		Model:        modelOps.ModelId,
 		MaxTokens:    int(modelOps.MaxTokens),
 		TopP:         modelOps.TopP,
 		Temperature:  modelOps.Temperature,
 		UserId:       userId,
-		Tools: []llm.ToolDefinition{{
-			Name:        "get_sources",
-			Description: "Retrieves the sources for the prompt. The prompt should be optimized for embedding retrieval. The tool will return a list of sources in JSON format with the following fields: SourceID, Content.",
-			Parameters: llm.ToolParameters{
-				Type: "object",
-				Properties: map[string]llm.ParametersProperties{
-					"prompt": {
-						Type:        "string",
-						Description: "The topic for which to retrieve sources. The prompt should be optimized for embedding retrieval.",
-					},
-				},
-				Required: []string{"prompt"},
-			},
-			Call: func(ctx context.Context, parameters map[string]interface{}) (string, error) {
-				query, ok := parameters["prompt"].(string)
-				if !ok {
-					return "", errors.New("prompt missing")
-				}
-
-				log.Printf("get_sources: %v", query)
-
-				response, err := service.Search.Search(ctx, search.Query{
-					UserId:       userId,
-					CollectionId: prompt.CollectionId,
-					Query:        query,
-					Limit:        retrievalOptions.Documents,
-					Threshold:    retrievalOptions.Threshold,
-				})
-				if err != nil {
-					return "", err
-				}
-
-				_ = service.Database.InsertModelUsage(ctx, &datastore.ModelUsage{
-					Id:          uuid.New(),
-					UserId:      userId,
-					Timestamp:   time.Now(),
-					ModelId:     response.Usage.ModelId,
-					InputTokens: response.Usage.Tokens,
-				})
-
-				sources := response.Results
-
-				// Group by document and sort by position
-				sort.Slice(sources, func(i, j int) bool {
-					if sources[i].DocumentId != sources[j].DocumentId {
-						return sources[i].DocumentId < sources[j].DocumentId
-					}
-					return sources[i].Position < sources[j].Position
-				})
-
-				byt, err := json.Marshal(Sources{
-					Items: sources,
-				})
-				if err != nil {
-					return "", err
-				}
-
-				byt2, _ := json.MarshalIndent(sources, "", "  ")
-				log.Printf("get_sources: %s", byt2)
-
-				return string(byt), nil
-			},
-		}},
+		Tools:        tools,
 	}
 
 	response, err := model.Completion(ctx, request)
@@ -212,4 +213,14 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 		Completion: thread.Messages[len(thread.Messages)-1].Content,
 		Sources:    sources,
 	}, nil
+}
+
+func joinDocumentText(document *datastore.Document) string {
+	var parts []string
+
+	for _, block := range document.Content {
+		parts = append(parts, block.Text)
+	}
+
+	return strings.Join(parts, "\f")
 }

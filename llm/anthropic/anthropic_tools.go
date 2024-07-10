@@ -21,7 +21,7 @@ type ClaudeTool struct {
 	InputSchema ClaudeToolInput `json:"input_schema,omitempty"`
 }
 
-type toolConverter []llm.ToolDefinition
+type toolConverter []*llm.ToolDefinition
 
 // toClaude converts a list of tool definitions to a list of Claude tools.
 func (list toolConverter) toClaude() []ClaudeTool {

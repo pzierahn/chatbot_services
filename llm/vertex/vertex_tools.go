@@ -16,7 +16,7 @@ type Parameters struct {
 	Required   []string                        `json:"required"`
 }
 
-type toolConverter []llm.ToolDefinition
+type toolConverter []*llm.ToolDefinition
 
 func (list toolConverter) toVertex() (tools []*genai.Tool) {
 	for _, tool := range list {
