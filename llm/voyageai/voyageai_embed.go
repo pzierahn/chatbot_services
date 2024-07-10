@@ -9,7 +9,7 @@ func (voyage *Client) CreateEmbedding(ctx context.Context, content *llm.Embeddin
 	request := &Request{
 		Input:     content.Inputs,
 		Model:     voyage.model,
-		InputType: InputTypeDocument,
+		InputType: content.Type,
 	}
 
 	response, err := voyage.callAPI(ctx, request)

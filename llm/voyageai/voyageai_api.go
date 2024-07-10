@@ -12,10 +12,6 @@ const (
 	url = "https://api.voyageai.com/v1/embeddings"
 )
 
-const (
-	InputTypeDocument = "document"
-)
-
 type Data struct {
 	Object    string    `json:"object"`
 	Embedding []float32 `json:"embedding"`

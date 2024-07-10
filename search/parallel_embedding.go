@@ -91,6 +91,7 @@ func (engine *ParallelEmbedding) CreateEmbeddings(ctx context.Context, fragments
 				for attempt := 1; attempt <= 3; attempt++ {
 					result, err := engine.engine.CreateEmbedding(ctx, &llm.EmbeddingRequest{
 						Inputs: inputs,
+						Type:   llm.EmbeddingTypeDocument,
 					})
 					if err == nil {
 						// Successfully created an embedding

@@ -12,6 +12,7 @@ func (db *Search) Search(ctx context.Context, query search.Query) (*search.Resul
 
 	embedded, err := db.embedding.CreateEmbedding(ctx, &llm.EmbeddingRequest{
 		Inputs: []string{query.Query},
+		Type:   llm.EmbeddingTypeQuery,
 	})
 	if err != nil {
 		return nil, err

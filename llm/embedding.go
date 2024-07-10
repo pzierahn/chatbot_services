@@ -2,9 +2,15 @@ package llm
 
 import "context"
 
+const (
+	EmbeddingTypeQuery    = "query"
+	EmbeddingTypeDocument = "document"
+)
+
 type EmbeddingRequest struct {
 	Inputs []string
 	UserId string
+	Type   string
 }
 
 type EmbeddingResponse struct {
