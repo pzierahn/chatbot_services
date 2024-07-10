@@ -83,6 +83,9 @@ func (service *Service) GetThreadIDs(ctx context.Context, userId string, collect
 		Projection: bson.M{
 			"_id": 1,
 		},
+		Sort: bson.M{
+			"timestamp": -1,
+		},
 	}
 
 	cursor, err := coll.Find(ctx, filter, opts)
