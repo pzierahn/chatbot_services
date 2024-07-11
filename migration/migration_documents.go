@@ -6,6 +6,7 @@ import (
 	"github.com/pzierahn/chatbot_services/datastore"
 	"github.com/pzierahn/chatbot_services/search"
 	"log"
+	"sort"
 	"strings"
 	"sync"
 )
@@ -89,11 +90,17 @@ func (migrator *Migrator) MigrateDocuments() {
 	// Match chunks to documents and insert them into the new datastore
 	//
 
+	var count int
+
 	for docId, doc := range documents {
 		chunks, ok := docChunks[docId]
 		if !ok {
 			log.Fatalf("Document chunks not found")
 		}
+
+		sort.Slice(chunks, func(i, j int) bool {
+			return chunks[i].Position < chunks[j].Position
+		})
 
 		var name, docType, source string
 		if doc.Metadata.File != nil {
@@ -121,7 +128,11 @@ func (migrator *Migrator) MigrateDocuments() {
 		if err != nil {
 			log.Fatalf("Insert document: %v", err)
 		}
+
+		count++
 	}
+
+	log.Printf("Migrated %d documents", count)
 }
 
 func (migrator *Migrator) MigrateDocumentToSearch(index search.Index) {
