@@ -35,19 +35,18 @@ func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.
 
 	results := &pb.SearchResults{
 		DocumentNames: make(map[string]string),
-		Scores:        make(map[string]float32),
 	}
 
 	for _, vector := range searchResults.Results {
 		results.Chunks = append(results.Chunks, &pb.Chunk{
 			Id:         vector.Id,
 			Text:       vector.Text,
+			Score:      vector.Score,
 			Postion:    vector.Position,
 			DocumentId: vector.DocumentId,
 		})
 
 		results.DocumentNames[vector.DocumentId] = ""
-		results.Scores[vector.Id] = vector.Score
 	}
 
 	docIds := make([]uuid.UUID, 0)
