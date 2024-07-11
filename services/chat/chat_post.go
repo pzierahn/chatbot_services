@@ -18,7 +18,6 @@ const (
 		"You are a scientific research assistant. " +
 		"Answer in Markdown format. " +
 		"Quote sources with \\cite{id}."
-	systemPromptNormal = "You are a helpful assistant. Answer in Markdown format."
 )
 
 // PostMessage is a gRPC endpoint that receives a prompt and returns a completion.
