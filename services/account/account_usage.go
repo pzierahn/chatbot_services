@@ -15,7 +15,7 @@ type Usage struct {
 	Output uint32
 }
 
-func (service *Service) getCosts(ctx context.Context, userId string) (*pb.Costs, error) {
+func (service *Service) getUsage(ctx context.Context, userId string) (*pb.Usage, error) {
 	usages, err := service.Database.GetModelUsages(ctx, userId)
 	if err != nil {
 		return nil, err
@@ -31,14 +31,14 @@ func (service *Service) getCosts(ctx context.Context, userId string) (*pb.Costs,
 		outputs[usage.ModelId] += usage.OutputTokens
 	}
 
-	var costs []*pb.ModelCosts
+	var usage []*pb.ModelUsage
 
 	for modelId, calls := range modelCalls {
 		price := prices[modelId]
 		input := inputs[modelId]
 		output := outputs[modelId]
 
-		costs = append(costs, &pb.ModelCosts{
+		usage = append(usage, &pb.ModelUsage{
 			Model:    modelId,
 			Input:    input,
 			Output:   output,
@@ -47,16 +47,16 @@ func (service *Service) getCosts(ctx context.Context, userId string) (*pb.Costs,
 		})
 	}
 
-	return &pb.Costs{
-		Models: costs,
+	return &pb.Usage{
+		Models: usage,
 	}, nil
 }
 
-func (service *Service) GetCosts(ctx context.Context, _ *emptypb.Empty) (*pb.Costs, error) {
+func (service *Service) GetCosts(ctx context.Context, _ *emptypb.Empty) (*pb.Usage, error) {
 	userId, err := service.Auth.Verify(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	return service.getCosts(ctx, userId)
+	return service.getUsage(ctx, userId)
 }

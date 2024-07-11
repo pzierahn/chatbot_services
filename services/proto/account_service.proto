@@ -8,19 +8,19 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
 service Account {
-  rpc GetCosts(google.protobuf.Empty) returns (Costs);
+  rpc GetUsage(google.protobuf.Empty) returns (Usage);
   rpc GetPayments(google.protobuf.Empty) returns (Payments);
-  rpc GetBalanceSheet(google.protobuf.Empty) returns (BalanceSheet);
+  rpc GetFinancialSummary(google.protobuf.Empty) returns (FinancialSummary);
 }
 
-message BalanceSheet {
+message FinancialSummary {
   repeated Payment payments = 1;
-  repeated ModelCosts costs = 2;
+  repeated ModelUsage usage = 2;
 
   int32 balance = 3;
 }
 
-message ModelCosts {
+message ModelUsage {
   string model = 1;
   uint32 input = 2;
   uint32 output = 3;
@@ -28,8 +28,8 @@ message ModelCosts {
   uint32 requests = 5;
 }
 
-message Costs {
-  repeated ModelCosts models = 1;
+message Usage {
+  repeated ModelUsage models = 1;
 }
 
 message Payment {

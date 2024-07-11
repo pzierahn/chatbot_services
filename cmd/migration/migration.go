@@ -51,9 +51,9 @@ func main() {
 	}
 
 	//migrator.MigrateCollections()
-	//migrator.MigrateDocuments()
+	migrator.MigrateDocuments()
 	////migrator.MigrateDocumentToSearch(index)
 	//migrator.MigrateThreads()
 	//migrator.MigratePayments()
-	migrator.MigrateUsages()
+	//migrator.MigrateUsages()
 }

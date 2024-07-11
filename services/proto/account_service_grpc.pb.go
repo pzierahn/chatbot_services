@@ -20,18 +20,18 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	Account_GetCosts_FullMethodName        = "/chatbot.account.v1.Account/GetCosts"
-	Account_GetPayments_FullMethodName     = "/chatbot.account.v1.Account/GetPayments"
-	Account_GetBalanceSheet_FullMethodName = "/chatbot.account.v1.Account/GetBalanceSheet"
+	Account_GetUsage_FullMethodName            = "/chatbot.account.v1.Account/GetUsage"
+	Account_GetPayments_FullMethodName         = "/chatbot.account.v1.Account/GetPayments"
+	Account_GetFinancialSummary_FullMethodName = "/chatbot.account.v1.Account/GetFinancialSummary"
 )
 
 // AccountClient is the client API for Account service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AccountClient interface {
-	GetCosts(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Costs, error)
+	GetUsage(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Usage, error)
 	GetPayments(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Payments, error)
-	GetBalanceSheet(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*BalanceSheet, error)
+	GetFinancialSummary(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*FinancialSummary, error)
 }
 
 type accountClient struct {
@@ -42,10 +42,10 @@ func NewAccountClient(cc grpc.ClientConnInterface) AccountClient {
 	return &accountClient{cc}
 }
 
-func (c *accountClient) GetCosts(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Costs, error) {
+func (c *accountClient) GetUsage(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Usage, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Costs)
-	err := c.cc.Invoke(ctx, Account_GetCosts_FullMethodName, in, out, cOpts...)
+	out := new(Usage)
+	err := c.cc.Invoke(ctx, Account_GetUsage_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -62,10 +62,10 @@ func (c *accountClient) GetPayments(ctx context.Context, in *emptypb.Empty, opts
 	return out, nil
 }
 
-func (c *accountClient) GetBalanceSheet(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*BalanceSheet, error) {
+func (c *accountClient) GetFinancialSummary(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*FinancialSummary, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(BalanceSheet)
-	err := c.cc.Invoke(ctx, Account_GetBalanceSheet_FullMethodName, in, out, cOpts...)
+	out := new(FinancialSummary)
+	err := c.cc.Invoke(ctx, Account_GetFinancialSummary_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -76,9 +76,9 @@ func (c *accountClient) GetBalanceSheet(ctx context.Context, in *emptypb.Empty, 
 // All implementations must embed UnimplementedAccountServer
 // for forward compatibility
 type AccountServer interface {
-	GetCosts(context.Context, *emptypb.Empty) (*Costs, error)
+	GetUsage(context.Context, *emptypb.Empty) (*Usage, error)
 	GetPayments(context.Context, *emptypb.Empty) (*Payments, error)
-	GetBalanceSheet(context.Context, *emptypb.Empty) (*BalanceSheet, error)
+	GetFinancialSummary(context.Context, *emptypb.Empty) (*FinancialSummary, error)
 	mustEmbedUnimplementedAccountServer()
 }
 
@@ -86,14 +86,14 @@ type AccountServer interface {
 type UnimplementedAccountServer struct {
 }
 
-func (UnimplementedAccountServer) GetCosts(context.Context, *emptypb.Empty) (*Costs, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetCosts not implemented")
+func (UnimplementedAccountServer) GetUsage(context.Context, *emptypb.Empty) (*Usage, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUsage not implemented")
 }
 func (UnimplementedAccountServer) GetPayments(context.Context, *emptypb.Empty) (*Payments, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPayments not implemented")
 }
-func (UnimplementedAccountServer) GetBalanceSheet(context.Context, *emptypb.Empty) (*BalanceSheet, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetBalanceSheet not implemented")
+func (UnimplementedAccountServer) GetFinancialSummary(context.Context, *emptypb.Empty) (*FinancialSummary, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFinancialSummary not implemented")
 }
 func (UnimplementedAccountServer) mustEmbedUnimplementedAccountServer() {}
 
@@ -108,20 +108,20 @@ func RegisterAccountServer(s grpc.ServiceRegistrar, srv AccountServer) {
 	s.RegisterService(&Account_ServiceDesc, srv)
 }
 
-func _Account_GetCosts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Account_GetUsage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AccountServer).GetCosts(ctx, in)
+		return srv.(AccountServer).GetUsage(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Account_GetCosts_FullMethodName,
+		FullMethod: Account_GetUsage_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AccountServer).GetCosts(ctx, req.(*emptypb.Empty))
+		return srv.(AccountServer).GetUsage(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -144,20 +144,20 @@ func _Account_GetPayments_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Account_GetBalanceSheet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Account_GetFinancialSummary_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AccountServer).GetBalanceSheet(ctx, in)
+		return srv.(AccountServer).GetFinancialSummary(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Account_GetBalanceSheet_FullMethodName,
+		FullMethod: Account_GetFinancialSummary_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AccountServer).GetBalanceSheet(ctx, req.(*emptypb.Empty))
+		return srv.(AccountServer).GetFinancialSummary(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -170,16 +170,16 @@ var Account_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*AccountServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetCosts",
-			Handler:    _Account_GetCosts_Handler,
+			MethodName: "GetUsage",
+			Handler:    _Account_GetUsage_Handler,
 		},
 		{
 			MethodName: "GetPayments",
 			Handler:    _Account_GetPayments_Handler,
 		},
 		{
-			MethodName: "GetBalanceSheet",
-			Handler:    _Account_GetBalanceSheet_Handler,
+			MethodName: "GetFinancialSummary",
+			Handler:    _Account_GetFinancialSummary_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
