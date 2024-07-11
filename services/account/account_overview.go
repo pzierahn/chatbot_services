@@ -6,7 +6,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-func (service *Service) getFinancialSummary(ctx context.Context, userId string) (*pb.FinancialSummary, error) {
+func (service *Service) getOverview(ctx context.Context, userId string) (*pb.Overview, error) {
 	payments, err := service.getPayments(ctx, userId)
 	if err != nil {
 		return nil, err
@@ -17,7 +17,7 @@ func (service *Service) getFinancialSummary(ctx context.Context, userId string) 
 		return nil, err
 	}
 
-	overview := &pb.FinancialSummary{
+	overview := &pb.Overview{
 		Payments: payments.Items,
 		Usage:    costs.Models,
 	}
@@ -33,11 +33,11 @@ func (service *Service) getFinancialSummary(ctx context.Context, userId string) 
 	return overview, nil
 }
 
-func (service *Service) GetFinancialSummary(ctx context.Context, _ *emptypb.Empty) (*pb.FinancialSummary, error) {
+func (service *Service) GetOverview(ctx context.Context, _ *emptypb.Empty) (*pb.Overview, error) {
 	userId, err := service.Auth.Verify(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	return service.getFinancialSummary(ctx, userId)
+	return service.getOverview(ctx, userId)
 }

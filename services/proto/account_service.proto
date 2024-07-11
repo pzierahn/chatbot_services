@@ -10,10 +10,10 @@ import "google/protobuf/timestamp.proto";
 service Account {
   rpc GetUsage(google.protobuf.Empty) returns (Usage);
   rpc GetPayments(google.protobuf.Empty) returns (Payments);
-  rpc GetFinancialSummary(google.protobuf.Empty) returns (FinancialSummary);
+  rpc GetOverview(google.protobuf.Empty) returns (Overview);
 }
 
-message FinancialSummary {
+message Overview {
   repeated Payment payments = 1;
   repeated ModelUsage usage = 2;
 

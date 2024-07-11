@@ -22,7 +22,7 @@ func (service *Service) VerifyFunding(ctx context.Context) (userId string, err e
 		return
 	}
 
-	balance, err := service.getFinancialSummary(ctx, userId)
+	balance, err := service.getOverview(ctx, userId)
 	if err != nil {
 		return
 	}

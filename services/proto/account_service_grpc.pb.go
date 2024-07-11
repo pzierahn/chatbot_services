@@ -20,9 +20,9 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	Account_GetUsage_FullMethodName            = "/chatbot.account.v1.Account/GetUsage"
-	Account_GetPayments_FullMethodName         = "/chatbot.account.v1.Account/GetPayments"
-	Account_GetFinancialSummary_FullMethodName = "/chatbot.account.v1.Account/GetFinancialSummary"
+	Account_GetUsage_FullMethodName    = "/chatbot.account.v1.Account/GetUsage"
+	Account_GetPayments_FullMethodName = "/chatbot.account.v1.Account/GetPayments"
+	Account_GetOverview_FullMethodName = "/chatbot.account.v1.Account/GetOverview"
 )
 
 // AccountClient is the client API for Account service.
@@ -31,7 +31,7 @@ const (
 type AccountClient interface {
 	GetUsage(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Usage, error)
 	GetPayments(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Payments, error)
-	GetFinancialSummary(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*FinancialSummary, error)
+	GetOverview(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Overview, error)
 }
 
 type accountClient struct {
@@ -62,10 +62,10 @@ func (c *accountClient) GetPayments(ctx context.Context, in *emptypb.Empty, opts
 	return out, nil
 }
 
-func (c *accountClient) GetFinancialSummary(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*FinancialSummary, error) {
+func (c *accountClient) GetOverview(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Overview, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(FinancialSummary)
-	err := c.cc.Invoke(ctx, Account_GetFinancialSummary_FullMethodName, in, out, cOpts...)
+	out := new(Overview)
+	err := c.cc.Invoke(ctx, Account_GetOverview_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +78,7 @@ func (c *accountClient) GetFinancialSummary(ctx context.Context, in *emptypb.Emp
 type AccountServer interface {
 	GetUsage(context.Context, *emptypb.Empty) (*Usage, error)
 	GetPayments(context.Context, *emptypb.Empty) (*Payments, error)
-	GetFinancialSummary(context.Context, *emptypb.Empty) (*FinancialSummary, error)
+	GetOverview(context.Context, *emptypb.Empty) (*Overview, error)
 	mustEmbedUnimplementedAccountServer()
 }
 
@@ -92,8 +92,8 @@ func (UnimplementedAccountServer) GetUsage(context.Context, *emptypb.Empty) (*Us
 func (UnimplementedAccountServer) GetPayments(context.Context, *emptypb.Empty) (*Payments, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPayments not implemented")
 }
-func (UnimplementedAccountServer) GetFinancialSummary(context.Context, *emptypb.Empty) (*FinancialSummary, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetFinancialSummary not implemented")
+func (UnimplementedAccountServer) GetOverview(context.Context, *emptypb.Empty) (*Overview, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetOverview not implemented")
 }
 func (UnimplementedAccountServer) mustEmbedUnimplementedAccountServer() {}
 
@@ -144,20 +144,20 @@ func _Account_GetPayments_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Account_GetFinancialSummary_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Account_GetOverview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AccountServer).GetFinancialSummary(ctx, in)
+		return srv.(AccountServer).GetOverview(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Account_GetFinancialSummary_FullMethodName,
+		FullMethod: Account_GetOverview_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AccountServer).GetFinancialSummary(ctx, req.(*emptypb.Empty))
+		return srv.(AccountServer).GetOverview(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -178,8 +178,8 @@ var Account_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Account_GetPayments_Handler,
 		},
 		{
-			MethodName: "GetFinancialSummary",
-			Handler:    _Account_GetFinancialSummary_Handler,
+			MethodName: "GetOverview",
+			Handler:    _Account_GetOverview_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
