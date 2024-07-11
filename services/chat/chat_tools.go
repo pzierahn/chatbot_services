@@ -21,6 +21,10 @@ type retrievalParameters struct {
 	threshold     float32
 }
 
+type documentParameters struct {
+	userId string
+}
+
 type Sources struct {
 	Items []*search.Result `json:"sources"`
 }
@@ -102,24 +106,53 @@ func (service *Service) getSourceTools(params retrievalParameters) *llm.ToolDefi
 	}
 }
 
-func (service *Service) getAttachDocumentTool() *llm.ToolDefinition {
+func (service *Service) getDocumentById(ctx context.Context, userId, docId string) (string, error) {
+	documentId, err := uuid.Parse(docId)
+	if err != nil {
+		return "", err
+	}
+
+	document, err := service.Database.GetDocument(ctx, userId, documentId)
+	if err != nil {
+		return "", err
+	}
+
+	response, err := json.Marshal(Document{
+		Text: joinDocumentText(document),
+	})
+	if err != nil {
+		return "", err
+	}
+
+	return string(response), nil
+}
+
+func (service *Service) getAttachDocumentTool(params documentParameters) *llm.ToolDefinition {
 	return &llm.ToolDefinition{
 		Name:        toolAttachDocument,
-		Description: "Get the content of a document by its ID. Don't call this function!",
+		Description: "Get the content of a document by its document_id. This tool should be used when the user asks for more information about a specific document. The tool will return the text of the document.",
 		Parameters: llm.ToolParameters{
 			Type: "object",
 			Properties: map[string]llm.ParametersProperties{
-				"documentId": {
+				"document_id": {
 					Type:        "string",
 					Description: "The ID of the document to retrieve.",
 				},
 			},
 			Required: []string{
-				"documentId",
+				"document_id",
 			},
 		},
 		Call: func(ctx context.Context, parameters map[string]interface{}) (string, error) {
-			return "", errors.New("don't call this function")
+			documentId, ok := parameters["document_id"].(string)
+			if !ok {
+				return "", errors.New("document_id missing")
+			}
+
+			log.Printf("attach_document: \"%v\"", documentId)
+
+			document, err := service.getDocumentById(ctx, params.userId, documentId)
+			return document, err
 		},
 	}
 }

@@ -2,7 +2,6 @@ package chat
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
@@ -98,22 +97,13 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 	})
 
 	// Add the sources tool
-	for _, docId := range prompt.Attachments {
+	for _, documentId := range prompt.Attachments {
 		callId := uuid.New()
 
-		documentId, err := uuid.Parse(docId)
+		document, err := service.getDocumentById(ctx, userId, documentId)
 		if err != nil {
 			return nil, err
 		}
-
-		document, err := service.Database.GetDocument(ctx, userId, documentId)
-		if err != nil {
-			return nil, err
-		}
-
-		response, _ := json.Marshal(Document{
-			Text: joinDocumentText(document),
-		})
 
 		messages = append(messages, []*llm.Message{
 			{
@@ -121,21 +111,23 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 				ToolCalls: []llm.ToolCall{{
 					CallID:    callId.String(),
 					Name:      toolAttachDocument,
-					Arguments: fmt.Sprintf("{\"documentId\": \"%s\"}", documentId),
+					Arguments: fmt.Sprintf("{\"document_id\": \"%s\"}", documentId),
 				}},
 			},
 			{
 				Role: llm.RoleUser,
 				ToolResponses: []llm.ToolResponse{{
 					CallID:  callId.String(),
-					Content: string(response),
+					Content: document,
 				}},
 			},
 		}...)
 	}
 
 	tools := []*llm.ToolDefinition{
-		service.getAttachDocumentTool(),
+		service.getAttachDocumentTool(documentParameters{
+			userId: userId,
+		}),
 		service.getSourceTools(retrievalParameters{
 			prompt:        prompt.Prompt,
 			userId:        userId,
