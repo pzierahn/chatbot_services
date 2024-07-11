@@ -11,7 +11,7 @@ service Chat {
   rpc GetThread(ThreadID) returns (Thread);
   rpc ListThreadIDs(CollectionId) returns (ThreadIDs);
   rpc DeleteThread(ThreadID) returns (google.protobuf.Empty);
-  rpc DeleteMessageFromThread(MessageID) returns (google.protobuf.Empty);
+  rpc DeleteMessageFromThread(MessageIndex) returns (google.protobuf.Empty);
   rpc Completion(CompletionRequest) returns (CompletionResponse);
 }
 
@@ -99,9 +99,9 @@ message ThreadID {
   string id = 1;
 }
 
-message MessageID {
-  string id = 1;
-  string thread_id = 2;
+message MessageIndex {
+  string thread_id = 1;
+  uint32 index = 2;
 }
 
 message ThreadIDs {

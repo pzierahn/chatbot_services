@@ -36,7 +36,7 @@ type ChatClient interface {
 	GetThread(ctx context.Context, in *ThreadID, opts ...grpc.CallOption) (*Thread, error)
 	ListThreadIDs(ctx context.Context, in *CollectionId, opts ...grpc.CallOption) (*ThreadIDs, error)
 	DeleteThread(ctx context.Context, in *ThreadID, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	DeleteMessageFromThread(ctx context.Context, in *MessageID, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	DeleteMessageFromThread(ctx context.Context, in *MessageIndex, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Completion(ctx context.Context, in *CompletionRequest, opts ...grpc.CallOption) (*CompletionResponse, error)
 }
 
@@ -88,7 +88,7 @@ func (c *chatClient) DeleteThread(ctx context.Context, in *ThreadID, opts ...grp
 	return out, nil
 }
 
-func (c *chatClient) DeleteMessageFromThread(ctx context.Context, in *MessageID, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *chatClient) DeleteMessageFromThread(ctx context.Context, in *MessageIndex, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, Chat_DeleteMessageFromThread_FullMethodName, in, out, cOpts...)
@@ -116,7 +116,7 @@ type ChatServer interface {
 	GetThread(context.Context, *ThreadID) (*Thread, error)
 	ListThreadIDs(context.Context, *CollectionId) (*ThreadIDs, error)
 	DeleteThread(context.Context, *ThreadID) (*emptypb.Empty, error)
-	DeleteMessageFromThread(context.Context, *MessageID) (*emptypb.Empty, error)
+	DeleteMessageFromThread(context.Context, *MessageIndex) (*emptypb.Empty, error)
 	Completion(context.Context, *CompletionRequest) (*CompletionResponse, error)
 	mustEmbedUnimplementedChatServer()
 }
@@ -137,7 +137,7 @@ func (UnimplementedChatServer) ListThreadIDs(context.Context, *CollectionId) (*T
 func (UnimplementedChatServer) DeleteThread(context.Context, *ThreadID) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteThread not implemented")
 }
-func (UnimplementedChatServer) DeleteMessageFromThread(context.Context, *MessageID) (*emptypb.Empty, error) {
+func (UnimplementedChatServer) DeleteMessageFromThread(context.Context, *MessageIndex) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteMessageFromThread not implemented")
 }
 func (UnimplementedChatServer) Completion(context.Context, *CompletionRequest) (*CompletionResponse, error) {
@@ -229,7 +229,7 @@ func _Chat_DeleteThread_Handler(srv interface{}, ctx context.Context, dec func(i
 }
 
 func _Chat_DeleteMessageFromThread_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MessageID)
+	in := new(MessageIndex)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -241,7 +241,7 @@ func _Chat_DeleteMessageFromThread_Handler(srv interface{}, ctx context.Context,
 		FullMethod: Chat_DeleteMessageFromThread_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ChatServer).DeleteMessageFromThread(ctx, req.(*MessageID))
+		return srv.(ChatServer).DeleteMessageFromThread(ctx, req.(*MessageIndex))
 	}
 	return interceptor(ctx, in, info, handler)
 }

@@ -2,6 +2,7 @@ package chat
 
 import (
 	"context"
+	"errors"
 	"github.com/google/uuid"
 	pb "github.com/pzierahn/chatbot_services/services/proto"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -75,6 +76,41 @@ func (service *Service) DeleteThread(ctx context.Context, req *pb.ThreadID) (*em
 	}
 
 	err = service.Database.DeleteThread(ctx, userId, threadId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
+// DeleteMessageFromThread deletes a message from a thread by index.
+func (service *Service) DeleteMessageFromThread(ctx context.Context, req *pb.MessageIndex) (*emptypb.Empty, error) {
+	userId, err := service.Auth.Verify(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	threadId, err := uuid.Parse(req.ThreadId)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get the thread for the message
+	thread, err := service.Database.GetThread(ctx, userId, threadId)
+	if err != nil {
+		return nil, err
+	}
+
+	// Check if the message index is valid
+	if req.Index >= uint32(len(thread.Messages)) {
+		return nil, errors.New("invalid message index")
+	}
+
+	// Delete the message at position req.Index
+	thread.Messages = append(thread.Messages[:req.Index], thread.Messages[req.Index+1:]...)
+
+	// Store the thread back to the database
+	err = service.Database.StoreThread(ctx, thread)
 	if err != nil {
 		return nil, err
 	}
