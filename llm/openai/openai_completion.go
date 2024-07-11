@@ -48,7 +48,8 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 		OutputTokens: uint32(resp.Usage.CompletionTokens),
 	}
 
-	if len(resp.Choices[0].Message.ToolCalls) > 0 {
+	loops := 0
+	for len(resp.Choices[0].Message.ToolCalls) > 0 && loops < 6 {
 		//
 		// The model wants to call tools
 		//
@@ -96,6 +97,8 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 		// Add the tool usage to the model usage
 		usage.InputTokens += uint32(resp.Usage.PromptTokens)
 		usage.OutputTokens += uint32(resp.Usage.CompletionTokens)
+
+		loops++
 	}
 
 	thread := openaiToMessages(request.Messages)
