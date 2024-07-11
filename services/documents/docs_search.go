@@ -40,9 +40,10 @@ func (service *Service) Search(ctx context.Context, query *pb.SearchQuery) (*pb.
 
 	for _, vector := range searchResults.Results {
 		results.Chunks = append(results.Chunks, &pb.Chunk{
-			Id:      vector.Id,
-			Text:    vector.Text,
-			Postion: vector.Position,
+			Id:         vector.Id,
+			Text:       vector.Text,
+			Postion:    vector.Position,
+			DocumentId: vector.DocumentId,
 		})
 
 		results.DocumentNames[vector.DocumentId] = ""
