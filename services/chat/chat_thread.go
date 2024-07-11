@@ -55,6 +55,21 @@ func (service *Service) GetThread(ctx context.Context, req *pb.ThreadID) (*pb.Th
 		return nil, err
 	}
 
+	for idx, message := range messages {
+		for idy, source := range message.Sources {
+			docId, err := uuid.Parse(source.DocumentId)
+			if err != nil {
+				continue
+			}
+
+			docName, err := service.Database.GetDocumentName(ctx, userId, docId)
+			if err != nil {
+				continue
+			}
+			messages[idx].Sources[idy].Name = docName
+		}
+	}
+
 	results := &pb.Thread{
 		Id:       req.Id,
 		Messages: messages,
