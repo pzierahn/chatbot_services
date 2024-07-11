@@ -75,7 +75,6 @@ For local testing run the following command:
 
 ```shell
 # Start the server
-CHATBOT_TEST=true \
 CHATBOT_QDRANT_INSECURE=true \
 PORT=8869 \
 CHATBOT_MONGODB_URI=mongodb://localhost:27017 \
