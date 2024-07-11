@@ -10,7 +10,6 @@ import (
 	pb "github.com/pzierahn/chatbot_services/services/proto"
 	"github.com/pzierahn/chatbot_services/utils"
 	"log"
-	"strings"
 	"time"
 )
 
@@ -216,14 +215,4 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 		Completion: thread.Messages[len(thread.Messages)-1].Content,
 		Sources:    sources,
 	}, nil
-}
-
-func joinDocumentText(document *datastore.Document) string {
-	var parts []string
-
-	for _, block := range document.Content {
-		parts = append(parts, block.Text)
-	}
-
-	return strings.Join(parts, "\f")
 }

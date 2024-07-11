@@ -29,10 +29,6 @@ type Sources struct {
 	Items []*search.Result `json:"sources"`
 }
 
-type Document struct {
-	Text string `json:"text"`
-}
-
 const (
 	toolGetSources     = "get_sources"
 	toolAttachDocument = "attach_document"
@@ -117,8 +113,19 @@ func (service *Service) getDocumentById(ctx context.Context, userId, docId strin
 		return "", err
 	}
 
-	response, err := json.Marshal(Document{
-		Text: joinDocumentText(document),
+	sources := make([]*search.Result, len(document.Content))
+
+	for idx, fragment := range document.Content {
+		sources[idx] = &search.Result{
+			Id:         fragment.Id.String(),
+			Text:       fragment.Text,
+			DocumentId: "",
+			Position:   fragment.Position,
+		}
+	}
+
+	response, err := json.Marshal(Sources{
+		Items: sources,
 	})
 	if err != nil {
 		return "", err
