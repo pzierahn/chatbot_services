@@ -131,11 +131,11 @@ func main() {
 	engine := models[0].(llm.Embedding)
 	searchEngine := initSearch(engine)
 	bucket := initBucket(ctx, app)
-	//authService := initAuth(ctx, app)
+	authService := initAuth(ctx, app)
 
-	userService := &account.InsecureVerifier{
-		//Database: database,
-		//Auth:     authService,
+	userService := &account.Service{
+		Database: database,
+		Auth:     authService,
 	}
 
 	chatService := &chat.Service{
@@ -168,7 +168,7 @@ func main() {
 	}
 
 	grpcServer := grpc.NewServer()
-	//pb.RegisterAccountServiceServer(grpcServer, userService)
+	pb.RegisterAccountServer(grpcServer, userService)
 	pb.RegisterChatServer(grpcServer, chatService)
 	pb.RegisterDocumentServer(grpcServer, documentsService)
 	pb.RegisterCollectionsServer(grpcServer, collectionService)
