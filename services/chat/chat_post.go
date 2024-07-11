@@ -19,7 +19,7 @@ const (
 	systemPromptLatex = "" +
 		"You are a scientific research assistant. " +
 		"Answer in Markdown format. " +
-		"Quote sources with \\cite{document_id}."
+		"Quote sources with \\cite{id}."
 	systemPromptNormal = "You are a helpful assistant. Answer in Markdown format."
 )
 
