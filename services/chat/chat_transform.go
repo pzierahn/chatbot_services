@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/pzierahn/chatbot_services/llm"
 	pb "github.com/pzierahn/chatbot_services/services/proto"
+	"log"
 	"sort"
 )
 
@@ -24,7 +25,7 @@ func getSources(messages []*llm.Message) []*pb.Source {
 
 		isSourceCall := make(map[string]bool)
 		for _, toolCall := range messages[idx-1].ToolCalls {
-			if toolCall.Name == "get_sources" {
+			if toolCall.Name == toolGetSources || toolCall.Name == toolAttachDocument {
 				isSourceCall[toolCall.CallID] = true
 			}
 		}
@@ -35,12 +36,14 @@ func getSources(messages []*llm.Message) []*pb.Source {
 
 				err := json.Unmarshal([]byte(toolResponse.Content), &source)
 				if err != nil {
+					log.Printf("error: %v", err)
 					continue
 				}
 
 				for _, item := range source.Items {
 					docId, err := uuid.Parse(item.DocumentId)
 					if err != nil {
+						log.Printf("error: %v", err)
 						continue
 					}
 
@@ -102,7 +105,7 @@ func messagesToProto(messages []*llm.Message) ([]*pb.Message, error) {
 
 			isSourceCall := make(map[string]bool)
 			for _, toolCall := range assistant.ToolCalls {
-				if toolCall.Name == "get_sources" {
+				if toolCall.Name == toolGetSources || toolCall.Name == toolAttachDocument {
 					isSourceCall[toolCall.CallID] = true
 				}
 			}

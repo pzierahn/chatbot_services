@@ -123,42 +123,50 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 		}...)
 	}
 
-	tools := []*llm.ToolDefinition{
-		service.getAttachDocumentTool(documentParameters{
-			userId: userId,
-		}),
-		service.getSourceTools(retrievalParameters{
-			prompt:        prompt.Prompt,
-			userId:        userId,
-			collectionId:  prompt.CollectionId,
-			fragmentCount: retrievalOptions.Documents,
-			threshold:     retrievalOptions.Threshold,
-		}),
-	}
+	var tools []*llm.ToolDefinition
 
 	toolChoice := &llm.ToolChoice{
 		Type: llm.ToolUseAuto,
 	}
 
-	if len(messages) == 1 && len(prompt.Attachments) == 0 {
-		// Force tool call if there are messages and no attachments
-		log.Printf("Force tool call")
-		toolChoice.Type = llm.ToolUseTool
-		toolChoice.Name = toolGetSources
+	if len(prompt.Attachments) > 0 {
+		//
+		// Attachment mode --> prevent tool use
+		//
+		toolChoice.Type = llm.ToolUseNone
+		tools = []*llm.ToolDefinition{
+			service.getAttachDocumentTool(documentParameters{
+				userId: userId,
+			}),
+		}
+	} else {
+		//
+		// Retrieval mode
+		//
+		tools = []*llm.ToolDefinition{
+			service.getSourceTools(retrievalParameters{
+				prompt:        prompt.Prompt,
+				userId:        userId,
+				collectionId:  prompt.CollectionId,
+				fragmentCount: retrievalOptions.Documents,
+				threshold:     retrievalOptions.Threshold,
+			}),
+		}
+
+		if len(messages) == 1 {
+			// First message --> force tool call
+			toolChoice.Type = llm.ToolUseTool
+			toolChoice.Name = toolGetSources
+		} else {
+			// Subsequent messages --> auto tool choice
+			toolChoice.Type = llm.ToolUseAuto
+		}
 	}
 
-	var systemPrompt string
-	if len(prompt.Attachments) > 0 {
-		// Attachment mode
-		systemPrompt = systemPromptNormal
-		toolChoice.Type = llm.ToolUseNone
-	} else {
-		// Retrieval mode
-		systemPrompt = systemPromptLatex
-	}
+	log.Printf("tool call: %s", utils.Prettify(toolChoice))
 
 	request := &llm.CompletionRequest{
-		SystemPrompt: systemPrompt,
+		SystemPrompt: systemPromptLatex,
 		Messages:     messages,
 		Model:        modelOps.ModelId,
 		MaxTokens:    int(modelOps.MaxTokens),

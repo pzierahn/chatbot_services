@@ -26,7 +26,7 @@ type documentParameters struct {
 }
 
 type Sources struct {
-	Items []*search.Result `json:"sources"`
+	Items []*search.Result `json:"sources,omitempty" bson:"sources,omitempty"`
 }
 
 const (
@@ -94,9 +94,6 @@ func (service *Service) getSourceTools(params retrievalParameters) *llm.ToolDefi
 				return "", err
 			}
 
-			//byt2, _ := json.MarshalIndent(sources, "", "  ")
-			//log.Printf("get_sources: %s", byt2)
-
 			return string(byt), nil
 		},
 	}
@@ -119,7 +116,7 @@ func (service *Service) getDocumentById(ctx context.Context, userId, docId strin
 		sources[idx] = &search.Result{
 			Id:         fragment.Id.String(),
 			Text:       fragment.Text,
-			DocumentId: "",
+			DocumentId: docId,
 			Position:   fragment.Position,
 		}
 	}
@@ -158,8 +155,7 @@ func (service *Service) getAttachDocumentTool(params documentParameters) *llm.To
 
 			log.Printf("attach_document: \"%v\"", documentId)
 
-			document, err := service.getDocumentById(ctx, params.userId, documentId)
-			return document, err
+			return service.getDocumentById(ctx, params.userId, documentId)
 		},
 	}
 }
