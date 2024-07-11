@@ -102,12 +102,12 @@ func (service *Service) DeleteMessageFromThread(ctx context.Context, req *pb.Mes
 	}
 
 	// Check if the message index is valid
-	if req.Index >= uint32(len(thread.Messages)) {
+	if req.Index+1 >= uint32(len(thread.Messages)) {
 		return nil, errors.New("invalid message index")
 	}
 
-	// Delete the message at position req.Index
-	thread.Messages = append(thread.Messages[:req.Index], thread.Messages[req.Index+1:]...)
+	// Delete two messages from the thread at the given index
+	thread.Messages = append(thread.Messages[:req.Index], thread.Messages[req.Index+2:]...)
 
 	// Store the thread back to the database
 	err = service.Database.StoreThread(ctx, thread)
