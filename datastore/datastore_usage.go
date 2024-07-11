@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+// ModelUsage represents the usage of a llm model.
 type ModelUsage struct {
 	Id           uuid.UUID `bson:"_id,omitempty"`
 	UserId       string    `bson:"user_id,omitempty"`
@@ -15,6 +16,7 @@ type ModelUsage struct {
 	OutputTokens uint32    `bson:"output_tokens,omitempty"`
 }
 
+// InsertModelUsage inserts the given llm model usage into the database.
 func (service *Service) InsertModelUsage(ctx context.Context, usage *ModelUsage) error {
 	coll := service.mongo.Database(DatabaseName).Collection(CollectionModelUsages)
 
@@ -26,6 +28,7 @@ func (service *Service) InsertModelUsage(ctx context.Context, usage *ModelUsage)
 	return nil
 }
 
+// GetModelUsages returns all the llm model usages for the given user.
 func (service *Service) GetModelUsages(ctx context.Context, userId string) ([]ModelUsage, error) {
 	coll := service.mongo.Database(DatabaseName).Collection(CollectionModelUsages)
 
