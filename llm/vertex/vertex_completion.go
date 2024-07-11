@@ -28,7 +28,7 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 	model := client.client.GenerativeModel(modelName)
 	model.TopP = &req.TopP
 
-	if modelName == GeminiPro15 {
+	if strings.HasPrefix(modelName, "gemini-1.5-pro-preview") {
 		// Tool choice is only available for the GeminiPro15 model
 		model.ToolConfig = getToolConfig(req.ToolChoice)
 	}
@@ -70,7 +70,19 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 		usage.OutputTokens = uint32(gen.UsageMetadata.CandidatesTokenCount)
 	}
 
-	if fun, ok := gen.Candidates[0].Content.Parts[0].(genai.FunctionCall); ok {
+	for idx := 0; idx < 6; idx++ {
+		fun, ok := gen.Candidates[0].Content.Parts[0].(genai.FunctionCall)
+		if !ok {
+			break
+		}
+
+		// Prevent infinitive loop
+		model.ToolConfig = &genai.ToolConfig{
+			FunctionCallingConfig: &genai.FunctionCallingConfig{
+				Mode: genai.FunctionCallingAuto,
+			},
+		}
+
 		// Add the function call to the history
 		history = append(history, &genai.Content{
 			Role:  RoleModel,
