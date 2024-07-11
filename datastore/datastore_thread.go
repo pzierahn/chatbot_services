@@ -108,3 +108,16 @@ func (service *Service) GetThreadIDs(ctx context.Context, userId string, collect
 
 	return result, nil
 }
+
+// DeleteThread deletes a thread by ID
+func (service *Service) DeleteThread(ctx context.Context, userId string, threadId uuid.UUID) error {
+	coll := service.mongo.Database(DatabaseName).Collection(CollectionThreads)
+
+	filter := bson.M{
+		"_id":     threadId,
+		"user_id": userId,
+	}
+
+	_, err := coll.DeleteOne(ctx, filter)
+	return err
+}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/google/uuid"
 	pb "github.com/pzierahn/chatbot_services/services/proto"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 // ListThreadIDs returns a list of thread IDs for a given collection.
@@ -59,4 +60,24 @@ func (service *Service) GetThread(ctx context.Context, req *pb.ThreadID) (*pb.Th
 	}
 
 	return results, nil
+}
+
+// DeleteThread deletes a thread by ID.
+func (service *Service) DeleteThread(ctx context.Context, req *pb.ThreadID) (*emptypb.Empty, error) {
+	userId, err := service.Auth.Verify(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	threadId, err := uuid.Parse(req.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	err = service.Database.DeleteThread(ctx, userId, threadId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &emptypb.Empty{}, nil
 }
