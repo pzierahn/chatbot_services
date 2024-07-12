@@ -112,16 +112,8 @@ func initAuth(ctx context.Context, app *firebase.App) auth.Service {
 	return service
 }
 
-func setTestEnv() {
-	_ = os.Setenv("CHATBOT_QDRANT_KEY", "")
-	_ = os.Setenv("CHATBOT_QDRANT_URL", "localhost:6334")
-	_ = os.Setenv("CHATBOT_QDRANT_INSECURE", "true")
-}
-
 func main() {
 	ctx := context.Background()
-
-	setTestEnv()
 
 	app := initFirebase(ctx)
 
