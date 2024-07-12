@@ -6,14 +6,12 @@ import (
 	"github.com/sashabaranov/go-openai"
 )
 
-const embeddingModel = openai.LargeEmbedding3
-
-func (client *Client) CreateEmbeddings(ctx context.Context, req *llm.EmbeddingRequest) (*llm.EmbeddingResponse, error) {
+func (client *Client) CreateEmbedding(ctx context.Context, req *llm.EmbeddingRequest) (*llm.EmbeddingResponse, error) {
 	resp, err := client.client.CreateEmbeddings(
 		ctx,
 		openai.EmbeddingRequestStrings{
-			Model: embeddingModel,
-			Input: []string{req.Input},
+			Model: client.embeddingModel,
+			Input: req.Inputs,
 			User:  req.UserId,
 		},
 	)
@@ -21,21 +19,30 @@ func (client *Client) CreateEmbeddings(ctx context.Context, req *llm.EmbeddingRe
 		return nil, err
 	}
 
-	if !req.SkipTracking {
-		client.usage.Track(ctx, llm.ModelUsage{
-			UserId:       req.UserId,
-			Model:        string(resp.Model),
-			InputTokens:  resp.Usage.PromptTokens,
-			OutputTokens: resp.Usage.CompletionTokens,
-		})
+	results := &llm.EmbeddingResponse{
+		Embeddings: make([][]float32, len(resp.Data)),
+		Model:      client.GetModelId(),
+		Tokens:     uint32(resp.Usage.PromptTokens),
 	}
 
-	return &llm.EmbeddingResponse{
-		Data:   resp.Data[0].Embedding,
-		Tokens: resp.Usage.PromptTokens,
-	}, nil
+	for idx, item := range resp.Data {
+		results.Embeddings[idx] = item.Embedding
+	}
+
+	return results, nil
 }
 
-func (client *Client) GetEmbeddingModelName() string {
-	return string(embeddingModel)
+func (client *Client) GetEmbeddingDimension() int {
+	switch client.embeddingModel {
+	case LargeEmbedding3:
+		return DimensionModelLarge
+	case SmallEmbedding3:
+		return DimensionModelSmall
+	default:
+		return 0
+	}
+}
+
+func (client *Client) GetModelId() string {
+	return string(client.embeddingModel)
 }

@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+option go_package = "./proto";
+
+package chatbot.account.v1;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+service Account {
+  rpc GetUsage(google.protobuf.Empty) returns (Usage);
+  rpc GetPayments(google.protobuf.Empty) returns (Payments);
+  rpc GetOverview(google.protobuf.Empty) returns (Overview);
+}
+
+message Overview {
+  repeated Payment payments = 1;
+  repeated ModelUsage usage = 2;
+
+  int32 balance = 3;
+}
+
+message ModelUsage {
+  string model = 1;
+  uint32 input = 2;
+  uint32 output = 3;
+  uint32 costs = 4;
+  uint32 requests = 5;
+}
+
+message Usage {
+  repeated ModelUsage models = 1;
+}
+
+message Payment {
+  string id = 1;
+  google.protobuf.Timestamp date = 2;
+  uint32 amount = 3;
+}
+
+message Payments {
+  repeated Payment items = 1;
+}

@@ -1,0 +1,109 @@
+syntax = "proto3";
+
+option go_package = "./proto";
+
+package chatbot.chat.v1;
+
+import "google/protobuf/empty.proto";
+
+service Chat {
+  rpc PostMessage(Prompt) returns (Message);
+  rpc GetThread(ThreadID) returns (Thread);
+  rpc ListThreadIDs(CollectionId) returns (ThreadIDs);
+  rpc DeleteThread(ThreadID) returns (google.protobuf.Empty);
+  rpc DeleteMessageFromThread(MessageIndex) returns (google.protobuf.Empty);
+  rpc Completion(CompletionRequest) returns (CompletionResponse);
+}
+
+message CollectionId {
+  string id = 1;
+}
+
+message CompletionRequest {
+  string document_id = 1;
+  string prompt = 2;
+  ModelOptions model_options = 3;
+}
+
+message CompletionResponse {
+  string completion = 1;
+}
+
+message Prompt {
+  // Thread ID to post the message to
+  string thread_id = 1;
+
+  // Collection ID to post the message to
+  string collection_id = 2;
+
+  // Prompt to generate completion
+  string prompt = 3;
+
+  // Model options
+  ModelOptions model_options = 4;
+
+  // Search options
+  RetrievalOptions retrieval_options = 5;
+
+  // Attachments to the prompt
+  repeated string attachments = 6;
+}
+
+message ModelOptions {
+  string model_id = 1;
+  float temperature = 2;
+  uint32 max_tokens = 3;
+  float top_p = 4;
+}
+
+message RetrievalOptions {
+  bool enabled = 1;
+  float threshold = 2;
+  uint32 documents = 3;
+}
+
+message Source {
+  string document_id = 1;
+  string name = 2;
+
+  message Fragment {
+    string id = 1;
+    string content = 2;
+    uint32 position = 3;
+    float score = 4;
+  }
+
+  repeated Fragment fragments = 3;
+}
+
+message Message {
+  // Unique ID of the message
+  string thread_id = 1;
+
+  // Prompt used to generate the message
+  string prompt = 2;
+
+  // Generated completion
+  string completion = 3;
+
+  // Sources used to generate the completion
+  repeated Source sources = 4;
+}
+
+message Thread {
+  string id = 1;
+  repeated Message messages = 2;
+}
+
+message ThreadID {
+  string id = 1;
+}
+
+message MessageIndex {
+  string thread_id = 1;
+  uint32 index = 2;
+}
+
+message ThreadIDs {
+  repeated string ids = 1;
+}

@@ -1,0 +1,54 @@
+[
+  {
+    "Role": "user",
+    "Parts": [
+      "Who is Arnold Pitterson? Who is Hugo Alberts von Tahl?"
+    ]
+  },
+  {
+    "Role": "model",
+    "Parts": [
+      {
+        "Name": "search_sources",
+        "Args": {
+          "prompt": "Arnold Pitterson"
+        }
+      }
+    ]
+  },
+  {
+    "Role": "user",
+    "Parts": [
+      {
+        "Name": "search_sources",
+        "Response": {
+          "Content": "Arnold Pitterson is a fictional character in the book 'The City of Glass' by Paul Auster.",
+          "SourceID": "S1"
+        }
+      }
+    ]
+  },
+  {
+    "Role": "model",
+    "Parts": [
+      {
+        "Name": "search_sources",
+        "Args": {
+          "prompt": "Hugo Alberts von Tahl"
+        }
+      }
+    ]
+  },
+  {
+    "Role": "user",
+    "Parts": [
+      {
+        "Name": "search_sources",
+        "Response": {
+          "Content": "Hugo Alberts von Tahl was a German philosopher",
+          "SourceID": "S2"
+        }
+      }
+    ]
+  }
+]

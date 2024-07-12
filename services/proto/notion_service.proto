@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+option go_package = "./proto";
+
+package chatbot.notion.v2;
+
+import "google/protobuf/empty.proto";
+
+import "chat_service.proto";
+
+service Notion {
+  rpc InsertAPIKey(NotionApiKey) returns (google.protobuf.Empty);
+  rpc UpdateAPIKey(NotionApiKey) returns (google.protobuf.Empty);
+  rpc DeleteAPIKey(google.protobuf.Empty) returns (google.protobuf.Empty);
+  rpc GetAPIKey(google.protobuf.Empty) returns (NotionApiKey);
+  rpc ListDatabases(google.protobuf.Empty) returns (Databases);
+  rpc ExecutePrompt(NotionPrompt) returns (stream ExecutionResult);
+}
+
+message NotionApiKey {
+  string key = 1;
+}
+
+message NotionPrompt {
+  string database_id = 1;
+  string collection_id = 2;
+  string prompt = 3;
+  chat.v1.ModelOptions modelOptions = 4;
+}
+
+message ExecutionResult {
+  string document = 1;
+}
+
+message DatabasesID {
+  string id = 1;
+}
+
+message Databases {
+  message Item {
+    string id = 1;
+    string name = 2;
+  }
+
+  repeated Item items = 1;
+}

@@ -8,19 +8,11 @@ services:
       - "6333:6333"
       - "6334:6334"
 
-  # CockroachDB is a distributed postgres SQL database
-  database:
-    image: cockroachdb/cockroach
-    command:
-      - start-single-node
-      - --insecure
+  # Create a MongoDB instance
+  mongodb:
+    image: mongodb/mongodb-community-server:latest
     ports:
-      - "26257:26257"
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8080/health?ready=1" ]
-      interval: 3s
-      timeout: 3s
-      retries: 5
+      - "27017:27017"
 
   # Backend is the service that handles requests from the frontend
   backend:
@@ -30,6 +22,7 @@ services:
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - CHATBOT_DB=postgresql://root@database:26257/defaultdb?sslmode=disable
+      - CHATBOT_MONGODB_URI=mongodb://mongodb:27017
       - CHATBOT_QDRANT_URL=vectordb:6334
       - CHATBOT_QDRANT_INSECURE=true
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
@@ -37,8 +30,8 @@ services:
     volumes:
       - ./service_account.json:/service_account.json
     depends_on:
-      database:
-        condition: service_healthy
+      mongo:
+        condition: service_started
       vectordb:
         condition: service_started
 

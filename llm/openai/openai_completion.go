@@ -2,12 +2,14 @@ package openai
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"github.com/pzierahn/chatbot_services/llm"
 	"github.com/sashabaranov/go-openai"
 	"strings"
 )
 
-func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateRequest) (*llm.GenerateResponse, error) {
+func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest) (*llm.CompletionResponse, error) {
 	var messages []openai.ChatCompletionMessage
 
 	if req.SystemPrompt != "" {
@@ -17,34 +19,24 @@ func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateR
 		})
 	}
 
-	for _, msg := range req.Messages {
-		var role string
-		switch msg.Type {
-		case llm.MessageTypeUser:
-			role = openai.ChatMessageRoleUser
-		case llm.MessageTypeBot:
-			role = openai.ChatMessageRoleAssistant
-		}
-
-		messages = append(messages, openai.ChatCompletionMessage{
-			Role:    role,
-			Content: msg.Text,
-		})
-	}
-
+	messages = append(messages, messagesToOpenAI(req.Messages)...)
 	model, _ := strings.CutPrefix(req.Model, modelPrefix)
 
-	resp, err := client.client.CreateChatCompletion(
-		ctx,
-		openai.ChatCompletionRequest{
-			Model:       model,
-			Temperature: req.Temperature,
-			MaxTokens:   req.MaxTokens,
-			Messages:    messages,
-			N:           1,
-			User:        req.UserId,
-		},
-	)
+	tools := toolConverter(req.Tools)
+
+	request := openai.ChatCompletionRequest{
+		Model:       model,
+		Temperature: req.Temperature,
+		TopP:        req.TopP,
+		MaxTokens:   req.MaxTokens,
+		Messages:    messages,
+		Tools:       tools.toOpenAI(),
+		N:           1,
+		User:        req.UserId,
+		ToolChoice:  getToolChoice(req.ToolChoice),
+	}
+
+	resp, err := client.client.CreateChatCompletion(ctx, request)
 	if err != nil {
 		return nil, err
 	}
@@ -52,14 +44,71 @@ func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateR
 	usage := llm.ModelUsage{
 		UserId:       req.UserId,
 		Model:        resp.Model,
-		InputTokens:  resp.Usage.PromptTokens,
-		OutputTokens: resp.Usage.CompletionTokens,
+		InputTokens:  uint32(resp.Usage.PromptTokens),
+		OutputTokens: uint32(resp.Usage.CompletionTokens),
 	}
 
-	client.usage.Track(ctx, usage)
+	loops := 0
+	for len(resp.Choices[0].Message.ToolCalls) > 0 && loops < 6 {
+		//
+		// The model wants to call tools
+		//
 
-	return &llm.GenerateResponse{
-		Text:  resp.Choices[0].Message.Content,
-		Usage: usage,
+		// Reset the tool choice to avoid infinite loops
+		request.ToolChoice = "auto"
+		request.Messages = append(request.Messages, resp.Choices[0].Message)
+
+		for _, tool := range resp.Choices[0].Message.ToolCalls {
+			name := tool.Function.Name
+			arguments := tool.Function.Arguments
+
+			function, ok := tools.getFunction(name)
+			if !ok {
+				return nil, fmt.Errorf("unknown tool function: %s", name)
+			}
+
+			var input map[string]interface{}
+			if arguments != "" {
+				err = json.Unmarshal([]byte(arguments), &input)
+				if err != nil {
+					return nil, fmt.Errorf("invalid tool arguments: %s", arguments)
+				}
+			}
+
+			response, err := function(ctx, input)
+			if err != nil {
+				return nil, err
+			}
+
+			message := openai.ChatCompletionMessage{
+				Role:       openai.ChatMessageRoleTool,
+				Content:    response,
+				ToolCallID: tool.ID,
+			}
+
+			request.Messages = append(request.Messages, message)
+		}
+
+		resp, err = client.client.CreateChatCompletion(ctx, request)
+		if err != nil {
+			return nil, err
+		}
+
+		// Add the tool usage to the model usage
+		usage.InputTokens += uint32(resp.Usage.PromptTokens)
+		usage.OutputTokens += uint32(resp.Usage.CompletionTokens)
+
+		loops++
+	}
+
+	thread := openaiToMessages(request.Messages)
+	thread = append(thread, &llm.Message{
+		Role:    llm.RoleAssistant,
+		Content: strings.TrimSpace(resp.Choices[0].Message.Content),
+	})
+
+	return &llm.CompletionResponse{
+		Messages: thread,
+		Usage:    usage,
 	}, nil
 }

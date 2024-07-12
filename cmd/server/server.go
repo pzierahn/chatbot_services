@@ -1,23 +1,23 @@
 package main
 
 import (
+	"cloud.google.com/go/storage"
 	"context"
 	firebase "firebase.google.com/go"
-	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/pzierahn/chatbot_services/account"
 	"github.com/pzierahn/chatbot_services/auth"
-	"github.com/pzierahn/chatbot_services/chat"
-	"github.com/pzierahn/chatbot_services/collections"
-	"github.com/pzierahn/chatbot_services/crashlytics"
-	"github.com/pzierahn/chatbot_services/documents"
+	"github.com/pzierahn/chatbot_services/datastore"
 	"github.com/pzierahn/chatbot_services/llm"
-	"github.com/pzierahn/chatbot_services/llm/bedrock"
+	"github.com/pzierahn/chatbot_services/llm/anthropic"
 	"github.com/pzierahn/chatbot_services/llm/openai"
 	"github.com/pzierahn/chatbot_services/llm/vertex"
-	notion2 "github.com/pzierahn/chatbot_services/notion"
-	pb "github.com/pzierahn/chatbot_services/proto"
-	"github.com/pzierahn/chatbot_services/setup"
-	"github.com/pzierahn/chatbot_services/vectordb/qdrant"
+	"github.com/pzierahn/chatbot_services/search"
+	"github.com/pzierahn/chatbot_services/search/qdrant"
+	"github.com/pzierahn/chatbot_services/services/account"
+	"github.com/pzierahn/chatbot_services/services/chat"
+	"github.com/pzierahn/chatbot_services/services/collections"
+	"github.com/pzierahn/chatbot_services/services/documents"
+	"github.com/pzierahn/chatbot_services/services/notion"
+	pb "github.com/pzierahn/chatbot_services/services/proto"
 	"google.golang.org/api/option"
 	"google.golang.org/grpc"
 	"log"
@@ -31,14 +31,16 @@ func init() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 }
 
-func main() {
+func initDatastore(ctx context.Context) *datastore.Service {
+	db, err := datastore.New(ctx)
+	if err != nil {
+		log.Fatalf("failed to create datastore service: %v", err)
+	}
 
-	ctx := context.Background()
+	return db
+}
 
-	//
-	// Init Firebase
-	//
-
+func initFirebase(ctx context.Context) *firebase.App {
 	var opts []option.ClientOption
 	if _, err := os.Stat(credentialsFile); err == nil {
 		serviceAccount := option.WithCredentialsFile(credentialsFile)
@@ -50,6 +52,10 @@ func main() {
 		log.Fatalf("failed to create firebase app: %v", err)
 	}
 
+	return app
+}
+
+func initBucket(ctx context.Context, app *firebase.App) *storage.BucketHandle {
 	firebaseStorage, err := app.Storage(ctx)
 	if err != nil {
 		log.Fatalf("failed to create firebase storage client: %v", err)
@@ -60,110 +66,105 @@ func main() {
 		log.Fatalf("did not get bucket: %v", err)
 	}
 
-	//
-	// Init DB
-	//
+	return bucket
+}
 
-	addr := os.Getenv("CHATBOT_DB")
-	db, err := pgxpool.New(ctx, addr)
+func initModels(ctx context.Context) []llm.Chat {
+	openaiClient, err := openai.New()
 	if err != nil {
-		log.Fatalf("did not connect: %v", err)
+		log.Fatalf("failed to create openai client: %v", err)
 	}
-	defer db.Close()
 
-	err = setup.CreateTables(ctx, db)
+	vertexClient, err := vertex.New(ctx)
 	if err != nil {
-		log.Fatalf("failed to setup tables: %v", err)
+		log.Fatalf("failed to create vertex client: %v", err)
 	}
 
-	//
-	// Init Auth Service
-	//
-
-	var authService auth.Service
-	if os.Getenv("CHATBOT_TEST") == "true" {
-		authService, err = auth.WithInsecure()
-	} else {
-		authService, err = auth.WithFirebase(ctx, app)
+	claude, err := anthropic.New()
+	if err != nil {
+		log.Fatalf("failed to create anthropic client: %v", err)
 	}
+
+	models := []llm.Chat{
+		openaiClient,
+		vertexClient,
+		claude,
+	}
+
+	return models
+}
+
+func initSearch(engine llm.Embedding) search.Index {
+	searchEngine, err := qdrant.New(engine, "documents_v2")
+	if err != nil {
+		log.Fatalf("failed to create qdrant search: %v", err)
+	}
+
+	return searchEngine
+}
+
+func initAuth(ctx context.Context, app *firebase.App) auth.Service {
+	service, err := auth.WithFirebase(ctx, app)
 	if err != nil {
 		log.Fatalf("failed to create auth service: %v", err)
 	}
 
-	//
-	// Init VectorDB
-	//
+	return service
+}
 
-	vecDB, err := qdrant.New()
-	if err != nil {
-		log.Fatalf("failed to create vector db: %v", err)
+func main() {
+	ctx := context.Background()
+
+	app := initFirebase(ctx)
+
+	database := initDatastore(ctx)
+	models := initModels(ctx)
+
+	engine := models[0].(llm.Embedding)
+	searchEngine := initSearch(engine)
+	bucket := initBucket(ctx, app)
+	authService := initAuth(ctx, app)
+
+	userService := &account.Service{
+		Database: database,
+		Auth:     authService,
 	}
-	defer func() { _ = vecDB.Close() }()
 
-	//
-	// Init gRPC server
-	//
+	chatService := &chat.Service{
+		Models:   models,
+		Auth:     userService,
+		Database: database,
+		Search:   searchEngine,
+	}
+
+	documentsService := &documents.Service{
+		Auth:        userService,
+		Database:    database,
+		Storage:     bucket,
+		SearchIndex: searchEngine,
+	}
+
+	collectionService := &collections.Service{
+		Auth:     userService,
+		Database: database,
+		Storage:  bucket,
+		Search:   searchEngine,
+	}
+
+	notionService := &notion.Client{
+		Chat:      chatService,
+		Documents: documentsService,
+		Database:  database,
+		Auth:      userService,
+		Cache:     make(map[string]string),
+	}
 
 	grpcServer := grpc.NewServer()
-	collectionServer := collections.NewServer(authService, db, bucket, vecDB)
-	pb.RegisterCollectionServiceServer(grpcServer, collectionServer)
-
-	accountService := account.FromConfig(&account.Config{
-		Auth: authService,
-		DB:   db,
-	})
-	pb.RegisterAccountServiceServer(grpcServer, accountService)
-
-	//
-	// Init LLM models
-	//
-
-	openaiService, err := openai.New(accountService)
-	if err != nil {
-		log.Fatalf("failed to create openai service: %v", err)
-	}
-
-	vertexService, err := vertex.New(ctx, accountService)
-	if err != nil {
-		log.Fatalf("failed to create vertex service: %v", err)
-	}
-
-	bedrockService, err := bedrock.New(accountService)
-	if err != nil {
-		log.Printf("failed to create bedrock service: %v", err)
-	}
-
-	docsService := documents.FromConfig(&documents.Config{
-		Auth:       authService,
-		Account:    accountService,
-		DB:         db,
-		Embeddings: openaiService,
-		Storage:    bucket,
-		VectorDB:   vecDB,
-	})
-	pb.RegisterDocumentServiceServer(grpcServer, docsService)
-
-	crashlyticsService := crashlytics.New(authService, db)
-	pb.RegisterCrashlyticsServiceServer(grpcServer, crashlyticsService)
-
-	chatService := chat.FromConfig(&chat.Config{
-		DB:              db,
-		DocumentService: docsService,
-		AccountService:  accountService,
-		AuthService:     authService,
-		Models: []llm.Completion{
-			openaiService,
-			vertexService,
-			bedrockService,
-		},
-	})
-	pb.RegisterChatServiceServer(grpcServer, chatService)
-
-	notion, err := notion2.New(chatService, docsService, db, authService)
-	if err != nil {
-		log.Fatalf("failed to create notion service: %v", err)
-	}
-	pb.RegisterNotionServer(grpcServer, notion)
+	pb.RegisterAccountServer(grpcServer, userService)
+	pb.RegisterChatServer(grpcServer, chatService)
+	pb.RegisterDocumentServer(grpcServer, documentsService)
+	pb.RegisterCollectionsServer(grpcServer, collectionService)
+	pb.RegisterNotionServer(grpcServer, notionService)
 
 	port := os.Getenv("PORT")
 	if port == "" {

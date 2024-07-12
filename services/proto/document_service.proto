@@ -1,0 +1,90 @@
+syntax = "proto3";
+
+option go_package = "./proto";
+
+package chatbot.documents.v1;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+service Document {
+  rpc List(DocumentFilter) returns (DocumentList);
+  rpc Rename(RenameDocument) returns (google.protobuf.Empty);
+  rpc Delete(DocumentID) returns (google.protobuf.Empty);
+  rpc Index(IndexJob) returns (stream IndexProgress);
+  rpc Search(SearchQuery) returns (SearchResults);
+}
+
+message RenameDocument {
+  string id = 1;
+  string name = 2;
+}
+
+message DocumentID {
+  string id = 1;
+}
+
+message DocumentList {
+  // Id to filename
+  map<string, DocumentMetadata> items = 1;
+}
+
+message SearchQuery {
+  string text = 1;
+  string collection_id = 2;
+  float threshold = 3;
+  uint32 limit = 4;
+}
+
+message Chunk {
+  string id = 1;
+  string text = 2;
+  float score = 3;
+  uint32 postion = 4;
+  string documentId = 5;
+}
+
+message SearchResults {
+  repeated Chunk chunks = 1;
+  map<string, string> document_names = 2;
+}
+
+message IndexProgress {
+  string status = 1;
+  float progress = 2;
+}
+
+message DocumentFilter {
+  string query = 1;
+  string collection_id = 2;
+}
+
+message DocumentMetadata {
+  oneof data {
+    File file = 1;
+    Webpage web = 2;
+  }
+}
+
+message File {
+  string path = 1;
+  string filename = 2;
+}
+
+message Webpage {
+  string url = 1;
+  string title = 2;
+}
+
+message DocumentHeader {
+  string id = 1;
+  string collection_id = 2;
+  google.protobuf.Timestamp created_at = 3;
+  DocumentMetadata metadata = 4;
+}
+
+message IndexJob {
+  string id = 1;
+  string collection_id = 2;
+  DocumentMetadata document = 3;
+}

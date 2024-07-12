@@ -3,35 +3,134 @@ package vertex
 import (
 	"cloud.google.com/go/vertexai/genai"
 	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
 	"github.com/pzierahn/chatbot_services/llm"
 	"strings"
 )
 
-func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateRequest) (*llm.GenerateResponse, error) {
+const (
+	RoleUser  = "user"
+	RoleModel = "model"
+)
+
+func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest) (*llm.CompletionResponse, error) {
+	if len(req.Messages) == 0 {
+		return nil, errors.New("no messages")
+	}
+
 	modelName, _ := strings.CutPrefix(req.Model, modelPrefix)
 
 	outputTokens := int32(req.MaxTokens)
+	tools := toolConverter(req.Tools)
 
 	model := client.client.GenerativeModel(modelName)
 	model.TopP = &req.TopP
+
+	if strings.HasPrefix(modelName, "gemini-1.5-pro-preview") {
+		// Tool choice is only available for the GeminiPro15 model
+		model.ToolConfig = getToolConfig(req.ToolChoice)
+	}
+
 	model.Temperature = &req.Temperature
 	model.MaxOutputTokens = &outputTokens
 	model.SystemInstruction = &genai.Content{
 		Parts: []genai.Part{genai.Text(req.SystemPrompt)},
 	}
+	model.Tools = tools.toVertex()
 
-	var parts []genai.Part
-	for _, msg := range req.Messages {
-		parts = append(parts, genai.Text(msg.Text))
-	}
+	chat := model.StartChat()
 
-	gen, err := model.GenerateContent(ctx, parts...)
+	// Transform the messages to a history
+	history, err := transformToHistory(req.Messages)
 	if err != nil {
 		return nil, err
 	}
 
+	// Remove the last message from the history, because the last message needs to be sent to the model
+	chat.History = history[:len(history)-1]
+	gen, err := chat.SendMessage(ctx, history[len(history)-1].Parts...)
+	if err != nil {
+		return nil, err
+	}
+
+	// Check if the model returned a response
 	if len(gen.Candidates) == 0 || len(gen.Candidates[0].Content.Parts) == 0 {
 		return nil, nil
+	}
+
+	usage := llm.ModelUsage{
+		UserId: req.UserId,
+		Model:  modelName,
+	}
+
+	if gen.UsageMetadata != nil {
+		usage.InputTokens = uint32(gen.UsageMetadata.PromptTokenCount)
+		usage.OutputTokens = uint32(gen.UsageMetadata.CandidatesTokenCount)
+	}
+
+	for idx := 0; idx < 6; idx++ {
+		fun, ok := gen.Candidates[0].Content.Parts[0].(genai.FunctionCall)
+		if !ok {
+			break
+		}
+
+		// Prevent infinitive loop
+		model.ToolConfig = &genai.ToolConfig{
+			FunctionCallingConfig: &genai.FunctionCallingConfig{
+				Mode: genai.FunctionCallingAuto,
+			},
+		}
+
+		// Add the function call to the history
+		history = append(history, &genai.Content{
+			Role:  RoleModel,
+			Parts: []genai.Part{fun},
+		})
+
+		call, found := tools.getFunction(fun.Name)
+		if !found {
+			return nil, fmt.Errorf("unknown tool %s", fun.Name)
+		}
+
+		input := make(map[string]interface{})
+		for key, value := range fun.Args {
+			input[key] = value
+		}
+
+		// Call the function to get the result
+		resultStr, err := call(ctx, input)
+		if err != nil {
+			return nil, err
+		}
+
+		// Parse the result
+		var results map[string]interface{}
+		err = json.Unmarshal([]byte(resultStr), &results)
+		if err != nil {
+			return nil, err
+		}
+
+		functionResults := genai.FunctionResponse{
+			Name:     fun.Name,
+			Response: results,
+		}
+		history = append(history, &genai.Content{
+			Role:  RoleUser,
+			Parts: []genai.Part{functionResults},
+		})
+		chat.History = history[:len(history)-1]
+
+		gen, err = chat.SendMessage(ctx, functionResults)
+		if err != nil {
+			return nil, err
+		}
+
+		if gen.UsageMetadata != nil {
+			usage.InputTokens += uint32(gen.UsageMetadata.PromptTokenCount)
+			usage.OutputTokens += uint32(gen.UsageMetadata.CandidatesTokenCount)
+		}
 	}
 
 	txt, ok := gen.Candidates[0].Content.Parts[0].(genai.Text)
@@ -39,20 +138,18 @@ func (client *Client) GenerateCompletion(ctx context.Context, req *llm.GenerateR
 		return nil, nil
 	}
 
-	resp := &llm.GenerateResponse{
-		Text: string(txt),
+	thread, err := transformToMessages(history)
+	if err != nil {
+		return nil, err
 	}
 
-	if gen.UsageMetadata != nil {
-		resp.Usage = llm.ModelUsage{
-			UserId:       req.UserId,
-			Model:        modelName,
-			InputTokens:  int(gen.UsageMetadata.PromptTokenCount),
-			OutputTokens: int(gen.UsageMetadata.CandidatesTokenCount),
-		}
+	thread = append(thread, &llm.Message{
+		Role:    llm.RoleAssistant,
+		Content: strings.TrimSpace(string(txt)),
+	})
 
-		client.usage.Track(ctx, resp.Usage)
-	}
-
-	return resp, nil
+	return &llm.CompletionResponse{
+		Messages: thread,
+		Usage:    usage,
+	}, nil
 }

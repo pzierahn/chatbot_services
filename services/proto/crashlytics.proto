@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option go_package = "./proto";
+
+package crashlytics.v1;
+
+import "google/protobuf/empty.proto";
+
+service Crashlytics {
+  rpc RecordError(Error) returns (google.protobuf.Empty);
+}
+
+message Error {
+  string exception = 1;
+  string stack_trace = 2;
+  string app_version = 3;
+}

@@ -2,24 +2,23 @@ package openai
 
 import (
 	"fmt"
-	"github.com/pzierahn/chatbot_services/llm"
 	"github.com/sashabaranov/go-openai"
 	"os"
 )
 
 type Client struct {
-	client *openai.Client
-	usage  llm.Usage
+	client         *openai.Client
+	embeddingModel openai.EmbeddingModel
 }
 
-func New(usage llm.Usage) (*Client, error) {
+func New() (*Client, error) {
 	token := os.Getenv("OPENAI_API_KEY")
 	if token == "" {
 		return nil, fmt.Errorf("missing OPENAI_API_KEY")
 	}
 
 	return &Client{
-		client: openai.NewClient(token),
-		usage:  usage,
+		client:         openai.NewClient(token),
+		embeddingModel: LargeEmbedding3,
 	}, nil
 }
