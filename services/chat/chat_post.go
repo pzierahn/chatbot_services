@@ -22,12 +22,12 @@ const (
 
 // PostMessage is a gRPC endpoint that receives a prompt and returns a completion.
 func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb.Message, error) {
-	log.Printf("PostMessage: %v", utils.Prettify(prompt))
-
 	userId, err := service.Auth.VerifyFunding(ctx)
 	if err != nil {
 		return nil, err
 	}
+
+	log.Printf("PostMessage: %v", utils.Prettify(prompt))
 
 	//
 	// Integrity check
@@ -94,7 +94,7 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 		Content: prompt.Prompt,
 	})
 
-	// Add the sources tool
+	// Add manual attachments
 	for _, documentId := range prompt.Attachments {
 		callId := uuid.New()
 
