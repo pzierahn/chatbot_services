@@ -8,8 +8,6 @@ import (
 	"github.com/pzierahn/chatbot_services/datastore"
 	"github.com/pzierahn/chatbot_services/llm"
 	pb "github.com/pzierahn/chatbot_services/services/proto"
-	"github.com/pzierahn/chatbot_services/utils"
-	"log"
 	"time"
 )
 
@@ -26,8 +24,6 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 	if err != nil {
 		return nil, err
 	}
-
-	log.Printf("PostMessage: %v", utils.Prettify(prompt))
 
 	//
 	// Integrity check
@@ -161,8 +157,6 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 			toolChoice.Type = llm.ToolUseAuto
 		}
 	}
-
-	log.Printf("tool call: %s", utils.Prettify(toolChoice))
 
 	request := &llm.CompletionRequest{
 		SystemPrompt: systemPromptLatex,
