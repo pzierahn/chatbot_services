@@ -16,7 +16,7 @@ require (
 	github.com/jackc/pgx/v5 v5.6.0
 	github.com/jomei/notionapi v1.13.1
 	github.com/qdrant/go-client v1.10.0
-	github.com/sashabaranov/go-openai v1.26.2
+	github.com/sashabaranov/go-openai v1.26.3
 	go.mongodb.org/mongo-driver v1.16.0
 	google.golang.org/api v0.188.0
 	google.golang.org/grpc v1.65.0
