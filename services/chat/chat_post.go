@@ -12,10 +12,7 @@ import (
 )
 
 const (
-	systemPromptLatex = "" +
-		"You are a scientific research assistant. " +
-		"Answer in Markdown format. " +
-		"Quote sources with \\cite{id}."
+	systemPromptLatex = `You are a helpful assistant. Provide accurate, concise answers in Markdown. Use \cite{id} when referencing sources.`
 )
 
 // PostMessage is a gRPC endpoint that receives a prompt and returns a completion.
