@@ -26,6 +26,10 @@ var ModelCosts = map[string]llm.PricePer1000Tokens{
 		Input:  0.005,
 		Output: 0.015,
 	},
+	"openai.gpt-4o": {
+		Input:  0.005,
+		Output: 0.015,
+	},
 	openai.GPT4o20240513: {
 		Input:  0.005,
 		Output: 0.015,
