@@ -28,6 +28,10 @@ var ModelCosts = map[string]llm.PricePer1000Tokens{
 		Input:  0.003,
 		Output: 0.015,
 	},
+	"anthropic.claude-3-5-sonnet-20240620-v1:0": {
+		Input:  0.003,
+		Output: 0.015,
+	},
 	"claude-3-haiku-48k-20240307": {
 		Input:  0.00025,
 		Output: 0.00125,
