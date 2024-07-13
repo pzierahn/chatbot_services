@@ -72,7 +72,7 @@ func (service *Service) Completion(ctx context.Context, prompt *pb.CompletionReq
 		Id:           uuid.New(),
 		UserId:       userId,
 		Timestamp:    time.Now(),
-		ModelId:      prompt.ModelOptions.ModelId,
+		ModelId:      response.Usage.Model,
 		InputTokens:  response.Usage.InputTokens,
 		OutputTokens: response.Usage.OutputTokens,
 	})
