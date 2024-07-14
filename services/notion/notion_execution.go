@@ -4,6 +4,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/pzierahn/chatbot_services/datastore"
 	pb "github.com/pzierahn/chatbot_services/services/proto"
+	"log"
+	"strings"
 	"sync"
 )
 
@@ -33,6 +35,11 @@ func (client *Client) ExecutePrompt(prompt *pb.NotionPrompt, stream pb.Notion_Ex
 	jobs := make([]func() (string, error), 0)
 
 	for documentName, pageID := range pageIDs {
+		if !strings.HasSuffix(documentName, ".pdf") {
+			// TODO: Fix for other file types
+			documentName = documentName + ".pdf"
+		}
+
 		jobs = append(jobs, func() (string, error) {
 			documentId, err := client.Database.FindDocumentId(ctx, datastore.FindRequest{
 				UserId:       userId,
@@ -87,6 +94,7 @@ func (client *Client) ExecutePrompt(prompt *pb.NotionPrompt, stream pb.Notion_Ex
 
 			documentName, err := job()
 			if err != nil {
+				log.Printf("Error processing document %s: %v", documentName, err)
 				return
 			}
 
