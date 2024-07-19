@@ -22,6 +22,10 @@ var ModelCosts = map[string]llm.PricePer1000Tokens{
 	//
 	// GPT-4 Turbo
 	//
+	"gpt-4o-mini": {
+		Input:  0.00015,
+		Output: 0.00060,
+	},
 	openai.GPT4o: {
 		Input:  0.005,
 		Output: 0.015,
