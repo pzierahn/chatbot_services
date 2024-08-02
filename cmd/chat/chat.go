@@ -65,7 +65,7 @@ func main() {
 		TopP:        1.0,
 		MaxTokens:   256,
 		Model:       model,
-		Tools: []llm.ToolDefinition{{
+		Tools: []*llm.ToolDefinition{{
 			Name:        "get_sources",
 			Description: "Retrieves the sources for the prompt. The prompt should be optimized for embedding retrieval. The tool will return a list of sources in JSON format with the following fields: SourceID, Content.",
 			Parameters: llm.ToolParameters{
