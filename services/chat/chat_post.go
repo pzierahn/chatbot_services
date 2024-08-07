@@ -186,7 +186,7 @@ func (service *Service) PostMessage(ctx context.Context, prompt *pb.Prompt) (*pb
 		Id:           uuid.New(),
 		UserId:       userId,
 		Timestamp:    time.Now(),
-		ModelId:      modelOps.ModelId,
+		ModelId:      response.Usage.Model,
 		InputTokens:  response.Usage.InputTokens,
 		OutputTokens: response.Usage.OutputTokens,
 	})
