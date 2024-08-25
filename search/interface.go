@@ -41,6 +41,6 @@ type Index interface {
 	Search(context.Context, Query) (*Results, error)
 	Upsert(context.Context, []*Fragment) (*Usage, error)
 	DeleteCollection(ctx context.Context, userId, collectionId string) error
-	DeleteDocument(ctx context.Context, userId, documentId string) error
+	DeleteDocument(ctx context.Context, userId, collectionId, documentId string) error
 	Close() error
 }

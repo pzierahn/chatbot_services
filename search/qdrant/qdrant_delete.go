@@ -55,7 +55,7 @@ func (db *Search) DeleteCollection(ctx context.Context, userId, collectionId str
 	return err
 }
 
-func (db *Search) DeleteDocument(ctx context.Context, userId, documentId string) error {
+func (db *Search) DeleteDocument(ctx context.Context, userId, _, documentId string) error {
 
 	ctx = metadata.AppendToOutgoingContext(
 		ctx,

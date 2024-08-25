@@ -32,7 +32,7 @@ func (service *Service) Delete(ctx context.Context, req *pb.DocumentID) (*emptyp
 		}
 	}
 
-	err = service.SearchIndex.DeleteDocument(ctx, userId, req.Id)
+	err = service.SearchIndex.DeleteDocument(ctx, userId, req.CollectionId, req.Id)
 	if err != nil {
 		return nil, err
 	}
