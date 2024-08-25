@@ -35,27 +35,27 @@ func (db *Search) Upsert(ctx context.Context, fragments []*search.Fragment) (*se
 				},
 			},
 			Payload: map[string]*qdrant.Value{
-				PayloadDocumentId: {
+				search.PayloadDocumentId: {
 					Kind: &qdrant.Value_StringValue{
 						StringValue: item.DocumentId,
 					},
 				},
-				PayloadCollectionId: {
+				search.PayloadCollectionId: {
 					Kind: &qdrant.Value_StringValue{
 						StringValue: item.CollectionId,
 					},
 				},
-				PayloadUserId: {
+				search.PayloadUserId: {
 					Kind: &qdrant.Value_StringValue{
 						StringValue: item.UserId,
 					},
 				},
-				PayloadText: {
+				search.PayloadText: {
 					Kind: &qdrant.Value_StringValue{
 						StringValue: item.Text,
 					},
 				},
-				PayloadPosition: {
+				search.PayloadPosition: {
 					Kind: &qdrant.Value_IntegerValue{
 						IntegerValue: int64(item.Position),
 					},

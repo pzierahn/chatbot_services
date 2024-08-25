@@ -2,6 +2,7 @@ package qdrant
 
 import (
 	"context"
+	"github.com/pzierahn/chatbot_services/search"
 	qdrant "github.com/qdrant/go-client/qdrant"
 	"google.golang.org/grpc/metadata"
 )
@@ -23,7 +24,7 @@ func (db *Search) DeleteCollection(ctx context.Context, userId, collectionId str
 						{
 							ConditionOneOf: &qdrant.Condition_Field{
 								Field: &qdrant.FieldCondition{
-									Key: PayloadCollectionId,
+									Key: search.PayloadCollectionId,
 									Match: &qdrant.Match{
 										MatchValue: &qdrant.Match_Text{
 											Text: collectionId,
@@ -35,7 +36,7 @@ func (db *Search) DeleteCollection(ctx context.Context, userId, collectionId str
 						{
 							ConditionOneOf: &qdrant.Condition_Field{
 								Field: &qdrant.FieldCondition{
-									Key: PayloadUserId,
+									Key: search.PayloadUserId,
 									Match: &qdrant.Match{
 										MatchValue: &qdrant.Match_Text{
 											Text: userId,
@@ -71,7 +72,7 @@ func (db *Search) DeleteDocument(ctx context.Context, userId, documentId string)
 						{
 							ConditionOneOf: &qdrant.Condition_Field{
 								Field: &qdrant.FieldCondition{
-									Key: PayloadDocumentId,
+									Key: search.PayloadDocumentId,
 									Match: &qdrant.Match{
 										MatchValue: &qdrant.Match_Text{
 											Text: documentId,
@@ -83,7 +84,7 @@ func (db *Search) DeleteDocument(ctx context.Context, userId, documentId string)
 						{
 							ConditionOneOf: &qdrant.Condition_Field{
 								Field: &qdrant.FieldCondition{
-									Key: PayloadUserId,
+									Key: search.PayloadUserId,
 									Match: &qdrant.Match{
 										MatchValue: &qdrant.Match_Text{
 											Text: userId,

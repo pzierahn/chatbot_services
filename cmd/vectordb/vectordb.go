@@ -2,57 +2,43 @@ package main
 
 import (
 	"context"
-	"encoding/json"
+	"github.com/google/uuid"
+	"github.com/pzierahn/chatbot_services/llm/openai"
 	"github.com/pzierahn/chatbot_services/search"
-	"github.com/pzierahn/chatbot_services/search/qdrant"
+	pineconesearch "github.com/pzierahn/chatbot_services/search/pinecone"
 	"log"
-	"os"
-)
-
-const (
-	collectionId = "5feaef59-2dff-430c-9f44-3b5d24f25b54"
 )
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	err := os.Setenv("CHATBOT_QDRANT_INSECURE", "true")
+	openaiClient, err := openai.New()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("failed to create openai client: %v", err)
 	}
-	err = os.Setenv("CHATBOT_QDRANT_URL", "localhost:6334")
+
+	pc, err := pineconesearch.New(openaiClient, "chatbot")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	db, err := qdrant.New()
-	if err != nil {
-		log.Fatal(err)
-	}
+	log.Println("Successfully created a new Pinecone search object!")
 
 	ctx := context.Background()
 
-	//err = db.Upsert(ctx, []*vectordb.Fragment{{
-	//	Id:           uuid.NewString(),
-	//	DocumentId:   uuid.NewString(),
-	//	UserId:       uuid.NewString(),
-	//	CollectionId: collectionId,
-	//	Text:         "Ich habe die Haare schön.",
-	//}})
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-
-	results, err := db.Search(ctx, search.Query{
-		CollectionId: collectionId,
-		Query:        "Haare",
-		Limit:        10,
-		Threshold:    0.25,
-	})
-	if err != nil {
-		log.Fatal(err)
+	fragment := &search.Fragment{
+		Id:           uuid.NewString(),
+		Text:         "Ich bin ein Test",
+		UserId:       uuid.NewString(),
+		DocumentId:   uuid.NewString(),
+		CollectionId: uuid.NewString(),
+		Position:     0,
 	}
 
-	byt, _ := json.MarshalIndent(results, "", "  ")
-	log.Println(string(byt))
+	usage, err := pc.Upsert(ctx, []*search.Fragment{fragment})
+	if err != nil {
+		log.Fatalf("failed to upsert fragment: %v", err)
+	}
+
+	log.Printf("Successfully upserted fragment with usage: %v", usage)
 }

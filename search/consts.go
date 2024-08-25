@@ -1,4 +1,4 @@
-package qdrant
+package search
 
 const (
 	PayloadDocumentId   = "documentId"

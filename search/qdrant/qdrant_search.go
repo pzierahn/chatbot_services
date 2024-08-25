@@ -36,7 +36,7 @@ func (db *Search) Search(ctx context.Context, query search.Query) (*search.Resul
 				{
 					ConditionOneOf: &qdrant.Condition_Field{
 						Field: &qdrant.FieldCondition{
-							Key: PayloadCollectionId,
+							Key: search.PayloadCollectionId,
 							Match: &qdrant.Match{
 								MatchValue: &qdrant.Match_Text{
 									Text: query.CollectionId,
@@ -48,7 +48,7 @@ func (db *Search) Search(ctx context.Context, query search.Query) (*search.Resul
 				{
 					ConditionOneOf: &qdrant.Condition_Field{
 						Field: &qdrant.FieldCondition{
-							Key: PayloadUserId,
+							Key: search.PayloadUserId,
 							Match: &qdrant.Match{
 								MatchValue: &qdrant.Match_Text{
 									Text: query.UserId,
@@ -75,9 +75,9 @@ func (db *Search) Search(ctx context.Context, query search.Query) (*search.Resul
 	for idx, item := range queryResult.Result {
 		results.Results[idx] = &search.Result{
 			Id:         item.Id.GetUuid(),
-			DocumentId: item.Payload[PayloadDocumentId].GetStringValue(),
-			Text:       item.Payload[PayloadText].GetStringValue(),
-			Position:   uint32(item.Payload[PayloadPosition].GetIntegerValue()),
+			DocumentId: item.Payload[search.PayloadDocumentId].GetStringValue(),
+			Text:       item.Payload[search.PayloadText].GetStringValue(),
+			Position:   uint32(item.Payload[search.PayloadPosition].GetIntegerValue()),
 			Score:      item.Score,
 		}
 	}
