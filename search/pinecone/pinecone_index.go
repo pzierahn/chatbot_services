@@ -6,7 +6,6 @@ import (
 	"github.com/pinecone-io/go-pinecone/pinecone"
 	"github.com/pzierahn/chatbot_services/search"
 	"google.golang.org/protobuf/types/known/structpb"
-	"log"
 )
 
 func (db *Search) getIndexConnection(ctx context.Context) (*pinecone.IndexConnection, error) {
@@ -62,11 +61,9 @@ func (db *Search) Upsert(ctx context.Context, fragments []*search.Fragment) (*se
 	}
 	defer func() { _ = idxConnection.Close() }()
 
-	count, err := idxConnection.UpsertVectors(ctx, vectors)
+	_, err = idxConnection.UpsertVectors(ctx, vectors)
 	if err != nil {
 		return nil, err
-	} else {
-		log.Printf("Successfully upserted %d vector(s)!\n", count)
 	}
 
 	return &embedded.Usage, nil

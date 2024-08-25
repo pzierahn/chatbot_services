@@ -16,6 +16,10 @@ type Search struct {
 	dimension     int
 }
 
+func (db *Search) Close() error {
+	return nil
+}
+
 func New(engine llm.Embedding, namespace string) (*Search, error) {
 	clientParams := pinecone.NewClientParams{
 		ApiKey: os.Getenv("PINECONE_API_KEY"),
