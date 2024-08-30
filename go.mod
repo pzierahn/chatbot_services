@@ -7,7 +7,7 @@ toolchain go1.22.1
 require (
 	cloud.google.com/go/aiplatform v1.68.0
 	cloud.google.com/go/storage v1.43.0
-	cloud.google.com/go/vertexai v0.12.0
+	cloud.google.com/go/vertexai v0.13.0
 	firebase.google.com/go v3.13.0+incompatible
 	github.com/aws/aws-sdk-go-v2 v1.30.4
 	github.com/aws/aws-sdk-go-v2/config v1.27.28
@@ -18,7 +18,7 @@ require (
 	github.com/qdrant/go-client v1.11.0
 	github.com/sashabaranov/go-openai v1.28.2
 	go.mongodb.org/mongo-driver v1.16.1
-	google.golang.org/api v0.192.0
+	google.golang.org/api v0.193.0
 	google.golang.org/grpc v1.65.0
 	google.golang.org/protobuf v1.34.2
 	jaytaylor.com/html2text v0.0.0-20230321000545-74c2419ad056
@@ -26,7 +26,7 @@ require (
 
 require (
 	cloud.google.com/go v0.115.1 // indirect
-	cloud.google.com/go/auth v0.8.1 // indirect
+	cloud.google.com/go/auth v0.9.0 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.4 // indirect
 	cloud.google.com/go/compute/metadata v0.5.0 // indirect
 	cloud.google.com/go/firestore v1.16.0 // indirect
