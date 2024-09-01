@@ -41,6 +41,11 @@ func main() {
 		ctx := context.Background()
 		cmd := exec.CommandContext(ctx, "git", "pull")
 		cmd.Dir = texDirectory
+
+		err = cmd.Run()
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	// Read all the tex files in the part directory
