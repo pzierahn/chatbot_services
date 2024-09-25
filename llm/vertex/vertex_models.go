@@ -8,13 +8,17 @@ import (
 const modelPrefix = "google."
 
 const (
-	GeminiPro15        = "gemini-1.5-pro-001"
-	GeminiFlash        = "gemini-1.5-flash-001"
+	GeminiPro15        = "gemini-1.5-pro-002"
+	GeminiFlash        = "gemini-1.5-flash-002"
 	GeminiExperimental = "gemini-experimental"
 )
 
 var ModelCosts = map[string]llm.PricePer1000Tokens{
-	GeminiPro15: {
+	"gemini-1.5-pro-002": {
+		Input:  0.007,
+		Output: 0.021,
+	},
+	"gemini-1.5-pro-001": {
 		Input:  0.007,
 		Output: 0.021,
 	},
