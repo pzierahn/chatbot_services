@@ -2,13 +2,12 @@ package anthropic
 
 import (
 	"github.com/pzierahn/chatbot_services/llm"
+	"strings"
 )
 
 const (
-	ClaudeSonnet35 = "anthropic.claude-3-5-sonnet-20240620-v1:0"
-	ClaudeSonnet   = "anthropic.claude-3-sonnet-20240229-v1:0"
+	ClaudeSonnet35 = "anthropic.claude-3-5-sonnet-20241022-v2:0"
 	ClaudeHaiku    = "anthropic.claude-3-haiku-20240307-v1:0"
-	ClaudeOpus     = "anthropic.claude-3-opus-20240229-v1:0"
 )
 
 var ModelCosts = map[string]llm.PricePer1000Tokens{
@@ -44,13 +43,7 @@ var ModelCosts = map[string]llm.PricePer1000Tokens{
 
 func (client *Client) ProvidesModel(name string) bool {
 	switch {
-	case name == ClaudeSonnet35:
-		return true
-	case name == ClaudeSonnet:
-		return true
-	case name == ClaudeHaiku:
-		return true
-	case name == ClaudeOpus:
+	case strings.HasPrefix(name, "anthropic."):
 		return true
 	default:
 		return false

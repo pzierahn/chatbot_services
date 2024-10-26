@@ -10,7 +10,7 @@ type Client struct {
 	bedrock *bedrockruntime.Client
 }
 
-const region = "us-east-1"
+const region = "us-west-2"
 
 func New() (*Client, error) {
 	sdkConfig, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(region))
