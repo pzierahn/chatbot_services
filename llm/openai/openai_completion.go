@@ -25,15 +25,15 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 	tools := toolConverter(req.Tools)
 
 	request := openai.ChatCompletionRequest{
-		Model:       model,
-		Temperature: req.Temperature,
-		TopP:        req.TopP,
-		MaxTokens:   req.MaxTokens,
-		Messages:    messages,
-		Tools:       tools.toOpenAI(),
-		N:           1,
-		User:        req.UserId,
-		ToolChoice:  getToolChoice(req.ToolChoice),
+		Model:               model,
+		Temperature:         req.Temperature,
+		TopP:                req.TopP,
+		MaxCompletionTokens: req.MaxTokens,
+		Messages:            messages,
+		Tools:               tools.toOpenAI(),
+		N:                   1,
+		User:                req.UserId,
+		ToolChoice:          getToolChoice(req.ToolChoice),
 	}
 
 	resp, err := client.client.CreateChatCompletion(ctx, request)
