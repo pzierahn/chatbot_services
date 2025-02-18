@@ -20,6 +20,14 @@ const (
 
 var ModelCosts = map[string]llm.PricePer1000Tokens{
 	//
+	// o3-mini
+	//
+	"o3-mini": {
+		Input:  0.0011,
+		Output: 0.0044,
+	},
+
+	//
 	// GPT-4 Turbo
 	//
 	"gpt-4o-mini": {
