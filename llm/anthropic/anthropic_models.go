@@ -6,6 +6,7 @@ import (
 )
 
 const (
+	ClaudeSonnet37 = "anthropic.claude-3-7-sonnet-20250219-v1:0"
 	ClaudeSonnet35 = "anthropic.claude-3-5-sonnet-20241022-v2:0"
 	ClaudeHaiku    = "anthropic.claude-3-haiku-20240307-v1:0"
 )
@@ -28,6 +29,14 @@ var ModelCosts = map[string]llm.PricePer1000Tokens{
 		Output: 0.015,
 	},
 	"anthropic.claude-3-5-sonnet-20240620-v1:0": {
+		Input:  0.003,
+		Output: 0.015,
+	},
+	"anthropic.claude-3-5-sonnet-20241022-v2:0": {
+		Input:  0.003,
+		Output: 0.015,
+	},
+	"anthropic.claude-3-7-sonnet-20250219-v1:0": {
 		Input:  0.003,
 		Output: 0.015,
 	},

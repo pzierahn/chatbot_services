@@ -49,7 +49,7 @@ func main() {
 	//client, err := openai.New()
 	//model := vertex.GeminiPro15
 	//client, err := vertex.New(ctx)
-	model := anthropic.ClaudeSonnet35
+	model := anthropic.ClaudeSonnet37
 	client, err := anthropic.New()
 	if err != nil {
 		log.Fatal(err)
