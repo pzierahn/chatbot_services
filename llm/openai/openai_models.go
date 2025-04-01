@@ -19,6 +19,10 @@ const (
 )
 
 var ModelCosts = map[string]llm.PricePer1000Tokens{
+	openai.GPT4Dot5Preview: {
+		Input:  0.075,
+		Output: 0.15,
+	},
 	//
 	// o3-mini
 	//
@@ -26,7 +30,6 @@ var ModelCosts = map[string]llm.PricePer1000Tokens{
 		Input:  0.0011,
 		Output: 0.0044,
 	},
-
 	//
 	// GPT-4 Turbo
 	//
