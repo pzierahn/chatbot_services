@@ -38,7 +38,9 @@ func (client *Client) Completion(ctx context.Context, req *llm.CompletionRequest
 	model.SystemInstruction = &genai.Content{
 		Parts: []genai.Part{genai.Text(req.SystemPrompt)},
 	}
-	model.Tools = tools.toVertex()
+	if len(tools) > 0 {
+		model.Tools = tools.toVertex()
+	}
 
 	chat := model.StartChat()
 
