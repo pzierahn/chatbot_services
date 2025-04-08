@@ -7,12 +7,6 @@ import (
 
 const modelPrefix = "google."
 
-const (
-	GeminiPro15        = "gemini-1.5-pro-002"
-	GeminiFlash        = "gemini-1.5-flash-002"
-	GeminiExperimental = "gemini-experimental"
-)
-
 var ModelCosts = map[string]llm.PricePer1000Tokens{
 	"gemini-2.0-flash": {
 		Input:  0.00015,
@@ -59,8 +53,6 @@ var ModelCosts = map[string]llm.PricePer1000Tokens{
 func (client *Client) ProvidesModel(name string) bool {
 	switch {
 	case strings.HasPrefix(name, modelPrefix):
-		return true
-	case name == GeminiPro15:
 		return true
 	default:
 		return false
