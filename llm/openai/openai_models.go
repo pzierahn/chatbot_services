@@ -19,6 +19,18 @@ const (
 )
 
 var ModelCosts = map[string]llm.PricePer1000Tokens{
+	"gpt-4.1": {
+		Input:  0.002,
+		Output: 0.008,
+	},
+	"gpt-4.1-mini": {
+		Input:  0.0004,
+		Output: 0.0016,
+	},
+	"gpt-4.1-nano": {
+		Input:  0.0001,
+		Output: 0.0004,
+	},
 	openai.GPT4Dot5Preview: {
 		Input:  0.075,
 		Output: 0.15,
