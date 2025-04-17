@@ -19,6 +19,14 @@ const (
 )
 
 var ModelCosts = map[string]llm.PricePer1000Tokens{
+	"o3": {
+		Input:  0.010000,
+		Output: 0.04,
+	},
+	"o4-mini": {
+		Input:  0.0011,
+		Output: 0.0044,
+	},
 	"gpt-4.1": {
 		Input:  0.002,
 		Output: 0.008,
