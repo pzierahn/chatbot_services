@@ -16,7 +16,7 @@ require (
 	github.com/jomei/notionapi v1.13.3
 	github.com/pinecone-io/go-pinecone v1.1.1
 	github.com/qdrant/go-client v1.13.0
-	github.com/sashabaranov/go-openai v1.38.1
+	github.com/sashabaranov/go-openai v1.38.2
 	go.mongodb.org/mongo-driver v1.17.3
 	google.golang.org/api v0.229.0
 	google.golang.org/grpc v1.71.1
