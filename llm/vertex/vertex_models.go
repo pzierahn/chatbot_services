@@ -8,9 +8,17 @@ import (
 const modelPrefix = "google."
 
 var ModelCosts = map[string]llm.PricePer1000Tokens{
+	"gemini-2.5-pro-preview-03-25": {
+		Input:  0.001250,
+		Output: 0.01,
+	},
+	"gemini-2.5-flash-preview-04-17": {
+		Input:  0.000150,
+		Output: 0.0006,
+	},
 	"gemini-2.0-flash": {
 		Input:  0.00015,
-		Output: 0.00060,
+		Output: 0.0004,
 	},
 	"gemini-2.0-flash-lite": {
 		Input:  0.000075,
